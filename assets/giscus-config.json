@@ -1,0 +1,14 @@
+{
+  "repo": "megake98/megake98.github.io",
+  "repo_id": "",
+  "category": "Announcements",
+  "category_id": "",
+  "mapping": "pathname",
+  "strict": "0",
+  "theme": "light",
+  "reactions_enabled": "1",
+  "emit_metadata": "0",
+  "loading": "lazy",
+  "lang": "zh-CN",
+  "input_position": "bottom"
+}

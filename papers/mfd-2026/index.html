@@ -1,0 +1,636 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <script>(function(){try{var t=localStorage.getItem('theme');if(!t)t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
+  <title>MFD: 不比「瞬时速度」比「平均速度」——把时间积分当低通滤波器, 给 flow matching 蒸馏降方差</title>
+  <link rel="stylesheet" href="../../assets/style.css">
+  <script>
+    window.MathJax = { tex: { inlineMath: [['$','$'],['\\(','\\)']] } };
+  </script>
+  <script async src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-mml-chtml.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/highlight.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/highlightjs-line-numbers.js@2.9.0/dist/highlightjs-line-numbers.min.js"></script>
+  <script>document.addEventListener('DOMContentLoaded', () => { hljs.highlightAll(); hljs.initLineNumbersOnLoad(); });</script>
+  <script defer src="../../assets/lightbox.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const links = document.querySelectorAll('.toc a');
+      if (!links.length) return;
+      const map = new Map();
+      links.forEach(a => {
+        const el = document.getElementById(a.getAttribute('href').slice(1));
+        if (el) map.set(el, a);
+      });
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(e => {
+          const a = map.get(e.target);
+          if (!a) return;
+          if (e.isIntersecting) {
+            links.forEach(l => l.classList.remove('active'));
+            a.classList.add('active');
+            const toc = document.querySelector('.toc');
+            if (toc) toc.scrollTo({ top: a.offsetTop - toc.clientHeight / 2, behavior: 'smooth' });
+          }
+        });
+      }, { rootMargin: '-20% 0px -70% 0px' });
+      map.forEach((_, el) => observer.observe(el));
+    });
+  </script>
+</head>
+<body>
+<!-- NAV-START -->
+<nav class="site-nav" aria-label="主导航">
+  <a class="site-nav__brand" href="../../index.html" aria-label="返回主页">
+    <svg class="site-nav__home-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M3 12l9-9 9 9"/>
+      <path d="M5 10v10h14V10"/>
+    </svg>
+    <span class="site-nav__brand-text">Paper Reading</span>
+  </a>
+  <div class="site-nav__links">
+    <a class="site-nav__link active" href="../../papers.html">论文</a>
+    <a class="site-nav__link" href="../../tutorials.html">教程</a>
+    <a class="site-nav__link" href="../../surveys.html">调研</a>
+    <a class="site-nav__link" href="../../graph.html">图谱</a>
+    <button type="button" class="site-nav__search-btn" id="search-open" aria-label="搜索" aria-expanded="false" aria-controls="search-modal">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/>
+      </svg>
+    </button>
+    <button type="button" class="site-nav__theme-btn" id="theme-toggle" aria-label="切换深浅色主题">
+      <svg class="theme-icon theme-icon--moon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
+      <svg class="theme-icon theme-icon--sun" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+    </button>
+  </div>
+</nav>
+<div class="search-modal" id="search-modal" hidden data-pagefind-path="../../pagefind/">
+  <div class="search-modal__backdrop" data-search-close></div>
+  <div class="search-modal__panel" role="dialog" aria-modal="true" aria-label="全文搜索">
+    <button type="button" class="search-modal__close" data-search-close aria-label="关闭">✕</button>
+    <div id="search"></div>
+  </div>
+</div>
+<link href="../../pagefind/pagefind-ui.css" rel="stylesheet">
+<script defer src="../../pagefind/pagefind-ui.js"></script>
+<script defer src="../../assets/search.js"></script>
+<script defer src="../../assets/theme.js"></script>
+<!-- NAV-END -->
+<nav class="toc" aria-label="目录">
+  <div class="toc-title">目录 / TOC</div>
+  <ul>
+    <li class="h2"><a href="#sec-1">1. 出发点 (Motivation)</a></li>
+    <li class="h2"><a href="#sec-2">2. 方法 (Method)</a></li>
+    <li class="h3"><a href="#sec-2-1">2.1 病根:把 flow 硬掰成 score, 错在哪</a></li>
+    <li class="h3"><a href="#sec-2-2">2.2 地基定理 4.1:速度场处处相等 ⇒ 分布相等</a></li>
+    <li class="h3"><a href="#sec-2-3">2.3 为什么瞬时匹配不够:它是个「全通滤波器」</a></li>
+    <li class="h3"><a href="#sec-2-4">2.4 主角登场:平均速度场 = 时间维度的低通滤波器</a></li>
+    <li class="h3"><a href="#sec-2-5">2.5 主定理 4.3:平均速度匹配 ⇒ 分布相等(且 VSD 是其退化特例)</a></li>
+    <li class="h3"><a href="#sec-2-6">2.6 定量收益:方差按 1/K 缩小(这才是硬证据)</a></li>
+    <li class="h3"><a href="#sec-2-7">2.7 一个绕不开的必需品:辅助模型为什么是「理论必需」而非「工程便利」</a></li>
+    <li class="h3"><a href="#sec-2-8">2.8 怎么求梯度:精确式、SDS 近似、与「只动优化轨迹不动不动点」</a></li>
+    <li class="h3"><a href="#sec-2-9">2.9 算法全景与「VSD = 退化特例」的代码铁证</a></li>
+    <li class="h3"><a href="#sec-2-10">三模型一骨架</a></li>
+    <li class="h3"><a href="#sec-2-11">交替更新 (TTUR)</a></li>
+    <li class="h3"><a href="#sec-2-12">教师平均速度</a></li>
+    <li class="h3"><a href="#sec-2-13">ODE 步长 0.02</a></li>
+    <li class="h2"><a href="#sec-3">3. 实验结果 (Key findings)</a></li>
+    <li class="h3"><a href="#sec-3-1">3.1 降方差:直接把 loss 分布画出来</a></li>
+    <li class="h3"><a href="#sec-3-2">3.2 4D 占据预测(OccFM / nuScenes):单步逼近 10 步教师</a></li>
+    <li class="h3"><a href="#sec-3-3">3.3 文生图(SANA 1.6B):4 步, FID 从 43.68 砍到 33.28</a></li>
+    <li class="h3"><a href="#sec-3-4">3.4 ODE 步长消融:粗一点反而稳</a></li>
+    <li class="h2"><a href="#sec-4">4. 实现细节 (Implementation)</a></li>
+    <li class="h2"><a href="#sec-5">5. 批判与延伸 (Critique &amp; Extensions)</a></li>
+    <li class="h3"><a href="#sec-5-1">5.1 值得称赞的</a></li>
+    <li class="h3"><a href="#sec-5-2">5.2 弱点与存疑</a></li>
+    <li class="h3"><a href="#sec-5-3">5.3 延伸阅读 · 交叉验证</a></li>
+  </ul>
+</nav>
+<main data-pagefind-body>
+<h1>MFD: 不比「瞬时速度」比「平均速度」——把时间积分当低通滤波器, 给 flow matching 蒸馏降方差</h1>
+<aside class="post-meta">
+  <div class="post-meta__row"><span class="post-meta__date">📅 加入: <strong>2026-07-06</strong></span> · <span class="post-meta__paper-date">论文日期: 2026-07-06</span></div>
+  <div class="post-meta__row"><span class="post-meta__authors">An Zhao, Shengyuan Zhang, Zhongjian Sun, Yixiang Zhou, Zejian Li, Ling Yang, Tianrun Chen, Lingyun Sun</span> · <span class="post-meta__venue">ICML 2026</span></div>
+  <div class="post-meta__row post-meta__links"><a class="post-meta__link" href="https://arxiv.org/abs/2606.11155">arXiv:2606.11155</a> · <a class="post-meta__link" href="https://github.com/happyw1nd/MFD">代码</a></div>
+  <div class="post-meta__row post-meta__concepts"><a class="concept-chip" href="../../concepts/flow-matching.html">flow-matching</a> <a class="concept-chip" href="../../concepts/distillation.html">distillation</a> <a class="concept-chip" href="../../concepts/one-step-generation.html">one-step-generation</a> <a class="concept-chip" href="../../concepts/variational-score-distillation.html">variational-score-distillation</a> <a class="concept-chip" href="../../concepts/mean-flow.html">mean-flow</a> <a class="concept-chip" href="../../concepts/variance-reduction.html">variance-reduction</a> <a class="concept-chip" href="../../concepts/rectified-flow.html">rectified-flow</a> <a class="concept-chip" href="../../concepts/text-to-image.html">text-to-image</a> <a class="concept-chip" href="../../concepts/occupancy-forecasting.html">occupancy-forecasting</a></div>
+</aside>
+
+<figure>
+  <img class="zoomable" src="figures/fig1-overview.png" alt="MFD 总览:从 X_s 出发, 分别用辅助模型 v^P 和教师模型 u^Q 做 ODE 积分, 得到两条平均速度 Û^P / Û^Q, 匹配二者更新学生">
+  <figcaption>
+    <strong>Fig. 1</strong> — MFD 一图流。从学生生成的中间态 <em>X<sub>s</sub></em> 出发, 用<strong>辅助流模型 v<sup>P</sup></strong>(蓝)和<strong>冻结教师 u<sup>Q</sup></strong>(橙)各自沿 ODE 积分到时刻 <em>t</em>, 得到两条<strong>平均速度</strong> Û<sup>P</sup>、Û<sup>Q</sup>(= 端点位移 / 时间跨度)。学生的目标就是让这两条平均速度对齐 —— 而不是像 VSD 那样在单个时刻比较瞬时速度。区间 [s,t] 上的这次积分, 就是那个「低通滤波器」。
+  </figcaption>
+</figure>
+<h2 id="sec-1">1. 出发点 (Motivation)</h2>
+<p>Flow Matching(FM)已经是图像 / 3D / 4D 生成的主力范式:它直接学一个速度场 <span class="math inline">\(v(x,t)\)</span>, 把噪声分布沿 ODE 搬到数据分布。问题只有一个 —— <strong>推理要一步步解 ODE, 慢</strong>。模型越大, 这个延迟越吃不消。</p>
+<p>加速的正统答案是<strong>蒸馏</strong>:把多步教师压成一步 / 几步的学生。但今天几乎所有蒸馏方法(DMD、VSD、Diff-Instruct、SwiftBrush……)都是<strong>为 score-based 扩散模型设计的</strong>。要把它们套到 FM 上, 得先把 FM 的速度场 <span class="math inline">\(v(x,t)\)</span> 硬转成一个 score 函数:</p>
+<div class="math block">
+\[s(X_t, t) \approx \frac{-v(X_t, t)}{(1-t)^2}\]
+</div>
+<p class="math-translation">—— 翻译: 把「速度」除以 (1−t)² 换算成「分数(score)」。麻烦在于:当 t→1(接近数据端), 分母 (1−t)² → 0, 任何速度估计误差都会被放大成天文数字, 梯度方差爆炸。而且这个换算是在<strong>随机独立采样的单个时刻</strong>上做匹配, 把 FM 本来显式学到的「确定性 ODE 轨迹」结构全丢了。</p>
+<p>作者的诊断很直接:<strong>这种「转 score + 单时刻匹配」是错配</strong>。它继承了 score matching 的两个病:(1) 单个时刻的速度估计本来就是高频噪声, 直接拿去算梯度 → 方差大、训练曲线剧烈震荡;(2) 丢掉了 FM 的全局轨迹一致性。</p>
+<p>MFD 的出发点因此是一句反问:<strong>既然 FM 学的就是速度场, 为什么不直接在速度空间里比?而且, 为什么非要在一个瞬时的点上比, 不能在一段区间上「取平均」再比?</strong> 后半句才是全文的题眼 —— 把「瞬时」换成「区间平均」, 相当于给噪声信号加了个低通滤波器。</p>
+<div class="term-grid">
+  <div class="card"><h4>Flow Matching (FM)</h4><p>直接回归一个速度场 v(x,t), 把噪声沿常微分方程 (ODE) 连续地搬成数据的一类生成模型。</p></div>
+  <div class="card"><h4>瞬时速度 (instantaneous velocity)</h4><p>某一个时刻 t、某一个点 x 上, 轨迹的切线方向。单点、易受局部扰动。</p></div>
+  <div class="card"><h4>平均速度 / Mean Flow (AVF)</h4><p>一段区间 [s,t] 上的净位移除以时间跨度 (ψ<sub>t</sub>−ψ<sub>s</sub>)/(t−s)。是瞬时速度沿时间的积分平均。</p></div>
+  <div class="card"><h4>VSD (变分分数蒸馏)</h4><p>用教师当 score 先验、再训一个辅助模型估学生的 score, 靠两个 score 之差给学生梯度。单时刻、高方差。</p></div>
+  <div class="card"><h4>辅助流模型 v<sup>P</sup></h4><p>因为学生是「一步生成」不给轨迹信息, 需要临时训一个流模型去逼近学生当前分布 P 的速度场。只在训练用, 推理丢弃。</p></div>
+  <div class="card"><h4>TTUR (双时标更新)</h4><p>辅助模型更新得勤、学生更新得慢 (论文说 10:1), 保证辅助模型能跟上不断变化的学生分布。</p></div>
+</div>
+<h2 id="sec-2">2. 方法 (Method)</h2>
+<p>这一节按「<strong>问题 → 地基定理 → 为什么不够 → 主定理 → 定量收益 → 一个绕不开的必需品 → 怎么求梯度 → 代码落地</strong>」的顺序, 把整条推导链拆到底。每一步都回答一个「为什么必须是这样」。</p>
+<h3 id="sec-2-1">2.1 病根:把 flow 硬掰成 score, 错在哪</h3>
+<p>先看现有 score 蒸馏(VSD/DMD)的骨架。它们的目标是最小化学生分布 <span class="math inline">\(p_1\)</span> 与教师分布 <span class="math inline">\(q\)</span> 的 KL 散度, 而这个 KL 可以按噪声层级 <span class="math inline">\(t\)</span> 展开:</p>
+<div class="math block">
+\[\min_\theta D_{KL}(p_1\Vert q) \;\Longrightarrow\; \min_\theta D_{KL}(p_t(X_t)\Vert q_t(X_t)),\quad \forall t\in[0,1]\]
+</div>
+<p class="math-translation">—— 翻译: 「让最终生成分布贴近教师」这件难事, 被拆成「在每一个加噪层级 t 上, 让加噪后的学生分布贴近加噪后的教师分布」。这样才能对 t 逐层给监督。</p>
+<p>对它求梯度, 会落到两个分布的 <strong>score 之差</strong>上:</p>
+<div class="math block">
+\[\nabla_\theta D_{KL}(p_t\Vert q_t) = \mathbb{E}_{t,\epsilon}\big[\underbrace{\nabla_{X_t}\log p_t(X_t)}_{\text{学生 score}} - \underbrace{\nabla_{X_t}\log q_t(X_t)}_{\text{教师 score}}\big]\frac{\partial X_t}{\partial\theta}\]
+</div>
+<p class="math-translation">—— 翻译: 梯度 = (学生 score − 教师 score) × (X<sub>t</sub> 对参数的导数)。教师 score 用预训练模型估, 学生 score 得再训一个辅助模型估。问题是:flow 模型学的是速度场 v, 不是 score, 得先换算。</p>
+<p>而把 flow 的速度场换算成 score, 用的是这个关系:</p>
+<div class="math block">
+\[s(X_t,t)\approx\frac{-v(X_t,t)}{(1-t)^2}\]
+</div>
+<p class="math-translation">—— 翻译: score ≈ −速度 / (1−t)²。两个致命伤:① 当 t→1(接近数据端), 分母 (1−t)²→0, 速度估计的任何误差被放大成天文数字, 梯度方差爆炸;② 换算是在<strong>随机独立采样的单个时刻</strong>上做的, 把 flow 显式学到的「确定性 ODE 轨迹」结构整个丢了。</p>
+<p><strong>结论</strong>:错配的根源是「绕道 score + 单时刻匹配」。既然 flow 本来就学速度场, 就应该<strong>直接在速度空间比</strong>, 而且要想办法用上整条轨迹。下面从地基开始搭。</p>
+<h3 id="sec-2-2">2.2 地基定理 4.1:速度场处处相等 ⇒ 分布相等</h3>
+<p>第一块砖:证明「直接比速度场」是合法的 —— 只要学生和教师的<strong>瞬时速度场</strong>处处相等, 两者分布就必然相等。</p>
+<div class="math block">
+\[\mathcal{L}_{IVF} = \mathbb{E}_{t\sim U[0,1],\, X_t\sim p^P_t}\, D\!\left(v^P(X_t,t),\, u^Q(X_t,t)\right) = 0 \;\Longrightarrow\; P = Q\]
+</div>
+<p class="math-translation">—— 翻译: 若「学生速度场 v<sup>P</sup> 与教师速度场 u<sup>Q</sup> 的期望 Bregman 散度」为零, 则学生分布 P = 教师分布 Q。D 是严格正定的 Bregman 散度(D(x,y)=0 当且仅当 x=y, ℓ₂ 距离就是一例)。</p>
+<p><strong>证明的来龙去脉(C.1), 两步:</strong></p>
+<p><em>第一步 —— 从「期望为零」逼出「处处相等」。</em> <span class="math inline">\(\mathcal{L}_{IVF}\)</span> 是一个非负量(<span class="math inline">\(D\ge 0\)</span>)的期望, 期望为零 ⇒ 被积项<strong>几乎处处为零</strong>。再叠加三个条件:时刻分布 <span class="math inline">\(U[0,1]\)</span> 有全支撑(每个 <span class="math inline">\(t\)</span> 都被采到)、<span class="math inline">\(p^P_t\)</span> 是流真实覆盖的密度、速度场 Lipschitz 连续(不会突变), 于是可以断定在整个支撑集上</p>
+<div class="math block">
+\[v^P(x,t) = u^Q(x,t),\quad \forall t\in[0,1],\ \forall x\in\text{supp}(p^P_t)\]
+</div>
+<p class="math-translation">—— 翻译: 不是「平均相等」, 而是「每一点、每一时刻都相等」。全支撑 + Lipschitz 是把「积分为零」升级成「逐点为零」的关键 —— 少了它们, 可能只在测度零的集合外相等。</p>
+<p><em>第二步 —— 从「速度场相等」逼出「分布相等」, 靠 ODE 唯一性。</em> 学生轨迹 <span class="math inline">\(\psi^P_t\)</span> 满足自己的 ODE <span class="math inline">\(\frac{d}{dt}\psi^P_t = v^P(\psi^P_t,t)\)</span>;但因为 <span class="math inline">\(v^P=u^Q\)</span> 处处成立, 它<strong>同时也满足教师的 ODE</strong>。由 <strong>Picard–Lindelöf 定理</strong>(Lipschitz 条件下 ODE 解唯一), 同一初值 <span class="math inline">\(X_0\)</span> 出发的两条轨迹必须完全重合:<span class="math inline">\(\psi^P_t(X_0)=\psi^Q_t(X_0)\)</span>。对所有 <span class="math inline">\(X_0\sim p_0\)</span> 成立, 终点分布(pushforward)就相等:<span class="math inline">\(P=(\psi^P_1)_\#p_0=(\psi^Q_1)_\#p_0=Q\)</span>。∎</p>
+<p class="math-translation">—— 直觉: 两辆车速度表每一秒读数都一样、起点也一样, 那它们走的路线必然分毫不差、终点必然重合。ODE 唯一性就是这句话的数学版。</p>
+<h3 id="sec-2-3">2.3 为什么瞬时匹配不够:它是个「全通滤波器」</h3>
+<p>定理 4.1 合法, 但<strong>直接照它做 = VSD, 会很抖</strong>。信号处理视角(B.3)一句话点破。把教师给的监督信号拆成「真信号 + 噪声」:</p>
+<div class="math block">
+\[S(t)=u^Q(X_t,t)=v_*(t)+\xi(t)\]
+</div>
+<p class="math-translation">—— 翻译: 教师速度 = 理想的传输语义 v<sub>*</sub>(低频、真正有用) + 高频抖动 ξ(来自优化随机性、mini-batch 噪声、流形局部曲率)。ξ 是没意义的噪声。</p>
+<p>瞬时匹配强迫学生在<strong>每一个瞬间</strong>都复现 <span class="math inline">\(S(t)\)</span> —— 连噪声 <span class="math inline">\(\xi(t)\)</span> 一起复现。用滤波器的话说, 这是个<strong>全通滤波器</strong>(all-pass):高频噪声一点不滤, 全塞给学生去拟合。结果就是梯度高方差、过拟合到与全局传输无关的局部抖动。这正是要改的地方 —— 我们需要一个<strong>低通滤波器</strong>, 把 <span class="math inline">\(\xi\)</span> 磨掉、只留 <span class="math inline">\(v_*\)</span>。</p>
+<h3 id="sec-2-4">2.4 主角登场:平均速度场 = 时间维度的低通滤波器</h3>
+<p>怎么造低通滤波器?<strong>对时间积分</strong>。定义<strong>平均速度场 (Average Velocity Field, AVF)</strong>:</p>
+<div class="math block">
+\[U(z_s, s, t) = \frac{1}{t-s}\int_s^t v(\psi_\tau(X_0),\tau)\,d\tau = \frac{\psi_t(X_0)-\psi_s(X_0)}{t-s}\]
+</div>
+<p class="math-translation">—— 翻译: 平均速度 = (终点位置 − 起点位置)/(时间差), 等价于「全程平均时速 = 总路程 ÷ 总时间」。它不管中途怎么加速减速(高频抖动), 只认两端。</p>
+<p><strong>为什么这就是低通滤波器?</strong> 把信号分解代进去:</p>
+<div class="math block">
+\[U(X_s,s,t)=\underbrace{\frac{1}{\Delta t}\int_s^t v_*(\tau)\,d\tau}_{\text{平滑后的真信号}}+\underbrace{\frac{1}{\Delta t}\int_s^t \xi(\tau)\,d\tau}_{\text{被部分滤掉的噪声}},\quad \Delta t=t-s\]
+</div>
+<p class="math-translation">—— 翻译: 算子 (1/Δt)∫(·)dτ 就是一个「移动平均 / 矩形窗(boxcar)滤波器」。它在频域的幅频响应是 |sinc(f·Δt)|, 随频率 f 以 1/f 衰减 —— 高频的噪声 ξ 被狠狠压制, 低频的真信号 v<sub>*</sub> 基本保留。这就是数学意义上的低通。</p>
+<p><strong>一个具体数字例子</strong>:设 <span class="math inline">\(s=0.2,t=0.4\)</span>。瞬时速度因 mini-batch 噪声一会儿 1.0、一会儿 −0.3、一会儿 0.8(高频抖);但两端位置一旦定了, 平均速度就是一个稳定的数(比如 0.5)。拿 0.5 当监督, 远比拿那串抖动值稳。此外它还有几何意义:匹配平均速度 = 匹配<strong>位移向量</strong> = 强制<strong>全局轨迹一致(相位对齐)</strong>, 而不是脆弱的局部切线对齐。</p>
+<h3 id="sec-2-5">2.5 主定理 4.3:平均速度匹配 ⇒ 分布相等(且 VSD 是其退化特例)</h3>
+<p>现在把「匹配平均速度」也升级成分布保证:</p>
+<div class="math block">
+\[\mathcal{L}_{MFD} = \mathbb{E}_{s,t\sim p(s,t),\, X_s\sim p^P_s}\, D\!\left(U^P(X_s,s,t),\, U^Q(X_s,s,t)\right) = 0 \;\Longrightarrow\; P = Q\]
+</div>
+<p class="math-translation">—— 翻译: 只要在「有全时间支撑」的区间分布 p(s,t) 上, 学生与教师的平均速度处处相等, 学生分布就严格等于教师分布。</p>
+<p><strong>证明用反证法(C.2), 思路很漂亮:</strong></p>
+<p>假设结论不成立 —— 存在正测度集合 <span class="math inline">\(\Omega\)</span>, 其上 <span class="math inline">\(v^P\ne u^Q\)</span>。由 Lipschitz 连续, 「一点不等」必然「一个邻域都不等」:存在一个半径 <span class="math inline">\(\epsilon&gt;0\)</span> 的小球 <span class="math inline">\(B_\epsilon\)</span>, 其上严格 <span class="math inline">\(v^P\ne u^Q\)</span>。关键一跳:</p>
+<div class="math block">
+\[v^P\ne u^Q \text{ 在 } B_\epsilon \text{ 上恒成立} \;\Longrightarrow\; \exists\,\delta&gt;0,\ \forall t\in(s,s+\delta]:\ U^P(x,s,t)\ne U^Q(x,s,t)\]
+</div>
+<p class="math-translation">—— 翻译: 两个连续函数若在某点被「严格拉开」, 它们在该点附近任意小区间上的<strong>平均值</strong>也不可能相等。也就是说, 瞬时不等 → 短区间的平均速度也不等。这一步把「瞬时的矛盾」传导到了「平均速度的矛盾」。</p>
+<p>于是在这块区域上 <span class="math inline">\(D(U^P,U^Q)&gt;0\)</span>(严格正定);又因 <span class="math inline">\(p(s,t)\)</span> 有全支撑, 会给这块区域分配正概率质量, 积分起来:</p>
+<div class="math block">
+\[\mathcal{L}_{MFD}\ge\int_{B_\epsilon\cap\{t\in(s,s+\delta]\}} p(s,t)\,p^P_s(x)\,\underbrace{D(U^P,U^Q)}_{&gt;0}\,dx\,ds\,dt \;&gt;\;0\]
+</div>
+<p class="math-translation">—— 翻译: 这与前提「L<sub>MFD</sub>=0」直接矛盾。所以假设错误, 只能 v<sup>P</sup>=u<sup>Q</sup> 几乎处处成立 —— 再调用定理 4.1, 立刻得到 P=Q。∎</p>
+<p><strong>最妙的收尾 —— VSD 是 MFD 的退化特例。</strong> 当区间缩成一点(<span class="math inline">\(s\to t\)</span>), 平均速度按定义退回瞬时速度。所以「匹配所有区间的平均速度」这个更强的条件, <strong>蕴含</strong>「匹配处处的瞬时速度」。换句话说:</p>
+<div class="math block">
+\[\text{MFD (匹配区间平均)} \;\supseteq\; \text{VSD (匹配单点瞬时)}=\lim_{s\to t}\text{MFD}\]
+</div>
+<p class="math-translation">—— 翻译: MFD 是更一般的框架, VSD 只是它把区间捏成一个点的极限。既然更一般、又多了低通滤波的降方差红利, MFD 严格不亏。这个「⊇」关系是全文的骨架。</p>
+<h3 id="sec-2-6">2.6 定量收益:方差按 1/K 缩小(这才是硬证据)</h3>
+<p>前面说「低通滤波降方差」是定性的, C.3 把它算成了一个干净的数。设神经网络对真速度的估计是<strong>无偏 + 零均值噪声</strong>:<span class="math inline">\(\hat v=v+\xi,\ \mathbb{E}[\xi]=0,\ \text{Cov}[\xi]=\sigma^2 I\)</span>。</p>
+<p><strong>VSD 一侧</strong>:梯度直接正比于单点估计误差, 方差被单次前向的噪声钉死, 单步计算无从降低:</p>
+<div class="math block">
+\[g_{VSD}\propto\hat v(X_t,t)-\hat u^Q(X_t,t)\;\Longrightarrow\;\text{Var}(g_{VSD})\approx 2\sigma^2\]
+</div>
+<p class="math-translation">—— 翻译: VSD 的梯度方差 ≈ 2σ²(学生、教师各贡献一份 σ²), 是单次前向噪声的量级, 无论怎么算单个时刻都压不下去。</p>
+<p><strong>MFD 一侧</strong>:平均速度用 <span class="math inline">\(K\)</span> 步欧拉积分近似, 误差项变成 <span class="math inline">\(K\)</span> 个 IID 噪声的平均:</p>
+<div class="math block">
+\[\hat U=U_{\text{true}}+\frac{1}{\Delta t}\int_s^t\xi\,d\tau\approx U_{\text{true}}+\frac{1}{K}\sum_{k=1}^K\xi_k \;\Longrightarrow\; \text{Var}(g_{MFD})\propto\text{Var}\Big(\tfrac1K\textstyle\sum_k\xi_k\Big)=\frac{1}{K^2}\cdot K\sigma^2=\frac{\sigma^2}{K}\]
+</div>
+<p class="math-translation">—— 翻译: K 个独立噪声取平均, 方差从 σ² 掉到 σ²/K(标准的「平均降方差」)。于是 Var(g<sub>MFD</sub>) ∝ (1/K)·Var(g<sub>VSD</sub>)。</p>
+<p>结论一句话:<span class="math inline">\(\text{Var}(g_{MFD})\propto\frac1K\text{Var}(g_{VSD})\)</span>, 其中 <span class="math inline">\(K\approx(t-s)/\Delta\tau\)</span>。<span class="math inline">\(K=1\)</span> 时 MFD≈VSD(没有平均、没红利);<span class="math inline">\(K&gt;1\)</span> 才有 <span class="math inline">\(1/K\)</span> 的降方差。<strong>这也解释了 §3.4 那个反直觉的消融</strong>:ODE 步长不是越小越好 —— 步长太小虽然 <span class="math inline">\(K\)</span> 大, 但累积数值误差反噬;步长太大 <span class="math inline">\(K\to 1\)</span> 退回 VSD。0.02–0.03 是甜点。Fig 2 的小提琴图就是这个 <span class="math inline">\(\sigma^2/K\)</span> 的经验落地。</p>
+<h3 id="sec-2-7">2.7 一个绕不开的必需品:辅助模型为什么是「理论必需」而非「工程便利」</h3>
+<p>这是全文最容易被读者忽略、却最深的一环。学生是<strong>一步生成器</strong>, 不提供轨迹信息, 那「学生的速度场 <span class="math inline">\(v^P\)</span>」从哪来?</p>
+<p><strong>最省事的错误做法</strong>:直接用<strong>条件速度场</strong>。在线性插值 <span class="math inline">\(X_t=(1-t)X_0+tX_1\)</span>(其中 <span class="math inline">\(X_1=G_\theta(X_0)\)</span>)上, 条件速度就是常数 <span class="math inline">\(X_1-X_0\)</span>。听起来很直接 —— 但实测<strong>500 步内训练崩溃</strong>, 生成一团模糊。为什么?</p>
+<div class="math block">
+\[\underbrace{v^P(X_t\mid X_1)=X_1-X_0}_{\text{条件速度: 依赖具体样本 }X_1}\quad\ne\quad\underbrace{v^P(X_t,t)=\mathbb{E}[X_1-X_0\mid X_t]}_{\text{边际速度: 对所有可能的 }X_1\text{ 求期望}}\]
+</div>
+<p class="math-translation">—— 翻译: 同一个中间点 X<sub>t</sub>, 可以由很多不同的 (X<sub>0</sub>,X<sub>1</sub>) 对插值而来 —— 条件速度在 X<sub>t</sub> 处是<strong>多值</strong>的。而定理 4.1 要求速度场是「每个 (X<sub>t</sub>,t) 对应唯一一个向量」的<strong>单值边际场</strong>。多值的东西根本不是合法速度场。</p>
+<p><strong>崩溃的机理(Prop C.1)</strong>:若强行让条件速度去匹配教师边际速度, 即要求 <span class="math inline">\(X_1-X_0=u^Q(X_t,t)\)</span> 对所有 <span class="math inline">\(t\)</span> 成立 —— 但左边与 <span class="math inline">\(t\)</span> 无关(只由 <span class="math inline">\(X_0\)</span> 定), 右边随 <span class="math inline">\(t\)</span> 变化, 除非教师速度沿轨迹恒定(一般不可能)。优化器为了硬凑这个不可能方程, 会把 <span class="math inline">\(G_\theta\)</span> 推成<strong>与输入 <span class="math inline">\(X_0\)</span> 无关</strong>的常数映射:</p>
+<div class="math block">
+\[G^*_\theta(X_0)=\bar X\ \ \forall X_0,\quad \bar X=\mathbb{E}_{X\sim Q}[X]\;\Longrightarrow\; P=\delta_{\bar X}\ (\text{塌成教师均值处的一个点})\]
+</div>
+<p class="math-translation">—— 翻译: 学生分布塌缩成一个点(教师分布的均值), 彻底的 mode collapse。这就是实测「500 步崩成模糊」的数学解释。</p>
+<p>所以<strong>辅助流模型 <span class="math inline">\(v^P\)</span> 是理论必需</strong>:它在学生样本上做 FM 回归, 学的正是那个单值的<strong>边际</strong>速度场 <span class="math inline">\(\mathbb{E}[X_1-X_0\mid X_t]\)</span>(回归的最优解就是条件期望), 从而满足定理 4.1、保证 <span class="math inline">\(P=Q\)</span>。这也是为什么要 TTUR 交替 —— 学生一直在变, 辅助模型得频繁更新才能追上当前的学生边际分布。</p>
+<p class="code-source">repo/t2i_SANA/scripts/train_sana_mfd.py:L1424-L1435 — 辅助流模型 v^P 的标准 flow-matching 回归, 学的是边际速度 E[X1−X0|Xt]</p>
+<pre><code class="language-python">noise_pred = noise_pred.float()
+target = noise_for_Z - Z.float()          # 速度目标 = noise − 学生样本(SANA 反时间约定)
+loss_aux = torch.nn.MSELoss()(noise_pred, target).float()
+
+accelerator.backward(loss_aux)
+...
+optimizer_aux.step()
+</code></pre>
+<h3 id="sec-2-8">2.8 怎么求梯度:精确式、SDS 近似、与「只动优化轨迹不动不动点」</h3>
+<p>有了合法的 <span class="math inline">\(v^P\)</span>, 平均速度用 ODE 积分器 <span class="math inline">\(\Phi\)</span> 数值近似(两端位移比):</p>
+<div class="math block">
+\[\hat U(X_s,s,t;v)=\frac{\Phi(v,X_s,t,s)-X_s}{t-s},\qquad \Phi(v,X_s,t,s)\approx X_s+\int_s^t v(X_\tau,\tau)\,d\tau\]
+</div>
+<p class="math-translation">—— 翻译: 用固定步长(代码 0.02)欧拉积分把 v 从 X<sub>s</sub> 推到 t, 得端点; 平均速度 = (端点 − X<sub>s</sub>)/(t−s)。辅助与教师各算一份, 得 Û<sup>P</sup>、Û<sup>Q</sup>。</p>
+<p><strong>精确梯度</strong>要穿过 ODE 求解器反传:</p>
+<div class="math block">
+\[\nabla_\theta\mathcal{L}_{MFD}=\mathbb{E}\big[(\nabla_\theta X_s)^\top\cdot\nabla_{X_s}\Delta(X_s)\cdot\Delta(X_s)\big],\quad \Delta=\hat U^P-\hat U^Q\]
+</div>
+<p class="math-translation">—— 翻译: 中间那个 ∇<sub>Xs</sub>Δ 需要对「ODE 求解器输出关于输入 X<sub>s</sub> 的雅可比」求导 —— 要反传穿过整个多步积分图, 又贵又数值不稳。</p>
+<p><strong>SDS 式近似</strong>:把 <span class="math inline">\(\hat U^P,\hat U^Q\)</span> 当成<strong>固定引导目标</strong>, 令 <span class="math inline">\(\nabla_{X_s}\Delta\approx I\)</span>, 只让梯度经 <span class="math inline">\(X_s\)</span> 回流:</p>
+<div class="math block">
+\[\nabla_\theta\mathcal{L}_{MFD}\approx\mathbb{E}_{s,t,X_0}\big[\,s\cdot(\nabla_\theta G_\theta(X_0))^\top\cdot(\hat U^P-\hat U^Q)\,\big]\]
+</div>
+<p class="math-translation">—— 翻译: 梯度 ≈ 学生输出的雅可比 × 两条平均速度之差 × 系数 s。两条平均速度整段用 no_grad 前向算出、detach 掉, 不反传穿 ODE —— 这也是<strong>多步积分不爆显存</strong>的原因(积分只前向、原地覆盖 buffer, 显存 O(1) 不随步数涨)。</p>
+<p><strong>为什么敢这么近似?</strong> B.6 给了两条理由:① <em>经验证据</em> —— 在 1 万步上对比「带完整雅可比」vs「恒等近似」的梯度, 幅度差不多, 但<strong>方向剧烈发散</strong>(余弦相似度分布很宽、甚至为负);穿 ODE 反传引入高阶依赖与数值不稳, 把梯度方向带偏, 训练直接失败。② <em>理论边界</em> —— 这个近似<strong>只影响优化轨迹, 不影响不动点</strong>:定理 4.3 说的是「若平均速度精确匹配则 <span class="math inline">\(P=Q\)</span>」, 这个不动点条件与雅可比近似无关。所以它是「到达稳定解的工程装置」, 不改变要求解的分布对齐条件本身。代码把上式实现成一个<strong>伪损失</strong>:</p>
+<p class="code-source">repo/t2i_SANA/scripts/train_sana_mfd.py:L1576-L1584 — MFD 学生更新核心损失, 对应 Eq (20) 的 detached-target 形式</p>
+<pre><code class="language-python"># Compute regular loss.
+dist_loss = ((u_q - u_p) * x_t).mean()
+
+loss_stu = dist_loss 
+
+accelerator.unwrap_model(transformer).set_adapter(&quot;default&quot;)
+accelerator.backward(loss_stu)
+</code></pre>
+<p><code>u_q</code>、<code>u_p</code> 是两条平均速度(no_grad 算出、已 detach), <code>x_t</code> 依赖 <span class="math inline">\(\theta\)</span>。反传梯度 <span class="math inline">\(=(u_q-u_p)\cdot\partial x_t/\partial\theta\)</span>, 正是 Eq (20)。(SANA 用「t=1 噪声、t=0 数据」的反时间约定, 符号与论文 <span class="math inline">\((\hat U^P-\hat U^Q)\)</span> 差一个约定号, 数值一致 —— 唯一要留神处。)</p>
+<h3 id="sec-2-9">2.9 算法全景与「VSD = 退化特例」的代码铁证</h3>
+<p>把整条链装进 Algorithm 1 的交替循环:</p>
+<div class="summary-grid">
+  <div class="card"><h3 id="sec-2-10">三模型一骨架</h3><p>学生 = LoRA「default」;辅助流 = LoRA「aux」;教师 = 关掉两适配器的原始 backbone。三者共享同一 transformer, 只切适配器。这就是「轻量 adapter」(§5.3): SANA 1.6B 上辅助仅 rank-64 LoRA、~34M 参数 (<2.2%)。</p></div>
+  <div class="card"><h3 id="sec-2-11">交替更新 (TTUR)</h3><p>每轮先更新辅助 K 步(学生样本上做 FM 回归, §2.7), 再更新学生 1 步。§2.7 已证:辅助必须追上不断漂移的学生边际分布, 否则 v<sup>P</sup> 失效。</p></div>
+  <div class="card"><h3 id="sec-2-12">教师平均速度</h3><p>Φ(u<sup>Q</sup>) 多步欧拉积分(§2.8), no_grad, CFG=4.5 硬编。区间越宽积分步 K 越多 → 降方差越强(§2.6)。</p></div>
+  <div class="card"><h3 id="sec-2-13">ODE 步长 0.02</h3><p>§2.6 的 K≈(t−s)/Δτ 直接解释:太小累积数值误差, 太大 K→1 退回 VSD。0.02–0.03 甜点。</p></div>
+</div>
+<p><strong>教师平均速度的积分实现</strong>(辅助那一份同构):</p>
+<p class="code-source">repo/t2i_SANA/scripts/train_sana_mfd.py:L1546-L1574 — 固定步长欧拉 ODE 积分算教师平均速度 Û^Q, 对应 §2.8 的 Φ</p>
+<pre><code class="language-python">denoise_steps = math.ceil((t.item() - r.item()) / args.ode_step_size)   # K ≈ (t−s)/Δτ
+timesteps_intervals = torch.linspace(t.item(), r.item(), denoise_steps + 1)
+timestep_pairs = list(zip(timesteps_intervals[:-1], timesteps_intervals[1:]))
+
+x_t_raw_input = x_t
+for t_start, t_end in timestep_pairs:                        # 整段在 torch.no_grad() 里
+    teacher_pred_noise = transformer(hidden_states=torch.cat([x_t_raw_input]*2),
+                                     timestep=torch.cat([t_start]*2) * 1000.0, ...)[0]
+    tp_uncond, tp_text = teacher_pred_noise.chunk(2)
+    teacher_pred_noise = tp_uncond + 4.5 * (tp_text - tp_uncond)         # CFG=4.5 硬编
+    x_t_raw_input = x_t_raw_input - (t_start - t_end) * teacher_pred_noise   # 一步欧拉, 原地覆盖
+
+u_q = (x_t - x_t_raw_input) / (t - r)   # 位移 / 时间跨度 = 平均速度 Û^Q
+</code></pre>
+<p>最能体现「MFD ⊇ VSD」(§2.5 的核心)的, 是代码里那个连续开关。采样区间端点 <span class="math inline">\((t,r)\)</span> 时的比例参数, 注释写死了语义:</p>
+<p class="code-source">repo/t2i_SANA/scripts/train_sana_mfd.py:L604-L609 — 一个标量在 MFD 与 VSD 之间连续切换</p>
+<pre><code class="language-python">parser.add_argument(
+    &quot;--r_not_equal_t_ratio&quot;,
+    type=float,
+    default=1.0,
+    help=&quot;1.0 -&gt; MFD, 0.0 -&gt; VSD&quot;,
+)
+</code></pre>
+<p><code>ratio=0.0</code> → 所有样本 <span class="math inline">\(r=t\)</span>(区间缩成点), 走 <code>t.item()==r.item()</code> 分支:单步瞬时、不积分, 这就是 VSD(<span class="math inline">\(K=1\)</span>)。<code>ratio=1.0</code> → 真正在区间上积分(<span class="math inline">\(K&gt;1\)</span>)。<strong>同一份代码, 一个标量从 0 调到 1, 就把 §2.5 的极限 <span class="math inline">\(\lim_{s\to t}\text{MFD}=\text{VSD}\)</span> 变成了可运行的连续谱</strong> —— 这是整条推导链最干净的工程注脚。</p>
+<h2 id="sec-3">3. 实验结果 (Key findings)</h2>
+<h3 id="sec-3-1">3.1 降方差:直接把 loss 分布画出来</h3>
+<figure>
+  <img class="zoomable" src="figures/fig2-variance.png" alt="小提琴图: VSD (红) 与 MFD (绿) 在训练 500 / 4000 步时的 loss 分布, MFD 明显更窄">
+  <figcaption>
+    <strong>Fig. 2</strong> — T2I 上冻结学生、采样多批次测 loss 分布。VSD(红)方差 σ²=0.0120 → 0.0043;MFD(绿)σ²=0.0049 → <strong>0.0003</strong>。无论早期(500 步)还是后期(4000 步), MFD 的分布都明显更窄、更集中 —— 直接坐实了「时间积分 = 降方差」这个理论主张。这不是曲线好看的问题, 是梯度噪声小一个量级。
+  </figcaption>
+</figure>
+<h3 id="sec-3-2">3.2 4D 占据预测(OccFM / nuScenes):单步逼近 10 步教师</h3>
+<p>自动驾驶的 4D 占据预测是个高维、强动态的硬测试床。教师、辅助、学生都从同一预训练 OccFM checkpoint 初始化。</p>
+<table>
+<thead>
+<tr>
+<th>模型</th>
+<th>NFE ↓</th>
+<th>IoU ↑ (%)</th>
+<th>mIoU ↑ (%)</th>
+<th>FPS ↑</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>OccFM (教师)</td>
+<td>10</td>
+<td>37.52</td>
+<td>28.49</td>
+<td>12.72</td>
+</tr>
+<tr>
+<td>OccFM (教师)</td>
+<td>1</td>
+<td>27.42</td>
+<td>8.15</td>
+<td>24.92</td>
+</tr>
+<tr>
+<td>Diff-Instruct (VSD)</td>
+<td>1</td>
+<td>36.41</td>
+<td>26.42</td>
+<td>25.21</td>
+</tr>
+<tr>
+<td>CD</td>
+<td>1</td>
+<td>31.69</td>
+<td>20.70</td>
+<td>25.08</td>
+</tr>
+<tr>
+<td>AYF</td>
+<td>1</td>
+<td>32.38</td>
+<td>21.69</td>
+<td>–</td>
+</tr>
+<tr>
+<td>DMD2</td>
+<td>1</td>
+<td>35.84</td>
+<td>24.27</td>
+<td>25.11</td>
+</tr>
+<tr>
+<td>SenseFlow</td>
+<td>1</td>
+<td>35.40</td>
+<td>23.91</td>
+<td>25.09</td>
+</tr>
+<tr>
+<td><strong>MFD (本文)</strong></td>
+<td>1</td>
+<td><strong>37.07</strong></td>
+<td><strong>27.25</strong></td>
+<td>25.19</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><strong>单步 MFD 几乎追平 10 步教师</strong>:IoU 只掉 1.2%(37.07 vs 37.52)、mIoU 掉 4.4%, 而 FPS 从 12.72 → 25.19(约 10× 加速)。</li>
+<li><strong>全面压过所有蒸馏基线</strong>:比一致性方法 AYF 高 <strong>4.69 IoU / 5.56 mIoU</strong>;也稳超 DMD2、SenseFlow。作者点名:VSD 单时刻高方差、CD/AYF 的样本级自一致约束对多模态数据太死板, 而 DMD2/SenseFlow 靠对抗判别器带来训练不稳。</li>
+<li>所有单步方法推理速度都 ≈25 FPS —— 辅助模型只在训练用, <strong>推理零额外开销</strong>。</li>
+</ul>
+<h3 id="sec-3-3">3.3 文生图(SANA 1.6B):4 步, FID 从 43.68 砍到 33.28</h3>
+<table>
+<thead>
+<tr>
+<th>模型</th>
+<th>NFE ↓</th>
+<th>Aesthetic ↑</th>
+<th>PickScore ↑</th>
+<th>HPSv2 ↑</th>
+<th>ImageReward ↑</th>
+<th>CLIP ↑</th>
+<th>FID(DINOv2) ↓</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>SANA (教师)</td>
+<td>20</td>
+<td>6.335</td>
+<td>0.2021</td>
+<td>0.2417</td>
+<td>0.8363</td>
+<td>30.72</td>
+<td>–</td>
+</tr>
+<tr>
+<td>SANA (教师)</td>
+<td>4</td>
+<td>5.976</td>
+<td>0.1872</td>
+<td>0.2173</td>
+<td>−0.1008</td>
+<td>28.25</td>
+<td>–</td>
+</tr>
+<tr>
+<td>AYF</td>
+<td>4</td>
+<td>6.231</td>
+<td>0.1963</td>
+<td>0.2298</td>
+<td>0.7022</td>
+<td>29.18</td>
+<td>43.68</td>
+</tr>
+<tr>
+<td>Diff-Instruct</td>
+<td>4</td>
+<td>6.453</td>
+<td>0.1985</td>
+<td>0.2434</td>
+<td>0.7677</td>
+<td>29.39</td>
+<td>37.55</td>
+</tr>
+<tr>
+<td>DMD2</td>
+<td>4</td>
+<td>6.495</td>
+<td>0.2004</td>
+<td>0.2439</td>
+<td>0.8017</td>
+<td>29.24</td>
+<td>36.13</td>
+</tr>
+<tr>
+<td>SenseFlow</td>
+<td>4</td>
+<td>6.482</td>
+<td>0.1998</td>
+<td><strong>0.2445</strong></td>
+<td>0.7925</td>
+<td>29.32</td>
+<td>35.97</td>
+</tr>
+<tr>
+<td><strong>MFD (本文)</strong></td>
+<td>4</td>
+<td><strong>6.541</strong></td>
+<td>0.2002</td>
+<td>0.2442</td>
+<td><strong>0.8483</strong></td>
+<td><strong>29.43</strong></td>
+<td><strong>33.28</strong></td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>MFD 拿下 Aesthetic、ImageReward、CLIP、FID(DINOv2) 四项最优, PickScore / HPSv2 与最强基线只差毫厘。</li>
+<li><strong>FID(DINOv2) 43.68 → 33.28</strong>(对教师样本的分布贴合度), 印证「分布级平均速度对齐 &gt; 样本级一致性约束」。</li>
+<li>DMD2 / SenseFlow 在 PickScore/HPSv2 上略高, 但它们额外挂了感知损失或对抗训练 (GAN);MFD <strong>纯靠分布匹配</strong>就做到, 且这些额外组件是可叠加的正交增益。</li>
+</ul>
+<figure>
+  <img class="zoomable" src="figures/fig3-samples.png" alt="MFD 蒸馏后的 SANA 4 步生成样本网格: 人物、风景、动物、幻想场景">
+  <figcaption>
+    <strong>Fig. 3</strong> — MFD 蒸馏后的 SANA 4 步生成(来自官方 repo)。构图、光影、文字对齐都保持在接近教师的水准, 没有少步蒸馏常见的糊、崩、饱和度失真。
+  </figcaption>
+</figure>
+<h3 id="sec-3-4">3.4 ODE 步长消融:粗一点反而稳</h3>
+<table>
+<thead>
+<tr>
+<th>ODE 步长</th>
+<th>IoU ↑ (%)</th>
+<th>mIoU ↑ (%)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0.001</td>
+<td>36.28</td>
+<td>25.91</td>
+</tr>
+<tr>
+<td>0.005</td>
+<td>37.12</td>
+<td>27.14</td>
+</tr>
+<tr>
+<td><strong>0.02</strong></td>
+<td>37.07</td>
+<td><strong>27.25</strong></td>
+</tr>
+<tr>
+<td>0.1</td>
+<td>36.82</td>
+<td>26.47</td>
+</tr>
+<tr>
+<td>0.5</td>
+<td>36.74</td>
+<td>26.54</td>
+</tr>
+</tbody>
+</table>
+<p>非单调:太小 → 积分步太多、累积数值误差;太大 → 步数太少、抓不住轨迹曲率、退化成 VSD 丢掉降方差红利。<strong>0.02–0.03 的「粗积分」是甜点</strong> —— 作者解释为「更粗的积分反而把噪声速度平均得更狠」。训练成本 ~25 GPU 时、~20GB(RTX PRO 6000), 与 VSD 相当, 显存远小于要额外训判别器的 DMD2(~50GB)。</p>
+<h2 id="sec-4">4. 实现细节 (Implementation)</h2>
+<p>跑过代码后, 有几处「方程里看不到、但决定成败」的工程细节, 以及若干<strong>论文 vs 代码的出入</strong>:</p>
+<ol>
+<li>
+<p><strong>三模型共享一个 backbone、靠两个 LoRA 适配器区分</strong>(<code>train_sana_mfd.py:L1040-L1042</code>)。<code>transformer.add_adapter(..., &quot;default&quot;)</code> 是学生、<code>&quot;aux&quot;</code> 是辅助流模型;教师 = <code>set_adapters([])</code> 关掉两者的原始权重。这就是「辅助模型只需轻量 adapter」的落地方式 —— 一份 1.6B 权重, 挂两组 rank-64 LoRA。</p>
+</li>
+<li>
+<p><strong>辅助模型的更新就是最普通的 FM 回归</strong>(<code>L1418-L1427</code>):在学生生成的 latent <code>Z</code> 上, 让 aux 适配器预测 <code>noise_for_Z - Z</code>(即速度目标), MSE。没有任何花活 —— 全部魔法都在学生那一侧的平均速度匹配。</p>
+</li>
+</ol>
+<p class="code-source">repo/t2i_SANA/scripts/train_sana_mfd.py:L1424-L1435 — 辅助流模型 v^P 的标准 flow-matching 更新</p>
+<pre><code class="language-python">noise_pred = noise_pred.float()
+target = noise_for_Z - Z.float()
+loss_aux = torch.nn.MSELoss()(noise_pred, target).float()
+
+accelerator.backward(loss_aux)
+...
+optimizer_aux.step()
+</code></pre>
+<ol start="3">
+<li>
+<p><strong>⚠️ 更新比例:论文说 10:1, 官方脚本却是 50:20 ≈ 2.5:1。</strong> Algorithm 1 与正文都写 TTUR = K:1 = 10:1;但 <code>train_sana_mfd.sh</code> 里 <code>--aux_steps_per_cycle=50 --student_steps_per_cycle=20</code>, 即每 70 步里 50 步辅助 + 20 步学生。代码默认值又是 9:1(<code>aux_steps_per_cycle=9</code>)。三处不一致 —— 这类「纸面算法 vs 放出脚本」的漂移在蒸馏工作里很常见, 复现时应以脚本为准并自己扫这个比例。</p>
+</li>
+<li>
+<p><strong>⚠️ 只支持 batch size = 1。</strong> <code>L1529</code> 有硬断言 <code>assert t.shape[0] == 1, &quot;only batch size 1 is supported for now.&quot;</code>, 且脚本 <code>--train_batch_size=1</code>。区间采样 <code>(t,r)</code> 是逐样本标量、ODE 积分循环也按单样本写死, 想上大 batch 得改积分逻辑。这是当前放出实现的实打实限制。</p>
+</li>
+<li>
+<p><strong>⚠️ <code>lpips</code> 被加载但没进 loss。</strong> 顶部 <code>import lpips</code>、<code>L1045</code> 初始化 <code>lpips.LPIPS(net='vgg')</code>、还定义了 <code>prep_for_lpips</code> 辅助函数 —— 但学生 loss (<code>L1579</code>) 只有 <code>dist_loss</code>, 感知损失从未被调用。呼应正文「MFD 纯做分布匹配、感知损失留作 future work」的说法, 但也暴露了作者试过挂感知损失的痕迹(死代码)。</p>
+</li>
+<li>
+<p><strong>CFG=4.5 硬编在教师积分里</strong>(<code>L1544</code>、<code>L1570</code>), 而不是脚本里那个 <code>guidance_scale=7.0</code> 默认值;学生自采样时用 <code>guidance_scale=1.0</code>。方程 (15)(16) 完全没提 CFG —— 这是 T2I 场景下必需、但理论部分隐去的细节。</p>
+</li>
+<li>
+<p><strong>区间采样用 logit-normal, 且 25% 概率强制 r=t</strong>(<code>sample_t_r</code>, <code>L221-L277</code>):即便 <code>ratio=1.0</code> 号称纯 MFD, 采样器仍以 <code>r_not_equal_t_ratio</code> 控制「有多少比例的样本真的取区间」。默认脚本 ratio=1.0 全区间, 但这个旋钮把 MFD↔VSD 做成了连续谱, 也方便做消融。</p>
+</li>
+</ol>
+<h2 id="sec-5">5. 批判与延伸 (Critique &amp; Extensions)</h2>
+<h3 id="sec-5-1">5.1 值得称赞的</h3>
+<ul>
+<li><strong>理论闭环干净</strong>:定理 4.1(瞬时匹配⇒分布对齐)+ 定理 4.3(平均匹配⇒分布对齐, 且瞬时是其 s→t 特例)+ §C.3 的方差分析, 把「为什么要积分」讲成了一个可证的降方差机制, 而不是拍脑袋 trick。Fig 2 的 loss 分布图又给了它一个直给的经验证据。</li>
+<li>**「一个标量在 MFD/VSD 间连续切换」**是极强的消融设计 —— 把自己的方法和被比较对象放进同一份代码的同一条路径, 排除了实现差异这个混杂因子。</li>
+<li><strong>正交、可叠加</strong>:纯分布匹配就打平了挂 GAN / 感知损失的 DMD2、SenseFlow, 说明这些额外组件是可加的增益而非必需。</li>
+</ul>
+<h3 id="sec-5-2">5.2 弱点与存疑</h3>
+<ul>
+<li><strong>没有横向对比 MeanFlow (Geng 2025) 本尊</strong>。MFD 的「平均速度」概念直接借自 MeanFlow one-step 生成, 但 MeanFlow 是 from-scratch 训练、MFD 是蒸馏。作者只在附录 B.1 做定性区分, 正文没有「同一 backbone 下 MFD-蒸馏 vs MeanFlow-从头训」的实测 —— 读者无法判断「平均速度」的收益到底来自蒸馏框架还是来自 mean-flow 目标本身。</li>
+<li><strong>SDS 式丢雅可比的近似缺乏误差界</strong>。<span class="math inline">\(\nabla_{X_s}\Delta\approx I\)</span> 是个挺猛的近似(附录 B.6 讨论了合理性), 但没给「近似引入的偏差有多大 / 何时失效」的定量刻画。当区间很宽、轨迹曲率大时, 这个近似的代价可能被 §3.4 观察到的「大步长掉点」部分掩盖。</li>
+<li><strong>可复现性打折</strong>:10:1 vs 50:20 vs 9:1 的三处比例漂移、batch=1 硬限制、CFG 硬编、死掉的 lpips —— 放出的实现更像内部实验脚本而非干净 release。checkpoint 也还没放(README TODO 未勾)。</li>
+<li><strong>区间分布 <span class="math inline">\(p(s,t)\)</span> 的设计一笔带过</strong>。定理要求「全时间支撑」, 但实际用 logit-normal + 25% 强制 r=t, 这个采样分布对结果的影响没消融, 而它直接决定了「平均」到底覆盖了哪些尺度。</li>
+<li><strong>只测了两个任务</strong>(占据预测 + SANA T2I), 都是 FM/rectified-flow。对非直线插值路径、或更大规模 (如 FLUX 级) 的 flow 模型是否照样稳, 未知。</li>
+</ul>
+<h3 id="sec-5-3">5.3 延伸阅读 · 交叉验证</h3>
+<p>MFD 落在「把大扩散/流模型蒸成少步学生」这条极热的赛道上。把它和本站已分析的四篇放在同一张桌上对比 —— 它们的<strong>共识</strong>出奇一致, <strong>分歧</strong>也很有信息量:</p>
+<table>
+<thead>
+<tr>
+<th>工作</th>
+<th>匹配什么信号</th>
+<th>在哪个空间</th>
+<th>关键机制 / 结论</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>MFD</strong>(本文)</td>
+<td>时间积分的<strong>平均速度</strong> Û over [s,t]</td>
+<td>速度空间(直接)</td>
+<td>积分=低通滤波→低方差;VSD 是 s→t 退化特例</td>
+</tr>
+<tr>
+<td><a class="wiki-link" data-slug="flow-opd-2026" href="../flow-opd-2026/index.html">flow-opd-2026</a></td>
+<td><strong>瞬时速度</strong> L2(reverse-KL 退化而来)</td>
+<td>速度空间</td>
+<td>SDE 共方差结构让 reverse-KL 精确退化为速度 L2;多教师 dense 监督</td>
+</tr>
+<tr>
+<td><a class="wiki-link" data-slug="rdm-2026" href="../rdm-2026/index.html">rdm-2026</a></td>
+<td>分布距离(MMD, 核比较)</td>
+<td>样本空间</td>
+<td>十年前的 MMD「估计对了」就是 SOTA;拆成「怎么比/在哪比」两轴</td>
+</tr>
+<tr>
+<td><a class="wiki-link" data-slug="diffusion-opd-2026" href="../diffusion-opd-2026/index.html">diffusion-opd-2026</a></td>
+<td>closed-form 反向 KL</td>
+<td>score / 输出空间</td>
+<td>一个闭式反向 KL 干掉 multi-task RL 的 PPO 噪声</td>
+</tr>
+<tr>
+<td><a class="wiki-link" data-slug="d-opsd-2026" href="../d-opsd-2026/index.html">d-opsd-2026</a></td>
+<td>学生自采轨迹上的 self-distill</td>
+<td>输出空间</td>
+<td>让已 step-distill 的模型「边用边学」新概念, 无需 reward</td>
+</tr>
+</tbody>
+</table>
+<p><strong>三点共识</strong>(独立工作反复撞到同一结论, 可信度高):</p>
+<ol>
+<li><strong>在速度 / 输出空间直接比 &gt; 绕道 score 空间比。</strong> MFD 明确论证「转 score 会被 (1−t)² 放大误差、丢轨迹结构」;<a class="wiki-link" data-slug="flow-opd-2026" href="../flow-opd-2026/index.html">flow-opd-2026</a> 也发现对 flow 而言 reverse-KL 天然退化成速度 L2, 根本不用碰 score;<a class="wiki-link" data-slug="diffusion-opd-2026" href="../diffusion-opd-2026/index.html">diffusion-opd-2026</a> 用闭式 KL 绕开 PPO。三者从不同角度指向「别硬套 score-based 的老路」。</li>
+<li><strong>降低梯度方差 / 稳定训练是核心痛点。</strong> MFD 靠时间积分降方差, DiffusionOPD 靠闭式 KL 消 PPO 噪声, Flow-OPD 靠 dense 多教师监督 —— 大家都在和「单点、高方差、抖」这个共同敌人搏斗。</li>
+<li><strong>分布级匹配 &gt; 样本级/轨迹级硬一致性。</strong> MFD 与 RDM 都强调 distribution-level(平均速度 / MMD)优于 CD/AYF 的样本级自一致约束, 后者「对多模态数据太死板」。</li>
+</ol>
+<p><strong>一处真正的分歧</strong>(值得盯):<strong>单时刻速度匹配, 到底稳不稳?</strong> MFD 的整个卖点是「单个时刻的瞬时速度匹配(= VSD)方差大、必须靠区间积分来救」;但 <a class="wiki-link" data-slug="flow-opd-2026" href="../flow-opd-2026/index.html">flow-opd-2026</a> 恰恰证明 reverse-KL 对 flow <strong>精确退化成单时刻的速度 L2</strong>, 并把它当作稳定、够用的目标。同一件事(单时刻速度匹配), 一篇说是病根、一篇说是解药。可能的调和:Flow-OPD 的稳定性来自<strong>on-policy 采样 + 多教师 dense 监督 + SDE 共方差结构</strong>提供的隐式平均, 而 MFD 在<strong>没有这些外部稳定器</strong>时, 用时间积分显式地把平均补回来。换句话说, 两者都需要「某种形式的平均」来压方差, 只是一个来自采样/监督设计、一个来自时间积分。这条线索, 是判断「MFD 的区间积分是不是必要」的关键 —— 如果配上 on-policy dense 监督, MFD 的积分红利会不会被吃掉?论文没答, 但这是最该做的下一个消融。</p>
+</main>
+</body>
+</html>
