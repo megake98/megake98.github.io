@@ -47,8 +47,42 @@
 <!-- NAV-END -->
 <main class="page page--listing">
 <h1>调研</h1>
-<p class="page__intro">共 3 篇研究调研报告。</p>
+<p class="page__intro">共 5 篇研究调研报告。</p>
 <div class="post-grid">
+<div class="post-card post-card--survey">
+  <div class="post-card__head">
+    <span class="post-card__badge post-card__badge--survey">📊 调研</span>
+    <span class="post-card__date"><span class="post-card__added">📅 2026-10-10</span></span>
+  </div>
+  <h3 class="post-card__title"><a class="post-card__title-link" href="surveys/llm-sparse-attention-2026/index.html">LLM 稀疏注意力架构调研：压缩、选择与 KV 共享三条主线——从 NSA/MoBA 到 DSA、HySparse2</a></h3>
+  <p class="post-card__tldr">以小米 HySparse2（arxiv 2609.26368）为锚点，调研 LLM 侧稀疏注意力架构的三条主线：**① 可训练原生稀疏**（NSA 三分支压缩+选择+滑窗、MoBA 的 MoE 式块路由、SeerAttention 的后训练自蒸馏块门控）；**② 索引器改装稀疏**（DeepSeek-V3.2 的闪电索引器 + token 级 top-k、V4 的 CSA/HCA 分层混合）；**③ 混合层级架构 + 跨层 KV 共享**（YOCO 自/交叉解码器、CLA、HySparse 的 oracle 选择 + KV 复用、HySparse2 的两级 KV 共享），另以训练无关的推理时稀疏/驱逐线（StreamingLLM、H2O、SnapKV、Quest、MInference）作对照轴。
+四条判断：**① 局部窗口不可或缺是最强共识**——NSA 的滑窗分支、MoBA 给自块 +inf、HySparse2 的 Forced SWA 消融（去掉局部分支 RULER 掉 5.3 分）、工业系 gpt-oss/Gemma/MiMo 全部内置 128-token 窗口，六家独立收敛。**② 块级 vs token 级粒度是真正的时代分界**——NSA/MoBA/HySparse 都报告块级近无损，但 HySparse2 与 DSA 在多轮 agentic 检索下证明块级明显掉分（RULER-v2 +6.57、2-needle MRCR +8.14），工作负载从单针检索变成多轮取证后结论反转。**③ 「谁来选 token」三条互斥路线**——学习型索引器（DSA/SeerAttention，要蒸馏 KL 对齐）、oracle 全注意力层（HySparse 系，免辅助损失）、无参数启发（MoBA mean-pool / Quest page min-max）——正在互相收敛。**④ 稀疏度不等于省显存**：NSA/MoBA/DSA 只砍 FLOPs 不砍 KV 存储，内存轴要靠跨层共享（YOCO/CLA/KV Bridging）、驱逐（H2O/SnapKV）或潜变量压缩（MLA）另行解决——HySparse2 的两级 KV 共享正是把两条轴拧到一起的当前最优解之一。
+</p>
+  <div class="post-card__tags">
+      <a class="tag-chip" href="concepts/sparse-attention.html">sparse-attention</a>
+      <a class="tag-chip" href="concepts/kv-cache.html">kv-cache</a>
+      <a class="tag-chip" href="concepts/kv-cache-compression.html">kv-cache-compression</a>
+      <span class="tag-chip tag-chip--more">+9 more</span>
+  </div>
+</div>
+<div class="post-card post-card--survey">
+  <div class="post-card__head">
+    <span class="post-card__badge post-card__badge--survey">📊 调研</span>
+    <span class="post-card__date"><span class="post-card__added">📅 2026-10-10</span></span>
+  </div>
+  <h3 class="post-card__title"><a class="post-card__title-link" href="surveys/compensated-sparse-attention-2026/index.html">补偿式稀疏注意力：视频扩散的「稀疏分支 + 低秩/线性补偿」家族调研（VSA · SLA · SALAD · RoPeSLR · RoLA）</a></h3>
+  <p class="post-card__tldr">视频扩散 Transformer 的推理被长时空注意力的 $O(L^2)$ 主导。一条主线在过去一年半里成型：**块稀疏分支**（只算高能语义块）**+ 一条轻量补偿分支**（线性 / 低秩，把丢掉的全局上下文捞回来）。本调研把这条线上的 5 篇载重工作放在一起对比——VSA（2505，纯可训练块稀疏、无补偿，确立块稀疏计算范式）、SLA（2509，把注意力块三分为 critical→精确 / marginal→线性 / negligible→丢弃）、SALAD（2601，并联 ReLU 线性补偿分支 + 标量门，20.6 GPU 时超廉价微调）、RoPeSLR（2605，命名「RoPE 两难」、用可学习 3D 绝对位置注入救低秩分支）、RoLA（2609，把 RoPE 放到非线性之后作用在秩截断特征上，SparkDiffusion 的默认稀疏模块）。
+三条判断：**① 门控设计强收敛**——SALAD 的标量零初始门、RoLA 的逐 token 偏置 $-1.946$ 近零门、SLA 的可学习投影，独立三家都落到「初始几乎纯稀疏、补偿分支慢慢打开」，是强信号。**② RoPE 两难是真正的技术分歧点**——线性注意力的特征映射 $\phi$ 与旋转不可交换，导致「可复用的全局摘要」会烘焙进绝对位置；SALAD 直接加 3D RoPE 靠训练兜、RoPeSLR 弃用标准线性注意力改注入可学习 PE、RoLA 把旋转移到 $\phi$ 之外——三种解法互斥。**③ 90% 天花板的集体假象**——每篇都报「90% 稀疏近无损」，但 [[sparkdiffusion-2026]] 用 oracle 探针证明：97% 处补偿分支已经不够，问题从「表达能力」变成「监督信号」（high-sparsity trap）。补偿家族把稀疏度顶到 90–97%，但真正兑现质量还要靠终端对齐的蒸馏。
+与 LLM 侧的稀疏（[[deepseek-v4-2026]] 的 DSA/CSA「压缩+选择」）是两条独立演化线：视频扩散补偿家族赌「低秩线性摘要」，LLM 赌「压缩 KV + top-k 选择」。
+**T2I / 高分辨率图像侧（§5 新增对照）**：图像 token 数远小于视频，只有在 2K/4K/8K 才遇到同样的 $O(L^2)$ 墙；因注意力高秩、无时间冗余，主流答案不是「块稀疏+补偿」而是**线性化**（Sana、CLEAR、LinFusion，线性注意力当主力而非配角）、**局部/窗口化**（Scale-DiT）或**上游压 token**（DC-AE），块稀疏（ElasticDiT 的 SSBA、PAROAttention）反而是少数派。两域共享「线性注意力」积木，却把它放在不同位置——视频当补偿、图像当主力。
+</p>
+  <div class="post-card__tags">
+      <a class="tag-chip" href="concepts/sparse-attention.html">sparse-attention</a>
+      <a class="tag-chip" href="concepts/compensated-sparse-attention.html">compensated-sparse-attention</a>
+      <a class="tag-chip" href="concepts/block-sparse-attention.html">block-sparse-attention</a>
+      <span class="tag-chip tag-chip--more">+9 more</span>
+  </div>
+</div>
 <div class="post-card post-card--survey">
   <div class="post-card__head">
     <span class="post-card__badge post-card__badge--survey">📊 调研</span>

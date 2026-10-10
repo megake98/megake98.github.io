@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <script>(function(){try{var t=localStorage.getItem('theme');if(!t)t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
+  <title>terminal-alignment — paper-reading</title>
+  <link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+<!-- NAV-START -->
+<nav class="site-nav" aria-label="主导航">
+  <a class="site-nav__brand" href="../index.html" aria-label="返回主页">
+    <svg class="site-nav__home-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M3 12l9-9 9 9"/>
+      <path d="M5 10v10h14V10"/>
+    </svg>
+    <span class="site-nav__brand-text">Paper Reading</span>
+  </a>
+  <div class="site-nav__links">
+    <a class="site-nav__link" href="../papers.html">论文</a>
+    <a class="site-nav__link" href="../tutorials.html">教程</a>
+    <a class="site-nav__link" href="../surveys.html">调研</a>
+    <a class="site-nav__link active" href="../graph.html">图谱</a>
+    <button type="button" class="site-nav__search-btn" id="search-open" aria-label="搜索" aria-expanded="false" aria-controls="search-modal">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/>
+      </svg>
+    </button>
+    <button type="button" class="site-nav__theme-btn" id="theme-toggle" aria-label="切换深浅色主题">
+      <svg class="theme-icon theme-icon--moon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
+      <svg class="theme-icon theme-icon--sun" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+    </button>
+  </div>
+</nav>
+<div class="search-modal" id="search-modal" hidden data-pagefind-path="../pagefind/">
+  <div class="search-modal__backdrop" data-search-close></div>
+  <div class="search-modal__panel" role="dialog" aria-modal="true" aria-label="全文搜索">
+    <button type="button" class="search-modal__close" data-search-close aria-label="关闭">✕</button>
+    <div id="search"></div>
+  </div>
+</div>
+<link href="../pagefind/pagefind-ui.css" rel="stylesheet">
+<script defer src="../pagefind/pagefind-ui.js"></script>
+<script defer src="../assets/search.js"></script>
+<script defer src="../assets/theme.js"></script>
+<!-- NAV-END -->
+
+<main class="page page--concept">
+  <h1>terminal-alignment</h1>
+  
+  <div class="concept__body">
+
+  </div>
+  <h2>提到此概念的论文 / 教程</h2>
+  <div class="post-grid">
+<div class="post-card post-card--paper">
+  <div class="post-card__head">
+    <span class="post-card__badge post-card__badge--paper">📄 论文</span>
+    <span class="post-card__date"><span class="post-card__added">📅 2026-10-10</span></span>
+  </div>
+  <h3 class="post-card__title"><a class="post-card__title-link" href="../papers/sparkdiffusion-2026/index.html">SparkDiffusion：识别「高稀疏陷阱」，把视频扩散在单卡上加速 265×</a></h3>
+  <p class="post-card__tldr">视频扩散 Transformer 的算力全被长时空序列上的注意力吃掉了。补偿式稀疏注意力（稀疏分支 + 低秩分支）能把注意力稀疏度推到 90%，但再往上推到 95%/97% 就会掉进一个坑：**step-local 训练损失（flow matching）还在稳稳下降，而最终生成出来的视频却结构崩坏、语义漂移、马赛克化**——作者把它命名为 **high-sparsity trap（高稀疏陷阱）**。
+诊断结论很干脆：这是**监督信号**的问题，不是表达能力的问题。用「oracle 探针」把稀疏学生在一小段采样步上的速度替换成稠密教师的速度，发现**只修高噪声（结构生成）那几步就能消掉绝大部分终端误差，修低噪声那几步几乎没用**。附录 C 用一个 Hilbert 空间的线性代数把它讲透：终端误差 $\Psi=\langle e, s\rangle$ 是逐步误差的**带符号、按敏感度加权**的和，而 step-local 损失 $L=\tfrac12\lVert e\rVert^2$ 只看**幅度**——两者看同一个残差的方式根本不同。
+于是 SparkDiffusion 给出一个分阶段配方：**① 短暂稀疏预热**（把稠密骨干适配成一个粗糙的先验）→ **② trajectory-mixed 蒸馏**（高噪声段用 PCM 一致性锚结构、低噪声段用 DMD 分布匹配补细节，3 步学生）→ **③ FP8 W8A8 量化 + 融合 kernel**（把省下的 FLOPs 兑现成真实墙钟加速）。结果：Wan2.1-T2V-14B-720P 在单张 RTX 5090 上端到端 **265×**（H100 220×），97% 稀疏度下 VBench 仍逼近稠密；1.3B-480P 一条视频 1.3 秒去噪完。
+</p>
+</div>
+</div>
+
+  <p class="back-link"><a href="../graph.html">← 返回图谱</a></p>
+</main>
+</body>
+</html>

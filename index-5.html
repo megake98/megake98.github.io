@@ -52,143 +52,147 @@
 <div class="post-card post-card--paper">
   <div class="post-card__head">
     <span class="post-card__badge post-card__badge--paper">📄 论文</span>
-    <span class="post-card__date"><span class="post-card__added">📅 2026-06-14</span></span>
+    <span class="post-card__date"><span class="post-card__added">📅 2026-06-30</span></span>
   </div>
-  <h3 class="post-card__title"><a class="post-card__title-link" href="papers/ferret-v2-2024/index.html">Ferret-v2：给「指代+定位」MLLM 装上高分辨率的眼睛</a></h3>
-  <p class="post-card__tldr">Ferret-v2 是 Ferret 的重大升级,三招破解&quot;固定低分辨率编码器看不清小物体&quot;:(1) any-resolution——把大图切成子块各自编码,保住 CLIP 预训练知识;(2) 多粒度双编码器——全局图用 CLIP 抓语义、局部块用 DINOv2 抓细节;(3) 三阶段训练,中间插一个&quot;高分辨率密集对齐&quot;阶段。
-它把 [[ferret-2023|Ferret]] 的输入侧 grounding 推到高分辨率密集感知,也是 Ferret-UI 屏幕理解的技术底座。
+  <h3 class="post-card__title"><a class="post-card__title-link" href="papers/op4ksr-2026/index.html">OP4KSR：一步、无分块的 4K 超分，外加把 Flux「周期格子伪影」连根拔起</a></h3>
+  <p class="post-card__tldr">OP4KSR 是第一个「一步 + 无分块」的真实世界 4K 超分框架：靠 UltraFlux 的 F16 极压缩 VAE 把 4096×4096 的显存压到单卡可跑，再借 [[omgsr-2025]] 的中间时刻对齐把 Flux 微调成一步前向（注意：是 GAN 式一步微调，**不是师生蒸馏**），5.75 秒出一张 4K 图。
+但一步化会触发周期 32 像素的格子伪影。作者把病因拆成两层——RoPE 相位坍缩让相邻 token 不可分（θ=10000 太大）、以及 2×2 打包后 unpack 把通道当空间用——并对症下两味药：RoPE 基频从 10000 降到 100（RFR）+ 一个基于自相关的周期性损失（L_AP）。
 </p>
   <div class="post-card__tags">
-      <a class="tag-chip" href="concepts/referring-grounding.html">referring-grounding</a>
-      <a class="tag-chip" href="concepts/any-resolution.html">any-resolution</a>
-      <a class="tag-chip" href="concepts/multi-granularity-encoding.html">multi-granularity-encoding</a>
-      <span class="tag-chip tag-chip--more">+4 more</span>
+      <a class="tag-chip" href="concepts/image-super-resolution.html">image-super-resolution</a>
+      <a class="tag-chip" href="concepts/4k-super-resolution.html">4k-super-resolution</a>
+      <a class="tag-chip" href="concepts/one-step-generation.html">one-step-generation</a>
+      <span class="tag-chip tag-chip--more">+7 more</span>
   </div>
 </div>
 <div class="post-card post-card--paper">
   <div class="post-card__head">
     <span class="post-card__badge post-card__badge--paper">📄 论文</span>
-    <span class="post-card__date"><span class="post-card__added">📅 2026-06-14</span></span>
+    <span class="post-card__date"><span class="post-card__added">📅 2026-06-30</span></span>
   </div>
-  <h3 class="post-card__title"><a class="post-card__title-link" href="papers/ferret-2023/index.html">Ferret：任意形状、任意粒度的「指代 + 定位」多模态大模型</a></h3>
-  <p class="post-card__tldr">Ferret 用「混合区域表示」（离散坐标 + 连续特征）把用户圈的任意形状区域（点/框/涂鸦/自由形状）编码进 LLM 输入，同时在输出端把名词后接坐标实现定位——一个模型统一了 referring（区域→语义）和 grounding（语义→区域）。
-它是 LISA「文本→掩码」的**输入侧对偶**：LISA 解决&quot;想哪打哪&quot;的输出，Ferret 解决&quot;圈哪问哪&quot;的输入。
+  <h3 class="post-card__title"><a class="post-card__title-link" href="papers/omgsr-2025/index.html">OMGSR：一步超分的关键不是蒸馏，是把低清图喂到「中间时刻」——SNR 算出最佳注入点 + GAN 训练</a></h3>
+  <p class="post-card__tldr">OMGSR 把一步真实世界超分（Real-ISR）的成败归结为一个「潜空间鸿沟」：以往方法把低清图 latent 注入到扩散调度器的 t=999（纯噪声）或 t=1（干净图），但低清图 latent 既不是噪声也不是干净图——它最接近预训练扩散在某个**中间时刻 t\*** 的带噪 latent。
+作者用信噪比 (SNR) 把这个「最佳中间时刻」**算出来**（SD2.1-base 上 t\*=273），再用 LRR 损失（LoRA 微调 VAE 编码器）把低清 latent 进一步拉向 t\* 的带噪 latent，然后在 t\* 处做一步去噪。整套是 **GAN 训练**（生成器=扩散模型本身，判别器=DINOv3-ConvNeXt + 多级头），不是师生蒸馏。这就是 [[op4ksr-2026]] 4K 超分的直接前身。
 </p>
   <div class="post-card__tags">
-      <a class="tag-chip" href="concepts/referring-grounding.html">referring-grounding</a>
-      <a class="tag-chip" href="concepts/region-input.html">region-input</a>
-      <a class="tag-chip" href="concepts/hybrid-region-representation.html">hybrid-region-representation</a>
-      <span class="tag-chip tag-chip--more">+4 more</span>
-  </div>
-</div>
-<div class="post-card post-card--tutorial">
-  <div class="post-card__head">
-    <span class="post-card__badge post-card__badge--tutorial">📘 教程</span>
-    <span class="post-card__date"><span class="post-card__added">📅 2026-06-11</span> · <span class="post-card__extra">15k 字</span> · <span class="post-card__extra">90–120 分钟</span></span>
-  </div>
-  <h3 class="post-card__title"><a class="post-card__title-link" href="tutorials/step-distillation-2022/index.html">Diffusion / Flow Matching 步数蒸馏:四大家族与可实践指南(PD → LCM-LoRA → DMD2 → MeanFlow/rCM)</a></h3>
-  <p class="post-card__tldr">8 节螺旋系统讲透&quot;把 1000 步扩散/flow matching teacher 压到 1–4 步&quot;的四大家族:轨迹蒸馏(Progressive
-Distillation 逐次砍半 + ReFlow 拉直轨迹)、一致性家族(CM → 可直接复跑的 LCM-LoRA → 连续时间 sCM)、
-分布匹配(DMD/DMD2,real/fake score 差 = reverse-KL 梯度)、对抗蒸馏(官方未开源,用 DMD2 的 GAN
-分支佐证可实践)。覆盖 2025–2026 前沿(sCM/TrigFlow、MeanFlow 的 JVP 恒等式、NVIDIA rCM 视频蒸馏),
-每个主讲方法都配经 diff 逐行验证的开源训练代码(diffusers / openai CM / DMD2 / RectifiedFlow /
-MeanFlow 官方 / NVlabs rcm),终章给选型决策树 + 成本模型 + 踩坑清单。
-</p>
-  <div class="post-card__tags">
-      <a class="tag-chip" href="concepts/distillation.html">distillation</a>
-      <a class="tag-chip" href="concepts/step-distillation.html">step-distillation</a>
-      <a class="tag-chip" href="concepts/diffusion.html">diffusion</a>
-      <span class="tag-chip tag-chip--more">+4 more</span>
+      <a class="tag-chip" href="concepts/image-super-resolution.html">image-super-resolution</a>
+      <a class="tag-chip" href="concepts/real-isr.html">real-isr</a>
+      <a class="tag-chip" href="concepts/one-step-generation.html">one-step-generation</a>
+      <span class="tag-chip tag-chip--more">+7 more</span>
   </div>
 </div>
 <div class="post-card post-card--paper">
   <div class="post-card__head">
     <span class="post-card__badge post-card__badge--paper">📄 论文</span>
-    <span class="post-card__date"><span class="post-card__added">📅 2026-06-09</span></span>
+    <span class="post-card__date"><span class="post-card__added">📅 2026-06-30</span></span>
   </div>
-  <h3 class="post-card__title"><a class="post-card__title-link" href="papers/q-ground-2024/index.html">Q-Ground: Image Quality Grounding with Large Multi-modality Models</a></h3>
-  <p class="post-card__tldr">ACM MM 2024 Oral(南洋理工 + 商汤)。第一个做&quot;细粒度画质 grounding&quot;的工作:不再只给一张图打一个总分/一段评语,而是把**画质缺陷的具体位置**分割出来。核心贡献是 **QGround-100K 数据集** —— 10 万条 (图像, 画质描述文本, 失真分割掩码) 三元组,建在 Q-Instruct/Q-Pathway 之上,锁定 5 种失真(模糊/过曝/噪声/抖动/低光),掩码用固定颜色编码。制作走**双轨标注**:① 15 名人工标注员(SAM 预分割 + 参考画质文本手调边界);② GPT4V 自动标注(Set-of-Mark:SAM 分割 + 编号 → GPT4V 给每个区域判失真类型)。人工 17,963 图 / 52,924 标注 + GPT4V 50,599 图。配套 Q-Ground 模型(PixelLM 式 [SEG] token + 多尺度投影 MSFA)。
+  <h3 class="post-card__title"><a class="post-card__title-link" href="papers/mambo-g-2025/index.html">MAMBO-G:用幅度比 r_t 自适应阻尼 CFG——一个免训练、即插即用的扩散/视频采样加速器</a></h3>
+  <p class="post-card__tldr">CFG 在采样初期(t→1)对&quot;通用方向&quot;施加了过大的更新,在高维大模型里尤其会 overshoot 出过饱和与结构崩坏。
+MAMBO-G 用一个逐实例的幅度比 r_t = ‖Δv‖/‖v∅‖ 当探针:r_t 高就指数级压低 guidance scale,r_t 低才放开。
+免训练、几乎零开销,已并入 Diffusers。SD3.5 提速 3×、Lumina 4×、14B 视频模型 Wan2.1 提速 2×。
 </p>
   <div class="post-card__tags">
-      <a class="tag-chip" href="concepts/iqa.html">iqa</a>
-      <a class="tag-chip" href="concepts/image-quality.html">image-quality</a>
-      <a class="tag-chip" href="concepts/grounding.html">grounding</a>
-      <span class="tag-chip tag-chip--more">+5 more</span>
-  </div>
-</div>
-<div class="post-card post-card--tutorial">
-  <div class="post-card__head">
-    <span class="post-card__badge post-card__badge--tutorial">📘 教程</span>
-    <span class="post-card__date"><span class="post-card__added">📅 2026-06-09</span> · <span class="post-card__extra">15k 字</span> · <span class="post-card__extra">100–130 分钟</span></span>
-  </div>
-  <h3 class="post-card__title"><a class="post-card__title-link" href="tutorials/opd-diffusion-2026/index.html">OPD 在 Diffusion / Flow Matching 上的应用:三兄弟 + 分布匹配蒸馏 + 统一视角</a></h3>
-  <p class="post-card__tldr">7 节螺旋系统讲透 On-Policy Distillation(OPD)如何从 LLM 的 GKD 搬到扩散/flow matching。地基是一个折叠:SDE 同协方差让 reverse-KL 解析坍缩成速度场 L2(ODE 极限退化成纯 L2)。在此之上讲&quot;三兄弟&quot;:Flow-OPD(留住 RL:PPO+task reward+MAR,能反超 teacher)、DiffusionOPD(砍掉 RL:closed-form 直接 loss,§3.3 论证 PPO 是纯方差)、D-OPSD(teacher=EMA 自己,reward-free 自蒸馏,少步模型边用边学);再讲近亲 DMD/SiD 分布匹配蒸馏(为提速),最后收敛到一个统一模板&quot;在 student 自采轨迹上匹配 teacher 的 per-state 目标&quot;+ 四个选择轴。代码 verbatim 引自 CostaliyA/Flow-OPD、DiffusionOPD、vvvvvjdy/D-OPSD、tianweiy/DMD2 真实训练脚本(均经 diff 验证)。
-</p>
-  <div class="post-card__tags">
-      <a class="tag-chip" href="concepts/on-policy-distillation.html">on-policy-distillation</a>
-      <a class="tag-chip" href="concepts/diffusion.html">diffusion</a>
+      <a class="tag-chip" href="concepts/classifier-free-guidance.html">classifier-free-guidance</a>
       <a class="tag-chip" href="concepts/flow-matching.html">flow-matching</a>
-      <span class="tag-chip tag-chip--more">+4 more</span>
+      <a class="tag-chip" href="concepts/diffusion-sampling.html">diffusion-sampling</a>
+      <span class="tag-chip tag-chip--more">+3 more</span>
+  </div>
+</div>
+<div class="post-card post-card--survey">
+  <div class="post-card__head">
+    <span class="post-card__badge post-card__badge--survey">📊 调研</span>
+    <span class="post-card__date"><span class="post-card__added">📅 2026-06-30</span></span>
+  </div>
+  <h3 class="post-card__title"><a class="post-card__title-link" href="surveys/diffusion-sr-2026/index.html">扩散超分调研：一步化浪潮与 SeedVR 之后的视频超分（2024→2026）</a></h3>
+  <p class="post-card__tldr">对 2024–2026 扩散超分（图像 + 视频）的研究调研，主线是「把多步随机采样压成一步确定性前向」。逐篇厘清每个工作的核心贡献 / 方法 / 关键结果 / 代码位置，再平行对比、找出一致与矛盾、并把每个有仓库的方法的核心主张与其代码逐一交叉验证。覆盖图像一步化（OSEDiff/OMGSR/OP4KSR/OFTSR/ODTSR/TEASR）与 SeedVR 之后的视频超分（SeedVR2/DOVE/DLoRAL/DUO-VSR/FlashVSR/InfVSR/Stream-DiffVSR/STCDiT）。所有 arxiv 号均联网核实；代码主张对照 OSEDiff/OMGSR/DLoRAL/SeedVR/FlashVSR/StableSR 真实函数验证。
+</p>
+  <div class="post-card__tags">
+      <a class="tag-chip" href="concepts/diffusion.html">diffusion</a>
+      <a class="tag-chip" href="concepts/image-super-resolution.html">image-super-resolution</a>
+      <a class="tag-chip" href="concepts/video-super-resolution.html">video-super-resolution</a>
+      <span class="tag-chip tag-chip--more">+7 more</span>
   </div>
 </div>
 <div class="post-card post-card--tutorial">
   <div class="post-card__head">
     <span class="post-card__badge post-card__badge--tutorial">📘 教程</span>
-    <span class="post-card__date"><span class="post-card__added">📅 2026-06-06</span> · <span class="post-card__extra">18k 字</span> · <span class="post-card__extra">110–140 分钟</span></span>
+    <span class="post-card__date"><span class="post-card__added">📅 2026-06-30</span></span>
   </div>
-  <h3 class="post-card__title"><a class="post-card__title-link" href="tutorials/vlm-grounding-2025/index.html">VLM Grounding 全景(2025–2026):从「框是输出」到「框是思维」</a></h3>
-  <p class="post-card__tldr">9 节螺旋结构系统综述 2025–2026 视觉语言模型(VLM)的 grounding(视觉定位)浪潮:从「坐标如何变成 token」(三大编码流派)到「框作为输出」(检测/referring/Pointing/GUI/并行框解码)再到「框作为思维」(grounded reasoning)。覆盖 Kosmos-2/Shikra/Ferret/Grounding-DINO/Florence-2/PaliGemma/Qwen2.5-VL/Molmo/Rex-Omni/LocateAnything/Thinking-with-Visual-Primitives 等模型与技术报告,以及 RefCOCO/LVIS/ScreenSpot-Pro/PixMo-Points 等 18+ benchmark 的大盘点。代码 verbatim 引自 IDEA-Research/Rex-Omni 与 QwenLM/Qwen2.5-VL。两篇 anchor:Thinking with Visual Primitives 与 LocateAnything。文末附分类参考文献与技术报告全集。
+  <h3 class="post-card__title"><a class="post-card__title-link" href="tutorials/diffusion-sr-2021/index.html">扩散超分全景：从多步先验到一步前向，再到视频流式</a></h3>
+  <p class="post-card__tldr">8 节螺旋系统讲透扩散超分（Diffusion Super-Resolution）的演化主线：把&quot;多步随机采样的强生成先验&quot;逐步压成&quot;一步确定性前向&quot;，再从图像扩展到视频的时序一致性与流式实时。地基是 SR3/StableSR 的&quot;冻结 SD 当先验、只学条件&quot;（§1–§2）；其上是三条一步化路线——分数蒸馏（OSEDiff/VSD，§3）、中间时刻注入+GAN 一步（OMGSR/OP4KSR，§4）；再转入视频：SeedVR 的 shifted-window 时空 DiT（§5）、视频一步化与时序一致（DLoRAL 双 LoRA / DOVE / DUO-VSR，§6）、流式/长视频/实时（FlashVSR 稀疏注意力 / InfVSR 因果 KV-cache / Stream-DiffVSR，§7），最后收敛到统一视角与选型白地（§8）。代码均 verbatim 引自 StableSR、OSEDiff、OMGSR、SeedVR、DLoRAL、FlashVSR 真实仓库（行号经 sed 核对）。
 </p>
   <div class="post-card__tags">
-      <a class="tag-chip" href="concepts/grounding.html">grounding</a>
-      <a class="tag-chip" href="concepts/vlm.html">vlm</a>
-      <a class="tag-chip" href="concepts/detection.html">detection</a>
+      <a class="tag-chip" href="concepts/diffusion.html">diffusion</a>
+      <a class="tag-chip" href="concepts/image-super-resolution.html">image-super-resolution</a>
+      <a class="tag-chip" href="concepts/video-super-resolution.html">video-super-resolution</a>
+      <span class="tag-chip tag-chip--more">+9 more</span>
+  </div>
+</div>
+<div class="post-card post-card--paper">
+  <div class="post-card__head">
+    <span class="post-card__badge post-card__badge--paper">📄 论文</span>
+    <span class="post-card__date"><span class="post-card__added">📅 2026-06-25</span></span>
+  </div>
+  <h3 class="post-card__title"><a class="post-card__title-link" href="papers/krea-2-2026/index.html">Krea 2 技术报告精读：一个「为创意探索而生」的开源文生图基础模型，从数据、架构到万卡基建全栈拆解</a></h3>
+  <p class="post-card__tldr">Krea 2 是 Krea 自研的开源文生图（T2I）基础模型族，定位不是「给你一张最稳的默认图」，而是「让你在广阔的美学空间里探索」——刻意保留风格多样性、并配套 prompt 扩写器 + 风格参考系统两套可控性工具。开源权重 + 推理代码，permissive license，号称登上 Artificial Analysis T2I 榜前 10、独立实验室中第 2。
+这是一份「工程配方 + 系统基建」型技术报告（58 分钟阅读），重点不在新公式，而在**全栈决策**：数据策展原则（多样性优先、零 AI 生成图）、从 LLM 生态搬过来的极简 DiT（GQA + 门控 sigmoid 注意力 + SwiGLU + Qwen3-VL + 轻量时间步调制 + 多层特征聚合）、五阶段训练流水线（预训练→midtraining→SFT→偏好优化→RL→时间步蒸馏），以及从零自建的 Kubernetes 训练基建（Kueue 调度、Virtual Kubelet 外溢推理、Weka 文件系统、PostgreSQL「krablet」数据仓库 + FOR UPDATE SKIP LOCKED 队列）。
+本文按精读骨架交叉拆解，并补全报告用散文描述、但背后是标准公式的几处方法（rectified-flow v 参数化、DPO/STPO、多奖励 GRPO、DMD→TDM）。
+</p>
+  <div class="post-card__tags">
+      <a class="tag-chip" href="concepts/text-to-image.html">text-to-image</a>
+      <a class="tag-chip" href="concepts/diffusion-transformer.html">diffusion-transformer</a>
+      <a class="tag-chip" href="concepts/mmdit.html">mmdit</a>
+      <span class="tag-chip tag-chip--more">+18 more</span>
+  </div>
+</div>
+<div class="post-card post-card--paper">
+  <div class="post-card__head">
+    <span class="post-card__badge post-card__badge--paper">📄 论文</span>
+    <span class="post-card__date"><span class="post-card__added">📅 2026-06-25</span></span>
+  </div>
+  <h3 class="post-card__title"><a class="post-card__title-link" href="papers/i1-2026/index.html">i1 精读：一份「完全开源」的强文生图配方——用 300+ 控制实验把设计空间逐个钉死</a></h3>
+  <p class="post-card__tldr">i1 是普林斯顿 Zhuang Liu 组放出的 3B 文生图扩散模型，卖点不是新模块，而是**完全开源（权重 + 数据 + 代码 + 配方）** 且**用 300+ 个控制实验**（700K+ TPU v6e 小时）把「文/噪声条件、骨干结构、合成 caption、数据混合」这几个设计维度逐个单变量消融，给出 10 条可复用结论。
+最终配方极简：双流 MMDiT + 长跳连接（long skip）+ 砍掉 AdaLN（省 0.23B 参数）+ 单个强文本编码器（T5Gemma-2B）配一个**更大的 transformer adapter**（替代「多文本编码器」）+ 只用长合成 caption 训练、推理时用 LLM 把短 prompt 扩写对齐训练分布 + 各数据集**等权重**混合。
+在 GenEval/DPG/PRISM/CVTG-2K/LongText 五个 benchmark 上，i1（3B）平均超过此前最强「完全开源」模型 **29.5 个百分点**，并在多数指标上压过 12B FLUX.1 [Dev]、17B HiDream-I1。本文交叉阅读其 JAX 代码，把每条结论落到 `file:Lnn`。
+</p>
+  <div class="post-card__tags">
+      <a class="tag-chip" href="concepts/text-to-image.html">text-to-image</a>
+      <a class="tag-chip" href="concepts/diffusion-transformer.html">diffusion-transformer</a>
+      <a class="tag-chip" href="concepts/mmdit.html">mmdit</a>
+      <span class="tag-chip tag-chip--more">+11 more</span>
+  </div>
+</div>
+<div class="post-card post-card--paper">
+  <div class="post-card__head">
+    <span class="post-card__badge post-card__badge--paper">📄 论文</span>
+    <span class="post-card__date"><span class="post-card__added">📅 2026-06-24</span></span>
+  </div>
+  <h3 class="post-card__title"><a class="post-card__title-link" href="papers/sefi-image-2026/index.html">SeFi-Image：用「语义先行」扩散把 T2I 基础模型的训练成本砍到 1/5（代码精读）</a></h3>
+  <p class="post-card__tldr">SeFi-Image 是一个文生图（T2I）基础模型族（1B / 2B / 5B），核心是 Semantic-First Diffusion（SFD，语义先行扩散）：把一张图拆成「语义 latent」（DINOv2 特征 → Semantic VAE 压缩）和「纹理 latent」（微调版 FLUX.2 VAE），给两路 latent 各自一个时间步，并强制语义时间步「领先」纹理一个固定偏移 Δt，让语义比纹理早一步去噪、从而给纹理生成提供更干净的结构条件。
+代价：5B 模型只用了 125K A800 GPU·时（约为 Z-Image 的 10–20%），却在 GenEval / LongTextBench / CVTG-2K / OneIG 等多个基准上追平甚至超过 Qwen-Image 和 Z-Image。论文 + 权重 + 推理代码全部开源。
+本文交叉精读：把 SFD 的 4 个核心公式逐一对到 `runner.py` / `flux2_sefi_transformer.py` 的具体实现，指出一处「论文写二值 mask、代码用 sigma 钳位」的等价但更巧妙的工程实现；并**着重梳理完整推理流程与 SemVAE 的设计**——包括一个反直觉的事实：训练时不可或缺的 SemVAE，在推理期完全不参与（编码器/解码器都不出现在推理图里，`s₁` 生成后即丢弃，仓库推理包里甚至没有它的权重），只留下一个整数超参 `semantic_channels`；以及推理端三种并列 guidance（CFG / AutoGuidance / 区间 guidance）与纹理 latent 的 BatchNorm 白化归一化等设计决定。
+</p>
+  <div class="post-card__tags">
+      <a class="tag-chip" href="concepts/text-to-image.html">text-to-image</a>
+      <a class="tag-chip" href="concepts/semantic-first-diffusion.html">semantic-first-diffusion</a>
+      <a class="tag-chip" href="concepts/latent-diffusion.html">latent-diffusion</a>
+      <span class="tag-chip tag-chip--more">+11 more</span>
+  </div>
+</div>
+<div class="post-card post-card--paper">
+  <div class="post-card__head">
+    <span class="post-card__badge post-card__badge--paper">📄 论文</span>
+    <span class="post-card__date"><span class="post-card__added">📅 2026-06-22</span></span>
+  </div>
+  <h3 class="post-card__title"><a class="post-card__title-link" href="papers/argus-2026/index.html">ARGUS：把「身份」从一张参考图变成扩散同步的动态记忆</a></h3>
+  <p class="post-card__tldr">主体保持的视频生成（让生成视频里的人「还是同一个人」）长期被「点参考」范式卡住——一张参考图把&quot;这个人是谁&quot;和&quot;他这一帧恰好长这样（姿态/配饰/光照/背景）&quot;纠缠在一起，模型要么照抄噪声细节、要么身份漂移。
+ARGUS（快手/北大）提出 SMII：用 MLLM 当&quot;身份导演&quot;挑出多视角身份证据，拼成 3×3 马赛克，**和目标视频走同一条 Flow Matching 加噪路径**，再以&quot;负时间、只读记忆&quot;的方式注入 Wan 的原生 token 空间。配合无配对反事实训练 + TIA + ASLG，在 OpenS2V-Eval 拿到 64.38 总分、71.86 FaceSim 的 SOTA，大偏航/首帧遮挡鲁棒性分别再涨 12.6 / 15.1 分。
+</p>
+  <div class="post-card__tags">
+      <a class="tag-chip" href="concepts/subject-preserving-video.html">subject-preserving-video</a>
+      <a class="tag-chip" href="concepts/identity-preservation.html">identity-preservation</a>
+      <a class="tag-chip" href="concepts/video-diffusion.html">video-diffusion</a>
       <span class="tag-chip tag-chip--more">+6 more</span>
-  </div>
-</div>
-<div class="post-card post-card--paper">
-  <div class="post-card__head">
-    <span class="post-card__badge post-card__badge--paper">📄 论文</span>
-    <span class="post-card__date"><span class="post-card__added">📅 2026-06-06</span></span>
-  </div>
-  <h3 class="post-card__title"><a class="post-card__title-link" href="papers/d4rt-2025/index.html">Efficiently Reconstructing Dynamic Scenes One D4RT at a Time</a></h3>
-  <p class="post-card__tldr">CVPR 2026 最佳论文 (Google DeepMind)。把&quot;重建动态 4D 场景&quot;这件事从&quot;逐帧稠密解码&quot;改成&quot;按需点查询&quot;:一个 encoder 把视频压成固定的 Global Scene Representation,一个轻量 cross-attention decoder 接收查询 q=(u,v,t_src,t_tgt,t_cam) 独立吐出该点的 3D 坐标。改一改查询就能统一拿到深度、点云、点轨迹、相机内外参 —— 速度比 VGGT 快 9×、比 MegaSaM 快 100×,且是唯一能稠密重建动态像素的方法。
-</p>
-  <div class="post-card__tags">
-      <a class="tag-chip" href="concepts/3d-reconstruction.html">3d-reconstruction</a>
-      <a class="tag-chip" href="concepts/4d-reconstruction.html">4d-reconstruction</a>
-      <a class="tag-chip" href="concepts/point-tracking.html">point-tracking</a>
-      <span class="tag-chip tag-chip--more">+5 more</span>
-  </div>
-</div>
-<div class="post-card post-card--paper">
-  <div class="post-card__head">
-    <span class="post-card__badge post-card__badge--paper">📄 论文</span>
-    <span class="post-card__date"><span class="post-card__added">📅 2026-06-04</span></span>
-  </div>
-  <h3 class="post-card__title"><a class="post-card__title-link" href="papers/thinking-visual-primitives-2026/index.html">Thinking with Visual Primitives: 让 MLLM 在思考时 &quot;用手指点&quot;——points/bboxes 作为最小思维单元穿插进 CoT 推理链</a></h3>
-  <p class="post-card__tldr">DeepSeek + 北大 + 清华 (技术报告 2026/04/30 release,代码 + 权重未公开)。MLLM 现在解决了 *Perception Gap* (高清 cropping / thinking-with-images),但还堵在 **Reference Gap** ——自然语言对密集空间布局指代太模糊,导致计数 / 拓扑推理时 &quot;逻辑塌方&quot;。提出 **Thinking with Visual Primitives**: 把 points / bboxes 当**思维原子**直接 interleave 进推理 trajectory,模型一边推理一边 &quot;点&quot;,把抽象语言概念锚到具体物理坐标。架构: DeepSeek-V4-Flash (284B MoE / 13B active) + DeepSeek-ViT。**视觉 token 压缩**: ViT 输出 3×3 spatial pooling (×9 压缩) + LLM 的 CSA (Compressed Sparse Attention) 把每 4 个 visual token 的 KV cache 压成 1 entry → 756×756 输入 (571,536 pixel) 最终 KV cache 仅 **81 entries**,**总压缩比 7,056×**。Pretraining 用 trillion+ tokens, 自建 40M 高质量 box-grounding 数据 (从 HF / 网络爬,两阶段 LLM 审核过滤)。Post-training 4 阶段: Specialized SFT → Specialized RL (GRPO 配 Format/Quality/Accuracy 3 个 RM) → Unified RFT → On-Policy Distillation。Cold-start 4 个任务: counting (10k), spatial reasoning (9k), maze navigation (460k), path tracing (125k)。结果: 选定子集 benchmark 上跟 **GPT-5.4 / Claude-Sonnet-4.6 / Gemini-3-Flash** 持平或反超,而 token efficiency 是这些 frontier model 的 1/8 到 1/10。本质是把 [[locate-anything-2026]] 的&quot;bbox 是 first-class output&quot; 进一步推进成&quot;bbox 是 first-class **thought**&quot;。
-</p>
-  <div class="post-card__tags">
-      <a class="tag-chip" href="concepts/mllm.html">mllm</a>
-      <a class="tag-chip" href="concepts/reasoning.html">reasoning</a>
-      <a class="tag-chip" href="concepts/chain-of-thought.html">chain-of-thought</a>
-      <span class="tag-chip tag-chip--more">+6 more</span>
-  </div>
-</div>
-<div class="post-card post-card--paper">
-  <div class="post-card__head">
-    <span class="post-card__badge post-card__badge--paper">📄 论文</span>
-    <span class="post-card__date"><span class="post-card__added">📅 2026-06-04</span></span>
-  </div>
-  <h3 class="post-card__title"><a class="post-card__title-link" href="papers/locate-anything-2026/index.html">LocateAnything: 把 VLM 的 bbox 输出当作不可分割原子,一次 forward 出 4 个坐标,12.7 BPS 跑赢 NTP 5×</a></h3>
-  <p class="post-card__tldr">NVIDIA + HK PolyU + Princeton + Nanjing + UIUC (arXiv 2026/05/27)。指出主流 VLM (Qwen3-VL / DeepSeek-VL2 / Rex-Omni) 输出 bbox 都把 4 个坐标当 token 序列 (x1, y1, x2, y2) 串行 next-token-predict——这是几何上耦合的 4-tuple 被人为序列化,既损精度又限吞吐。**Parallel Box Decoding (PBD)**: 把整个 bbox (4 坐标 + 2 个 &lt;box&gt;/&lt;/box&gt; 结构 token = 长度 L=6 的 atomic block) 一次性并行预测,而非逐 token 输出。block 内 bidirectional attention 让 4 个坐标互相看到,block 间 causal attention 保持自回归语义。**关键 trick**: 训练时把同一 GT 同时塞两种格式 (`x_ntp` + `x_blk`) 让模型 joint 学 NTP + MTP,**通过 attention mask 让两条 stream 互不串话**(都看 shared context 但 MTP block 看不到 NTP token 反之亦然)。推理三模式: Fast (纯 MTP),Slow (纯 NTP),Hybrid (默认 MTP,format 异常或 top-1 prob &lt; 0.7 时回退 NTP 重 decode 该 block)。LocateAnything-Data 138M queries / 12M images / 785M bbox 涵盖 detection + UI + referring + OCR + layout + pointing 6 大任务。结果: LocateAnything-3B 在 LVIS F1@0.95 上 31.1 (vs Qwen3-VL-8B 的 20.2 / Rex-Omni-3B 的 20.7),Throughput 12.7 BPS = **比 Qwen3-VL-8B 快 12.7×、比 Rex-Omni 快 2.5×**。
-</p>
-  <div class="post-card__tags">
-      <a class="tag-chip" href="concepts/detection.html">detection</a>
-      <a class="tag-chip" href="concepts/grounding.html">grounding</a>
-      <a class="tag-chip" href="concepts/vlm.html">vlm</a>
-      <span class="tag-chip tag-chip--more">+3 more</span>
   </div>
 </div>
 </div>
@@ -202,6 +206,8 @@ MeanFlow 官方 / NVlabs rcm),终章给选型决策树 + 成本模型 + 踩坑�
   <a class="pager__item" href="index-6.html">6</a>
   <a class="pager__item" href="index-7.html">7</a>
   <a class="pager__item" href="index-8.html">8</a>
+  <a class="pager__item" href="index-9.html">9</a>
+  <a class="pager__item" href="index-10.html">10</a>
   <a class="pager__nav" href="index-6.html">下一页</a>
 </nav>
 </main>

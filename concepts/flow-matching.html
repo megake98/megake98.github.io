@@ -74,6 +74,100 @@
 <div class="post-card post-card--survey">
   <div class="post-card__head">
     <span class="post-card__badge post-card__badge--survey">📊 调研</span>
+    <span class="post-card__date"><span class="post-card__added">📅 2026-10-10</span></span>
+  </div>
+  <h3 class="post-card__title"><a class="post-card__title-link" href="../surveys/compensated-sparse-attention-2026/index.html">补偿式稀疏注意力：视频扩散的「稀疏分支 + 低秩/线性补偿」家族调研（VSA · SLA · SALAD · RoPeSLR · RoLA）</a></h3>
+  <p class="post-card__tldr">视频扩散 Transformer 的推理被长时空注意力的 $O(L^2)$ 主导。一条主线在过去一年半里成型：**块稀疏分支**（只算高能语义块）**+ 一条轻量补偿分支**（线性 / 低秩，把丢掉的全局上下文捞回来）。本调研把这条线上的 5 篇载重工作放在一起对比——VSA（2505，纯可训练块稀疏、无补偿，确立块稀疏计算范式）、SLA（2509，把注意力块三分为 critical→精确 / marginal→线性 / negligible→丢弃）、SALAD（2601，并联 ReLU 线性补偿分支 + 标量门，20.6 GPU 时超廉价微调）、RoPeSLR（2605，命名「RoPE 两难」、用可学习 3D 绝对位置注入救低秩分支）、RoLA（2609，把 RoPE 放到非线性之后作用在秩截断特征上，SparkDiffusion 的默认稀疏模块）。
+三条判断：**① 门控设计强收敛**——SALAD 的标量零初始门、RoLA 的逐 token 偏置 $-1.946$ 近零门、SLA 的可学习投影，独立三家都落到「初始几乎纯稀疏、补偿分支慢慢打开」，是强信号。**② RoPE 两难是真正的技术分歧点**——线性注意力的特征映射 $\phi$ 与旋转不可交换，导致「可复用的全局摘要」会烘焙进绝对位置；SALAD 直接加 3D RoPE 靠训练兜、RoPeSLR 弃用标准线性注意力改注入可学习 PE、RoLA 把旋转移到 $\phi$ 之外——三种解法互斥。**③ 90% 天花板的集体假象**——每篇都报「90% 稀疏近无损」，但 [[sparkdiffusion-2026]] 用 oracle 探针证明：97% 处补偿分支已经不够，问题从「表达能力」变成「监督信号」（high-sparsity trap）。补偿家族把稀疏度顶到 90–97%，但真正兑现质量还要靠终端对齐的蒸馏。
+与 LLM 侧的稀疏（[[deepseek-v4-2026]] 的 DSA/CSA「压缩+选择」）是两条独立演化线：视频扩散补偿家族赌「低秩线性摘要」，LLM 赌「压缩 KV + top-k 选择」。
+**T2I / 高分辨率图像侧（§5 新增对照）**：图像 token 数远小于视频，只有在 2K/4K/8K 才遇到同样的 $O(L^2)$ 墙；因注意力高秩、无时间冗余，主流答案不是「块稀疏+补偿」而是**线性化**（Sana、CLEAR、LinFusion，线性注意力当主力而非配角）、**局部/窗口化**（Scale-DiT）或**上游压 token**（DC-AE），块稀疏（ElasticDiT 的 SSBA、PAROAttention）反而是少数派。两域共享「线性注意力」积木，却把它放在不同位置——视频当补偿、图像当主力。
+</p>
+</div>
+<div class="post-card post-card--tutorial">
+  <div class="post-card__head">
+    <span class="post-card__badge post-card__badge--tutorial">📘 教程</span>
+    <span class="post-card__date"><span class="post-card__added">📅 2026-10-10</span></span>
+  </div>
+  <h3 class="post-card__title"><a class="post-card__title-link" href="../tutorials/compensated-attention-2025/index.html">补偿式稀疏注意力：视频扩散如何在 90%+ 稀疏下不崩（VSA · SLA · SALAD · RoPeSLR · RoLA）</a></h3>
+  <p class="post-card__tldr">视频扩散 Transformer 的推理被长时空注意力的 $O(L^2)$ 主导。一条主线在 2025–2026 成型：**块稀疏分支**（只算高能语义块）**+ 一条 $O(L)$ 的线性/低秩补偿分支**（把稀疏丢掉的弥散全局背景捞回来），门控融合。本教程用 8 节螺旋结构（直觉 → 可跑 demo → 推导 → 真实 repo 代码 → 洞察）把这条线讲透：从「注意力为什么贵、朴素稀疏为什么崩」（§1），到补偿的核心武器「线性注意力的可复用全局摘要 $C=\phi(K)^\top V$」（§2），到补偿通式 $\tilde A=A_M+g\odot\mathrm{Proj}(C)$ 与「近零门控」的跨团队共识（§3），到「并联补偿 vs 按块路由」两范式（§4），到 3D RoPE 与线性注意力不可交换的「RoPE 两难」及 RoPeSLR / RoLA 两种互斥解法（§5），到把稠密模型改造成稀疏+补偿的**微调配方**——用什么数据、优化什么目标、动哪些参数（§6），再到 SparkDiffusion 揭示的 **high-sparsity trap**——90% 甜区、97% 崩坏是监督问题而非表达能力问题（§7），最后是把稀疏兑现成墙钟加速的系统落地（FP8 + 融合 kernel，265×，§8）。所有代码 verbatim 引自 thu-ml/SLA、AlibabaResearch/SparkDiffusion（RoLA 实现）、hao-ai-lab/FastVideo（VSA）真实仓库，行号经 sed 核对；引用经联网核实。配套调研见 [[compensated-sparse-attention-2026]]。
+</p>
+</div>
+<div class="post-card post-card--paper">
+  <div class="post-card__head">
+    <span class="post-card__badge post-card__badge--paper">📄 论文</span>
+    <span class="post-card__date"><span class="post-card__added">📅 2026-10-10</span></span>
+  </div>
+  <h3 class="post-card__title"><a class="post-card__title-link" href="../papers/flowinone-2026/index.html">FlowInOne:把多模态生成统一成「图进图出」的流匹配</a></h3>
+  <p class="post-card__tldr">FlowInOne 抛弃「文本编码器条件化视觉」的主流范式,把文本、布局、编辑指令统统渲染进一张输入画布(visual prompt),让单个流匹配模型在一个共享视觉潜空间里学从「指令图」到「目标图」的确定性传输——真正的 image-in / image-out。配套开源 VisPrompt-5M(500 万视觉提示对,含物理力学/轨迹)和 VP-Bench。核心机制是 Dual-Path Spatially-Adaptive Modulation:纯生成时旁路结构分支、编辑时用交叉注意力+token 级 Sigmoid 门控注入源图结构。1.2B 模型在开源阵营 SOTA,部分维度逼近 Nano Banana。
+</p>
+</div>
+<div class="post-card post-card--paper">
+  <div class="post-card__head">
+    <span class="post-card__badge post-card__badge--paper">📄 论文</span>
+    <span class="post-card__date"><span class="post-card__added">📅 2026-10-10</span></span>
+  </div>
+  <h3 class="post-card__title"><a class="post-card__title-link" href="../papers/paint-anything-2026/index.html">Paint-Anything：把「任意颜色」做成提示词原生能力——用 24-bit hex 统一生成与编辑</a></h3>
+  <p class="post-card__tldr">字节跳动 Seed 的技术报告。核心主张：让图像模型「听懂十六进制颜色」不需要专用颜色编码器、也不需要推理时优化，而是把 &lt;color&gt;#AABBCC&lt;/color&gt; 直接写进提示词、再用物体级颜色监督数据把这套接口喂给模型。三件套：(1) Paint-500K 数据管线——VLM grounding + SAM3 分割 + CIELAB 空间 MeanShift 聚类抽物体主色，把 50 万张真实图变成 hex 标注（40 万 T2I + 10 万编辑）；(2) 纯色锚点 (pure-color anchor)——用纯色块给出干净的 hex→RGB 映射，且只在高噪声段 t∈[0.8,1] 激活，因为纯色轨迹里颜色早在 t≈0.8 就稳定了；(3) 显式 color 标签包裹 + 全量微调（冻结 VAE 和文本编码器）。FLUX.2-4B 上 ACBench-T2I +85.3%、ACBench-Edit +28.3%，8B 微调模型在颜色保真上反超 56B 的 FLUX.2-dev。
+</p>
+</div>
+<div class="post-card post-card--paper">
+  <div class="post-card__head">
+    <span class="post-card__badge post-card__badge--paper">📄 论文</span>
+    <span class="post-card__date"><span class="post-card__added">📅 2026-10-10</span></span>
+  </div>
+  <h3 class="post-card__title"><a class="post-card__title-link" href="../papers/jit-2025/index.html">JiT：让去噪模型真的去「噪」——预测干净图，一个朴素 ViT 就能直接在像素上做扩散</a></h3>
+  <p class="post-card__tldr">何恺明 + 李天弘（MIT）的「回到基本功」。一句话主张：**预测干净数据 x 和预测噪声 ε / 速度 v 是本质不同的两件事**。据流形假设,自然图像躺在高维像素空间里的一张低维流形上,而 ε、v 是「离流形」的、弥散在整个高维空间——所以让网络直接预测 x,一个「欠容量」的小网络也能在极高维空间里工作;反之预测 ε/v 会灾难性失败。
+由此得到 **JiT（Just image Transformers）**：一个朴素 ViT 直接吞大像素 patch(16×16×3=768 维,甚至 32×32×3=3072 维)、做 x-预测、配 v-loss。无 tokenizer、无预训练、无感知/对抗/表征对齐损失,自成一体。
+三个反直觉证据：① 玩具螺旋实验——把 2D 螺旋埋进 D 维,只有 x-预测能随 D→512 存活,ε/v-预测在 D=16 就崩、D=512 全崩;② ImageNet 256² 上 JiT-B/16 的 x-预测 FID 8.62,同架构 ε-预测 372、v-预测 96 直接爆掉;③ 给 patch embedding 加一个「降维瓶颈」(768→64 维)反而更好(FID 8.62→7.35),呼应经典流形学习。
+结果：同一套 base 尺寸、几乎恒定算力,把分辨率从 256 推到 1024(靠 patch 边长成比例放大、token 数固定 256);JiT-G 在 256²/512² 拿到 FID 1.82/1.78。代码极简开源(denoiser.py 就是论文 Algorithm 1)。
+</p>
+</div>
+<div class="post-card post-card--paper">
+  <div class="post-card__head">
+    <span class="post-card__badge post-card__badge--paper">📄 论文</span>
+    <span class="post-card__date"><span class="post-card__added">📅 2026-10-10</span></span>
+  </div>
+  <h3 class="post-card__title"><a class="post-card__title-link" href="../papers/f-loss-2026/index.html">f-loss：给像素空间流匹配换一副「频域眼镜」——先学频率、再抠像素</a></h3>
+  <p class="post-card__tldr">自然图像功率谱按 1/f² 衰减：能量几乎全堆在低频，但人眼在乎的纹理/边缘藏在稀疏的高频。像素空间的 v-loss 对所有空间误差一视同仁 → 低频主导梯度 → 模型迟迟学不会细节。作者把这诊断成「目标函数层面的频谱失衡」。
+解法两件套：① **f-loss（Focal Log-Frequency Loss）**——在 2D 傅里叶谱上做「对数压缩 log(1+e) + 逐样本焦点归一化 e/max(e) + 保留 1/(1-t)² 时间步权重」，让每个频率倍频程拿到等量学习信号；② **fv-loss 两段式调度**——训练早期用 f-loss 把所有频率快速拉齐，再用 sigmoid 权重平滑切回标准 v-loss 做像素级相位精修。
+纯 drop-in、零架构改动。跨 B/L/XL 三档、256²/512² 两分辨率：收敛最高快 40%（1.13×–1.57×），FID/FDD/IS 全面改善；JiT-XL/16 在 750k 步做到 FID 2.13（v-loss 2.21），叠 REPA 后 750k 的 1.87 反超 DeCo 1.6M 的 1.90，叠感知损失后 500k 追平 PixelGen 800k 的 1.83 且 IS 更高（323.4 vs 293.6）。代码与模型承诺开源（尚未放出）。
+</p>
+</div>
+<div class="post-card post-card--paper">
+  <div class="post-card__head">
+    <span class="post-card__badge post-card__badge--paper">📄 论文</span>
+    <span class="post-card__date"><span class="post-card__added">📅 2026-10-10</span></span>
+  </div>
+  <h3 class="post-card__title"><a class="post-card__title-link" href="../papers/sparkdiffusion-2026/index.html">SparkDiffusion：识别「高稀疏陷阱」，把视频扩散在单卡上加速 265×</a></h3>
+  <p class="post-card__tldr">视频扩散 Transformer 的算力全被长时空序列上的注意力吃掉了。补偿式稀疏注意力（稀疏分支 + 低秩分支）能把注意力稀疏度推到 90%，但再往上推到 95%/97% 就会掉进一个坑：**step-local 训练损失（flow matching）还在稳稳下降，而最终生成出来的视频却结构崩坏、语义漂移、马赛克化**——作者把它命名为 **high-sparsity trap（高稀疏陷阱）**。
+诊断结论很干脆：这是**监督信号**的问题，不是表达能力的问题。用「oracle 探针」把稀疏学生在一小段采样步上的速度替换成稠密教师的速度，发现**只修高噪声（结构生成）那几步就能消掉绝大部分终端误差，修低噪声那几步几乎没用**。附录 C 用一个 Hilbert 空间的线性代数把它讲透：终端误差 $\Psi=\langle e, s\rangle$ 是逐步误差的**带符号、按敏感度加权**的和，而 step-local 损失 $L=\tfrac12\lVert e\rVert^2$ 只看**幅度**——两者看同一个残差的方式根本不同。
+于是 SparkDiffusion 给出一个分阶段配方：**① 短暂稀疏预热**（把稠密骨干适配成一个粗糙的先验）→ **② trajectory-mixed 蒸馏**（高噪声段用 PCM 一致性锚结构、低噪声段用 DMD 分布匹配补细节，3 步学生）→ **③ FP8 W8A8 量化 + 融合 kernel**（把省下的 FLOPs 兑现成真实墙钟加速）。结果：Wan2.1-T2V-14B-720P 在单张 RTX 5090 上端到端 **265×**（H100 220×），97% 稀疏度下 VBench 仍逼近稠密；1.3B-480P 一条视频 1.3 秒去噪完。
+</p>
+</div>
+<div class="post-card post-card--paper">
+  <div class="post-card__head">
+    <span class="post-card__badge post-card__badge--paper">📄 论文</span>
+    <span class="post-card__date"><span class="post-card__added">📅 2026-10-10</span></span>
+  </div>
+  <h3 class="post-card__title"><a class="post-card__title-link" href="../papers/llada-image-2026/index.html">LLaDA-Image：用完全开源配方从零训一个 6B 强图像生成器（技术报告精读 + 代码交叉验证）</a></h3>
+  <p class="post-card__tldr">Inclusion AI（蚂蚁 AGI）的开源技术报告。一句话：从零训一个 6B 单流 DiT，靠&quot;图像-only 预训练/中训练&quot;先学视觉先验、再引入语言对齐，把配对 caption 从最耗算力的阶段里拿掉。
+三大反常识选择：① 90%+ 训练样本无 caption（用冻结的扩散语言模型 VLM 从&quot;待生成的那块图&quot;自己抠语义当自条件），② 全程 98% 真图、SFT 里真图 &gt;70%（承认真图早期收敛慢，但换来更高的真实感天花板），③ 用**扩散语言模型（dLLM，LLaDA2.0-Mini）**而非自回归 VLM 当理解后端。
+工程上：DiT 里所有 Norm 换成**无参数 RMSNorm** + Muon 优化器稳住长训练；编辑走&quot;绕过 VLM 的参考图双通道&quot;（SigLIP-VQ 语义 + 干净 VAE latent 像素）；TwinFlow 用一个共享 DiT 的正/负时间双头做 DMD 蒸馏到 2–4 步。
+结果：Qwen-Image-Bench EN/CN 综合 53.53 / 53.38，开源第一（超次优 Z-Image Turbo 1.87 / 0.67）；GEdit-Bench 编辑 7.336 / 7.294。权重、推理代码、配方全开。
+</p>
+</div>
+<div class="post-card post-card--paper">
+  <div class="post-card__head">
+    <span class="post-card__badge post-card__badge--paper">📄 论文</span>
+    <span class="post-card__date"><span class="post-card__added">📅 2026-10-10</span></span>
+  </div>
+  <h3 class="post-card__title"><a class="post-card__title-link" href="../papers/pixrestore-2026/index.html">PixRestore：扔掉 VAE 和 T2I 先验，从零训一个像素空间 DiT 做统一图像修复</a></h3>
+  <p class="post-card__tldr">港理工 VCLab 的统一图像修复（UIR）工作。核心主张：为 UIR 适配大 T2I 潜空间扩散模型是走了弯路——VAE 会丢掉修复最在意的细节，开放式生成先验会造出与输入不一致的伪影，十亿级骨干 + MLLM + MoE + VAE 编解码则纯属浪费算力。PixRestore 反其道而行：无 VAE、不用 T2I 预训练，直接在 patch 化的 RGB 像素上从零做 flow matching。为了适应不同退化，它用冻结的 DINOv2 多层特征作条件，并训一个「相似度引导的自适应层路由」——用 LQ–HQ 特征相似度当老师，可靠的层融合成 dense 条件（Eq 5），不可靠的层反而加大 HQ 特征监督（Eq 6）。最后把多步模型固定 t=1、配 DINO 特征判别器蒸成一步生成器。结果：约 50M 参数、单步推理、44ms，在 8 类退化上整体保真度/感知质量/退化去除都拿到最优或次优，算力只有 FoundIR-v2 的 1/181、Flux-IR 的 1/1209。
+</p>
+</div>
+<div class="post-card post-card--survey">
+  <div class="post-card__head">
+    <span class="post-card__badge post-card__badge--survey">📊 调研</span>
     <span class="post-card__date"><span class="post-card__added">📅 2026-07-27</span></span>
   </div>
   <h3 class="post-card__title"><a class="post-card__title-link" href="../surveys/deblur-diffusion-2026/index.html">扩散/流匹配去模糊调研：从 SD 先验到一步化与残差流（2025→2026）</a></h3>
@@ -246,6 +340,15 @@ ARGUS（快手/北大）提出 SMII：用 MLLM 当&quot;身份导演&quot;挑出
   <h3 class="post-card__title"><a class="post-card__title-link" href="../papers/l2p-2026/index.html">L2P: 把 LDM 的潜在知识搬到像素空间, 8 卡训出原生 4K 扩散</a></h3>
   <p class="post-card__tldr">南大 + 腾讯优图 (arXiv 2026/05)。直接拆掉 VAE, 用 16×16 大 patch 把像素图打成 token, 接预训练好的 LDM (Z-Image-Turbo) DiT block, 只让首尾若干层 + 一个 U-Net Detailer Head 可训, 训练数据是源 LDM 自己生成的 20k 张合成图。8 张 GPU、零真实数据采集, DPG-Bench 86.00 超过源 LDM 84.86, GenEval 保留 93.6%; 取消 VAE 内存瓶颈后, 原生 4K 单步推理时间砍 97.67%、峰值显存降 38.81%。本质是把训练像素扩散从零的灾难性 cold start 换成从已经平滑的 LDM 流形上做轻量迁移。</p>
 </div>
+<div class="post-card post-card--paper">
+  <div class="post-card__head">
+    <span class="post-card__badge post-card__badge--paper">📄 论文</span>
+    <span class="post-card__date"><span class="post-card__added">📅 2026-10-10</span></span>
+  </div>
+  <h3 class="post-card__title"><a class="post-card__title-link" href="../papers/bernini-2026/index.html">Bernini: Latent Semantic Planning for Video Diffusion（用 MLLM 做「语义规划」，DiT 只负责渲染像素）</a></h3>
+  <p class="post-card__tldr">字节跳动 Bernini 团队的技术报告。核心主张：MLLM 和扩散模型可以用一条「分工线」缝起来——让 MLLM 做语义规划（在它自己的 ViT embedding 空间里预测「目标该长什么样」），让 DiT 只负责把这份语义计划渲染成像素。关键设计有三个：(1) 用 MAR 式的掩码生成把 MLLM 从「理解模型」改造成「语义规划器」，目标 ViT token 训练时随机掩码、推理时从全掩码迭代填充；(2) SA-3D RoPE，给统一序列里每个视觉 segment 一个下标 i，用一个「段相位」旋转向量 ⊙ 到标准 3D RoPE 上，解决多张参考图/源视频「同一 (t,h,w) 坐标身份混淆」的问题；(3) 一条链式增量 guidance，把源视频 / 源图 / 文本 / 语义 embedding 四种条件拆成可独立调节的增量。因为「语义」是接口，planner 和 renderer 可以分开训、只轻量联训。实测在 OpenVE（4.04 vs 次优 3.18）、EditVerse（editing quality 8.02）、OpenS2V（FaceSim 78.20，比次优高 20+ 分）等多个视频编辑/生成榜上做到 SOTA，且 VBench 文生图质量几乎不掉（84.64 vs 底座 Wan2.2 的 84.79）。代码与权重已开源（Qwen2.5-VL-7B 规划器 + Wan2.2-A14B 渲染器）。
+</p>
+</div>
 <div class="post-card post-card--tutorial">
   <div class="post-card__head">
     <span class="post-card__badge post-card__badge--tutorial">📘 教程</span>
@@ -340,6 +443,19 @@ MAMBO-G 用一个逐实例的幅度比 r_t = ‖Δv‖/‖v∅‖ 当探针:r_t 
   <h3 class="post-card__title"><a class="post-card__title-link" href="../papers/omgsr-2025/index.html">OMGSR：一步超分的关键不是蒸馏，是把低清图喂到「中间时刻」——SNR 算出最佳注入点 + GAN 训练</a></h3>
   <p class="post-card__tldr">OMGSR 把一步真实世界超分（Real-ISR）的成败归结为一个「潜空间鸿沟」：以往方法把低清图 latent 注入到扩散调度器的 t=999（纯噪声）或 t=1（干净图），但低清图 latent 既不是噪声也不是干净图——它最接近预训练扩散在某个**中间时刻 t\*** 的带噪 latent。
 作者用信噪比 (SNR) 把这个「最佳中间时刻」**算出来**（SD2.1-base 上 t\*=273），再用 LRR 损失（LoRA 微调 VAE 编码器）把低清 latent 进一步拉向 t\* 的带噪 latent，然后在 t\* 处做一步去噪。整套是 **GAN 训练**（生成器=扩散模型本身，判别器=DINOv3-ConvNeXt + 多级头），不是师生蒸馏。这就是 [[op4ksr-2026]] 4K 超分的直接前身。
+</p>
+</div>
+<div class="post-card post-card--paper">
+  <div class="post-card__head">
+    <span class="post-card__badge post-card__badge--paper">📄 论文</span>
+    <span class="post-card__date"><span class="post-card__added">📅 2026-10-10</span></span>
+  </div>
+  <h3 class="post-card__title"><a class="post-card__title-link" href="../papers/scale-dit-2025/index.html">Scale-DiT：用窗口稀疏注意力把预训练扩散模型拉到 4K/8K</a></h3>
+  <p class="post-card__tldr">高分辨率生成的瓶颈是 self-attention 的 O(N²)——4K 有 65536 个 token,全注意力算不动。
+Scale-DiT（arxiv:2510.16325,PDF 正文题名 UltraImageGen）把高清 latent 切成固定 256×256 的局部窗口,
+每个 token 只在窗口内 + 少量文本 + 对应低清引导块上做注意力,并用「窗口优先重排」把稀疏 mask
+变成内存连续的稠密块,复杂度降到近线性(4K 省 256×,8K 省 130×)。全局一致性靠一路带缩放位置锚点
+的低分辨率引导图 + 只挂在引导路径上的 LoRA 兜底,4K 几乎不需高分辨率训练数据。
 </p>
 </div>
 <div class="post-card post-card--paper">

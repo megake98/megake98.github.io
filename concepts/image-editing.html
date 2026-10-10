@@ -57,6 +57,36 @@
 <div class="post-card post-card--paper">
   <div class="post-card__head">
     <span class="post-card__badge post-card__badge--paper">📄 论文</span>
+    <span class="post-card__date"><span class="post-card__added">📅 2026-10-10</span></span>
+  </div>
+  <h3 class="post-card__title"><a class="post-card__title-link" href="../papers/flowinone-2026/index.html">FlowInOne:把多模态生成统一成「图进图出」的流匹配</a></h3>
+  <p class="post-card__tldr">FlowInOne 抛弃「文本编码器条件化视觉」的主流范式,把文本、布局、编辑指令统统渲染进一张输入画布(visual prompt),让单个流匹配模型在一个共享视觉潜空间里学从「指令图」到「目标图」的确定性传输——真正的 image-in / image-out。配套开源 VisPrompt-5M(500 万视觉提示对,含物理力学/轨迹)和 VP-Bench。核心机制是 Dual-Path Spatially-Adaptive Modulation:纯生成时旁路结构分支、编辑时用交叉注意力+token 级 Sigmoid 门控注入源图结构。1.2B 模型在开源阵营 SOTA,部分维度逼近 Nano Banana。
+</p>
+</div>
+<div class="post-card post-card--paper">
+  <div class="post-card__head">
+    <span class="post-card__badge post-card__badge--paper">📄 论文</span>
+    <span class="post-card__date"><span class="post-card__added">📅 2026-10-10</span></span>
+  </div>
+  <h3 class="post-card__title"><a class="post-card__title-link" href="../papers/paint-anything-2026/index.html">Paint-Anything：把「任意颜色」做成提示词原生能力——用 24-bit hex 统一生成与编辑</a></h3>
+  <p class="post-card__tldr">字节跳动 Seed 的技术报告。核心主张：让图像模型「听懂十六进制颜色」不需要专用颜色编码器、也不需要推理时优化，而是把 &lt;color&gt;#AABBCC&lt;/color&gt; 直接写进提示词、再用物体级颜色监督数据把这套接口喂给模型。三件套：(1) Paint-500K 数据管线——VLM grounding + SAM3 分割 + CIELAB 空间 MeanShift 聚类抽物体主色，把 50 万张真实图变成 hex 标注（40 万 T2I + 10 万编辑）；(2) 纯色锚点 (pure-color anchor)——用纯色块给出干净的 hex→RGB 映射，且只在高噪声段 t∈[0.8,1] 激活，因为纯色轨迹里颜色早在 t≈0.8 就稳定了；(3) 显式 color 标签包裹 + 全量微调（冻结 VAE 和文本编码器）。FLUX.2-4B 上 ACBench-T2I +85.3%、ACBench-Edit +28.3%，8B 微调模型在颜色保真上反超 56B 的 FLUX.2-dev。
+</p>
+</div>
+<div class="post-card post-card--paper">
+  <div class="post-card__head">
+    <span class="post-card__badge post-card__badge--paper">📄 论文</span>
+    <span class="post-card__date"><span class="post-card__added">📅 2026-10-10</span></span>
+  </div>
+  <h3 class="post-card__title"><a class="post-card__title-link" href="../papers/llada-image-2026/index.html">LLaDA-Image：用完全开源配方从零训一个 6B 强图像生成器（技术报告精读 + 代码交叉验证）</a></h3>
+  <p class="post-card__tldr">Inclusion AI（蚂蚁 AGI）的开源技术报告。一句话：从零训一个 6B 单流 DiT，靠&quot;图像-only 预训练/中训练&quot;先学视觉先验、再引入语言对齐，把配对 caption 从最耗算力的阶段里拿掉。
+三大反常识选择：① 90%+ 训练样本无 caption（用冻结的扩散语言模型 VLM 从&quot;待生成的那块图&quot;自己抠语义当自条件），② 全程 98% 真图、SFT 里真图 &gt;70%（承认真图早期收敛慢，但换来更高的真实感天花板），③ 用**扩散语言模型（dLLM，LLaDA2.0-Mini）**而非自回归 VLM 当理解后端。
+工程上：DiT 里所有 Norm 换成**无参数 RMSNorm** + Muon 优化器稳住长训练；编辑走&quot;绕过 VLM 的参考图双通道&quot;（SigLIP-VQ 语义 + 干净 VAE latent 像素）；TwinFlow 用一个共享 DiT 的正/负时间双头做 DMD 蒸馏到 2–4 步。
+结果：Qwen-Image-Bench EN/CN 综合 53.53 / 53.38，开源第一（超次优 Z-Image Turbo 1.87 / 0.67）；GEdit-Bench 编辑 7.336 / 7.294。权重、推理代码、配方全开。
+</p>
+</div>
+<div class="post-card post-card--paper">
+  <div class="post-card__head">
+    <span class="post-card__badge post-card__badge--paper">📄 论文</span>
     <span class="post-card__date"><span class="post-card__added">📅 2026-07-01</span></span>
   </div>
   <h3 class="post-card__title"><a class="post-card__title-link" href="../papers/qwen-image-flash-2026/index.html">Qwen-Image-Flash:把 4-NFE 蒸馏的胜负手从「目标函数」搬到「训练配方」</a></h3>

@@ -57,6 +57,50 @@
 <div class="post-card post-card--paper">
   <div class="post-card__head">
     <span class="post-card__badge post-card__badge--paper">📄 论文</span>
+    <span class="post-card__date"><span class="post-card__added">📅 2026-10-10</span></span>
+  </div>
+  <h3 class="post-card__title"><a class="post-card__title-link" href="../papers/paint-anything-2026/index.html">Paint-Anything：把「任意颜色」做成提示词原生能力——用 24-bit hex 统一生成与编辑</a></h3>
+  <p class="post-card__tldr">字节跳动 Seed 的技术报告。核心主张：让图像模型「听懂十六进制颜色」不需要专用颜色编码器、也不需要推理时优化，而是把 &lt;color&gt;#AABBCC&lt;/color&gt; 直接写进提示词、再用物体级颜色监督数据把这套接口喂给模型。三件套：(1) Paint-500K 数据管线——VLM grounding + SAM3 分割 + CIELAB 空间 MeanShift 聚类抽物体主色，把 50 万张真实图变成 hex 标注（40 万 T2I + 10 万编辑）；(2) 纯色锚点 (pure-color anchor)——用纯色块给出干净的 hex→RGB 映射，且只在高噪声段 t∈[0.8,1] 激活，因为纯色轨迹里颜色早在 t≈0.8 就稳定了；(3) 显式 color 标签包裹 + 全量微调（冻结 VAE 和文本编码器）。FLUX.2-4B 上 ACBench-T2I +85.3%、ACBench-Edit +28.3%，8B 微调模型在颜色保真上反超 56B 的 FLUX.2-dev。
+</p>
+</div>
+<div class="post-card post-card--paper">
+  <div class="post-card__head">
+    <span class="post-card__badge post-card__badge--paper">📄 论文</span>
+    <span class="post-card__date"><span class="post-card__added">📅 2026-10-10</span></span>
+  </div>
+  <h3 class="post-card__title"><a class="post-card__title-link" href="../papers/jit-2025/index.html">JiT：让去噪模型真的去「噪」——预测干净图，一个朴素 ViT 就能直接在像素上做扩散</a></h3>
+  <p class="post-card__tldr">何恺明 + 李天弘（MIT）的「回到基本功」。一句话主张：**预测干净数据 x 和预测噪声 ε / 速度 v 是本质不同的两件事**。据流形假设,自然图像躺在高维像素空间里的一张低维流形上,而 ε、v 是「离流形」的、弥散在整个高维空间——所以让网络直接预测 x,一个「欠容量」的小网络也能在极高维空间里工作;反之预测 ε/v 会灾难性失败。
+由此得到 **JiT（Just image Transformers）**：一个朴素 ViT 直接吞大像素 patch(16×16×3=768 维,甚至 32×32×3=3072 维)、做 x-预测、配 v-loss。无 tokenizer、无预训练、无感知/对抗/表征对齐损失,自成一体。
+三个反直觉证据：① 玩具螺旋实验——把 2D 螺旋埋进 D 维,只有 x-预测能随 D→512 存活,ε/v-预测在 D=16 就崩、D=512 全崩;② ImageNet 256² 上 JiT-B/16 的 x-预测 FID 8.62,同架构 ε-预测 372、v-预测 96 直接爆掉;③ 给 patch embedding 加一个「降维瓶颈」(768→64 维)反而更好(FID 8.62→7.35),呼应经典流形学习。
+结果：同一套 base 尺寸、几乎恒定算力,把分辨率从 256 推到 1024(靠 patch 边长成比例放大、token 数固定 256);JiT-G 在 256²/512² 拿到 FID 1.82/1.78。代码极简开源(denoiser.py 就是论文 Algorithm 1)。
+</p>
+</div>
+<div class="post-card post-card--paper">
+  <div class="post-card__head">
+    <span class="post-card__badge post-card__badge--paper">📄 论文</span>
+    <span class="post-card__date"><span class="post-card__added">📅 2026-10-10</span></span>
+  </div>
+  <h3 class="post-card__title"><a class="post-card__title-link" href="../papers/f-loss-2026/index.html">f-loss：给像素空间流匹配换一副「频域眼镜」——先学频率、再抠像素</a></h3>
+  <p class="post-card__tldr">自然图像功率谱按 1/f² 衰减：能量几乎全堆在低频，但人眼在乎的纹理/边缘藏在稀疏的高频。像素空间的 v-loss 对所有空间误差一视同仁 → 低频主导梯度 → 模型迟迟学不会细节。作者把这诊断成「目标函数层面的频谱失衡」。
+解法两件套：① **f-loss（Focal Log-Frequency Loss）**——在 2D 傅里叶谱上做「对数压缩 log(1+e) + 逐样本焦点归一化 e/max(e) + 保留 1/(1-t)² 时间步权重」，让每个频率倍频程拿到等量学习信号；② **fv-loss 两段式调度**——训练早期用 f-loss 把所有频率快速拉齐，再用 sigmoid 权重平滑切回标准 v-loss 做像素级相位精修。
+纯 drop-in、零架构改动。跨 B/L/XL 三档、256²/512² 两分辨率：收敛最高快 40%（1.13×–1.57×），FID/FDD/IS 全面改善；JiT-XL/16 在 750k 步做到 FID 2.13（v-loss 2.21），叠 REPA 后 750k 的 1.87 反超 DeCo 1.6M 的 1.90，叠感知损失后 500k 追平 PixelGen 800k 的 1.83 且 IS 更高（323.4 vs 293.6）。代码与模型承诺开源（尚未放出）。
+</p>
+</div>
+<div class="post-card post-card--paper">
+  <div class="post-card__head">
+    <span class="post-card__badge post-card__badge--paper">📄 论文</span>
+    <span class="post-card__date"><span class="post-card__added">📅 2026-10-10</span></span>
+  </div>
+  <h3 class="post-card__title"><a class="post-card__title-link" href="../papers/llada-image-2026/index.html">LLaDA-Image：用完全开源配方从零训一个 6B 强图像生成器（技术报告精读 + 代码交叉验证）</a></h3>
+  <p class="post-card__tldr">Inclusion AI（蚂蚁 AGI）的开源技术报告。一句话：从零训一个 6B 单流 DiT，靠&quot;图像-only 预训练/中训练&quot;先学视觉先验、再引入语言对齐，把配对 caption 从最耗算力的阶段里拿掉。
+三大反常识选择：① 90%+ 训练样本无 caption（用冻结的扩散语言模型 VLM 从&quot;待生成的那块图&quot;自己抠语义当自条件），② 全程 98% 真图、SFT 里真图 &gt;70%（承认真图早期收敛慢，但换来更高的真实感天花板），③ 用**扩散语言模型（dLLM，LLaDA2.0-Mini）**而非自回归 VLM 当理解后端。
+工程上：DiT 里所有 Norm 换成**无参数 RMSNorm** + Muon 优化器稳住长训练；编辑走&quot;绕过 VLM 的参考图双通道&quot;（SigLIP-VQ 语义 + 干净 VAE latent 像素）；TwinFlow 用一个共享 DiT 的正/负时间双头做 DMD 蒸馏到 2–4 步。
+结果：Qwen-Image-Bench EN/CN 综合 53.53 / 53.38，开源第一（超次优 Z-Image Turbo 1.87 / 0.67）；GEdit-Bench 编辑 7.336 / 7.294。权重、推理代码、配方全开。
+</p>
+</div>
+<div class="post-card post-card--paper">
+  <div class="post-card__head">
+    <span class="post-card__badge post-card__badge--paper">📄 论文</span>
     <span class="post-card__date"><span class="post-card__added">📅 2026-07-10</span></span>
   </div>
   <h3 class="post-card__title"><a class="post-card__title-link" href="../papers/lingbot-video-2026/index.html">LingBot-Video: 把 MoE 搬进视频扩散——为具身智能从零 scale 的稀疏 DiT 世界模型</a></h3>
@@ -115,6 +159,28 @@
   <h3 class="post-card__title"><a class="post-card__title-link" href="../papers/argus-2026/index.html">ARGUS：把「身份」从一张参考图变成扩散同步的动态记忆</a></h3>
   <p class="post-card__tldr">主体保持的视频生成（让生成视频里的人「还是同一个人」）长期被「点参考」范式卡住——一张参考图把&quot;这个人是谁&quot;和&quot;他这一帧恰好长这样（姿态/配饰/光照/背景）&quot;纠缠在一起，模型要么照抄噪声细节、要么身份漂移。
 ARGUS（快手/北大）提出 SMII：用 MLLM 当&quot;身份导演&quot;挑出多视角身份证据，拼成 3×3 马赛克，**和目标视频走同一条 Flow Matching 加噪路径**，再以&quot;负时间、只读记忆&quot;的方式注入 Wan 的原生 token 空间。配合无配对反事实训练 + TIA + ASLG，在 OpenS2V-Eval 拿到 64.38 总分、71.86 FaceSim 的 SOTA，大偏航/首帧遮挡鲁棒性分别再涨 12.6 / 15.1 分。
+</p>
+</div>
+<div class="post-card post-card--paper">
+  <div class="post-card__head">
+    <span class="post-card__badge post-card__badge--paper">📄 论文</span>
+    <span class="post-card__date"><span class="post-card__added">📅 2026-10-10</span></span>
+  </div>
+  <h3 class="post-card__title"><a class="post-card__title-link" href="../papers/bernini-2026/index.html">Bernini: Latent Semantic Planning for Video Diffusion（用 MLLM 做「语义规划」，DiT 只负责渲染像素）</a></h3>
+  <p class="post-card__tldr">字节跳动 Bernini 团队的技术报告。核心主张：MLLM 和扩散模型可以用一条「分工线」缝起来——让 MLLM 做语义规划（在它自己的 ViT embedding 空间里预测「目标该长什么样」），让 DiT 只负责把这份语义计划渲染成像素。关键设计有三个：(1) 用 MAR 式的掩码生成把 MLLM 从「理解模型」改造成「语义规划器」，目标 ViT token 训练时随机掩码、推理时从全掩码迭代填充；(2) SA-3D RoPE，给统一序列里每个视觉 segment 一个下标 i，用一个「段相位」旋转向量 ⊙ 到标准 3D RoPE 上，解决多张参考图/源视频「同一 (t,h,w) 坐标身份混淆」的问题；(3) 一条链式增量 guidance，把源视频 / 源图 / 文本 / 语义 embedding 四种条件拆成可独立调节的增量。因为「语义」是接口，planner 和 renderer 可以分开训、只轻量联训。实测在 OpenVE（4.04 vs 次优 3.18）、EditVerse（editing quality 8.02）、OpenS2V（FaceSim 78.20，比次优高 20+ 分）等多个视频编辑/生成榜上做到 SOTA，且 VBench 文生图质量几乎不掉（84.64 vs 底座 Wan2.2 的 84.79）。代码与权重已开源（Qwen2.5-VL-7B 规划器 + Wan2.2-A14B 渲染器）。
+</p>
+</div>
+<div class="post-card post-card--paper">
+  <div class="post-card__head">
+    <span class="post-card__badge post-card__badge--paper">📄 论文</span>
+    <span class="post-card__date"><span class="post-card__added">📅 2026-10-10</span></span>
+  </div>
+  <h3 class="post-card__title"><a class="post-card__title-link" href="../papers/scale-dit-2025/index.html">Scale-DiT：用窗口稀疏注意力把预训练扩散模型拉到 4K/8K</a></h3>
+  <p class="post-card__tldr">高分辨率生成的瓶颈是 self-attention 的 O(N²)——4K 有 65536 个 token,全注意力算不动。
+Scale-DiT（arxiv:2510.16325,PDF 正文题名 UltraImageGen）把高清 latent 切成固定 256×256 的局部窗口,
+每个 token 只在窗口内 + 少量文本 + 对应低清引导块上做注意力,并用「窗口优先重排」把稀疏 mask
+变成内存连续的稠密块,复杂度降到近线性(4K 省 256×,8K 省 130×)。全局一致性靠一路带缩放位置锚点
+的低分辨率引导图 + 只挂在引导路径上的 LoRA 兜底,4K 几乎不需高分辨率训练数据。
 </p>
 </div>
 </div>

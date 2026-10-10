@@ -47,20 +47,19 @@
 <!-- NAV-END -->
 <main class="page page--listing">
 <h1>论文</h1>
-<p class="page__intro">共 51 篇论文精读。</p>
+<p class="page__intro">共 63 篇论文精读。</p>
 <div class="post-grid">
 <div class="post-card post-card--paper">
   <div class="post-card__head">
     <span class="post-card__badge post-card__badge--paper">📄 论文</span>
     <span class="post-card__date"><span class="post-card__added">📅 2026-06-01</span></span>
   </div>
-  <h3 class="post-card__title"><a class="post-card__title-link" href="papers/flow-opd-2026/index.html">Flow-OPD: On-Policy Distillation for Flow Matching Models</a></h3>
-  <p class="post-card__tldr">USTC/UCLA/CUHK/小红书:把 LLM 的 OPD 范式严格搬到 flow matching — SDE 共方差结构让 reverse-KL 退化为速度场 L2,多教师 dense 监督 + MAR 美学锚定。SD-3.5-M 上 GenEval 63→92, OCR 59→94。</p>
+  <h3 class="post-card__title"><a class="post-card__title-link" href="papers/tuna-2/index.html">Tuna-2: Pixel Embeddings Beat Vision Encoders for Multimodal Understanding and Generation</a></h3>
+  <p class="post-card__tldr">Meta / HKU / Waterloo 的受控对比: Tuna → Tuna-R → Tuna-2 三阶段简化，砍掉 VAE 和 SigLIP 后理解反而更强，关键 trick 是 75% masking 当 regularizer。</p>
   <div class="post-card__tags">
-      <a class="tag-chip" href="concepts/flow-matching.html">flow-matching</a>
-      <a class="tag-chip" href="concepts/diffusion.html">diffusion</a>
-      <a class="tag-chip" href="concepts/distillation.html">distillation</a>
-      <span class="tag-chip tag-chip--more">+2 more</span>
+      <a class="tag-chip" href="concepts/multimodal.html">multimodal</a>
+      <a class="tag-chip" href="concepts/image-gen.html">image-gen</a>
+      <a class="tag-chip" href="concepts/llm.html">llm</a>
   </div>
 </div>
 <div class="post-card post-card--paper">
@@ -68,12 +67,53 @@
     <span class="post-card__badge post-card__badge--paper">📄 论文</span>
     <span class="post-card__date"><span class="post-card__added">📅 2026-06-01</span></span>
   </div>
-  <h3 class="post-card__title"><a class="post-card__title-link" href="papers/deepseek-v4-2026/index.html">DeepSeek-V4: Towards Highly Efficient Million-Token Context Intelligence</a></h3>
-  <p class="post-card__tldr">1.6T MoE / 1M context。CSA+HCA 混合注意力把 KV cache 砍到 V3.2 的 10%,残差用 Sinkhorn 投影双随机矩阵稳定 61 层堆叠。</p>
+  <h3 class="post-card__title"><a class="post-card__title-link" href="papers/tstars-tryon-2026/index.html">Tstars-Tryon 1.0: Robust and Realistic Virtual Try-On for Diverse Fashion Items</a></h3>
+  <p class="post-card__tldr">阿里 Pailitao:把 try-on 从 inpainting 重新定义为通用多图编辑,5B MMDiT + 五阶段训练(预训→渐进分辨率→垂域 SFT→DiffusionNFT 多奖励 RL→CFG+Step 蒸馏)。Tstars-VTON Bench 上 Overall 9.372 力压 GPT-Image-2 / Nano Banana Pro,单衣 3.92s / 多件 6.74s 比开源快 25-50×。已上线淘宝 App。论文是产品报告 + benchmark 论文 — 模型无开源、无 method 章节、无 ablation。</p>
   <div class="post-card__tags">
-      <a class="tag-chip" href="concepts/llm.html">llm</a>
-      <a class="tag-chip" href="concepts/attention.html">attention</a>
-      <a class="tag-chip" href="concepts/mixture-of-experts.html">mixture-of-experts</a>
+      <a class="tag-chip" href="concepts/try-on.html">try-on</a>
+      <a class="tag-chip" href="concepts/diffusion.html">diffusion</a>
+      <a class="tag-chip" href="concepts/sd3.html">sd3</a>
+      <span class="tag-chip tag-chip--more">+3 more</span>
+  </div>
+</div>
+<div class="post-card post-card--paper">
+  <div class="post-card__head">
+    <span class="post-card__badge post-card__badge--paper">📄 论文</span>
+    <span class="post-card__date"><span class="post-card__added">📅 2026-06-01</span></span>
+  </div>
+  <h3 class="post-card__title"><a class="post-card__title-link" href="papers/tm-interaction-2026/index.html">Interaction Models: A Scalable Approach to Human-AI Collaboration</a></h3>
+  <p class="post-card__tldr">不是把实时性做成 model 外面的 harness,而是按 200ms micro-turn 把模型重新设计 — 双流并行、encoder-free 早融合、双模型分工。FD-bench v1.5 拿 77.8 vs 竞品 45-55。</p>
+  <div class="post-card__tags">
+      <a class="tag-chip" href="concepts/multimodal.html">multimodal</a>
+      <a class="tag-chip" href="concepts/system-paper.html">system-paper</a>
+      <a class="tag-chip" href="concepts/benchmark.html">benchmark</a>
+  </div>
+</div>
+<div class="post-card post-card--paper">
+  <div class="post-card__head">
+    <span class="post-card__badge post-card__badge--paper">📄 论文</span>
+    <span class="post-card__date"><span class="post-card__added">📅 2026-06-01</span></span>
+  </div>
+  <h3 class="post-card__title"><a class="post-card__title-link" href="papers/starchild-1-2026/index.html">Starchild-1: 把双向音视频扩散教成 24fps 流式世界模型</a></h3>
+  <p class="post-card__tldr">Team Odyssey 技术报告。把 Ovi (双向 50 步、离线、固定时长音视频扩散) 通过三阶段管线蒸馏成 24fps 因果流式世界模型: (1) DMD 少步双向蒸馏 + 拉高 audio/fake-critic 学习率,(2) 块因果 ODE 轨迹适配 (audio CFG=7、MSE+AdamW、关 weight decay),(3) KV-cache 自回滚 (Self-Forcing) + 非对称 sink token (video 有/audio 没有) + 跨模态 cache 不重置。外加一个 LLM-based campaign orchestrator 把用户输入转成 chunk-aligned action 序列。视觉感知指标小升,音频语义对齐 (CLAP/IB) 明显回退,同步指标基本不变。无 code、无 weights、全部交互能力只做 qualitative example。</p>
+  <div class="post-card__tags">
+      <a class="tag-chip" href="concepts/video.html">video</a>
+      <a class="tag-chip" href="concepts/multimodal.html">multimodal</a>
+      <a class="tag-chip" href="concepts/world-model.html">world-model</a>
+      <span class="tag-chip tag-chip--more">+3 more</span>
+  </div>
+</div>
+<div class="post-card post-card--paper">
+  <div class="post-card__head">
+    <span class="post-card__badge post-card__badge--paper">📄 论文</span>
+    <span class="post-card__date"><span class="post-card__added">📅 2026-06-01</span></span>
+  </div>
+  <h3 class="post-card__title"><a class="post-card__title-link" href="papers/sensenova-u1/index.html">SenseNova-U1: Unifying Multimodal Understanding and Generation with NEO-unify Architecture</a></h3>
+  <p class="post-card__tldr">不用 ViT 也不用 VAE 的&quot;理解+生成&quot;统一模型，直接在像素空间做 flow matching，把两条流装进同一个 Mixture-of-Transformers。</p>
+  <div class="post-card__tags">
+      <a class="tag-chip" href="concepts/multimodal.html">multimodal</a>
+      <a class="tag-chip" href="concepts/flow-matching.html">flow-matching</a>
+      <a class="tag-chip" href="concepts/image-gen.html">image-gen</a>
       <span class="tag-chip tag-chip--more">+1 more</span>
   </div>
 </div>
@@ -82,13 +122,41 @@
     <span class="post-card__badge post-card__badge--paper">📄 论文</span>
     <span class="post-card__date"><span class="post-card__added">📅 2026-06-01</span></span>
   </div>
-  <h3 class="post-card__title"><a class="post-card__title-link" href="papers/dapo-2025/index.html">DAPO: An Open-Source LLM Reinforcement Learning System at Scale</a></h3>
-  <p class="post-card__tldr">字节 + 清华 AIR 的 R1 复现:Qwen2.5-32B base 上 4 个工程修复 (Clip-Higher / Dynamic Sampling / Token-Level Loss / Overlong Reward Shaping) 把 GRPO 从 30 推到 50 AIME24,只用 R1-Zero 50% step。代码+数据+权重全开源。</p>
+  <h3 class="post-card__title"><a class="post-card__title-link" href="papers/self-forcing-2025/index.html">Self Forcing: 自展开训练让因果视频扩散摆脱 exposure bias</a></h3>
+  <p class="post-card__tldr">Adobe + UT Austin (NeurIPS 2025)。把训练时序流程改成跟推理一样的 KV-cache 自回滚: 学生在自己生成的过去 frames 上 condition, 用 holistic DMD/SiD/GAN loss 直接匹配整段视频分布。靠一个随机选时间步 s + 只在第 s 步开梯度的 stochastic gradient truncation, 把『看似不能并行』的训练塞进 1.5 小时收敛 (64×H100)。配上 rolling KV cache + 训练时 mask 掉首 chunk 这两个工程细节, 1.3B 模型在单 H100 上跑 17 FPS、0.69s latency, VBench 反超 14B 教师模型 Wan2.1 (84.31 vs 84.26)。</p>
+  <div class="post-card__tags">
+      <a class="tag-chip" href="concepts/video.html">video</a>
+      <a class="tag-chip" href="concepts/autoregressive.html">autoregressive</a>
+      <a class="tag-chip" href="concepts/diffusion.html">diffusion</a>
+      <span class="tag-chip tag-chip--more">+1 more</span>
+  </div>
+</div>
+<div class="post-card post-card--paper">
+  <div class="post-card__head">
+    <span class="post-card__badge post-card__badge--paper">📄 论文</span>
+    <span class="post-card__date"><span class="post-card__added">📅 2026-06-01</span></span>
+  </div>
+  <h3 class="post-card__title"><a class="post-card__title-link" href="papers/self-flow-2026/index.html">Self-Supervised Flow Matching for Scalable Multi-Modal Synthesis</a></h3>
+  <p class="post-card__tldr">BFL + MIT:REPA 类外部对齐反向 scaling(encoder 越强 FID 越差),跨模态崩。Self-Flow 把表征学习内嵌到 flow matching — Dual-Timestep Scheduling 给不同 token 加不同噪声制造信息不对称,EMA self-teacher 在 $\min(t,s)$ 上看更干净版本。625M 超 REPA 1B,T2I/V/A 全模态 SOTA。</p>
+  <div class="post-card__tags">
+      <a class="tag-chip" href="concepts/flow-matching.html">flow-matching</a>
+      <a class="tag-chip" href="concepts/diffusion.html">diffusion</a>
+      <a class="tag-chip" href="concepts/multimodal.html">multimodal</a>
+      <span class="tag-chip tag-chip--more">+2 more</span>
+  </div>
+</div>
+<div class="post-card post-card--paper">
+  <div class="post-card__head">
+    <span class="post-card__badge post-card__badge--paper">📄 论文</span>
+    <span class="post-card__date"><span class="post-card__added">📅 2026-06-01</span></span>
+  </div>
+  <h3 class="post-card__title"><a class="post-card__title-link" href="papers/rls-razor-2025/index.html">RL&#x27;s Razor: Why Online Reinforcement Learning Forgets Less</a></h3>
+  <p class="post-card__tldr">MIT Improbable AI 的诊断式论文:RL 比 SFT 少遗忘,根因不是负样本,而是 on-policy 采样隐式逼向 KL-min 解;forward KL on new task 是唯一可靠预测变量 (R²=0.96)。</p>
   <div class="post-card__tags">
       <a class="tag-chip" href="concepts/rl.html">rl</a>
       <a class="tag-chip" href="concepts/llm.html">llm</a>
-      <a class="tag-chip" href="concepts/grpo.html">grpo</a>
-      <span class="tag-chip tag-chip--more">+3 more</span>
+      <a class="tag-chip" href="concepts/alignment.html">alignment</a>
+      <span class="tag-chip tag-chip--more">+1 more</span>
   </div>
 </div>
 <div class="post-card post-card--paper">
@@ -96,41 +164,13 @@
     <span class="post-card__badge post-card__badge--paper">📄 论文</span>
     <span class="post-card__date"><span class="post-card__added">📅 2026-06-01</span></span>
   </div>
-  <h3 class="post-card__title"><a class="post-card__title-link" href="papers/d-opsd-2026/index.html">D-OPSD: On-Policy Self-Distillation for Continuously Tuning Step-Distilled Diffusion Models</a></h3>
-  <p class="post-card__tldr">HKUST/阿里 Z-Image Team:让 Z-Image-Turbo (8 步) 和 FLUX.2-klein (4 步) 能&quot;边用边学&quot;新概念 — 同一模型分饰 student (text) 和 teacher (text+target_img),在 student 自采轨迹上 self-distill,无需 reward。</p>
+  <h3 class="post-card__title"><a class="post-card__title-link" href="papers/qwen-image-2-2026/index.html">Qwen-Image-2.0 Technical Report</a></h3>
+  <p class="post-card__tldr">Qwen 75 人团队:Qwen3-VL 当冻结 condition encoder + MMDiT + 自研 f16c64 高压缩 VAE (latent 体积 4× 少,重建跟 f8c16 持平)。1k token 中文长文本渲染 + RLHF + DMD 4-NFE 蒸馏。LMArena T2I 中文 #1。</p>
   <div class="post-card__tags">
-      <a class="tag-chip" href="concepts/diffusion.html">diffusion</a>
-      <a class="tag-chip" href="concepts/distillation.html">distillation</a>
-      <a class="tag-chip" href="concepts/flow-matching.html">flow-matching</a>
-      <span class="tag-chip tag-chip--more">+2 more</span>
-  </div>
-</div>
-<div class="post-card post-card--paper">
-  <div class="post-card__head">
-    <span class="post-card__badge post-card__badge--paper">📄 论文</span>
-    <span class="post-card__date"><span class="post-card__added">📅 2026-06-01</span></span>
-  </div>
-  <h3 class="post-card__title"><a class="post-card__title-link" href="papers/awm-2025/index.html">Advantage Weighted Matching: 把扩散模型 RL 拽回到预训练目标</a></h3>
-  <p class="post-card__tldr">UCAS + Adobe + HKU + MIT。一个定理 + 一个简单替换:DDPO/Flow-GRPO 那套 per-step 高斯似然其实是 noisy-$x_s$ 上的 DSM,多出 $d\cdot\kappa(s,t)$ 的目标向量方差,这是它收敛慢的根。AWM 把 RL surrogate 直接换回预训练用的 flow matching loss × advantage,decouple sampler/training,SD3.5-M 上 OCR 23.6× / GenEval 8× / PickScore 10× 加速,同质量。但 release 代码里 $\beta$、$w(t)$、EMA 自蒸馏三处跟论文不一致。</p>
-  <div class="post-card__tags">
-      <a class="tag-chip" href="concepts/diffusion.html">diffusion</a>
-      <a class="tag-chip" href="concepts/rl.html">rl</a>
-      <a class="tag-chip" href="concepts/grpo.html">grpo</a>
-      <span class="tag-chip tag-chip--more">+3 more</span>
-  </div>
-</div>
-<div class="post-card post-card--paper">
-  <div class="post-card__head">
-    <span class="post-card__badge post-card__badge--paper">📄 论文</span>
-    <span class="post-card__date"><span class="post-card__added">📅 2026-06-01</span></span>
-  </div>
-  <h3 class="post-card__title"><a class="post-card__title-link" href="papers/asymflow-2026/index.html">AsymFlow: 秩-非对称速度参数化, 把 latent 流匹配模型 lift 到像素空间</a></h3>
-  <p class="post-card__tldr">Stanford (Wetzstein/Guibas 组, arXiv 2026/05/13)。像素扩散用 plain DiT 的瓶颈是 velocity 目标 u = ε − x₀ 里那个 full-rank 高斯噪声污染 transformer hidden state。AsymFlow 把 velocity 拆开非对称: data 项 −x₀ 保持 full-rank, noise 项限到 rank-r 子空间, 即 u_A := Pε − x₀, 训练时网络只预测 u_A, sampling 时解析还原 full-rank。r=0 退化 x₀-pred, r=D 退化 u-pred, 中间是新东西。子空间用 PCA 或 latent→pixel Procrustes 对齐构造。架构 / training-loop / sampler 一字不改。结果: ImageNet 256 上 1.57 FID (JiT-H/16 + REPA), 是 plain transformer 像素扩散 SOTA; 从 FLUX.2 klein 9B Procrustes-lift 得到 AsymFLUX.2 klein, 是&lt;em&gt;第一个&lt;/em&gt;把大型 latent flow 直接转成像素生成器的方法, 在 HPSv3/DPG/GenEval 上全面超过 latent base。</p>
-  <div class="post-card__tags">
-      <a class="tag-chip" href="concepts/diffusion.html">diffusion</a>
       <a class="tag-chip" href="concepts/image-gen.html">image-gen</a>
-      <a class="tag-chip" href="concepts/pixel-space.html">pixel-space</a>
-      <span class="tag-chip tag-chip--more">+2 more</span>
+      <a class="tag-chip" href="concepts/diffusion.html">diffusion</a>
+      <a class="tag-chip" href="concepts/qwen.html">qwen</a>
+      <span class="tag-chip tag-chip--more">+3 more</span>
   </div>
 </div>
 </div>
@@ -142,7 +182,8 @@
   <a class="pager__item" href="papers-4.html">4</a>
   <a class="pager__item" href="papers-5.html">5</a>
   <span class="pager__item pager__item--current" aria-current="page">6</span>
-  <span class="pager__nav pager__item--disabled" aria-disabled="true">下一页</span>
+  <a class="pager__item" href="papers-7.html">7</a>
+  <a class="pager__nav" href="papers-7.html">下一页</a>
 </nav>
 </main>
 </body>
