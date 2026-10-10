@@ -37,16 +37,26 @@
       }, { rootMargin: '-20% 0px -70% 0px' });
       map.forEach((_, el) => observer.observe(el));
     });
+    // reading progress bar
+    document.addEventListener('DOMContentLoaded', () => {
+      const bar = document.querySelector('.read-progress');
+      if (!bar) return;
+      const update = () => {
+        const h = document.documentElement;
+        const max = h.scrollHeight - h.clientHeight;
+        bar.style.transform = 'scaleX(' + (max > 0 ? h.scrollTop / max : 0) + ')';
+      };
+      update();
+      window.addEventListener('scroll', update, { passive: true });
+    });
   </script>
 </head>
 <body>
+<div class="read-progress" aria-hidden="true"></div>
 <!-- NAV-START -->
 <nav class="site-nav" aria-label="主导航">
   <a class="site-nav__brand" href="../../index.html" aria-label="返回主页">
-    <svg class="site-nav__home-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-      <path d="M3 12l9-9 9 9"/>
-      <path d="M5 10v10h14V10"/>
-    </svg>
+    <span class="site-nav__brand-mark" aria-hidden="true">P</span>
     <span class="site-nav__brand-text">Paper Reading</span>
   </a>
   <div class="site-nav__links">
@@ -55,9 +65,11 @@
     <a class="site-nav__link" href="../../surveys.html">调研</a>
     <a class="site-nav__link" href="../../graph.html">图谱</a>
     <button type="button" class="site-nav__search-btn" id="search-open" aria-label="搜索" aria-expanded="false" aria-controls="search-modal">
-      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
         <circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/>
       </svg>
+      <span class="site-nav__search-label">搜索</span>
+      <kbd class="site-nav__kbd">⌘K</kbd>
     </button>
     <button type="button" class="site-nav__theme-btn" id="theme-toggle" aria-label="切换深浅色主题">
       <svg class="theme-icon theme-icon--moon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
@@ -110,9 +122,9 @@
 <main data-pagefind-body>
 <h1>LLaDA-Image：用完全开源配方从零训一个 6B 强图像生成器</h1>
 <aside class="post-meta">
-  <div class="post-meta__row"><span class="post-meta__date">📅 加入: <strong>2026-10-10</strong></span> · <span class="post-meta__paper-date">论文日期: 2026-09-05</span></div>
+  <div class="post-meta__row"><span class="post-meta__date">加入 <strong>2026-10-10</strong></span> · <span class="post-meta__paper-date">论文日期: 2026-09-05</span></div>
   <div class="post-meta__row"><span class="post-meta__authors">Chuyan Chen, Haoxing Chen, Kun Chen, Zhenglin Cheng, ... Jun Xie (AGI Research Center, Inclusion AI)</span> · <span class="post-meta__venue">arXiv Technical Report</span></div>
-  <div class="post-meta__row post-meta__links"><a class="post-meta__link" href="https://arxiv.org/abs/2609.03796">arXiv:2609.03796</a> · <a class="post-meta__link" href="https://github.com/inclusionAI/LLaDA-Image">项目页</a> · <a class="post-meta__link" href="https://github.com/inclusionAI/LLaDA-Image">代码</a> · <a class="post-meta__link" href="https://huggingface.co/collections/inclusionAI/llada-image">权重</a></div>
+  <div class="post-meta__row post-meta__links"><a class="post-meta__link" href="https://arxiv.org/abs/2609.03796">arXiv:2609.03796</a> · <a class="post-meta__link" href="https://github.com/inclusionAI/LLaDA-Image">项目页</a> · <a class="post-meta__link" href="https://github.com/inclusionAI/LLaDA-Image">LLaDA-Image</a> · <a class="post-meta__link" href="https://huggingface.co/collections/inclusionAI/llada-image">权重</a></div>
   <div class="post-meta__row post-meta__concepts"><a class="concept-chip" href="../../concepts/text-to-image.html">text-to-image</a> <a class="concept-chip" href="../../concepts/image-editing.html">image-editing</a> <a class="concept-chip" href="../../concepts/unified-multimodal.html">unified-multimodal</a> <a class="concept-chip" href="../../concepts/diffusion-transformer.html">diffusion-transformer</a> <a class="concept-chip" href="../../concepts/flow-matching.html">flow-matching</a> <a class="concept-chip" href="../../concepts/image-only-pretraining.html">image-only-pretraining</a> <a class="concept-chip" href="../../concepts/diffusion-language-model.html">diffusion-language-model</a> <a class="concept-chip" href="../../concepts/distribution-matching-distillation.html">distribution-matching-distillation</a> <a class="concept-chip" href="../../concepts/mllm-conditioning.html">mllm-conditioning</a> <a class="concept-chip" href="../../concepts/rmsnorm.html">rmsnorm</a> <a class="concept-chip" href="../../concepts/muon-optimizer.html">muon-optimizer</a> <a class="concept-chip" href="../../concepts/text-rendering.html">text-rendering</a></div>
 </aside>
 
@@ -542,5 +554,6 @@ latents = self.scheduler.step(model_output, timestep, latents, return_dict=False
   <div class="card"><h3 id="sec-7-4">反直觉点：真实感与 benchmark 会打架</h3><p>"真图早期涨分慢"被明确写进报告。当你的模型在 benchmark 上被合成数据方案压着时，先分清你要的是"评测代理分数"还是"真实分布"——它们可能指向相反的数据配方。</p></div>
 </div>
 </main>
+<footer class="site-footer">Paper Reading · 由 markdown 静态生成 · <a href="https://github.com/megake98/megake98.github.io">GitHub</a></footer>
 </body>
 </html>

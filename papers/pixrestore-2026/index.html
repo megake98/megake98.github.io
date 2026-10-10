@@ -37,16 +37,26 @@
       }, { rootMargin: '-20% 0px -70% 0px' });
       map.forEach((_, el) => observer.observe(el));
     });
+    // reading progress bar
+    document.addEventListener('DOMContentLoaded', () => {
+      const bar = document.querySelector('.read-progress');
+      if (!bar) return;
+      const update = () => {
+        const h = document.documentElement;
+        const max = h.scrollHeight - h.clientHeight;
+        bar.style.transform = 'scaleX(' + (max > 0 ? h.scrollTop / max : 0) + ')';
+      };
+      update();
+      window.addEventListener('scroll', update, { passive: true });
+    });
   </script>
 </head>
 <body>
+<div class="read-progress" aria-hidden="true"></div>
 <!-- NAV-START -->
 <nav class="site-nav" aria-label="主导航">
   <a class="site-nav__brand" href="../../index.html" aria-label="返回主页">
-    <svg class="site-nav__home-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-      <path d="M3 12l9-9 9 9"/>
-      <path d="M5 10v10h14V10"/>
-    </svg>
+    <span class="site-nav__brand-mark" aria-hidden="true">P</span>
     <span class="site-nav__brand-text">Paper Reading</span>
   </a>
   <div class="site-nav__links">
@@ -55,9 +65,11 @@
     <a class="site-nav__link" href="../../surveys.html">调研</a>
     <a class="site-nav__link" href="../../graph.html">图谱</a>
     <button type="button" class="site-nav__search-btn" id="search-open" aria-label="搜索" aria-expanded="false" aria-controls="search-modal">
-      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
         <circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/>
       </svg>
+      <span class="site-nav__search-label">搜索</span>
+      <kbd class="site-nav__kbd">⌘K</kbd>
     </button>
     <button type="button" class="site-nav__theme-btn" id="theme-toggle" aria-label="切换深浅色主题">
       <svg class="theme-icon theme-icon--moon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
@@ -95,10 +107,12 @@
   </ul>
 </nav>
 <main data-pagefind-body>
+<p class="post-kicker">论文</p>
+<h1>PixRestore：扔掉 VAE 和 T2I 先验，从零训一个像素空间 DiT 做统一图像修复</h1>
 <aside class="post-meta">
-  <div class="post-meta__row"><span class="post-meta__date">📅 加入: <strong>2026-10-10</strong></span> · <span class="post-meta__paper-date">论文日期: 2026-08-24</span></div>
+  <div class="post-meta__row"><span class="post-meta__date">加入 <strong>2026-10-10</strong></span> · <span class="post-meta__paper-date">论文日期: 2026-08-24</span></div>
   <div class="post-meta__row"><span class="post-meta__authors">Lingchen Sun, Rongyuan Wu, Xiangtao Kong, Jixin Zhao, Qiaosi Yi, Yujing Sun, Shuaizheng Liu, Zhengqiang Zhang, Lei Zhang (HK PolyU Visual Computing Lab · OPPO Research Institute)</span> · <span class="post-meta__venue">arXiv preprint (cs.CV)</span></div>
-  <div class="post-meta__row post-meta__links"><a class="post-meta__link" href="https://arxiv.org/abs/2608.16793">arXiv:2608.16793</a> · <a class="post-meta__link" href="https://github.com/csslc/PixRestore">项目页</a> · <a class="post-meta__link" href="https://github.com/csslc/PixRestore">代码</a></div>
+  <div class="post-meta__row post-meta__links"><a class="post-meta__link" href="https://arxiv.org/abs/2608.16793">arXiv:2608.16793</a> · <a class="post-meta__link" href="https://github.com/csslc/PixRestore">项目页</a> · <a class="post-meta__link" href="https://github.com/csslc/PixRestore">PixRestore</a></div>
   <div class="post-meta__row post-meta__concepts"><a class="concept-chip" href="../../concepts/image-restoration.html">image-restoration</a> <a class="concept-chip" href="../../concepts/unified-image-restoration.html">unified-image-restoration</a> <a class="concept-chip" href="../../concepts/pixel-diffusion.html">pixel-diffusion</a> <a class="concept-chip" href="../../concepts/diffusion.html">diffusion</a> <a class="concept-chip" href="../../concepts/flow-matching.html">flow-matching</a> <a class="concept-chip" href="../../concepts/dit.html">dit</a> <a class="concept-chip" href="../../concepts/dino.html">dino</a> <a class="concept-chip" href="../../concepts/vae-free.html">vae-free</a> <a class="concept-chip" href="../../concepts/one-step-generation.html">one-step-generation</a> <a class="concept-chip" href="../../concepts/adversarial-distillation.html">adversarial-distillation</a> <a class="concept-chip" href="../../concepts/degradation-aware.html">degradation-aware</a></div>
 </aside>
 <figure>
@@ -645,5 +659,6 @@ model.requires_grad_(False)                       # 整个 DINOv2 冻结
 <li><strong>别信单一 NR 指标给 restoration 排名。</strong> MUSIQ/AFINE-NR 会系统性偏爱&quot;看起来锐利但保留了退化&quot;的输出。真实世界无 GT 评测时，配一个&quot;退化是否真去除&quot;的正交指标（哪怕是 VLM 裁判）能救命。</li>
 </ul>
 </main>
+<footer class="site-footer">Paper Reading · 由 markdown 静态生成 · <a href="https://github.com/megake98/megake98.github.io">GitHub</a></footer>
 </body>
 </html>

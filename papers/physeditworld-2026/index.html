@@ -37,16 +37,26 @@
       }, { rootMargin: '-20% 0px -70% 0px' });
       map.forEach((_, el) => observer.observe(el));
     });
+    // reading progress bar
+    document.addEventListener('DOMContentLoaded', () => {
+      const bar = document.querySelector('.read-progress');
+      if (!bar) return;
+      const update = () => {
+        const h = document.documentElement;
+        const max = h.scrollHeight - h.clientHeight;
+        bar.style.transform = 'scaleX(' + (max > 0 ? h.scrollTop / max : 0) + ')';
+      };
+      update();
+      window.addEventListener('scroll', update, { passive: true });
+    });
   </script>
 </head>
 <body>
+<div class="read-progress" aria-hidden="true"></div>
 <!-- NAV-START -->
 <nav class="site-nav" aria-label="主导航">
   <a class="site-nav__brand" href="../../index.html" aria-label="返回主页">
-    <svg class="site-nav__home-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-      <path d="M3 12l9-9 9 9"/>
-      <path d="M5 10v10h14V10"/>
-    </svg>
+    <span class="site-nav__brand-mark" aria-hidden="true">P</span>
     <span class="site-nav__brand-text">Paper Reading</span>
   </a>
   <div class="site-nav__links">
@@ -55,9 +65,11 @@
     <a class="site-nav__link" href="../../surveys.html">调研</a>
     <a class="site-nav__link" href="../../graph.html">图谱</a>
     <button type="button" class="site-nav__search-btn" id="search-open" aria-label="搜索" aria-expanded="false" aria-controls="search-modal">
-      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
         <circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/>
       </svg>
+      <span class="site-nav__search-label">搜索</span>
+      <kbd class="site-nav__kbd">⌘K</kbd>
     </button>
     <button type="button" class="site-nav__theme-btn" id="theme-toggle" aria-label="切换深浅色主题">
       <svg class="theme-icon theme-icon--moon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
@@ -102,9 +114,9 @@
 <main data-pagefind-body>
 <h1>PhysEditWorld: A Large-Scale Dataset Toward Physics-Editable World Models</h1>
 <aside class="post-meta">
-  <div class="post-meta__row"><span class="post-meta__date">📅 加入: <strong>2026-06-30</strong></span> · <span class="post-meta__paper-date">论文日期: 2026-06-30</span></div>
+  <div class="post-meta__row"><span class="post-meta__date">加入 <strong>2026-06-30</strong></span> · <span class="post-meta__paper-date">论文日期: 2026-06-30</span></div>
   <div class="post-meta__row"><span class="post-meta__authors">Bin Hu, Yanwen Ma, Jiehui Huang, Ziliang Zhang, Haoning Wu, Ruicheng Zhang, et al. (Xiu Li, Jiaya Jia 通讯)</span> · <span class="post-meta__venue">Preprint (arXiv)</span></div>
-  <div class="post-meta__row post-meta__links"><a class="post-meta__link" href="https://arxiv.org/abs/2606.26694">arXiv:2606.26694</a> · <a class="post-meta__link" href="https://yizhiqianbi.github.io/physeditworld/">项目页</a> · <a class="post-meta__link" href="https://github.com/yizhiqianbi/physeditworld">代码</a></div>
+  <div class="post-meta__row post-meta__links"><a class="post-meta__link" href="https://arxiv.org/abs/2606.26694">arXiv:2606.26694</a> · <a class="post-meta__link" href="https://yizhiqianbi.github.io/physeditworld/">项目页</a> · <a class="post-meta__link" href="https://github.com/yizhiqianbi/physeditworld">physeditworld</a></div>
   <div class="post-meta__row post-meta__concepts"><a class="concept-chip" href="../../concepts/world-model.html">world-model</a> <a class="concept-chip" href="../../concepts/video-generation.html">video-generation</a> <a class="concept-chip" href="../../concepts/physics-editing.html">physics-editing</a> <a class="concept-chip" href="../../concepts/gravity.html">gravity</a> <a class="concept-chip" href="../../concepts/synthetic-dataset.html">synthetic-dataset</a> <a class="concept-chip" href="../../concepts/unreal-engine.html">unreal-engine</a> <a class="concept-chip" href="../../concepts/lora.html">lora</a> <a class="concept-chip" href="../../concepts/vlm.html">vlm</a></div>
 </aside>
 
@@ -399,5 +411,6 @@ pipeline:
 </table>
 <p><strong>异同与分歧成因。</strong> 三者都同意「当前 world model 的物理是隐式学来的」，但<strong>只有 PhysEditWorld 把它当成要解决的问题</strong>，另两篇默认接受这个现状、去优化别的轴（速度 / 流式 / 模态）。分歧的根源是<strong>目标函数不同</strong>：Self-Forcing 和 Starchild 优化的是「生成又快又像」，所以它们的指标（VBench、CLAP、延迟）根本不测「改一条物理规则后是否自洽」——PhysEditWorld 的整篇论文就是在论证「这个被所有人跳过的维度，恰恰是 game world model 作为可编辑模拟器的命门」。一个值得警惕的共同盲点：三篇的「交互/物理可控」证据都偏定性或小样本（Starchild 纯 qualitative、PhysEditWorld 表 2 只有一个 group），这条赛道还缺一个大规模、统计严谨、且不依赖代理信号的物理忠实度 benchmark。</p>
 </main>
+<footer class="site-footer">Paper Reading · 由 markdown 静态生成 · <a href="https://github.com/megake98/megake98.github.io">GitHub</a></footer>
 </body>
 </html>

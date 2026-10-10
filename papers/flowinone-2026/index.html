@@ -37,16 +37,26 @@
       }, { rootMargin: '-20% 0px -70% 0px' });
       map.forEach((_, el) => observer.observe(el));
     });
+    // reading progress bar
+    document.addEventListener('DOMContentLoaded', () => {
+      const bar = document.querySelector('.read-progress');
+      if (!bar) return;
+      const update = () => {
+        const h = document.documentElement;
+        const max = h.scrollHeight - h.clientHeight;
+        bar.style.transform = 'scaleX(' + (max > 0 ? h.scrollTop / max : 0) + ')';
+      };
+      update();
+      window.addEventListener('scroll', update, { passive: true });
+    });
   </script>
 </head>
 <body>
+<div class="read-progress" aria-hidden="true"></div>
 <!-- NAV-START -->
 <nav class="site-nav" aria-label="主导航">
   <a class="site-nav__brand" href="../../index.html" aria-label="返回主页">
-    <svg class="site-nav__home-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-      <path d="M3 12l9-9 9 9"/>
-      <path d="M5 10v10h14V10"/>
-    </svg>
+    <span class="site-nav__brand-mark" aria-hidden="true">P</span>
     <span class="site-nav__brand-text">Paper Reading</span>
   </a>
   <div class="site-nav__links">
@@ -55,9 +65,11 @@
     <a class="site-nav__link" href="../../surveys.html">调研</a>
     <a class="site-nav__link" href="../../graph.html">图谱</a>
     <button type="button" class="site-nav__search-btn" id="search-open" aria-label="搜索" aria-expanded="false" aria-controls="search-modal">
-      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
         <circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/>
       </svg>
+      <span class="site-nav__search-label">搜索</span>
+      <kbd class="site-nav__kbd">⌘K</kbd>
     </button>
     <button type="button" class="site-nav__theme-btn" id="theme-toggle" aria-label="切换深浅色主题">
       <svg class="theme-icon theme-icon--moon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
@@ -97,9 +109,9 @@
 <main data-pagefind-body>
 <h1>FlowInOne: Unifying Multimodal Generation as Image-in, Image-out Flow Matching</h1>
 <aside class="post-meta">
-  <div class="post-meta__row"><span class="post-meta__date">📅 加入: <strong>2026-10-10</strong></span> · <span class="post-meta__paper-date">论文日期: 2026-09-24</span></div>
+  <div class="post-meta__row"><span class="post-meta__date">加入 <strong>2026-10-10</strong></span> · <span class="post-meta__paper-date">论文日期: 2026-09-24</span></div>
   <div class="post-meta__row"><span class="post-meta__authors">Junchao Yi, Rui Zhao, Jiahao Tang, Weixian Lei, Linjie Li, Qisheng Su, Zhengyuan Yang, Lijuan Wang, Xiaofeng Zhu, Alex Jinpeng Wang (UESTC / CSU / NUS / USTC / Microsoft)</span> · <span class="post-meta__venue">ECCV 2026</span></div>
-  <div class="post-meta__row post-meta__links"><a class="post-meta__link" href="https://arxiv.org/abs/2604.06757">arXiv:2604.06757</a> · <a class="post-meta__link" href="https://csu-jpg.github.io/FlowInOne.github.io/">项目页</a> · <a class="post-meta__link" href="https://github.com/CSU-JPG/FlowInOne">代码</a> · <a class="post-meta__link" href="https://huggingface.co/CSU-JPG/FlowInOne">权重</a></div>
+  <div class="post-meta__row post-meta__links"><a class="post-meta__link" href="https://arxiv.org/abs/2604.06757">arXiv:2604.06757</a> · <a class="post-meta__link" href="https://csu-jpg.github.io/FlowInOne.github.io/">项目页</a> · <a class="post-meta__link" href="https://github.com/CSU-JPG/FlowInOne">FlowInOne</a> · <a class="post-meta__link" href="https://huggingface.co/CSU-JPG/FlowInOne">权重</a></div>
   <div class="post-meta__row post-meta__concepts"><a class="concept-chip" href="../../concepts/flow-matching.html">flow-matching</a> <a class="concept-chip" href="../../concepts/multimodal-generation.html">multimodal-generation</a> <a class="concept-chip" href="../../concepts/image-editing.html">image-editing</a> <a class="concept-chip" href="../../concepts/vision-centric.html">vision-centric</a> <a class="concept-chip" href="../../concepts/unified-generation.html">unified-generation</a> <a class="concept-chip" href="../../concepts/visual-prompt.html">visual-prompt</a> <a class="concept-chip" href="../../concepts/cross-attention.html">cross-attention</a> <a class="concept-chip" href="../../concepts/dit.html">dit</a> <a class="concept-chip" href="../../concepts/vae.html">vae</a> <a class="concept-chip" href="../../concepts/eccv.html">eccv</a></div>
 </aside>
 
@@ -333,5 +345,6 @@ samples = ode_fm_solver_sample(nnet, context=contexts, image_latent=input_latent
 <p><strong>分歧的可能成因</strong>:根子在**&quot;统一&quot;统一的是哪一层**。Boogu 统一的是<strong>任务接口</strong>(仍靠文本条件),FlowInOne 统一的是<strong>模态本身</strong>(全部视觉化)——所以后者在空间控制上赢、在纯文本生成上亏。而 JiT/AsymFlow 关心的是生成<strong>过程</strong>(去噪空间、速度参数化)而非<strong>条件来源</strong>,与 FlowInOne 正交:理论上可以把 FlowInOne 的视觉条件接到 JiT 的像素扩散或 AsymFlow 的速度参数化上,是互补而非竞争。</p>
 <p><strong>相关工作(外部)</strong>:CrossFlow(直接文本→图像流匹配,本文的初始化底座)、&quot;Language modelling with pixels&quot;(文字渲染成像素的 vision-centric 感知先驱)、Janus-Pro(视觉编码器来源)、OmniGen2 / FLUX.1-Kontext / Qwen-Image-Edit(编辑基线)、Nano Banana(商业对照)。</p>
 </main>
+<footer class="site-footer">Paper Reading · 由 markdown 静态生成 · <a href="https://github.com/megake98/megake98.github.io">GitHub</a></footer>
 </body>
 </html>

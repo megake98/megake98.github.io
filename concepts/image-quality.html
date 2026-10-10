@@ -11,10 +11,7 @@
 <!-- NAV-START -->
 <nav class="site-nav" aria-label="主导航">
   <a class="site-nav__brand" href="../index.html" aria-label="返回主页">
-    <svg class="site-nav__home-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-      <path d="M3 12l9-9 9 9"/>
-      <path d="M5 10v10h14V10"/>
-    </svg>
+    <span class="site-nav__brand-mark" aria-hidden="true">P</span>
     <span class="site-nav__brand-text">Paper Reading</span>
   </a>
   <div class="site-nav__links">
@@ -23,9 +20,11 @@
     <a class="site-nav__link" href="../surveys.html">调研</a>
     <a class="site-nav__link active" href="../graph.html">图谱</a>
     <button type="button" class="site-nav__search-btn" id="search-open" aria-label="搜索" aria-expanded="false" aria-controls="search-modal">
-      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
         <circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/>
       </svg>
+      <span class="site-nav__search-label">搜索</span>
+      <kbd class="site-nav__kbd">⌘K</kbd>
     </button>
     <button type="button" class="site-nav__theme-btn" id="theme-toggle" aria-label="切换深浅色主题">
       <svg class="theme-icon theme-icon--moon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
@@ -54,24 +53,24 @@
   </div>
   <h2>提到此概念的论文 / 教程</h2>
   <div class="post-grid">
-<div class="post-card post-card--tutorial">
-  <div class="post-card__head">
-    <span class="post-card__badge post-card__badge--tutorial">📘 教程</span>
-    <span class="post-card__date"><span class="post-card__added">📅 2026-06-14</span></span>
+<article class="post-card post-card--tutorial">
+  <div class="post-card__meta">
+    <span class="post-card__badge">教程</span>
+    <span class="post-card__date"><span class="post-card__added">2026-06-14</span><span class="post-card__extra">19k 字</span><span class="post-card__extra">90–120 分钟</span></span>
   </div>
   <h3 class="post-card__title"><a class="post-card__title-link" href="../tutorials/vlm-benchmarks-2024/index.html">VLM 评测 Benchmark 目录:测什么能力 · 怎么测 · 样题 · 模型如何被打分</a></h3>
-  <p class="post-card__tldr">业界常见 VLM(视觉语言模型)评测 benchmark 的速查目录,按三层组织:通用能力(MMMU/MMBench/MME/SEED-Bench)、会读图会算(DocVQA/ChartQA/TextVQA/AI2D/MathVista)、幻觉与诚实(POPE/HallusionBench/MMStar)、grounding 定位(RefCOCO/LVIS/ScreenSpot/PixMo-Points)、细节瑕疵(MVTec-AD/VisA/QGround)。每个 benchmark 做成卡片:测什么能力、测试方法、一个样题(题型示意)、模型如何被喂入+生成+提取+打分、用什么指标。§1 先讲清「任何 VLM 被测试的通用流水线」;§8 补一节 2025 发布会评分卡(推理 / agentic / 新多模态:GPQA·HMMT·MMMLU·IFBench·BFCL·BrowseComp·SWE-bench·Terminal-Bench·MMMU-Pro·ERQA·OmniDocBench·Video-MME),并对照「判分从对答案到跑环境」的代际差异。真实评分代码 verbatim 引自 open-compass/VLMEvalKit、openvinotoolkit/anomalib 与 princeton-nlp/SWE-bench。
-</p>
-</div>
-<div class="post-card post-card--paper">
-  <div class="post-card__head">
-    <span class="post-card__badge post-card__badge--paper">📄 论文</span>
-    <span class="post-card__date"><span class="post-card__added">📅 2026-06-09</span></span>
+  <p class="post-card__tldr">业界常见 VLM(视觉语言模型)评测 benchmark 的速查目录,按三层组织:通用能力(MMMU/MMBench/MME/SEED-Bench)、会读图会算(DocVQA/ChartQA/TextVQA/AI2D/MathVista)、幻觉与诚实(POPE/HallusionBench/MMStar)、grounding 定位(RefCOCO/LVIS/ScreenSpot/PixMo-Points)、细节瑕疵(MVTec-AD/VisA/QGround)。每个 benchmark 做成卡片:测什么能力、测试方法、一个样题(题型示意)、模型如何被喂入+生成+提取+打分、用什么指标。§1 先讲清「任何 VLM 被测试的通用流水线」;§8 补一节 2025 发布会评分卡(推理 / agentic / 新多模态:GPQA·HMMT·MMMLU·IFBench·BFCL·BrowseComp·SWE-bench·Terminal-Bench·MMMU-Pro·ERQA·OmniDocBench·Video-MME),并对照「判分从对答案到跑环境」的代际差异。真实评分代码 verbatim 引自 open-compass/VLMEvalKit、openvinotoolkit/anomalib 与 princeton-nlp/SWE-bench。</p>
+  <div class="post-card__tags"><a class="tag-chip" href="../concepts/benchmark.html">benchmark</a> <a class="tag-chip" href="../concepts/vlm.html">vlm</a> <a class="tag-chip" href="../concepts/evaluation.html">evaluation</a> <span class="tag-chip tag-chip--more">+7</span></div>
+</article>
+<article class="post-card post-card--paper">
+  <div class="post-card__meta">
+    <span class="post-card__badge">论文</span>
+    <span class="post-card__date"><span class="post-card__added">2026-06-09</span><span class="post-card__extra">约 10 分钟</span></span>
   </div>
   <h3 class="post-card__title"><a class="post-card__title-link" href="../papers/q-ground-2024/index.html">Q-Ground: Image Quality Grounding with Large Multi-modality Models</a></h3>
-  <p class="post-card__tldr">ACM MM 2024 Oral(南洋理工 + 商汤)。第一个做&quot;细粒度画质 grounding&quot;的工作:不再只给一张图打一个总分/一段评语,而是把**画质缺陷的具体位置**分割出来。核心贡献是 **QGround-100K 数据集** —— 10 万条 (图像, 画质描述文本, 失真分割掩码) 三元组,建在 Q-Instruct/Q-Pathway 之上,锁定 5 种失真(模糊/过曝/噪声/抖动/低光),掩码用固定颜色编码。制作走**双轨标注**:① 15 名人工标注员(SAM 预分割 + 参考画质文本手调边界);② GPT4V 自动标注(Set-of-Mark:SAM 分割 + 编号 → GPT4V 给每个区域判失真类型)。人工 17,963 图 / 52,924 标注 + GPT4V 50,599 图。配套 Q-Ground 模型(PixelLM 式 [SEG] token + 多尺度投影 MSFA)。
-</p>
-</div>
+  <p class="post-card__tldr">ACM MM 2024 Oral(南洋理工 + 商汤)。第一个做&quot;细粒度画质 grounding&quot;的工作:不再只给一张图打一个总分/一段评语,而是把画质缺陷的具体位置分割出来。核心贡献是 QGround-100K 数据集 —— 10 万条 (图像, 画质描述文本, 失真分割掩码) 三元组,建在 Q-Instruct/Q-Pathway 之上,锁定 5 种失真(模糊/过曝/噪声/抖动/低光),掩码用固定颜色编码。制作走双轨标注:① 15 名人工标注员(SAM 预分割 + 参考画质文本手调边界);② GPT4V 自动标注(Set-of-Mark:SAM 分割 + 编号 → GPT4V 给每个区域判失真类型)。人工 17,963 图 / 52,924 标注 + GPT4V 50,599 图。配套 Q-Ground 模型(PixelLM 式 [SEG] token + 多尺度投影 MSFA)。</p>
+  <div class="post-card__tags"><a class="tag-chip" href="../concepts/iqa.html">iqa</a> <a class="tag-chip" href="../concepts/image-quality.html">image-quality</a> <a class="tag-chip" href="../concepts/grounding.html">grounding</a> <span class="tag-chip tag-chip--more">+5</span></div>
+</article>
 </div>
 
   <p class="back-link"><a href="../graph.html">← 返回图谱</a></p>

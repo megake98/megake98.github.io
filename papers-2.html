@@ -11,10 +11,7 @@
 <!-- NAV-START -->
 <nav class="site-nav" aria-label="主导航">
   <a class="site-nav__brand" href="index.html" aria-label="返回主页">
-    <svg class="site-nav__home-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-      <path d="M3 12l9-9 9 9"/>
-      <path d="M5 10v10h14V10"/>
-    </svg>
+    <span class="site-nav__brand-mark" aria-hidden="true">P</span>
     <span class="site-nav__brand-text">Paper Reading</span>
   </a>
   <div class="site-nav__links">
@@ -23,9 +20,11 @@
     <a class="site-nav__link" href="surveys.html">调研</a>
     <a class="site-nav__link" href="graph.html">图谱</a>
     <button type="button" class="site-nav__search-btn" id="search-open" aria-label="搜索" aria-expanded="false" aria-controls="search-modal">
-      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
         <circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/>
       </svg>
+      <span class="site-nav__search-label">搜索</span>
+      <kbd class="site-nav__kbd">⌘K</kbd>
     </button>
     <button type="button" class="site-nav__theme-btn" id="theme-toggle" aria-label="切换深浅色主题">
       <svg class="theme-icon theme-icon--moon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
@@ -46,146 +45,92 @@
 <script defer src="assets/theme.js"></script>
 <!-- NAV-END -->
 <main class="page page--listing">
-<h1>论文</h1>
-<p class="page__intro">共 63 篇论文精读。</p>
+<header class="page-hero">
+  <h1 class="page-hero__title">论文</h1>
+  <p class="page-hero__intro">共 63 篇论文精读。</p>
+</header>
 <div class="post-grid">
-<div class="post-card post-card--paper">
-  <div class="post-card__head">
-    <span class="post-card__badge post-card__badge--paper">📄 论文</span>
-    <span class="post-card__date"><span class="post-card__added">📅 2026-10-10</span></span>
+<article class="post-card post-card--paper">
+  <div class="post-card__meta">
+    <span class="post-card__badge">论文</span>
+    <span class="post-card__date"><span class="post-card__added">2026-10-10</span><span class="post-card__extra">约 20 分钟</span></span>
   </div>
   <h3 class="post-card__title"><a class="post-card__title-link" href="papers/f-loss-2026/index.html">f-loss：给像素空间流匹配换一副「频域眼镜」——先学频率、再抠像素</a></h3>
-  <p class="post-card__tldr">自然图像功率谱按 1/f² 衰减：能量几乎全堆在低频，但人眼在乎的纹理/边缘藏在稀疏的高频。像素空间的 v-loss 对所有空间误差一视同仁 → 低频主导梯度 → 模型迟迟学不会细节。作者把这诊断成「目标函数层面的频谱失衡」。
-解法两件套：① **f-loss（Focal Log-Frequency Loss）**——在 2D 傅里叶谱上做「对数压缩 log(1+e) + 逐样本焦点归一化 e/max(e) + 保留 1/(1-t)² 时间步权重」，让每个频率倍频程拿到等量学习信号；② **fv-loss 两段式调度**——训练早期用 f-loss 把所有频率快速拉齐，再用 sigmoid 权重平滑切回标准 v-loss 做像素级相位精修。
-纯 drop-in、零架构改动。跨 B/L/XL 三档、256²/512² 两分辨率：收敛最高快 40%（1.13×–1.57×），FID/FDD/IS 全面改善；JiT-XL/16 在 750k 步做到 FID 2.13（v-loss 2.21），叠 REPA 后 750k 的 1.87 反超 DeCo 1.6M 的 1.90，叠感知损失后 500k 追平 PixelGen 800k 的 1.83 且 IS 更高（323.4 vs 293.6）。代码与模型承诺开源（尚未放出）。
-</p>
-  <div class="post-card__tags">
-      <a class="tag-chip" href="concepts/flow-matching.html">flow-matching</a>
-      <a class="tag-chip" href="concepts/pixel-space-generation.html">pixel-space-generation</a>
-      <a class="tag-chip" href="concepts/frequency-domain-loss.html">frequency-domain-loss</a>
-      <span class="tag-chip tag-chip--more">+5 more</span>
-  </div>
-</div>
-<div class="post-card post-card--paper">
-  <div class="post-card__head">
-    <span class="post-card__badge post-card__badge--paper">📄 论文</span>
-    <span class="post-card__date"><span class="post-card__added">📅 2026-10-10</span></span>
+  <p class="post-card__tldr">自然图像功率谱按 1/f² 衰减：能量几乎全堆在低频，但人眼在乎的纹理/边缘藏在稀疏的高频。像素空间的 v-loss 对所有空间误差一视同仁 → 低频主导梯度 → 模型迟迟学不会细节。作者把这诊断成「目标函数层面的频谱失衡」。 解法两件套：① f-loss（Focal Log-Frequency Loss）——在 2D 傅里叶谱上做「对数压缩 log(1+e) + 逐样本焦点归一化 e/max(e) + 保留 1/(1-t)² 时间步权重」，让每个频率倍频程拿到等量学习信号；② fv-loss 两段式调度——训练早期用 f-loss 把所有频率快速拉齐，再用 sigmoid 权重平滑切回标准 v-loss 做像素级相位精修。 纯 drop-in、零架构改动。跨 B/L/XL 三档、256²/512² 两分辨率：收敛最高快 40%（1.13×–1.57×），FID/FDD/IS 全面改善；JiT-XL/16 在 750k 步做到 FID 2.13（v-loss 2.21），叠 REPA 后 750k 的 1.87 反超 DeCo 1.6M 的 1.90，叠感知损失后 500k 追平 PixelGen 800k 的 1.83 且 IS 更高（323.4 vs 293.6）。代码与模型承诺开源（尚未放出）。</p>
+  <div class="post-card__tags"><a class="tag-chip" href="concepts/flow-matching.html">flow-matching</a> <a class="tag-chip" href="concepts/pixel-space-generation.html">pixel-space-generation</a> <a class="tag-chip" href="concepts/frequency-domain-loss.html">frequency-domain-loss</a> <span class="tag-chip tag-chip--more">+5</span></div>
+</article>
+<article class="post-card post-card--paper">
+  <div class="post-card__meta">
+    <span class="post-card__badge">论文</span>
+    <span class="post-card__date"><span class="post-card__added">2026-10-10</span><span class="post-card__extra">约 25 分钟</span></span>
   </div>
   <h3 class="post-card__title"><a class="post-card__title-link" href="papers/dsec-2026/index.html">DeepSeek Elastic Compute (DSec): 为大规模 Agentic RL 训练造的沙箱基础设施</a></h3>
-  <p class="post-card__tldr">DeepSeek 把 agentic RL 训练/评测所需的执行环境做成了一个生产级沙箱平台 DSec:一套 SDK 暴露 FnCall / 容器 / microVM / 全 VM 四种后端,用可组合的 EROFS 分层替代单体镜像,靠 3FS 做按需镜像加载,用 virtio-pmem + DAMON 气球回收把内存超卖压下来,用 SCHED_IDLE + core scheduling 保护延迟敏感任务,并与 RL 框架协同做抢占安全的暂停/恢复。单个 scale unit 约 160 节点,日均 300 万沙箱、峰值并发 38 万、创建速率 5000+/秒。
-</p>
-  <div class="post-card__tags">
-      <a class="tag-chip" href="concepts/agentic-rl.html">agentic-rl</a>
-      <a class="tag-chip" href="concepts/sandbox.html">sandbox</a>
-      <a class="tag-chip" href="concepts/microvm.html">microvm</a>
-      <span class="tag-chip tag-chip--more">+8 more</span>
-  </div>
-</div>
-<div class="post-card post-card--paper">
-  <div class="post-card__head">
-    <span class="post-card__badge post-card__badge--paper">📄 论文</span>
-    <span class="post-card__date"><span class="post-card__added">📅 2026-10-10</span></span>
+  <p class="post-card__tldr">DeepSeek 把 agentic RL 训练/评测所需的执行环境做成了一个生产级沙箱平台 DSec:一套 SDK 暴露 FnCall / 容器 / microVM / 全 VM 四种后端,用可组合的 EROFS 分层替代单体镜像,靠 3FS 做按需镜像加载,用 virtio-pmem + DAMON 气球回收把内存超卖压下来,用 SCHED_IDLE + core scheduling 保护延迟敏感任务,并与 RL 框架协同做抢占安全的暂停/恢复。单个 scale unit 约 160 节点,日均 300 万沙箱、峰值并发 38 万、创建速率 5000+/秒。</p>
+  <div class="post-card__tags"><a class="tag-chip" href="concepts/agentic-rl.html">agentic-rl</a> <a class="tag-chip" href="concepts/sandbox.html">sandbox</a> <a class="tag-chip" href="concepts/microvm.html">microvm</a> <span class="tag-chip tag-chip--more">+8</span></div>
+</article>
+<article class="post-card post-card--paper">
+  <div class="post-card__meta">
+    <span class="post-card__badge">论文</span>
+    <span class="post-card__date"><span class="post-card__added">2026-10-10</span><span class="post-card__extra">约 25 分钟</span></span>
   </div>
   <h3 class="post-card__title"><a class="post-card__title-link" href="papers/bernini-2026/index.html">Bernini: Latent Semantic Planning for Video Diffusion（用 MLLM 做「语义规划」，DiT 只负责渲染像素）</a></h3>
-  <p class="post-card__tldr">字节跳动 Bernini 团队的技术报告。核心主张：MLLM 和扩散模型可以用一条「分工线」缝起来——让 MLLM 做语义规划（在它自己的 ViT embedding 空间里预测「目标该长什么样」），让 DiT 只负责把这份语义计划渲染成像素。关键设计有三个：(1) 用 MAR 式的掩码生成把 MLLM 从「理解模型」改造成「语义规划器」，目标 ViT token 训练时随机掩码、推理时从全掩码迭代填充；(2) SA-3D RoPE，给统一序列里每个视觉 segment 一个下标 i，用一个「段相位」旋转向量 ⊙ 到标准 3D RoPE 上，解决多张参考图/源视频「同一 (t,h,w) 坐标身份混淆」的问题；(3) 一条链式增量 guidance，把源视频 / 源图 / 文本 / 语义 embedding 四种条件拆成可独立调节的增量。因为「语义」是接口，planner 和 renderer 可以分开训、只轻量联训。实测在 OpenVE（4.04 vs 次优 3.18）、EditVerse（editing quality 8.02）、OpenS2V（FaceSim 78.20，比次优高 20+ 分）等多个视频编辑/生成榜上做到 SOTA，且 VBench 文生图质量几乎不掉（84.64 vs 底座 Wan2.2 的 84.79）。代码与权重已开源（Qwen2.5-VL-7B 规划器 + Wan2.2-A14B 渲染器）。
-</p>
-  <div class="post-card__tags">
-      <a class="tag-chip" href="concepts/video-editing.html">video-editing</a>
-      <a class="tag-chip" href="concepts/video-generation.html">video-generation</a>
-      <a class="tag-chip" href="concepts/unified-multimodal.html">unified-multimodal</a>
-      <span class="tag-chip tag-chip--more">+7 more</span>
-  </div>
-</div>
-<div class="post-card post-card--paper">
-  <div class="post-card__head">
-    <span class="post-card__badge post-card__badge--paper">📄 论文</span>
-    <span class="post-card__date"><span class="post-card__added">📅 2026-08-04</span></span>
+  <p class="post-card__tldr">字节跳动 Bernini 团队的技术报告。核心主张：MLLM 和扩散模型可以用一条「分工线」缝起来——让 MLLM 做语义规划（在它自己的 ViT embedding 空间里预测「目标该长什么样」），让 DiT 只负责把这份语义计划渲染成像素。关键设计有三个：(1) 用 MAR 式的掩码生成把 MLLM 从「理解模型」改造成「语义规划器」，目标 ViT token 训练时随机掩码、推理时从全掩码迭代填充；(2) SA-3D RoPE，给统一序列里每个视觉 segment 一个下标 i，用一个「段相位」旋转向量 ⊙ 到标准 3D RoPE 上，解决多张参考图/源视频「同一 (t,h,w) 坐标身份混淆」的问题；(3) 一条链式增量 guidance，把源视频 / 源图 / 文本 / 语义 embedding 四种条件拆成可独立调节的增量。因为「语义」是接口，planner 和 renderer 可以分开训、只轻量联训。实测在 OpenVE（4.04 vs 次优 3.18）、EditVerse（editing quality 8.02）、OpenS2V（FaceSim 78.20，比次优高 20+ 分）等多个视频编辑/生成榜上做到 SOTA，且 VBench 文生图质量几乎不掉（84.64 vs 底座 Wan2.2 的 84.79）。代码与权重已开源（Qwen2.5-VL-7B 规划器 + Wan2.2-A14B 渲染器）。</p>
+  <div class="post-card__tags"><a class="tag-chip" href="concepts/video-editing.html">video-editing</a> <a class="tag-chip" href="concepts/video-generation.html">video-generation</a> <a class="tag-chip" href="concepts/unified-multimodal.html">unified-multimodal</a> <span class="tag-chip tag-chip--more">+7</span></div>
+</article>
+<article class="post-card post-card--paper">
+  <div class="post-card__meta">
+    <span class="post-card__badge">论文</span>
+    <span class="post-card__date"><span class="post-card__added">2026-08-04</span><span class="post-card__extra">约 25 分钟</span></span>
   </div>
   <h3 class="post-card__title"><a class="post-card__title-link" href="papers/context-scaling-2026/index.html">Scaling Properties of Text Conditioning in Visual Generation（文本条件的缩放律：结构化提示词 GPG/ED）</a></h3>
-  <p class="post-card__tldr">ByteDance Seed 的技术报告。核心发现：文生图扩散模型的收敛 loss 不随提示词 token 数变化，而随提示词里&quot;结构化信息量&quot;变化——用白盒似然指标 GPG 和黑盒属性指标 ED 度量，收敛 MSE 对 GPG 近似线性（r=−0.984）、对 ED 服从幂律（∝ED^−0.207，r=−0.971）。据此把提示词做成带语义+几何标注的 JSON（结构化提示词 SP）来提升 diffusability，再用 SFT→cold-start→验证器门控的 OPSD 训练一个 LLM prompter 来提升 promptability，最后配一个 refine–render–judge 智能体循环。系统在 GenEval2 GM 从 33.8→72.5、CoReBench 从 58.9→85.2，超过所有评测的开源模型。
-</p>
-  <div class="post-card__tags">
-      <a class="tag-chip" href="concepts/text-to-image.html">text-to-image</a>
-      <a class="tag-chip" href="concepts/diffusion.html">diffusion</a>
-      <a class="tag-chip" href="concepts/structured-prompt.html">structured-prompt</a>
-      <span class="tag-chip tag-chip--more">+7 more</span>
-  </div>
-</div>
-<div class="post-card post-card--paper">
-  <div class="post-card__head">
-    <span class="post-card__badge post-card__badge--paper">📄 论文</span>
-    <span class="post-card__date"><span class="post-card__added">📅 2026-07-13</span></span>
+  <p class="post-card__tldr">ByteDance Seed 的技术报告。核心发现：文生图扩散模型的收敛 loss 不随提示词 token 数变化，而随提示词里&quot;结构化信息量&quot;变化——用白盒似然指标 GPG 和黑盒属性指标 ED 度量，收敛 MSE 对 GPG 近似线性（r=−0.984）、对 ED 服从幂律（∝ED^−0.207，r=−0.971）。据此把提示词做成带语义+几何标注的 JSON（结构化提示词 SP）来提升 diffusability，再用 SFT→cold-start→验证器门控的 OPSD 训练一个 LLM prompter 来提升 promptability，最后配一个 refine–render–judge 智能体循环。系统在 GenEval2 GM 从 33.8→72.5、CoReBench 从 58.9→85.2，超过所有评测的开源模型。</p>
+  <div class="post-card__tags"><a class="tag-chip" href="concepts/text-to-image.html">text-to-image</a> <a class="tag-chip" href="concepts/diffusion.html">diffusion</a> <a class="tag-chip" href="concepts/structured-prompt.html">structured-prompt</a> <span class="tag-chip tag-chip--more">+7</span></div>
+</article>
+<article class="post-card post-card--paper">
+  <div class="post-card__meta">
+    <span class="post-card__badge">论文</span>
+    <span class="post-card__date"><span class="post-card__added">2026-07-13</span><span class="post-card__extra">约 20 分钟</span></span>
   </div>
   <h3 class="post-card__title"><a class="post-card__title-link" href="papers/dataevolver-2026/index.html">DataEvolver:把「被拒样本」变成数据构造策略的梯度</a></h3>
-  <p class="post-card__tldr">中南大学 + 港科大。文字图生成的数据管线一直是 crawl→filter→freeze:采集、过滤一次、冻结,被拒样本直接丢掉。DataEvolver 把数据构造重写成一个「策略演化」闭环——不训练任何模型参数,只在自然语言策略空间里迭代:Retriever 拉候选、Verifier 打分并归因拒绝原因、Critic 把这一轮的拒绝统计蒸馏成一段自然语言反馈去改写下一轮的检索 query / 生成 prompt / 经验库、Generator 针对覆盖空洞做定向合成。核心主张是「拒绝样本里含有可复用的失败信号」。PixArt-α 0.75M 预算下 OCR-F1 相对最强基线涨 85.3% (TextScenesHQ) / 35.3% (LongTextBench),换到 Show-o2 依然涨。但要看清:绝对 OCR-F1 只有 8.45%——图里连 &quot;Ours&quot; 的文字也仍是乱码,涨的是相对量,任务本身远未解决。
-</p>
-  <div class="post-card__tags">
-      <a class="tag-chip" href="concepts/text-rich-image-generation.html">text-rich-image-generation</a>
-      <a class="tag-chip" href="concepts/dataset-construction.html">dataset-construction</a>
-      <a class="tag-chip" href="concepts/multi-agent.html">multi-agent</a>
-      <span class="tag-chip tag-chip--more">+5 more</span>
-  </div>
-</div>
-<div class="post-card post-card--paper">
-  <div class="post-card__head">
-    <span class="post-card__badge post-card__badge--paper">📄 论文</span>
-    <span class="post-card__date"><span class="post-card__added">📅 2026-07-10</span></span>
+  <p class="post-card__tldr">中南大学 + 港科大。文字图生成的数据管线一直是 crawl→filter→freeze:采集、过滤一次、冻结,被拒样本直接丢掉。DataEvolver 把数据构造重写成一个「策略演化」闭环——不训练任何模型参数,只在自然语言策略空间里迭代:Retriever 拉候选、Verifier 打分并归因拒绝原因、Critic 把这一轮的拒绝统计蒸馏成一段自然语言反馈去改写下一轮的检索 query / 生成 prompt / 经验库、Generator 针对覆盖空洞做定向合成。核心主张是「拒绝样本里含有可复用的失败信号」。PixArt-α 0.75M 预算下 OCR-F1 相对最强基线涨 85.3% (TextScenesHQ) / 35.3% (LongTextBench),换到 Show-o2 依然涨。但要看清:绝对 OCR-F1 只有 8.45%——图里连 &quot;Ours&quot; 的文字也仍是乱码,涨的是相对量,任务本身远未解决。</p>
+  <div class="post-card__tags"><a class="tag-chip" href="concepts/text-rich-image-generation.html">text-rich-image-generation</a> <a class="tag-chip" href="concepts/dataset-construction.html">dataset-construction</a> <a class="tag-chip" href="concepts/multi-agent.html">multi-agent</a> <span class="tag-chip tag-chip--more">+5</span></div>
+</article>
+<article class="post-card post-card--paper">
+  <div class="post-card__meta">
+    <span class="post-card__badge">论文</span>
+    <span class="post-card__date"><span class="post-card__added">2026-07-10</span><span class="post-card__extra">约 30 分钟</span></span>
   </div>
   <h3 class="post-card__title"><a class="post-card__title-link" href="papers/lingbot-video-2026/index.html">LingBot-Video: 把 MoE 搬进视频扩散——为具身智能从零 scale 的稀疏 DiT 世界模型</a></h3>
-  <p class="post-card__tldr">Robbyant 团队。第一个大规模开源 MoE 视频基础模型,专为具身智能设计。三条主线:①架构上把稠密 DiT 的 FFN 换成 DeepSeekMoE 式稀疏专家(共享专家+top-K 路由),用「容量-算力解耦」把 30B 总参数压到 3B 激活,1M token 序列下比 Dense-30B 快 3.18×;②数据上用 Data Profiling Engine + 世界知识拓扑图把 7 万小时具身视频(机械臂/导航/第一视角)灌进语料,五阶段课程从 192p 图像涨到 1080p;③训练上六路奖励(视觉/对齐/动态/连贯/人体/物理合理性)+ 单步探索 GRPO(Flash-GRPO/CPS)+ 用真实视频当负样本的 DiffusionNFT 微调防 reward hacking。RBench 0.620(开源第一,超闭源 Wan2.6 的 0.607)、Physics-IQ Verified 40.4(开源第一)。开源权重(Dense-1.3B / MoE-30B-A3B)+ 推理代码 + rewriter。
-</p>
-  <div class="post-card__tags">
-      <a class="tag-chip" href="concepts/mixture-of-experts.html">mixture-of-experts</a>
-      <a class="tag-chip" href="concepts/video-generation.html">video-generation</a>
-      <a class="tag-chip" href="concepts/diffusion-transformer.html">diffusion-transformer</a>
-      <span class="tag-chip tag-chip--more">+12 more</span>
-  </div>
-</div>
-<div class="post-card post-card--paper">
-  <div class="post-card__head">
-    <span class="post-card__badge post-card__badge--paper">📄 论文</span>
-    <span class="post-card__date"><span class="post-card__added">📅 2026-07-06</span></span>
+  <p class="post-card__tldr">Robbyant 团队。第一个大规模开源 MoE 视频基础模型,专为具身智能设计。三条主线:①架构上把稠密 DiT 的 FFN 换成 DeepSeekMoE 式稀疏专家(共享专家+top-K 路由),用「容量-算力解耦」把 30B 总参数压到 3B 激活,1M token 序列下比 Dense-30B 快 3.18×;②数据上用 Data Profiling Engine + 世界知识拓扑图把 7 万小时具身视频(机械臂/导航/第一视角)灌进语料,五阶段课程从 192p 图像涨到 1080p;③训练上六路奖励(视觉/对齐/动态/连贯/人体/物理合理性)+ 单步探索 GRPO(Flash-GRPO/CPS)+ 用真实视频当负样本的 DiffusionNFT 微调防 reward hacking。RBench 0.620(开源第一,超闭源 Wan2.6 的 0.607)、Physics-IQ Verified 40.4(开源第一)。开源权重(Dense-1.3B / MoE-30B-A3B)+ 推理代码 + rewriter。</p>
+  <div class="post-card__tags"><a class="tag-chip" href="concepts/mixture-of-experts.html">mixture-of-experts</a> <a class="tag-chip" href="concepts/video-generation.html">video-generation</a> <a class="tag-chip" href="concepts/diffusion-transformer.html">diffusion-transformer</a> <span class="tag-chip tag-chip--more">+12</span></div>
+</article>
+<article class="post-card post-card--paper">
+  <div class="post-card__meta">
+    <span class="post-card__badge">论文</span>
+    <span class="post-card__date"><span class="post-card__added">2026-07-06</span><span class="post-card__extra">约 30 分钟</span></span>
   </div>
   <h3 class="post-card__title"><a class="post-card__title-link" href="papers/mfd-2026/index.html">MFD: 不比「瞬时速度」比「平均速度」——把时间积分当低通滤波器, 给 flow matching 蒸馏降方差</a></h3>
-  <p class="post-card__tldr">浙大/普林斯顿:现有蒸馏把 flow 的速度场硬转成 score, 单时刻匹配, 方差大、训练抖。MFD 改成匹配一段区间 [s,t] 上的**时间积分平均速度** (mean flow) —— 积分天然是低通滤波, 把瞬时速度里的高频噪声磨平, 梯度方差更低。理论上证明「匹配平均速度 ⇒ 分布对齐」(Mean Flow Matching 定理), 且 VSD 只是区间缩成一点 (s→t) 的退化特例。SANA 1.6B 上 4 步 FID(DINOv2) 43.68→33.28; 4D 占据预测单步 IoU 37.07 (teacher 10 步 37.52)。
-</p>
-  <div class="post-card__tags">
-      <a class="tag-chip" href="concepts/flow-matching.html">flow-matching</a>
-      <a class="tag-chip" href="concepts/distillation.html">distillation</a>
-      <a class="tag-chip" href="concepts/one-step-generation.html">one-step-generation</a>
-      <span class="tag-chip tag-chip--more">+6 more</span>
-  </div>
-</div>
-<div class="post-card post-card--paper">
-  <div class="post-card__head">
-    <span class="post-card__badge post-card__badge--paper">📄 论文</span>
-    <span class="post-card__date"><span class="post-card__added">📅 2026-07-03</span></span>
+  <p class="post-card__tldr">浙大/普林斯顿:现有蒸馏把 flow 的速度场硬转成 score, 单时刻匹配, 方差大、训练抖。MFD 改成匹配一段区间 [s,t] 上的时间积分平均速度 (mean flow) —— 积分天然是低通滤波, 把瞬时速度里的高频噪声磨平, 梯度方差更低。理论上证明「匹配平均速度 ⇒ 分布对齐」(Mean Flow Matching 定理), 且 VSD 只是区间缩成一点 (s→t) 的退化特例。SANA 1.6B 上 4 步 FID(DINOv2) 43.68→33.28; 4D 占据预测单步 IoU 37.07 (teacher 10 步 37.52)。</p>
+  <div class="post-card__tags"><a class="tag-chip" href="concepts/flow-matching.html">flow-matching</a> <a class="tag-chip" href="concepts/distillation.html">distillation</a> <a class="tag-chip" href="concepts/one-step-generation.html">one-step-generation</a> <span class="tag-chip tag-chip--more">+6</span></div>
+</article>
+<article class="post-card post-card--paper">
+  <div class="post-card__meta">
+    <span class="post-card__badge">论文</span>
+    <span class="post-card__date"><span class="post-card__added">2026-07-03</span><span class="post-card__extra">约 25 分钟</span></span>
   </div>
   <h3 class="post-card__title"><a class="post-card__title-link" href="papers/rdm-2026/index.html">RDM: 把「一步生成」拆成两根设计轴——十年前被判死刑的 MMD, 估计对了就是 SOTA</a></h3>
-  <p class="post-card__tldr">一步图像生成 = 让生成分布在冻结编码器的特征空间里对齐真实分布。作者把这条无教师路线命名为 RDM (Representation Distribution Matching), 指出所有实例只差两根轴:怎么比 (comparison) 和 在哪比 (representation)。逐轴消融翻掉三条隐含假设:(1) 十年前被嫌太弱的经典 MMD, 只要「批内精确排斥 + 对全量数据的 Nyström 冻结吸引」估计对, 就是又强又可扩的目标;(2) 生成批越大越好, 最优点在 2048 以上, 远超常规;(3) 任何单个编码器都能被刷穿 (分数掉到真实之下但图仍假), 所以要对一整排编码器做「受约束优化」。合成 iRDM:ImageNet 一步 SOTA SW_r14 1.30 (真实地板 1.0), 并把四步 FLUX.2 [klein] 后训练成一步模型, GenEval 0.826 反超四步版 0.794, 只花 90 H200 GPU-hours。
-</p>
-  <div class="post-card__tags">
-      <a class="tag-chip" href="concepts/one-step-generation.html">one-step-generation</a>
-      <a class="tag-chip" href="concepts/distribution-matching.html">distribution-matching</a>
-      <a class="tag-chip" href="concepts/mmd.html">mmd</a>
-      <span class="tag-chip tag-chip--more">+10 more</span>
-  </div>
-</div>
-<div class="post-card post-card--paper">
-  <div class="post-card__head">
-    <span class="post-card__badge post-card__badge--paper">📄 论文</span>
-    <span class="post-card__date"><span class="post-card__added">📅 2026-07-03</span></span>
+  <p class="post-card__tldr">一步图像生成 = 让生成分布在冻结编码器的特征空间里对齐真实分布。作者把这条无教师路线命名为 RDM (Representation Distribution Matching), 指出所有实例只差两根轴:怎么比 (comparison) 和 在哪比 (representation)。逐轴消融翻掉三条隐含假设:(1) 十年前被嫌太弱的经典 MMD, 只要「批内精确排斥 + 对全量数据的 Nyström 冻结吸引」估计对, 就是又强又可扩的目标;(2) 生成批越大越好, 最优点在 2048 以上, 远超常规;(3) 任何单个编码器都能被刷穿 (分数掉到真实之下但图仍假), 所以要对一整排编码器做「受约束优化」。合成 iRDM:ImageNet 一步 SOTA SW_r14 1.30 (真实地板 1.0), 并把四步 FLUX.2 [klein] 后训练成一步模型, GenEval 0.826 反超四步版 0.794, 只花 90 H200 GPU-hours。</p>
+  <div class="post-card__tags"><a class="tag-chip" href="concepts/one-step-generation.html">one-step-generation</a> <a class="tag-chip" href="concepts/distribution-matching.html">distribution-matching</a> <a class="tag-chip" href="concepts/mmd.html">mmd</a> <span class="tag-chip tag-chip--more">+10</span></div>
+</article>
+<article class="post-card post-card--paper">
+  <div class="post-card__meta">
+    <span class="post-card__badge">论文</span>
+    <span class="post-card__date"><span class="post-card__added">2026-07-03</span><span class="post-card__extra">约 20 分钟</span></span>
   </div>
   <h3 class="post-card__title"><a class="post-card__title-link" href="papers/la-sr-2026/index.html">LA-SR: 一张照片里的「远处即 LR、近处即 HR」——把无配对超分搬进 CLIP 语言空间</a></h3>
-  <p class="post-card__tldr">真实世界超分的老大难是拿不到成对 HR-LR 数据, 合成退化 (bicubic / ISP) 又不像真的。LA-SR 的观察:同一张高清照片里, 远景因景深天然就是「真·LR」, 近景是 HR——用深度图就能从任意图里抠出真实退化的无配对 LR/HR 补丁。没有配对怎么监督? 把无配对超分重新定义在 CLIP 的语言空间里:用「内容文本」(BLIP 生成) 和「质量文本」({good}/{bad}) 作锚点, 两个对比损失——linguistic-content 保内容、linguistic-quality 拉画质, 训练 SR 网络产出「内容像输入、质量像 HR」的结果。在真实低质数据 (DRealSR/CameraFusion) 上感知指标 (CLIPIQA/MUSIQ/TOPIQ) 全面超过合成退化训练的 RealESRGAN 等。
-</p>
-  <div class="post-card__tags">
-      <a class="tag-chip" href="concepts/super-resolution.html">super-resolution</a>
-      <a class="tag-chip" href="concepts/real-world-sr.html">real-world-sr</a>
-      <a class="tag-chip" href="concepts/unpaired-learning.html">unpaired-learning</a>
-      <span class="tag-chip tag-chip--more">+7 more</span>
-  </div>
-</div>
+  <p class="post-card__tldr">真实世界超分的老大难是拿不到成对 HR-LR 数据, 合成退化 (bicubic / ISP) 又不像真的。LA-SR 的观察:同一张高清照片里, 远景因景深天然就是「真·LR」, 近景是 HR——用深度图就能从任意图里抠出真实退化的无配对 LR/HR 补丁。没有配对怎么监督? 把无配对超分重新定义在 CLIP 的语言空间里:用「内容文本」(BLIP 生成) 和「质量文本」({good}/{bad}) 作锚点, 两个对比损失——linguistic-content 保内容、linguistic-quality 拉画质, 训练 SR 网络产出「内容像输入、质量像 HR」的结果。在真实低质数据 (DRealSR/CameraFusion) 上感知指标 (CLIPIQA/MUSIQ/TOPIQ) 全面超过合成退化训练的 RealESRGAN 等。</p>
+  <div class="post-card__tags"><a class="tag-chip" href="concepts/super-resolution.html">super-resolution</a> <a class="tag-chip" href="concepts/real-world-sr.html">real-world-sr</a> <a class="tag-chip" href="concepts/unpaired-learning.html">unpaired-learning</a> <span class="tag-chip tag-chip--more">+7</span></div>
+</article>
 </div>
 <nav class="pager" aria-label="分页">
   <a class="pager__nav" href="papers.html">上一页</a>
@@ -199,5 +144,6 @@
   <a class="pager__nav" href="papers-3.html">下一页</a>
 </nav>
 </main>
+<footer class="site-footer">Paper Reading · 由 markdown 静态生成 · <a href="https://github.com/megake98/megake98.github.io">GitHub</a></footer>
 </body>
 </html>

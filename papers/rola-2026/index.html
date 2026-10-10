@@ -37,16 +37,26 @@
       }, { rootMargin: '-20% 0px -70% 0px' });
       map.forEach((_, el) => observer.observe(el));
     });
+    // reading progress bar
+    document.addEventListener('DOMContentLoaded', () => {
+      const bar = document.querySelector('.read-progress');
+      if (!bar) return;
+      const update = () => {
+        const h = document.documentElement;
+        const max = h.scrollHeight - h.clientHeight;
+        bar.style.transform = 'scaleX(' + (max > 0 ? h.scrollTop / max : 0) + ')';
+      };
+      update();
+      window.addEventListener('scroll', update, { passive: true });
+    });
   </script>
 </head>
 <body>
+<div class="read-progress" aria-hidden="true"></div>
 <!-- NAV-START -->
 <nav class="site-nav" aria-label="主导航">
   <a class="site-nav__brand" href="../../index.html" aria-label="返回主页">
-    <svg class="site-nav__home-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-      <path d="M3 12l9-9 9 9"/>
-      <path d="M5 10v10h14V10"/>
-    </svg>
+    <span class="site-nav__brand-mark" aria-hidden="true">P</span>
     <span class="site-nav__brand-text">Paper Reading</span>
   </a>
   <div class="site-nav__links">
@@ -55,9 +65,11 @@
     <a class="site-nav__link" href="../../surveys.html">调研</a>
     <a class="site-nav__link" href="../../graph.html">图谱</a>
     <button type="button" class="site-nav__search-btn" id="search-open" aria-label="搜索" aria-expanded="false" aria-controls="search-modal">
-      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
         <circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/>
       </svg>
+      <span class="site-nav__search-label">搜索</span>
+      <kbd class="site-nav__kbd">⌘K</kbd>
     </button>
     <button type="button" class="site-nav__theme-btn" id="theme-toggle" aria-label="切换深浅色主题">
       <svg class="theme-icon theme-icon--moon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
@@ -104,9 +116,9 @@
 <main data-pagefind-body>
 <h1>RoLA：把 3D-RoPE 塞进线性注意力——解「RoPE 两难」的旋转低秩补偿分支</h1>
 <aside class="post-meta">
-  <div class="post-meta__row"><span class="post-meta__date">📅 加入: <strong>2026-10-10</strong></span> · <span class="post-meta__paper-date">论文日期: 2026-09-21</span></div>
+  <div class="post-meta__row"><span class="post-meta__date">加入 <strong>2026-10-10</strong></span> · <span class="post-meta__paper-date">论文日期: 2026-09-21</span></div>
   <div class="post-meta__row"><span class="post-meta__authors">Zekun Zhang, Yixiang Cai, Yuxi Liu, Tengxu Sun, Tianle Liu, Zhoutong Wu, Haoyu Li, Baole Ai, Ang Wang, Jiamang Wang, Lin Qu, Kun Yuan</span> · <span class="post-meta__venue">arXiv 2026 (Peking University · Tsinghua · Alibaba Group)</span></div>
-  <div class="post-meta__row post-meta__links"><a class="post-meta__link" href="https://arxiv.org/abs/2609.06712">arXiv:2609.06712</a> · <a class="post-meta__link" href="https://github.com/AlibabaResearch/SparkDiffusion">代码</a></div>
+  <div class="post-meta__row post-meta__links"><a class="post-meta__link" href="https://arxiv.org/abs/2609.06712">arXiv:2609.06712</a> · <a class="post-meta__link" href="https://github.com/AlibabaResearch/SparkDiffusion">SparkDiffusion</a></div>
   <div class="post-meta__row post-meta__concepts"><a class="concept-chip" href="../../concepts/video-diffusion.html">video-diffusion</a> <a class="concept-chip" href="../../concepts/sparse-attention.html">sparse-attention</a> <a class="concept-chip" href="../../concepts/linear-attention.html">linear-attention</a> <a class="concept-chip" href="../../concepts/low-rank-attention.html">low-rank-attention</a> <a class="concept-chip" href="../../concepts/compensated-sparse-attention.html">compensated-sparse-attention</a> <a class="concept-chip" href="../../concepts/rope.html">rope</a> <a class="concept-chip" href="../../concepts/block-sparse-attention.html">block-sparse-attention</a> <a class="concept-chip" href="../../concepts/diffusion-acceleration.html">diffusion-acceleration</a> <a class="concept-chip" href="../../concepts/gated-fusion.html">gated-fusion</a> <a class="concept-chip" href="../../concepts/rms-norm.html">rms-norm</a></div>
 </aside>
 
@@ -448,5 +460,6 @@ nn.init.zeros_(self.gate_proj.weight)        # 门权重零初始化 → 起点�
 <li><strong>&quot;复用预训练结构&quot;往往比&quot;新学一个&quot;更省更稳</strong>。RoLA 不学新的位置编码,直接截断复用骨干的 RoPE 频率表——零新增参数、和骨干同几何尺度、微调更稳。当你要给预训练模型加一个需要&quot;位置感/尺度感&quot;的新分支时,先看看能不能复用它已经学好的那套,而不是并行再学一套去对齐。</li>
 </ul>
 </main>
+<footer class="site-footer">Paper Reading · 由 markdown 静态生成 · <a href="https://github.com/megake98/megake98.github.io">GitHub</a></footer>
 </body>
 </html>

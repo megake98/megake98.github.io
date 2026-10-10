@@ -11,10 +11,7 @@
 <!-- NAV-START -->
 <nav class="site-nav" aria-label="主导航">
   <a class="site-nav__brand" href="../index.html" aria-label="返回主页">
-    <svg class="site-nav__home-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-      <path d="M3 12l9-9 9 9"/>
-      <path d="M5 10v10h14V10"/>
-    </svg>
+    <span class="site-nav__brand-mark" aria-hidden="true">P</span>
     <span class="site-nav__brand-text">Paper Reading</span>
   </a>
   <div class="site-nav__links">
@@ -23,9 +20,11 @@
     <a class="site-nav__link" href="../surveys.html">调研</a>
     <a class="site-nav__link active" href="../graph.html">图谱</a>
     <button type="button" class="site-nav__search-btn" id="search-open" aria-label="搜索" aria-expanded="false" aria-controls="search-modal">
-      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
         <circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/>
       </svg>
+      <span class="site-nav__search-label">搜索</span>
+      <kbd class="site-nav__kbd">⌘K</kbd>
     </button>
     <button type="button" class="site-nav__theme-btn" id="theme-toggle" aria-label="切换深浅色主题">
       <svg class="theme-icon theme-icon--moon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
@@ -54,51 +53,51 @@
   </div>
   <h2>提到此概念的论文 / 教程</h2>
   <div class="post-grid">
-<div class="post-card post-card--paper">
-  <div class="post-card__head">
-    <span class="post-card__badge post-card__badge--paper">📄 论文</span>
-    <span class="post-card__date"><span class="post-card__added">📅 2026-10-10</span></span>
+<article class="post-card post-card--paper">
+  <div class="post-card__meta">
+    <span class="post-card__badge">论文</span>
+    <span class="post-card__date"><span class="post-card__added">2026-10-10</span><span class="post-card__extra">约 20 分钟</span></span>
   </div>
   <h3 class="post-card__title"><a class="post-card__title-link" href="../papers/flowinone-2026/index.html">FlowInOne:把多模态生成统一成「图进图出」的流匹配</a></h3>
-  <p class="post-card__tldr">FlowInOne 抛弃「文本编码器条件化视觉」的主流范式,把文本、布局、编辑指令统统渲染进一张输入画布(visual prompt),让单个流匹配模型在一个共享视觉潜空间里学从「指令图」到「目标图」的确定性传输——真正的 image-in / image-out。配套开源 VisPrompt-5M(500 万视觉提示对,含物理力学/轨迹)和 VP-Bench。核心机制是 Dual-Path Spatially-Adaptive Modulation:纯生成时旁路结构分支、编辑时用交叉注意力+token 级 Sigmoid 门控注入源图结构。1.2B 模型在开源阵营 SOTA,部分维度逼近 Nano Banana。
-</p>
-</div>
-<div class="post-card post-card--paper">
-  <div class="post-card__head">
-    <span class="post-card__badge post-card__badge--paper">📄 论文</span>
-    <span class="post-card__date"><span class="post-card__added">📅 2026-10-10</span></span>
+  <p class="post-card__tldr">FlowInOne 抛弃「文本编码器条件化视觉」的主流范式,把文本、布局、编辑指令统统渲染进一张输入画布(visual prompt),让单个流匹配模型在一个共享视觉潜空间里学从「指令图」到「目标图」的确定性传输——真正的 image-in / image-out。配套开源 VisPrompt-5M(500 万视觉提示对,含物理力学/轨迹)和 VP-Bench。核心机制是 Dual-Path Spatially-Adaptive Modulation:纯生成时旁路结构分支、编辑时用交叉注意力+token 级 Sigmoid 门控注入源图结构。1.2B 模型在开源阵营 SOTA,部分维度逼近 Nano Banana。</p>
+  <div class="post-card__tags"><a class="tag-chip" href="../concepts/flow-matching.html">flow-matching</a> <a class="tag-chip" href="../concepts/multimodal-generation.html">multimodal-generation</a> <a class="tag-chip" href="../concepts/image-editing.html">image-editing</a> <span class="tag-chip tag-chip--more">+7</span></div>
+</article>
+<article class="post-card post-card--paper">
+  <div class="post-card__meta">
+    <span class="post-card__badge">论文</span>
+    <span class="post-card__date"><span class="post-card__added">2026-10-10</span><span class="post-card__extra">约 25 分钟</span></span>
   </div>
   <h3 class="post-card__title"><a class="post-card__title-link" href="../papers/pixrestore-2026/index.html">PixRestore：扔掉 VAE 和 T2I 先验，从零训一个像素空间 DiT 做统一图像修复</a></h3>
-  <p class="post-card__tldr">港理工 VCLab 的统一图像修复（UIR）工作。核心主张：为 UIR 适配大 T2I 潜空间扩散模型是走了弯路——VAE 会丢掉修复最在意的细节，开放式生成先验会造出与输入不一致的伪影，十亿级骨干 + MLLM + MoE + VAE 编解码则纯属浪费算力。PixRestore 反其道而行：无 VAE、不用 T2I 预训练，直接在 patch 化的 RGB 像素上从零做 flow matching。为了适应不同退化，它用冻结的 DINOv2 多层特征作条件，并训一个「相似度引导的自适应层路由」——用 LQ–HQ 特征相似度当老师，可靠的层融合成 dense 条件（Eq 5），不可靠的层反而加大 HQ 特征监督（Eq 6）。最后把多步模型固定 t=1、配 DINO 特征判别器蒸成一步生成器。结果：约 50M 参数、单步推理、44ms，在 8 类退化上整体保真度/感知质量/退化去除都拿到最优或次优，算力只有 FoundIR-v2 的 1/181、Flux-IR 的 1/1209。
-</p>
-</div>
-<div class="post-card post-card--survey">
-  <div class="post-card__head">
-    <span class="post-card__badge post-card__badge--survey">📊 调研</span>
-    <span class="post-card__date"><span class="post-card__added">📅 2026-06-30</span></span>
+  <p class="post-card__tldr">港理工 VCLab 的统一图像修复（UIR）工作。核心主张：为 UIR 适配大 T2I 潜空间扩散模型是走了弯路——VAE 会丢掉修复最在意的细节，开放式生成先验会造出与输入不一致的伪影，十亿级骨干 + MLLM + MoE + VAE 编解码则纯属浪费算力。PixRestore 反其道而行：无 VAE、不用 T2I 预训练，直接在 patch 化的 RGB 像素上从零做 flow matching。为了适应不同退化，它用冻结的 DINOv2 多层特征作条件，并训一个「相似度引导的自适应层路由」——用 LQ–HQ 特征相似度当老师，可靠的层融合成 dense 条件（Eq 5），不可靠的层反而加大 HQ 特征监督（Eq 6）。最后把多步模型固定 t=1、配 DINO 特征判别器蒸成一步生成器。结果：约 50M 参数、单步推理、44ms，在 8 类退化上整体保真度/感知质量/退化去除都拿到最优或次优，算力只有 FoundIR-v2 的 1/181、Flux-IR 的 1/1209。</p>
+  <div class="post-card__tags"><a class="tag-chip" href="../concepts/image-restoration.html">image-restoration</a> <a class="tag-chip" href="../concepts/unified-image-restoration.html">unified-image-restoration</a> <a class="tag-chip" href="../concepts/pixel-diffusion.html">pixel-diffusion</a> <span class="tag-chip tag-chip--more">+8</span></div>
+</article>
+<article class="post-card post-card--survey">
+  <div class="post-card__meta">
+    <span class="post-card__badge">调研</span>
+    <span class="post-card__date"><span class="post-card__added">2026-06-30</span><span class="post-card__extra">约 20 分钟</span></span>
   </div>
   <h3 class="post-card__title"><a class="post-card__title-link" href="../surveys/diffusion-sr-2026/index.html">扩散超分调研：一步化浪潮与 SeedVR 之后的视频超分（2024→2026）</a></h3>
-  <p class="post-card__tldr">对 2024–2026 扩散超分（图像 + 视频）的研究调研，主线是「把多步随机采样压成一步确定性前向」。逐篇厘清每个工作的核心贡献 / 方法 / 关键结果 / 代码位置，再平行对比、找出一致与矛盾、并把每个有仓库的方法的核心主张与其代码逐一交叉验证。覆盖图像一步化（OSEDiff/OMGSR/OP4KSR/OFTSR/ODTSR/TEASR）与 SeedVR 之后的视频超分（SeedVR2/DOVE/DLoRAL/DUO-VSR/FlashVSR/InfVSR/Stream-DiffVSR/STCDiT）。所有 arxiv 号均联网核实；代码主张对照 OSEDiff/OMGSR/DLoRAL/SeedVR/FlashVSR/StableSR 真实函数验证。
-</p>
-</div>
-<div class="post-card post-card--tutorial">
-  <div class="post-card__head">
-    <span class="post-card__badge post-card__badge--tutorial">📘 教程</span>
-    <span class="post-card__date"><span class="post-card__added">📅 2026-06-30</span></span>
+  <p class="post-card__tldr">对 2024–2026 扩散超分（图像 + 视频）的研究调研，主线是「把多步随机采样压成一步确定性前向」。逐篇厘清每个工作的核心贡献 / 方法 / 关键结果 / 代码位置，再平行对比、找出一致与矛盾、并把每个有仓库的方法的核心主张与其代码逐一交叉验证。覆盖图像一步化（OSEDiff/OMGSR/OP4KSR/OFTSR/ODTSR/TEASR）与 SeedVR 之后的视频超分（SeedVR2/DOVE/DLoRAL/DUO-VSR/FlashVSR/InfVSR/Stream-DiffVSR/STCDiT）。所有 arxiv 号均联网核实；代码主张对照 OSEDiff/OMGSR/DLoRAL/SeedVR/FlashVSR/StableSR 真实函数验证。</p>
+  <div class="post-card__tags"><a class="tag-chip" href="../concepts/diffusion.html">diffusion</a> <a class="tag-chip" href="../concepts/image-super-resolution.html">image-super-resolution</a> <a class="tag-chip" href="../concepts/video-super-resolution.html">video-super-resolution</a> <span class="tag-chip tag-chip--more">+7</span></div>
+</article>
+<article class="post-card post-card--tutorial">
+  <div class="post-card__meta">
+    <span class="post-card__badge">教程</span>
+    <span class="post-card__date"><span class="post-card__added">2026-06-30</span><span class="post-card__extra">约 65 分钟</span></span>
   </div>
   <h3 class="post-card__title"><a class="post-card__title-link" href="../tutorials/diffusion-sr-2021/index.html">扩散超分全景：从多步先验到一步前向，再到视频流式</a></h3>
-  <p class="post-card__tldr">8 节螺旋系统讲透扩散超分（Diffusion Super-Resolution）的演化主线：把&quot;多步随机采样的强生成先验&quot;逐步压成&quot;一步确定性前向&quot;，再从图像扩展到视频的时序一致性与流式实时。地基是 SR3/StableSR 的&quot;冻结 SD 当先验、只学条件&quot;（§1–§2）；其上是三条一步化路线——分数蒸馏（OSEDiff/VSD，§3）、中间时刻注入+GAN 一步（OMGSR/OP4KSR，§4）；再转入视频：SeedVR 的 shifted-window 时空 DiT（§5）、视频一步化与时序一致（DLoRAL 双 LoRA / DOVE / DUO-VSR，§6）、流式/长视频/实时（FlashVSR 稀疏注意力 / InfVSR 因果 KV-cache / Stream-DiffVSR，§7），最后收敛到统一视角与选型白地（§8）。代码均 verbatim 引自 StableSR、OSEDiff、OMGSR、SeedVR、DLoRAL、FlashVSR 真实仓库（行号经 sed 核对）。
-</p>
-</div>
-<div class="post-card post-card--paper">
-  <div class="post-card__head">
-    <span class="post-card__badge post-card__badge--paper">📄 论文</span>
-    <span class="post-card__date"><span class="post-card__added">📅 2026-06-04</span></span>
+  <p class="post-card__tldr">8 节螺旋系统讲透扩散超分（Diffusion Super-Resolution）的演化主线：把&quot;多步随机采样的强生成先验&quot;逐步压成&quot;一步确定性前向&quot;，再从图像扩展到视频的时序一致性与流式实时。地基是 SR3/StableSR 的&quot;冻结 SD 当先验、只学条件&quot;（§1–§2）；其上是三条一步化路线——分数蒸馏（OSEDiff/VSD，§3）、中间时刻注入+GAN 一步（OMGSR/OP4KSR，§4）；再转入视频：SeedVR 的 shifted-window 时空 DiT（§5）、视频一步化与时序一致（DLoRAL 双 LoRA / DOVE / DUO-VSR，§6）、流式/长视频/实时（FlashVSR 稀疏注意力 / InfVSR 因果 KV-cache / Stream-DiffVSR，§7），最后收敛到统一视角与选型白地（§8）。代码均 verbatim 引自 StableSR、OSEDiff、OMGSR、SeedVR、DLoRAL、FlashVSR 真实仓库（行号经 sed 核对）。</p>
+  <div class="post-card__tags"><a class="tag-chip" href="../concepts/diffusion.html">diffusion</a> <a class="tag-chip" href="../concepts/image-super-resolution.html">image-super-resolution</a> <a class="tag-chip" href="../concepts/video-super-resolution.html">video-super-resolution</a> <span class="tag-chip tag-chip--more">+9</span></div>
+</article>
+<article class="post-card post-card--paper">
+  <div class="post-card__meta">
+    <span class="post-card__badge">论文</span>
+    <span class="post-card__date"><span class="post-card__added">2026-06-04</span><span class="post-card__extra">约 20 分钟</span></span>
   </div>
   <h3 class="post-card__title"><a class="post-card__title-link" href="../papers/ideogram-4-2026/index.html">Ideogram 4: 9.3B single-stream DiT,从 Qwen3-VL 拼接 13 层特征 + 结构化 JSON prompt + MRoPE 共享 text/image 位置空间</a></h3>
-  <p class="post-card__tldr">Ideogram 首个开源权重 (2026-06-03 同日 release 代码 + weights, **9.3B 参数, 非任何已有模型微调**)。技术报告无 arxiv,只有 blog (ideogram.ai/blog/ideogram-4.0) + GitHub repo (ideogram-oss/ideogram4) 里的 docs。架构亮点:**单流 DiT** (跟 SD3/FLUX 的 MMDiT 双流相反),34 层 transformer 把&quot;text token + image latent token&quot;拼成一根 sequence,共享 self-attention; text encoder 用 **frozen Qwen3-VL-8B-Instruct**,从第 0/3/6/9/12/15/18/21/24/27/30/33/35 层共 13 层 hidden state **沿 feature 维拼接** (得到 4096×13 = 53248 维 text feature);**MRoPE 3D 位置编码** (section 24/20/20: 时间/高/宽,text token 用 1D position 广播到 3 轴) 让两类 token 处于统一空间,无需 cross-attention; flow matching + Euler sampler + logit-normal noise schedule (按分辨率自适应 mu = mu_base + 0.5·log(N_pixels / 512²));**asymmetric CFG** (unconditional pass 只走 image token, 省计算)。训练数据完全是**结构化 JSON caption** (high_level / style / compositional_deconstruction with bbox)。基准: Design Arena open-weight 第一,ContraLabs 排版 47.9% 一胜率超过 Nano Banana 2 / FLUX.2 [max] / Grok Imagine 1.0,7Bench layout / X-Omni OCR 上是 9.3B 级最强。**License**: Ideogram 4 Non-Commercial (不能商用)。
-</p>
-</div>
+  <p class="post-card__tldr">Ideogram 首个开源权重 (2026-06-03 同日 release 代码 + weights, 9.3B 参数, 非任何已有模型微调)。技术报告无 arxiv,只有 blog (ideogram.ai/blog/ideogram-4.0) + GitHub repo (ideogram-oss/ideogram4) 里的 docs。架构亮点:单流 DiT (跟 SD3/FLUX 的 MMDiT 双流相反),34 层 transformer 把&quot;text token + image latent token&quot;拼成一根 sequence,共享 self-attention; text encoder 用 frozen Qwen3-VL-8B-Instruct,从第 0/3/6/9/12/15/18/21/24/27/30/33/35 层共 13 层 hidden state 沿 feature 维拼接 (得到 4096×13 = 53248 维 text feature);MRoPE 3D 位置编码 (section 24/20/20: 时间/高/宽,text token 用 1D position 广播到 3 轴) 让两类 token 处于统一空间,无需 cross-attention; flow matching + Euler sampler + logit-normal noise schedule (按分辨率自适应 mu = mu_base + 0.5·log(N_pixels / 512²));asymmetric CFG (unconditional pass 只走 image token, 省计算)。训练数据完全是结构化 JSON caption (high_level / style / compositional_deconstruction with bbox)。基准: Design Arena open-weight 第一,ContraLabs 排版 47.9% 一胜率超过 Nano Banana 2 / FLUX.2 [max] / Grok Imagine 1.0,7Bench layout / X-Omni OCR 上是 9.3B 级最强。License: Ideogram 4 Non-Commercial (不能商用)。</p>
+  <div class="post-card__tags"><a class="tag-chip" href="../concepts/diffusion.html">diffusion</a> <a class="tag-chip" href="../concepts/image-gen.html">image-gen</a> <a class="tag-chip" href="../concepts/text-to-image.html">text-to-image</a> <span class="tag-chip tag-chip--more">+6</span></div>
+</article>
 </div>
 
   <p class="back-link"><a href="../graph.html">← 返回图谱</a></p>

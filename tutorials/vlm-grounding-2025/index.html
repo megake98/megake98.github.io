@@ -37,16 +37,26 @@
       }, { rootMargin: '-20% 0px -70% 0px' });
       map.forEach((_, el) => observer.observe(el));
     });
+    // reading progress bar
+    document.addEventListener('DOMContentLoaded', () => {
+      const bar = document.querySelector('.read-progress');
+      if (!bar) return;
+      const update = () => {
+        const h = document.documentElement;
+        const max = h.scrollHeight - h.clientHeight;
+        bar.style.transform = 'scaleX(' + (max > 0 ? h.scrollTop / max : 0) + ')';
+      };
+      update();
+      window.addEventListener('scroll', update, { passive: true });
+    });
   </script>
 </head>
 <body class="tutorial-page">
+<div class="read-progress" aria-hidden="true"></div>
 <!-- NAV-START -->
 <nav class="site-nav" aria-label="主导航">
   <a class="site-nav__brand" href="../../index.html" aria-label="返回主页">
-    <svg class="site-nav__home-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-      <path d="M3 12l9-9 9 9"/>
-      <path d="M5 10v10h14V10"/>
-    </svg>
+    <span class="site-nav__brand-mark" aria-hidden="true">P</span>
     <span class="site-nav__brand-text">Paper Reading</span>
   </a>
   <div class="site-nav__links">
@@ -55,9 +65,11 @@
     <a class="site-nav__link" href="../../surveys.html">调研</a>
     <a class="site-nav__link" href="../../graph.html">图谱</a>
     <button type="button" class="site-nav__search-btn" id="search-open" aria-label="搜索" aria-expanded="false" aria-controls="search-modal">
-      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
         <circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/>
       </svg>
+      <span class="site-nav__search-label">搜索</span>
+      <kbd class="site-nav__kbd">⌘K</kbd>
     </button>
     <button type="button" class="site-nav__theme-btn" id="theme-toggle" aria-label="切换深浅色主题">
       <svg class="theme-icon theme-icon--moon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
@@ -146,8 +158,8 @@
 <main data-pagefind-body>
 <h1>VLM Grounding 全景(2025–2026):从「框是输出」到「框是思维」</h1>
 <aside class="post-meta">
-  <div class="post-meta__row"><span class="post-meta__date">📅 加入: <strong>2026-06-06</strong></span> · <span class="post-meta__paper-date">教程日期: 2026-06-06</span> · <span class="post-meta__extra">18k 字</span> · <span class="post-meta__extra">110–140 分钟</span></div>
-  <div class="post-meta__row post-meta__links"><a class="post-meta__link" href="https://github.com/IDEA-Research/Rex-Omni">代码</a> · <a class="post-meta__link" href="https://github.com/QwenLM/Qwen2.5-VL">代码</a> · <a class="post-meta__link" href="https://github.com/allenai/molmo">代码</a></div>
+  <div class="post-meta__row"><span class="post-meta__date">加入 <strong>2026-06-06</strong></span> · <span class="post-meta__paper-date">教程日期: 2026-06-06</span> · <span class="post-meta__extra">18k 字</span> · <span class="post-meta__extra">110–140 分钟</span></div>
+  <div class="post-meta__row post-meta__links"><a class="post-meta__link" href="https://github.com/IDEA-Research/Rex-Omni">Rex-Omni</a> · <a class="post-meta__link" href="https://github.com/QwenLM/Qwen2.5-VL">Qwen2.5-VL</a> · <a class="post-meta__link" href="https://github.com/allenai/molmo">molmo</a></div>
   <div class="post-meta__row post-meta__concepts"><a class="concept-chip" href="../../concepts/grounding.html">grounding</a> <a class="concept-chip" href="../../concepts/vlm.html">vlm</a> <a class="concept-chip" href="../../concepts/detection.html">detection</a> <a class="concept-chip" href="../../concepts/pointing.html">pointing</a> <a class="concept-chip" href="../../concepts/referring-expression.html">referring-expression</a> <a class="concept-chip" href="../../concepts/gui-grounding.html">gui-grounding</a> <a class="concept-chip" href="../../concepts/grounded-reasoning.html">grounded-reasoning</a> <a class="concept-chip" href="../../concepts/multimodal.html">multimodal</a> <a class="concept-chip" href="../../concepts/benchmark.html">benchmark</a></div>
 </aside>
 
@@ -1283,5 +1295,6 @@ print(f"kept {len(kept)} / {len(candidates)}")   # kept 1 / 3
 <hr />
 <p><em>本教程由 reading-papers / writing-tutorial 工作流生成;所有代码引用均 verbatim 自上述已克隆仓库的指定行号,所有 arxiv ID 与 benchmark 数据经网络核验。若发现笔误或失效链接,欢迎在评论区指出。</em></p>
 </main>
+<footer class="site-footer">Paper Reading · 由 markdown 静态生成 · <a href="https://github.com/megake98/megake98.github.io">GitHub</a></footer>
 </body>
 </html>

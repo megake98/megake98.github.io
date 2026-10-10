@@ -37,16 +37,26 @@
       }, { rootMargin: '-20% 0px -70% 0px' });
       map.forEach((_, el) => observer.observe(el));
     });
+    // reading progress bar
+    document.addEventListener('DOMContentLoaded', () => {
+      const bar = document.querySelector('.read-progress');
+      if (!bar) return;
+      const update = () => {
+        const h = document.documentElement;
+        const max = h.scrollHeight - h.clientHeight;
+        bar.style.transform = 'scaleX(' + (max > 0 ? h.scrollTop / max : 0) + ')';
+      };
+      update();
+      window.addEventListener('scroll', update, { passive: true });
+    });
   </script>
 </head>
 <body class="tutorial-page">
+<div class="read-progress" aria-hidden="true"></div>
 <!-- NAV-START -->
 <nav class="site-nav" aria-label="主导航">
   <a class="site-nav__brand" href="../../index.html" aria-label="返回主页">
-    <svg class="site-nav__home-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-      <path d="M3 12l9-9 9 9"/>
-      <path d="M5 10v10h14V10"/>
-    </svg>
+    <span class="site-nav__brand-mark" aria-hidden="true">P</span>
     <span class="site-nav__brand-text">Paper Reading</span>
   </a>
   <div class="site-nav__links">
@@ -55,9 +65,11 @@
     <a class="site-nav__link" href="../../surveys.html">调研</a>
     <a class="site-nav__link" href="../../graph.html">图谱</a>
     <button type="button" class="site-nav__search-btn" id="search-open" aria-label="搜索" aria-expanded="false" aria-controls="search-modal">
-      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
         <circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/>
       </svg>
+      <span class="site-nav__search-label">搜索</span>
+      <kbd class="site-nav__kbd">⌘K</kbd>
     </button>
     <button type="button" class="site-nav__theme-btn" id="theme-toggle" aria-label="切换深浅色主题">
       <svg class="theme-icon theme-icon--moon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
@@ -138,8 +150,8 @@
 <main data-pagefind-body>
 <h1>Diffusion / Flow Matching 步数蒸馏:四大家族与可实践指南</h1>
 <aside class="post-meta">
-  <div class="post-meta__row"><span class="post-meta__date">📅 加入: <strong>2026-06-11</strong></span> · <span class="post-meta__paper-date">教程日期: 2026-06-11</span> · <span class="post-meta__extra">15k 字</span> · <span class="post-meta__extra">90–120 分钟</span></div>
-  <div class="post-meta__row post-meta__links"><a class="post-meta__link" href="https://github.com/huggingface/diffusers">代码</a> · <a class="post-meta__link" href="https://github.com/openai/consistency_models">代码</a> · <a class="post-meta__link" href="https://github.com/tianweiy/DMD2">代码</a> · <a class="post-meta__link" href="https://github.com/gnobitab/RectifiedFlow">代码</a> · <a class="post-meta__link" href="https://github.com/Gsunshine/MeanFlow">代码</a> · <a class="post-meta__link" href="https://github.com/NVlabs/rcm">代码</a> · <a class="post-meta__link" href="https://github.com/mingyuanzhou/SiD">代码</a></div>
+  <div class="post-meta__row"><span class="post-meta__date">加入 <strong>2026-06-11</strong></span> · <span class="post-meta__paper-date">教程日期: 2026-06-11</span> · <span class="post-meta__extra">15k 字</span> · <span class="post-meta__extra">90–120 分钟</span></div>
+  <div class="post-meta__row post-meta__links"><a class="post-meta__link" href="https://github.com/huggingface/diffusers">diffusers</a> · <a class="post-meta__link" href="https://github.com/openai/consistency_models">consistency_models</a> · <a class="post-meta__link" href="https://github.com/tianweiy/DMD2">DMD2</a> · <a class="post-meta__link" href="https://github.com/gnobitab/RectifiedFlow">RectifiedFlow</a> · <a class="post-meta__link" href="https://github.com/Gsunshine/MeanFlow">MeanFlow</a> · <a class="post-meta__link" href="https://github.com/NVlabs/rcm">rcm</a> · <a class="post-meta__link" href="https://github.com/mingyuanzhou/SiD">SiD</a></div>
   <div class="post-meta__row post-meta__concepts"><a class="concept-chip" href="../../concepts/distillation.html">distillation</a> <a class="concept-chip" href="../../concepts/step-distillation.html">step-distillation</a> <a class="concept-chip" href="../../concepts/diffusion.html">diffusion</a> <a class="concept-chip" href="../../concepts/flow-matching.html">flow-matching</a> <a class="concept-chip" href="../../concepts/consistency-models.html">consistency-models</a> <a class="concept-chip" href="../../concepts/image-gen.html">image-gen</a> <a class="concept-chip" href="../../concepts/video-gen.html">video-gen</a></div>
 </aside>
 
@@ -1349,5 +1361,6 @@ accelerate launch train_lcm_distill_lora_sd_wds.py \
 <li>Lilian Weng. <a href="https://lilianweng.github.io/posts/2021-07-11-diffusion-models/"><em>What are Diffusion Models?</em></a> (2021) — 扩散基础</li>
 </ul>
 </main>
+<footer class="site-footer">Paper Reading · 由 markdown 静态生成 · <a href="https://github.com/megake98/megake98.github.io">GitHub</a></footer>
 </body>
 </html>

@@ -37,16 +37,26 @@
       }, { rootMargin: '-20% 0px -70% 0px' });
       map.forEach((_, el) => observer.observe(el));
     });
+    // reading progress bar
+    document.addEventListener('DOMContentLoaded', () => {
+      const bar = document.querySelector('.read-progress');
+      if (!bar) return;
+      const update = () => {
+        const h = document.documentElement;
+        const max = h.scrollHeight - h.clientHeight;
+        bar.style.transform = 'scaleX(' + (max > 0 ? h.scrollTop / max : 0) + ')';
+      };
+      update();
+      window.addEventListener('scroll', update, { passive: true });
+    });
   </script>
 </head>
 <body>
+<div class="read-progress" aria-hidden="true"></div>
 <!-- NAV-START -->
 <nav class="site-nav" aria-label="主导航">
   <a class="site-nav__brand" href="../../index.html" aria-label="返回主页">
-    <svg class="site-nav__home-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-      <path d="M3 12l9-9 9 9"/>
-      <path d="M5 10v10h14V10"/>
-    </svg>
+    <span class="site-nav__brand-mark" aria-hidden="true">P</span>
     <span class="site-nav__brand-text">Paper Reading</span>
   </a>
   <div class="site-nav__links">
@@ -55,9 +65,11 @@
     <a class="site-nav__link active" href="../../surveys.html">调研</a>
     <a class="site-nav__link" href="../../graph.html">图谱</a>
     <button type="button" class="site-nav__search-btn" id="search-open" aria-label="搜索" aria-expanded="false" aria-controls="search-modal">
-      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
         <circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/>
       </svg>
+      <span class="site-nav__search-label">搜索</span>
+      <kbd class="site-nav__kbd">⌘K</kbd>
     </button>
     <button type="button" class="site-nav__theme-btn" id="theme-toggle" aria-label="切换深浅色主题">
       <svg class="theme-icon theme-icon--moon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
@@ -100,8 +112,8 @@
 <main data-pagefind-body>
 <h1>LLM 稀疏注意力架构调研：压缩、选择与 KV 共享三条主线</h1>
 <aside class="post-meta">
-  <div class="post-meta__row"><span class="post-meta__date">📅 加入: <strong>2026-10-10</strong></span> · <span class="post-meta__paper-date">调研日期: 2026-10-10</span></div>
-  <div class="post-meta__row post-meta__links"><a class="post-meta__link" href="https://github.com/MoonshotAI/MoBA">代码</a> · <a class="post-meta__link" href="https://github.com/microsoft/SeerAttention">代码</a> · <a class="post-meta__link" href="https://github.com/mit-han-lab/quest">代码</a> · <a class="post-meta__link" href="https://github.com/microsoft/MInference">代码</a> · <a class="post-meta__link" href="https://github.com/deepseek-ai/DeepSeek-V3.2-Exp">代码</a></div>
+  <div class="post-meta__row"><span class="post-meta__date">加入 <strong>2026-10-10</strong></span> · <span class="post-meta__paper-date">调研日期: 2026-10-10</span></div>
+  <div class="post-meta__row post-meta__links"><a class="post-meta__link" href="https://github.com/MoonshotAI/MoBA">MoBA</a> · <a class="post-meta__link" href="https://github.com/microsoft/SeerAttention">SeerAttention</a> · <a class="post-meta__link" href="https://github.com/mit-han-lab/quest">quest</a> · <a class="post-meta__link" href="https://github.com/microsoft/MInference">MInference</a> · <a class="post-meta__link" href="https://github.com/deepseek-ai/DeepSeek-V3.2-Exp">DeepSeek-V3.2-Exp</a></div>
   <div class="post-meta__row post-meta__concepts"><a class="concept-chip" href="../../concepts/sparse-attention.html">sparse-attention</a> <a class="concept-chip" href="../../concepts/kv-cache.html">kv-cache</a> <a class="concept-chip" href="../../concepts/kv-cache-compression.html">kv-cache-compression</a> <a class="concept-chip" href="../../concepts/long-context.html">long-context</a> <a class="concept-chip" href="../../concepts/hybrid-attention.html">hybrid-attention</a> <a class="concept-chip" href="../../concepts/token-selection.html">token-selection</a> <a class="concept-chip" href="../../concepts/sliding-window-attention.html">sliding-window-attention</a> <a class="concept-chip" href="../../concepts/cross-layer-kv-sharing.html">cross-layer-kv-sharing</a> <a class="concept-chip" href="../../concepts/attention-indexer.html">attention-indexer</a> <a class="concept-chip" href="../../concepts/agentic-inference.html">agentic-inference</a> <a class="concept-chip" href="../../concepts/llm.html">llm</a> <a class="concept-chip" href="../../concepts/attention.html">attention</a></div>
 </aside>
 
@@ -460,5 +472,6 @@
 <li>DeepSeek-V4.1-Flash: Pushing the Limits of KV Cache Compression — 技术报告 [name only, 无 arxiv]</li>
 </ul>
 </main>
+<footer class="site-footer">Paper Reading · 由 markdown 静态生成 · <a href="https://github.com/megake98/megake98.github.io">GitHub</a></footer>
 </body>
 </html>

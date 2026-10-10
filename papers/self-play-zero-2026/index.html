@@ -37,16 +37,26 @@
       }, { rootMargin: '-20% 0px -70% 0px' });
       map.forEach((_, el) => observer.observe(el));
     });
+    // reading progress bar
+    document.addEventListener('DOMContentLoaded', () => {
+      const bar = document.querySelector('.read-progress');
+      if (!bar) return;
+      const update = () => {
+        const h = document.documentElement;
+        const max = h.scrollHeight - h.clientHeight;
+        bar.style.transform = 'scaleX(' + (max > 0 ? h.scrollTop / max : 0) + ')';
+      };
+      update();
+      window.addEventListener('scroll', update, { passive: true });
+    });
   </script>
 </head>
 <body>
+<div class="read-progress" aria-hidden="true"></div>
 <!-- NAV-START -->
 <nav class="site-nav" aria-label="主导航">
   <a class="site-nav__brand" href="../../index.html" aria-label="返回主页">
-    <svg class="site-nav__home-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-      <path d="M3 12l9-9 9 9"/>
-      <path d="M5 10v10h14V10"/>
-    </svg>
+    <span class="site-nav__brand-mark" aria-hidden="true">P</span>
     <span class="site-nav__brand-text">Paper Reading</span>
   </a>
   <div class="site-nav__links">
@@ -55,9 +65,11 @@
     <a class="site-nav__link" href="../../surveys.html">调研</a>
     <a class="site-nav__link" href="../../graph.html">图谱</a>
     <button type="button" class="site-nav__search-btn" id="search-open" aria-label="搜索" aria-expanded="false" aria-controls="search-modal">
-      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
         <circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/>
       </svg>
+      <span class="site-nav__search-label">搜索</span>
+      <kbd class="site-nav__kbd">⌘K</kbd>
     </button>
     <button type="button" class="site-nav__theme-btn" id="theme-toggle" aria-label="切换深浅色主题">
       <svg class="theme-icon theme-icon--moon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
@@ -109,9 +121,9 @@
 <main data-pagefind-body>
 <h1>Self-Play Pretraining with Zero Data：让模型从「零数据」里长出预训练</h1>
 <aside class="post-meta">
-  <div class="post-meta__row"><span class="post-meta__date">📅 加入: <strong>2026-10-10</strong></span> · <span class="post-meta__paper-date">论文日期: 2026-09-24</span></div>
+  <div class="post-meta__row"><span class="post-meta__date">加入 <strong>2026-10-10</strong></span> · <span class="post-meta__paper-date">论文日期: 2026-09-24</span></div>
   <div class="post-meta__row"><span class="post-meta__authors">Aditya Cowsik, Kfir Dolev, Michael Y. Li, G. Bruno De Luca, Nourya Cohen, Noah D. Goodman, Yoav Levine</span> · <span class="post-meta__venue">arXiv 2026 (Independent · Tel Aviv University · Stanford · LAPTh)</span></div>
-  <div class="post-meta__row post-meta__links"><a class="post-meta__link" href="https://arxiv.org/abs/2609.30063">arXiv:2609.30063</a> · <a class="post-meta__link" href="https://github.com/Maverick-Ansh/self-play-pretraining-zero-data">代码</a> · <a class="post-meta__link" href="https://github.com/amorehead/jvp_flash_attention">代码</a></div>
+  <div class="post-meta__row post-meta__links"><a class="post-meta__link" href="https://arxiv.org/abs/2609.30063">arXiv:2609.30063</a> · <a class="post-meta__link" href="https://github.com/Maverick-Ansh/self-play-pretraining-zero-data">self-play-pretraining-zero-data</a> · <a class="post-meta__link" href="https://github.com/amorehead/jvp_flash_attention">jvp_flash_attention</a></div>
   <div class="post-meta__row post-meta__concepts"><a class="concept-chip" href="../../concepts/self-play.html">self-play</a> <a class="concept-chip" href="../../concepts/synthetic-data.html">synthetic-data</a> <a class="concept-chip" href="../../concepts/solomonoff-induction.html">solomonoff-induction</a> <a class="concept-chip" href="../../concepts/universal-turing-machine.html">universal-turing-machine</a> <a class="concept-chip" href="../../concepts/scaling-laws.html">scaling-laws</a> <a class="concept-chip" href="../../concepts/in-context-learning.html">in-context-learning</a> <a class="concept-chip" href="../../concepts/reinforcement-learning.html">reinforcement-learning</a> <a class="concept-chip" href="../../concepts/curriculum-learning.html">curriculum-learning</a> <a class="concept-chip" href="../../concepts/map-elites.html">map-elites</a> <a class="concept-chip" href="../../concepts/grpo.html">grpo</a> <a class="concept-chip" href="../../concepts/expert-iteration.html">expert-iteration</a> <a class="concept-chip" href="../../concepts/forward-mode-ad.html">forward-mode-ad</a> <a class="concept-chip" href="../../concepts/epiplexity.html">epiplexity</a> <a class="concept-chip" href="../../concepts/byte-level-modeling.html">byte-level-modeling</a></div>
 </aside>
 
@@ -588,5 +600,6 @@ def rewards(model, opt, snaps, e, X, n_out, chunk=64, signed=False):
   <div class="card"><h3 id="sec-6-6">6. 数据 = 偶然信息 + 普适结构</h3><p>把"数据缩放收益"拆成"世界事实 $D_c$"和"跨过程结构 $D_u$"两项资源，是理解"为什么不同分布的合成数据也能帮预训练"的好透镜——合成数据主要在补 $D_u$。</p></div>
 </div>
 </main>
+<footer class="site-footer">Paper Reading · 由 markdown 静态生成 · <a href="https://github.com/megake98/megake98.github.io">GitHub</a></footer>
 </body>
 </html>

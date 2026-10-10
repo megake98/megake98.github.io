@@ -11,10 +11,7 @@
 <!-- NAV-START -->
 <nav class="site-nav" aria-label="主导航">
   <a class="site-nav__brand" href="../index.html" aria-label="返回主页">
-    <svg class="site-nav__home-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-      <path d="M3 12l9-9 9 9"/>
-      <path d="M5 10v10h14V10"/>
-    </svg>
+    <span class="site-nav__brand-mark" aria-hidden="true">P</span>
     <span class="site-nav__brand-text">Paper Reading</span>
   </a>
   <div class="site-nav__links">
@@ -23,9 +20,11 @@
     <a class="site-nav__link" href="../surveys.html">调研</a>
     <a class="site-nav__link active" href="../graph.html">图谱</a>
     <button type="button" class="site-nav__search-btn" id="search-open" aria-label="搜索" aria-expanded="false" aria-controls="search-modal">
-      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
         <circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/>
       </svg>
+      <span class="site-nav__search-label">搜索</span>
+      <kbd class="site-nav__kbd">⌘K</kbd>
     </button>
     <button type="button" class="site-nav__theme-btn" id="theme-toggle" aria-label="切换深浅色主题">
       <svg class="theme-icon theme-icon--moon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
@@ -54,25 +53,24 @@
   </div>
   <h2>提到此概念的论文 / 教程</h2>
   <div class="post-grid">
-<div class="post-card post-card--paper">
-  <div class="post-card__head">
-    <span class="post-card__badge post-card__badge--paper">📄 论文</span>
-    <span class="post-card__date"><span class="post-card__added">📅 2026-10-10</span></span>
+<article class="post-card post-card--paper">
+  <div class="post-card__meta">
+    <span class="post-card__badge">论文</span>
+    <span class="post-card__date"><span class="post-card__added">2026-10-10</span><span class="post-card__extra">约 30 分钟</span></span>
   </div>
   <h3 class="post-card__title"><a class="post-card__title-link" href="../papers/self-play-zero-2026/index.html">Self-Play Pretraining with Zero Data：让模型从「零数据」里长出预训练</a></h3>
-  <p class="post-card__tldr">能不能让语言模型**从随机初始化出发、不看任何自然数据**，自己造出对自己最有用的预训练数据？这篇论文给了一个概念验证：两个从零初始化的 Transformer 对弈——**生成器**写通用图灵机（Brainf*ck 变体）程序，程序执行吐出字节序列；**学习器**用标准交叉熵去预测这些字节。
-关键在生成器的奖励：不是&quot;序列多难预测&quot;，而是&quot;这个程序让学习器产生的梯度，是否和学习器近期的学习轨迹对齐&quot;（AdamW 预条件下的内积），从而把课程锁在学习器能力的**前沿**。结果：在文本/图像/语音/旋律/DNA/数学序列六类自然数据上，zero-shot 损失随自算力**幂律下降**，指数与直接在自然数据上训练相当；模型涌现出 in-context learning，生成器还自发&quot;发现&quot;了等差、斐波那契、几何等数列。作者用「可迁移的普适结构 vs 世界相关的偶然信息」二分给出了一个解释性 ansatz。
-</p>
-</div>
-<div class="post-card post-card--paper">
-  <div class="post-card__head">
-    <span class="post-card__badge post-card__badge--paper">📄 论文</span>
-    <span class="post-card__date"><span class="post-card__added">📅 2026-07-02</span></span>
+  <p class="post-card__tldr">能不能让语言模型从随机初始化出发、不看任何自然数据，自己造出对自己最有用的预训练数据？这篇论文给了一个概念验证：两个从零初始化的 Transformer 对弈——生成器写通用图灵机（Brainf*ck 变体）程序，程序执行吐出字节序列；学习器用标准交叉熵去预测这些字节。 关键在生成器的奖励：不是&quot;序列多难预测&quot;，而是&quot;这个程序让学习器产生的梯度，是否和学习器近期的学习轨迹对齐&quot;（AdamW 预条件下的内积），从而把课程锁在学习器能力的前沿。结果：在文本/图像/语音/旋律/DNA/数学序列六类自然数据上，zero-shot 损失随自算力幂律下降，指数与直接在自然数据上训练相当；模型涌现出 in-context learning，生成器还自发&quot;发现&quot;了等差、斐波那契、几何等数列。作者用「可迁移的普适结构 vs 世界相关的偶然信息」二分给出了一个解释性 ansatz。</p>
+  <div class="post-card__tags"><a class="tag-chip" href="../concepts/self-play.html">self-play</a> <a class="tag-chip" href="../concepts/synthetic-data.html">synthetic-data</a> <a class="tag-chip" href="../concepts/solomonoff-induction.html">solomonoff-induction</a> <span class="tag-chip tag-chip--more">+11</span></div>
+</article>
+<article class="post-card post-card--paper">
+  <div class="post-card__meta">
+    <span class="post-card__badge">论文</span>
+    <span class="post-card__date"><span class="post-card__added">2026-07-02</span><span class="post-card__extra">约 20 分钟</span></span>
   </div>
   <h3 class="post-card__title"><a class="post-card__title-link" href="../papers/colt-2026/index.html">CoLT: 把隐式推理做成「参数化工具调用」——主模型全程在文本空间, 小解码器负责解压</a></h3>
-  <p class="post-card__tldr">隐式 CoT (Coconut/CODI/COLAR) 让模型在黑箱 latent 空间里推理, 提速但改结构、难训、丢可解释性。CoLT 换个思路:主模型只吐几个「种子 token」(&lt;BDY&gt;...&lt;TRG&gt;) 把一步推理压进 hidden states, 再触发一个层数远小于主模型的可微解码器把它解压回文本, 拼回上下文继续推。主模型全程停在文本 token 空间 (保能力 + 保可读), 整条链端到端可微、天然兼容 GRPO。Llama-3.2-1B 上 2 个 epoch、无课程学习就超过一众 latent 基线, 平均 #L 从 12.7 砍到 7.7。
-</p>
-</div>
+  <p class="post-card__tldr">隐式 CoT (Coconut/CODI/COLAR) 让模型在黑箱 latent 空间里推理, 提速但改结构、难训、丢可解释性。CoLT 换个思路:主模型只吐几个「种子 token」(...) 把一步推理压进 hidden states, 再触发一个层数远小于主模型的可微解码器把它解压回文本, 拼回上下文继续推。主模型全程停在文本 token 空间 (保能力 + 保可读), 整条链端到端可微、天然兼容 GRPO。Llama-3.2-1B 上 2 个 epoch、无课程学习就超过一众 latent 基线, 平均 #L 从 12.7 砍到 7.7。</p>
+  <div class="post-card__tags"><a class="tag-chip" href="../concepts/latent-reasoning.html">latent-reasoning</a> <a class="tag-chip" href="../concepts/chain-of-thought.html">chain-of-thought</a> <a class="tag-chip" href="../concepts/reasoning-efficiency.html">reasoning-efficiency</a> <span class="tag-chip tag-chip--more">+7</span></div>
+</article>
 </div>
 
   <p class="back-link"><a href="../graph.html">← 返回图谱</a></p>

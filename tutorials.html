@@ -11,10 +11,7 @@
 <!-- NAV-START -->
 <nav class="site-nav" aria-label="主导航">
   <a class="site-nav__brand" href="index.html" aria-label="返回主页">
-    <svg class="site-nav__home-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-      <path d="M3 12l9-9 9 9"/>
-      <path d="M5 10v10h14V10"/>
-    </svg>
+    <span class="site-nav__brand-mark" aria-hidden="true">P</span>
     <span class="site-nav__brand-text">Paper Reading</span>
   </a>
   <div class="site-nav__links">
@@ -23,9 +20,11 @@
     <a class="site-nav__link" href="surveys.html">调研</a>
     <a class="site-nav__link" href="graph.html">图谱</a>
     <button type="button" class="site-nav__search-btn" id="search-open" aria-label="搜索" aria-expanded="false" aria-controls="search-modal">
-      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
         <circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/>
       </svg>
+      <span class="site-nav__search-label">搜索</span>
+      <kbd class="site-nav__kbd">⌘K</kbd>
     </button>
     <button type="button" class="site-nav__theme-btn" id="theme-toggle" aria-label="切换深浅色主题">
       <svg class="theme-icon theme-icon--moon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
@@ -46,144 +45,92 @@
 <script defer src="assets/theme.js"></script>
 <!-- NAV-END -->
 <main class="page page--listing">
-<h1>教程</h1>
-<p class="page__intro">共 19 篇深度教程。</p>
+<header class="page-hero">
+  <h1 class="page-hero__title">教程</h1>
+  <p class="page-hero__intro">共 19 篇深度教程。</p>
+</header>
 <div class="post-grid">
-<div class="post-card post-card--tutorial">
-  <div class="post-card__head">
-    <span class="post-card__badge post-card__badge--tutorial">📘 教程</span>
-    <span class="post-card__date"><span class="post-card__added">📅 2026-10-10</span></span>
+<article class="post-card post-card--tutorial">
+  <div class="post-card__meta">
+    <span class="post-card__badge">教程</span>
+    <span class="post-card__date"><span class="post-card__added">2026-10-10</span><span class="post-card__extra">约 65 分钟</span></span>
   </div>
   <h3 class="post-card__title"><a class="post-card__title-link" href="tutorials/llm-sparse-attention-2024/index.html">LLM 稀疏注意力与上下文压缩：从免训练选择到两级 KV 共享的八章架构教程</a></h3>
-  <p class="post-card__tldr">一条叙事弧线讲透 LLM 稀疏注意力的主流架构方案：先把成本拆成 FLOPs 与 KV 存储两本账（§1），再看免训练推理期稀疏能白拿多少（StreamingLLM/H2O/Quest/MInference，§2）；然后把「选哪些 token」变成可学习的——SeerAttention 用模型自己的注意力图当教师蒸馏块门控（§3），NSA 把压缩-选择-滑窗三分支做进预训练（§4），MoBA 用无参数 MoE 路由实现全/稀疏热切换（§5），DSA 用 FP8 闪电索引器把 671B 稠密旗舰改装成 token 级稀疏（§6）；存储轴上 YOCO→CLA→HySparse→HySparse2 一路把「层数」从 KV cache 的乘法因子里删掉，HySparse2 的两级 KV 共享让 prefill 只跑半个模型、全程只有 1 层全注意力（§7）；最后给出全景选型：1:5 混合比例的跨团队收敛、粒度结论的三元组绑定、prefill 可早退性这个新维度、以及三条选择器路线的合流趋势（§8）。全部 Step-4 代码逐字引自 8 个真实仓库（MoBA/SeerAttention/Quest/MInference/DeepSeek-V3.2-Exp/YOCO/fla-NSA/transformers），全部引用经联网核验。
-</p>
-  <div class="post-card__tags">
-      <a class="tag-chip" href="concepts/sparse-attention.html">sparse-attention</a>
-      <a class="tag-chip" href="concepts/kv-cache.html">kv-cache</a>
-      <a class="tag-chip" href="concepts/kv-cache-compression.html">kv-cache-compression</a>
-      <span class="tag-chip tag-chip--more">+10 more</span>
-  </div>
-</div>
-<div class="post-card post-card--tutorial">
-  <div class="post-card__head">
-    <span class="post-card__badge post-card__badge--tutorial">📘 教程</span>
-    <span class="post-card__date"><span class="post-card__added">📅 2026-10-10</span> · <span class="post-card__extra">~12k 中文字 字</span> · <span class="post-card__extra">35 分钟</span></span>
+  <p class="post-card__tldr">一条叙事弧线讲透 LLM 稀疏注意力的主流架构方案：先把成本拆成 FLOPs 与 KV 存储两本账（§1），再看免训练推理期稀疏能白拿多少（StreamingLLM/H2O/Quest/MInference，§2）；然后把「选哪些 token」变成可学习的——SeerAttention 用模型自己的注意力图当教师蒸馏块门控（§3），NSA 把压缩-选择-滑窗三分支做进预训练（§4），MoBA 用无参数 MoE 路由实现全/稀疏热切换（§5），DSA 用 FP8 闪电索引器把 671B 稠密旗舰改装成 token 级稀疏（§6）；存储轴上 YOCO→CLA→HySparse→HySparse2 一路把「层数」从 KV cache 的乘法因子里删掉，HySparse2 的两级 KV 共享让 prefill 只跑半个模型、全程只有 1 层全注意力（§7）；最后给出全景选型：1:5 混合比例的跨团队收敛、粒度结论的三元组绑定、prefill 可早退性这个新维度、以及三条选择器路线的合流趋势（§8）。全部 Step-4 代码逐字引自 8 个真实仓库（MoBA/SeerAttention/Quest/MInference/DeepSeek-V3.2-Exp/YOCO/fla-NSA/transformers），全部引用经联网核验。</p>
+  <div class="post-card__tags"><a class="tag-chip" href="concepts/sparse-attention.html">sparse-attention</a> <a class="tag-chip" href="concepts/kv-cache.html">kv-cache</a> <a class="tag-chip" href="concepts/kv-cache-compression.html">kv-cache-compression</a> <span class="tag-chip tag-chip--more">+10</span></div>
+</article>
+<article class="post-card post-card--tutorial">
+  <div class="post-card__meta">
+    <span class="post-card__badge">教程</span>
+    <span class="post-card__date"><span class="post-card__added">2026-10-10</span><span class="post-card__extra">~12k 中文字</span><span class="post-card__extra">35 分钟</span></span>
   </div>
   <h3 class="post-card__title"><a class="post-card__title-link" href="tutorials/compensated-attention-2025/index.html">补偿式稀疏注意力：视频扩散如何在 90%+ 稀疏下不崩（VSA · SLA · SALAD · RoPeSLR · RoLA）</a></h3>
-  <p class="post-card__tldr">视频扩散 Transformer 的推理被长时空注意力的 $O(L^2)$ 主导。一条主线在 2025–2026 成型：**块稀疏分支**（只算高能语义块）**+ 一条 $O(L)$ 的线性/低秩补偿分支**（把稀疏丢掉的弥散全局背景捞回来），门控融合。本教程用 8 节螺旋结构（直觉 → 可跑 demo → 推导 → 真实 repo 代码 → 洞察）把这条线讲透：从「注意力为什么贵、朴素稀疏为什么崩」（§1），到补偿的核心武器「线性注意力的可复用全局摘要 $C=\phi(K)^\top V$」（§2），到补偿通式 $\tilde A=A_M+g\odot\mathrm{Proj}(C)$ 与「近零门控」的跨团队共识（§3），到「并联补偿 vs 按块路由」两范式（§4），到 3D RoPE 与线性注意力不可交换的「RoPE 两难」及 RoPeSLR / RoLA 两种互斥解法（§5），到把稠密模型改造成稀疏+补偿的**微调配方**——用什么数据、优化什么目标、动哪些参数（§6），再到 SparkDiffusion 揭示的 **high-sparsity trap**——90% 甜区、97% 崩坏是监督问题而非表达能力问题（§7），最后是把稀疏兑现成墙钟加速的系统落地（FP8 + 融合 kernel，265×，§8）。所有代码 verbatim 引自 thu-ml/SLA、AlibabaResearch/SparkDiffusion（RoLA 实现）、hao-ai-lab/FastVideo（VSA）真实仓库，行号经 sed 核对；引用经联网核实。配套调研见 [[compensated-sparse-attention-2026]]。
-</p>
-  <div class="post-card__tags">
-      <a class="tag-chip" href="concepts/sparse-attention.html">sparse-attention</a>
-      <a class="tag-chip" href="concepts/compensated-sparse-attention.html">compensated-sparse-attention</a>
-      <a class="tag-chip" href="concepts/block-sparse-attention.html">block-sparse-attention</a>
-      <span class="tag-chip tag-chip--more">+8 more</span>
-  </div>
-</div>
-<div class="post-card post-card--tutorial">
-  <div class="post-card__head">
-    <span class="post-card__badge post-card__badge--tutorial">📘 教程</span>
-    <span class="post-card__date"><span class="post-card__added">📅 2026-07-14</span> · <span class="post-card__extra">4-6k 字</span> · <span class="post-card__extra">22–28 分钟</span></span>
+  <p class="post-card__tldr">视频扩散 Transformer 的推理被长时空注意力的 $O(L^2)$ 主导。一条主线在 2025–2026 成型：块稀疏分支（只算高能语义块）+ 一条 $O(L)$ 的线性/低秩补偿分支（把稀疏丢掉的弥散全局背景捞回来），门控融合。本教程用 8 节螺旋结构（直觉 → 可跑 demo → 推导 → 真实 repo 代码 → 洞察）把这条线讲透：从「注意力为什么贵、朴素稀疏为什么崩」（§1），到补偿的核心武器「线性注意力的可复用全局摘要 $C=\phi(K)^\top V$」（§2），到补偿通式 $\tilde A=A_M+g\odot\mathrm{Proj}(C)$ 与「近零门控」的跨团队共识（§3），到「并联补偿 vs 按块路由」两范式（§4），到 3D RoPE 与线性注意力不可交换的「RoPE 两难」及 RoPeSLR / RoLA 两种互斥解法（§5），到把稠密模型改造成稀疏+补偿的微调配方——用什么数据、优化什么目标、动哪些参数（§6），再到 SparkDiffusion 揭示的 high-sparsity trap——90% 甜区、97% 崩坏是监督问题而非表达能力问题（§7），最后是把稀疏兑现成墙钟加速的系统落地（FP8 + 融合 kernel，265×，§8）。所有代码 verbatim 引自 thu-ml/SLA、AlibabaResearch/SparkDiffusion（RoLA 实现）、hao-ai-lab/FastVideo（VSA）真实仓库，行号经 sed 核对；引用经联网核实。配套调研见 compensated-sparse-attention-2026。</p>
+  <div class="post-card__tags"><a class="tag-chip" href="concepts/sparse-attention.html">sparse-attention</a> <a class="tag-chip" href="concepts/compensated-sparse-attention.html">compensated-sparse-attention</a> <a class="tag-chip" href="concepts/block-sparse-attention.html">block-sparse-attention</a> <span class="tag-chip tag-chip--more">+8</span></div>
+</article>
+<article class="post-card post-card--tutorial">
+  <div class="post-card__meta">
+    <span class="post-card__badge">教程</span>
+    <span class="post-card__date"><span class="post-card__added">2026-07-14</span><span class="post-card__extra">4-6k 字</span><span class="post-card__extra">22–28 分钟</span></span>
   </div>
   <h3 class="post-card__title"><a class="post-card__title-link" href="tutorials/typescript-8-capstone/index.html">TS·08 实战总结:读懂 pi 的一个真实工具与 agent 主循环</a></h3>
-  <p class="post-card__tldr">把前八篇学的语法拼起来,逐行读懂 pi 的一个真实内置工具(typebox schema → Static 派生类型 → execute
-处理器 → AgentTool 契约)与 agent 主循环(流式消费模型事件 → 分派工具调用 → 校验参数 → 回填结果)。读完你能自己读 pi。
-</p>
-  <div class="post-card__tags">
-      <a class="tag-chip" href="concepts/typescript.html">typescript</a>
-      <a class="tag-chip" href="concepts/agent-harness.html">agent-harness</a>
-      <a class="tag-chip" href="concepts/typebox.html">typebox</a>
-  </div>
-</div>
-<div class="post-card post-card--tutorial">
-  <div class="post-card__head">
-    <span class="post-card__badge post-card__badge--tutorial">📘 教程</span>
-    <span class="post-card__date"><span class="post-card__added">📅 2026-07-14</span> · <span class="post-card__extra">4-6k 字</span> · <span class="post-card__extra">20–25 分钟</span></span>
+  <p class="post-card__tldr">把前八篇学的语法拼起来,逐行读懂 pi 的一个真实内置工具(typebox schema → Static 派生类型 → execute 处理器 → AgentTool 契约)与 agent 主循环(流式消费模型事件 → 分派工具调用 → 校验参数 → 回填结果)。读完你能自己读 pi。</p>
+  <div class="post-card__tags"><a class="tag-chip" href="concepts/typescript.html">typescript</a> <a class="tag-chip" href="concepts/agent-harness.html">agent-harness</a> <a class="tag-chip" href="concepts/typebox.html">typebox</a></div>
+</article>
+<article class="post-card post-card--tutorial">
+  <div class="post-card__meta">
+    <span class="post-card__badge">教程</span>
+    <span class="post-card__date"><span class="post-card__added">2026-07-14</span><span class="post-card__extra">4-6k 字</span><span class="post-card__extra">20–25 分钟</span></span>
   </div>
   <h3 class="post-card__title"><a class="post-card__title-link" href="tutorials/typescript-7-async/index.html">TS·07 异步与流式:Promise、async/await、与 async generator</a></h3>
-  <p class="post-card__tldr">从 Promise 与 async/await(对照 Python asyncio)到 Promise.all 并发、AbortSignal 取消,最后讲清
-pi 流式返回 LLM 输出的核心:async generator(async function*)+ for await...of。读懂这章就读懂了 pi 的事件流。
-</p>
-  <div class="post-card__tags">
-      <a class="tag-chip" href="concepts/typescript.html">typescript</a>
-      <a class="tag-chip" href="concepts/async.html">async</a>
-      <a class="tag-chip" href="concepts/async-generators.html">async-generators</a>
-  </div>
-</div>
-<div class="post-card post-card--tutorial">
-  <div class="post-card__head">
-    <span class="post-card__badge post-card__badge--tutorial">📘 教程</span>
-    <span class="post-card__date"><span class="post-card__added">📅 2026-07-14</span> · <span class="post-card__extra">4-6k 字</span> · <span class="post-card__extra">20–25 分钟</span></span>
+  <p class="post-card__tldr">从 Promise 与 async/await(对照 Python asyncio)到 Promise.all 并发、AbortSignal 取消,最后讲清 pi 流式返回 LLM 输出的核心:async generator(async function*)+ for await...of。读懂这章就读懂了 pi 的事件流。</p>
+  <div class="post-card__tags"><a class="tag-chip" href="concepts/typescript.html">typescript</a> <a class="tag-chip" href="concepts/async.html">async</a> <a class="tag-chip" href="concepts/async-generators.html">async-generators</a></div>
+</article>
+<article class="post-card post-card--tutorial">
+  <div class="post-card__meta">
+    <span class="post-card__badge">教程</span>
+    <span class="post-card__date"><span class="post-card__added">2026-07-14</span><span class="post-card__extra">4-6k 字</span><span class="post-card__extra">20–25 分钟</span></span>
   </div>
   <h3 class="post-card__title"><a class="post-card__title-link" href="tutorials/typescript-6-classes-modules/index.html">TS·06 类与模块:封装、契约、与 import/export</a></h3>
-  <p class="post-card__tldr">类的字段/构造器/访问修饰符(private/public/readonly)、implements 契约、extends 继承(含 class extends Error),
-以及 ESM 模块的具名导出、import type/export type、barrel 与 declare module。用 pi 的 Agent、FileError、EventStream 讲。
-</p>
-  <div class="post-card__tags">
-      <a class="tag-chip" href="concepts/typescript.html">typescript</a>
-      <a class="tag-chip" href="concepts/classes.html">classes</a>
-      <a class="tag-chip" href="concepts/modules.html">modules</a>
-  </div>
-</div>
-<div class="post-card post-card--tutorial">
-  <div class="post-card__head">
-    <span class="post-card__badge post-card__badge--tutorial">📘 教程</span>
-    <span class="post-card__date"><span class="post-card__added">📅 2026-07-14</span> · <span class="post-card__extra">4-6k 字</span> · <span class="post-card__extra">20–25 分钟</span></span>
+  <p class="post-card__tldr">类的字段/构造器/访问修饰符(private/public/readonly)、implements 契约、extends 继承(含 class extends Error), 以及 ESM 模块的具名导出、import type/export type、barrel 与 declare module。用 pi 的 Agent、FileError、EventStream 讲。</p>
+  <div class="post-card__tags"><a class="tag-chip" href="concepts/typescript.html">typescript</a> <a class="tag-chip" href="concepts/classes.html">classes</a> <a class="tag-chip" href="concepts/modules.html">modules</a></div>
+</article>
+<article class="post-card post-card--tutorial">
+  <div class="post-card__meta">
+    <span class="post-card__badge">教程</span>
+    <span class="post-card__date"><span class="post-card__added">2026-07-14</span><span class="post-card__extra">4-6k 字</span><span class="post-card__extra">20–25 分钟</span></span>
   </div>
   <h3 class="post-card__title"><a class="post-card__title-link" href="tutorials/typescript-5-generics/index.html">TS·05 泛型:参数化的类型、约束、与工具类型</a></h3>
-  <p class="post-card__tldr">泛型函数/接口/类、约束 extends、默认类型参数 = T,以及 pi 大量使用的工具类型
-(Partial/Pick/Omit/Record/Extract/ReturnType)。用 pi 的 Tool&lt;TParameters&gt;、EventStream&lt;T,R&gt; 讲透&quot;类型也能当参数&quot;。
-</p>
-  <div class="post-card__tags">
-      <a class="tag-chip" href="concepts/typescript.html">typescript</a>
-      <a class="tag-chip" href="concepts/generics.html">generics</a>
-      <a class="tag-chip" href="concepts/utility-types.html">utility-types</a>
-  </div>
-</div>
-<div class="post-card post-card--tutorial">
-  <div class="post-card__head">
-    <span class="post-card__badge post-card__badge--tutorial">📘 教程</span>
-    <span class="post-card__date"><span class="post-card__added">📅 2026-07-14</span> · <span class="post-card__extra">3-6k 字</span> · <span class="post-card__extra">18–22 分钟</span></span>
+  <p class="post-card__tldr">泛型函数/接口/类、约束 extends、默认类型参数 = T,以及 pi 大量使用的工具类型 (Partial/Pick/Omit/Record/Extract/ReturnType)。用 pi 的 Tool、EventStream 讲透&quot;类型也能当参数&quot;。</p>
+  <div class="post-card__tags"><a class="tag-chip" href="concepts/typescript.html">typescript</a> <a class="tag-chip" href="concepts/generics.html">generics</a> <a class="tag-chip" href="concepts/utility-types.html">utility-types</a></div>
+</article>
+<article class="post-card post-card--tutorial">
+  <div class="post-card__meta">
+    <span class="post-card__badge">教程</span>
+    <span class="post-card__date"><span class="post-card__added">2026-07-14</span><span class="post-card__extra">3-6k 字</span><span class="post-card__extra">18–22 分钟</span></span>
   </div>
   <h3 class="post-card__title"><a class="post-card__title-link" href="tutorials/typescript-4-narrowing/index.html">TS·04 窄化与类型守卫:安全地处理不可信的数据</a></h3>
-  <p class="post-card__tldr">编译器如何在 if/switch 里自动收窄类型(typeof/in/instanceof),如何用 `x is T` 谓词函数写自定义
-类型守卫,以及如何用 unknown + 守卫安全地消化来自 LLM/外部世界的不可信数据。素材取自 pi 的错误处理与工具参数校验。
-</p>
-  <div class="post-card__tags">
-      <a class="tag-chip" href="concepts/typescript.html">typescript</a>
-      <a class="tag-chip" href="concepts/type-guards.html">type-guards</a>
-      <a class="tag-chip" href="concepts/unknown.html">unknown</a>
-  </div>
-</div>
-<div class="post-card post-card--tutorial">
-  <div class="post-card__head">
-    <span class="post-card__badge post-card__badge--tutorial">📘 教程</span>
-    <span class="post-card__date"><span class="post-card__added">📅 2026-07-14</span> · <span class="post-card__extra">4-6k 字</span> · <span class="post-card__extra">20–25 分钟</span></span>
+  <p class="post-card__tldr">编译器如何在 if/switch 里自动收窄类型(typeof/in/instanceof),如何用 x is T 谓词函数写自定义 类型守卫,以及如何用 unknown + 守卫安全地消化来自 LLM/外部世界的不可信数据。素材取自 pi 的错误处理与工具参数校验。</p>
+  <div class="post-card__tags"><a class="tag-chip" href="concepts/typescript.html">typescript</a> <a class="tag-chip" href="concepts/type-guards.html">type-guards</a> <a class="tag-chip" href="concepts/unknown.html">unknown</a></div>
+</article>
+<article class="post-card post-card--tutorial">
+  <div class="post-card__meta">
+    <span class="post-card__badge">教程</span>
+    <span class="post-card__date"><span class="post-card__added">2026-07-14</span><span class="post-card__extra">4-6k 字</span><span class="post-card__extra">20–25 分钟</span></span>
   </div>
   <h3 class="post-card__title"><a class="post-card__title-link" href="tutorials/typescript-3-unions/index.html">TS·03 联合类型与可辨识联合:pi 为什么不用 enum</a></h3>
-  <p class="post-card__tldr">TypeScript 最有特色、也是 pi 用得最狠的一招:字符串字面量联合取代 enum,再用带 tag 字段的
-可辨识联合(discriminated union)+ switch 窄化,建模 LLM 的流式事件与消息。这是读懂 pi 事件系统的钥匙。
-</p>
-  <div class="post-card__tags">
-      <a class="tag-chip" href="concepts/typescript.html">typescript</a>
-      <a class="tag-chip" href="concepts/union-types.html">union-types</a>
-      <a class="tag-chip" href="concepts/discriminated-union.html">discriminated-union</a>
-  </div>
-</div>
-<div class="post-card post-card--tutorial">
-  <div class="post-card__head">
-    <span class="post-card__badge post-card__badge--tutorial">📘 教程</span>
-    <span class="post-card__date"><span class="post-card__added">📅 2026-07-14</span> · <span class="post-card__extra">3-6k 字</span> · <span class="post-card__extra">18–22 分钟</span></span>
+  <p class="post-card__tldr">TypeScript 最有特色、也是 pi 用得最狠的一招:字符串字面量联合取代 enum,再用带 tag 字段的 可辨识联合(discriminated union)+ switch 窄化,建模 LLM 的流式事件与消息。这是读懂 pi 事件系统的钥匙。</p>
+  <div class="post-card__tags"><a class="tag-chip" href="concepts/typescript.html">typescript</a> <a class="tag-chip" href="concepts/union-types.html">union-types</a> <a class="tag-chip" href="concepts/discriminated-union.html">discriminated-union</a></div>
+</article>
+<article class="post-card post-card--tutorial">
+  <div class="post-card__meta">
+    <span class="post-card__badge">教程</span>
+    <span class="post-card__date"><span class="post-card__added">2026-07-14</span><span class="post-card__extra">3-6k 字</span><span class="post-card__extra">18–22 分钟</span></span>
   </div>
   <h3 class="post-card__title"><a class="post-card__title-link" href="tutorials/typescript-2-shapes/index.html">TS·02 数据的形状:interface 与 type</a></h3>
-  <p class="post-card__tldr">用 interface 和 type 别名描述对象的&quot;形状&quot;:可选属性 ?、readonly、extends、Record、以及结构化类型
-(被编译器检查的鸭子类型)。素材来自 pi 的内容块类型、options 配置对象与 FileSystem 契约。
-</p>
-  <div class="post-card__tags">
-      <a class="tag-chip" href="concepts/typescript.html">typescript</a>
-      <a class="tag-chip" href="concepts/interface.html">interface</a>
-      <a class="tag-chip" href="concepts/type-alias.html">type-alias</a>
-  </div>
-</div>
+  <p class="post-card__tldr">用 interface 和 type 别名描述对象的&quot;形状&quot;:可选属性 ?、readonly、extends、Record、以及结构化类型 (被编译器检查的鸭子类型)。素材来自 pi 的内容块类型、options 配置对象与 FileSystem 契约。</p>
+  <div class="post-card__tags"><a class="tag-chip" href="concepts/typescript.html">typescript</a> <a class="tag-chip" href="concepts/interface.html">interface</a> <a class="tag-chip" href="concepts/type-alias.html">type-alias</a></div>
+</article>
 </div>
 <nav class="pager" aria-label="分页">
   <span class="pager__nav pager__item--disabled" aria-disabled="true">上一页</span>
@@ -193,5 +140,6 @@ pi 流式返回 LLM 输出的核心:async generator(async function*)+ for await.
   <a class="pager__nav" href="tutorials-2.html">下一页</a>
 </nav>
 </main>
+<footer class="site-footer">Paper Reading · 由 markdown 静态生成 · <a href="https://github.com/megake98/megake98.github.io">GitHub</a></footer>
 </body>
 </html>

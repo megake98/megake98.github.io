@@ -11,10 +11,7 @@
 <!-- NAV-START -->
 <nav class="site-nav" aria-label="主导航">
   <a class="site-nav__brand" href="../index.html" aria-label="返回主页">
-    <svg class="site-nav__home-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-      <path d="M3 12l9-9 9 9"/>
-      <path d="M5 10v10h14V10"/>
-    </svg>
+    <span class="site-nav__brand-mark" aria-hidden="true">P</span>
     <span class="site-nav__brand-text">Paper Reading</span>
   </a>
   <div class="site-nav__links">
@@ -23,9 +20,11 @@
     <a class="site-nav__link" href="../surveys.html">调研</a>
     <a class="site-nav__link active" href="../graph.html">图谱</a>
     <button type="button" class="site-nav__search-btn" id="search-open" aria-label="搜索" aria-expanded="false" aria-controls="search-modal">
-      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
         <circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/>
       </svg>
+      <span class="site-nav__search-label">搜索</span>
+      <kbd class="site-nav__kbd">⌘K</kbd>
     </button>
     <button type="button" class="site-nav__theme-btn" id="theme-toggle" aria-label="切换深浅色主题">
       <svg class="theme-icon theme-icon--moon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
@@ -54,54 +53,51 @@
   </div>
   <h2>提到此概念的论文 / 教程</h2>
   <div class="post-grid">
-<div class="post-card post-card--paper">
-  <div class="post-card__head">
-    <span class="post-card__badge post-card__badge--paper">📄 论文</span>
-    <span class="post-card__date"><span class="post-card__added">📅 2026-07-03</span></span>
+<article class="post-card post-card--paper">
+  <div class="post-card__meta">
+    <span class="post-card__badge">论文</span>
+    <span class="post-card__date"><span class="post-card__added">2026-07-03</span><span class="post-card__extra">约 25 分钟</span></span>
   </div>
   <h3 class="post-card__title"><a class="post-card__title-link" href="../papers/rdm-2026/index.html">RDM: 把「一步生成」拆成两根设计轴——十年前被判死刑的 MMD, 估计对了就是 SOTA</a></h3>
-  <p class="post-card__tldr">一步图像生成 = 让生成分布在冻结编码器的特征空间里对齐真实分布。作者把这条无教师路线命名为 RDM (Representation Distribution Matching), 指出所有实例只差两根轴:怎么比 (comparison) 和 在哪比 (representation)。逐轴消融翻掉三条隐含假设:(1) 十年前被嫌太弱的经典 MMD, 只要「批内精确排斥 + 对全量数据的 Nyström 冻结吸引」估计对, 就是又强又可扩的目标;(2) 生成批越大越好, 最优点在 2048 以上, 远超常规;(3) 任何单个编码器都能被刷穿 (分数掉到真实之下但图仍假), 所以要对一整排编码器做「受约束优化」。合成 iRDM:ImageNet 一步 SOTA SW_r14 1.30 (真实地板 1.0), 并把四步 FLUX.2 [klein] 后训练成一步模型, GenEval 0.826 反超四步版 0.794, 只花 90 H200 GPU-hours。
-</p>
-</div>
-<div class="post-card post-card--paper">
-  <div class="post-card__head">
-    <span class="post-card__badge post-card__badge--paper">📄 论文</span>
-    <span class="post-card__date"><span class="post-card__added">📅 2026-06-30</span></span>
+  <p class="post-card__tldr">一步图像生成 = 让生成分布在冻结编码器的特征空间里对齐真实分布。作者把这条无教师路线命名为 RDM (Representation Distribution Matching), 指出所有实例只差两根轴:怎么比 (comparison) 和 在哪比 (representation)。逐轴消融翻掉三条隐含假设:(1) 十年前被嫌太弱的经典 MMD, 只要「批内精确排斥 + 对全量数据的 Nyström 冻结吸引」估计对, 就是又强又可扩的目标;(2) 生成批越大越好, 最优点在 2048 以上, 远超常规;(3) 任何单个编码器都能被刷穿 (分数掉到真实之下但图仍假), 所以要对一整排编码器做「受约束优化」。合成 iRDM:ImageNet 一步 SOTA SW_r14 1.30 (真实地板 1.0), 并把四步 FLUX.2 [klein] 后训练成一步模型, GenEval 0.826 反超四步版 0.794, 只花 90 H200 GPU-hours。</p>
+  <div class="post-card__tags"><a class="tag-chip" href="../concepts/one-step-generation.html">one-step-generation</a> <a class="tag-chip" href="../concepts/distribution-matching.html">distribution-matching</a> <a class="tag-chip" href="../concepts/mmd.html">mmd</a> <span class="tag-chip tag-chip--more">+10</span></div>
+</article>
+<article class="post-card post-card--paper">
+  <div class="post-card__meta">
+    <span class="post-card__badge">论文</span>
+    <span class="post-card__date"><span class="post-card__added">2026-06-30</span><span class="post-card__extra">约 20 分钟</span></span>
   </div>
   <h3 class="post-card__title"><a class="post-card__title-link" href="../papers/op4ksr-2026/index.html">OP4KSR：一步、无分块的 4K 超分，外加把 Flux「周期格子伪影」连根拔起</a></h3>
-  <p class="post-card__tldr">OP4KSR 是第一个「一步 + 无分块」的真实世界 4K 超分框架：靠 UltraFlux 的 F16 极压缩 VAE 把 4096×4096 的显存压到单卡可跑，再借 [[omgsr-2025]] 的中间时刻对齐把 Flux 微调成一步前向（注意：是 GAN 式一步微调，**不是师生蒸馏**），5.75 秒出一张 4K 图。
-但一步化会触发周期 32 像素的格子伪影。作者把病因拆成两层——RoPE 相位坍缩让相邻 token 不可分（θ=10000 太大）、以及 2×2 打包后 unpack 把通道当空间用——并对症下两味药：RoPE 基频从 10000 降到 100（RFR）+ 一个基于自相关的周期性损失（L_AP）。
-</p>
-</div>
-<div class="post-card post-card--paper">
-  <div class="post-card__head">
-    <span class="post-card__badge post-card__badge--paper">📄 论文</span>
-    <span class="post-card__date"><span class="post-card__added">📅 2026-06-01</span></span>
+  <p class="post-card__tldr">OP4KSR 是第一个「一步 + 无分块」的真实世界 4K 超分框架：靠 UltraFlux 的 F16 极压缩 VAE 把 4096×4096 的显存压到单卡可跑，再借 omgsr-2025 的中间时刻对齐把 Flux 微调成一步前向（注意：是 GAN 式一步微调，不是师生蒸馏），5.75 秒出一张 4K 图。 但一步化会触发周期 32 像素的格子伪影。作者把病因拆成两层——RoPE 相位坍缩让相邻 token 不可分（θ=10000 太大）、以及 2×2 打包后 unpack 把通道当空间用——并对症下两味药：RoPE 基频从 10000 降到 100（RFR）+ 一个基于自相关的周期性损失（L_AP）。</p>
+  <div class="post-card__tags"><a class="tag-chip" href="../concepts/image-super-resolution.html">image-super-resolution</a> <a class="tag-chip" href="../concepts/4k-super-resolution.html">4k-super-resolution</a> <a class="tag-chip" href="../concepts/one-step-generation.html">one-step-generation</a> <span class="tag-chip tag-chip--more">+7</span></div>
+</article>
+<article class="post-card post-card--paper">
+  <div class="post-card__meta">
+    <span class="post-card__badge">论文</span>
+    <span class="post-card__date"><span class="post-card__added">2026-06-01</span><span class="post-card__extra">约 20 分钟</span></span>
   </div>
   <h3 class="post-card__title"><a class="post-card__title-link" href="../papers/leap-align-2026/index.html">LeapAlign: Post-Training Flow Matching Models at Any Generation Step by Building Two-Step Trajectories</a></h3>
   <p class="post-card__tldr">ANU/ByteDance:Flux reward fine-tune 时不 backprop 完整 25 步链,而是随机抽 (k,j) 两步构造 leap trajectory + stop_gradient connector,可触及最早期步,Attribute Binding 45→66。</p>
-</div>
-<div class="post-card post-card--paper">
-  <div class="post-card__head">
-    <span class="post-card__badge post-card__badge--paper">📄 论文</span>
-    <span class="post-card__date"><span class="post-card__added">📅 2026-06-01</span></span>
+  <div class="post-card__tags"><a class="tag-chip" href="../concepts/flow-matching.html">flow-matching</a> <a class="tag-chip" href="../concepts/rl.html">rl</a> <a class="tag-chip" href="../concepts/alignment.html">alignment</a> <span class="tag-chip tag-chip--more">+2</span></div>
+</article>
+<article class="post-card post-card--paper">
+  <div class="post-card__meta">
+    <span class="post-card__badge">论文</span>
+    <span class="post-card__date"><span class="post-card__added">2026-06-01</span><span class="post-card__extra">约 20 分钟</span></span>
   </div>
   <h3 class="post-card__title"><a class="post-card__title-link" href="../papers/d-opsd-2026/index.html">D-OPSD: On-Policy Self-Distillation for Continuously Tuning Step-Distilled Diffusion Models</a></h3>
   <p class="post-card__tldr">HKUST/阿里 Z-Image Team:让 Z-Image-Turbo (8 步) 和 FLUX.2-klein (4 步) 能&quot;边用边学&quot;新概念 — 同一模型分饰 student (text) 和 teacher (text+target_img),在 student 自采轨迹上 self-distill,无需 reward。</p>
-</div>
-<div class="post-card post-card--paper">
-  <div class="post-card__head">
-    <span class="post-card__badge post-card__badge--paper">📄 论文</span>
-    <span class="post-card__date"><span class="post-card__added">📅 2026-10-10</span></span>
+  <div class="post-card__tags"><a class="tag-chip" href="../concepts/diffusion.html">diffusion</a> <a class="tag-chip" href="../concepts/distillation.html">distillation</a> <a class="tag-chip" href="../concepts/flow-matching.html">flow-matching</a> <span class="tag-chip tag-chip--more">+2</span></div>
+</article>
+<article class="post-card post-card--paper">
+  <div class="post-card__meta">
+    <span class="post-card__badge">论文</span>
+    <span class="post-card__date"><span class="post-card__added">2026-10-10</span><span class="post-card__extra">约 20 分钟</span></span>
   </div>
   <h3 class="post-card__title"><a class="post-card__title-link" href="../papers/scale-dit-2025/index.html">Scale-DiT：用窗口稀疏注意力把预训练扩散模型拉到 4K/8K</a></h3>
-  <p class="post-card__tldr">高分辨率生成的瓶颈是 self-attention 的 O(N²)——4K 有 65536 个 token,全注意力算不动。
-Scale-DiT（arxiv:2510.16325,PDF 正文题名 UltraImageGen）把高清 latent 切成固定 256×256 的局部窗口,
-每个 token 只在窗口内 + 少量文本 + 对应低清引导块上做注意力,并用「窗口优先重排」把稀疏 mask
-变成内存连续的稠密块,复杂度降到近线性(4K 省 256×,8K 省 130×)。全局一致性靠一路带缩放位置锚点
-的低分辨率引导图 + 只挂在引导路径上的 LoRA 兜底,4K 几乎不需高分辨率训练数据。
-</p>
-</div>
+  <p class="post-card__tldr">高分辨率生成的瓶颈是 self-attention 的 O(N²)——4K 有 65536 个 token,全注意力算不动。 Scale-DiT（arxiv:2510.16325,PDF 正文题名 UltraImageGen）把高清 latent 切成固定 256×256 的局部窗口, 每个 token 只在窗口内 + 少量文本 + 对应低清引导块上做注意力,并用「窗口优先重排」把稀疏 mask 变成内存连续的稠密块,复杂度降到近线性(4K 省 256×,8K 省 130×)。全局一致性靠一路带缩放位置锚点 的低分辨率引导图 + 只挂在引导路径上的 LoRA 兜底,4K 几乎不需高分辨率训练数据。</p>
+  <div class="post-card__tags"><a class="tag-chip" href="../concepts/sparse-attention.html">sparse-attention</a> <a class="tag-chip" href="../concepts/block-sparse-attention.html">block-sparse-attention</a> <a class="tag-chip" href="../concepts/window-attention.html">window-attention</a> <span class="tag-chip tag-chip--more">+8</span></div>
+</article>
 </div>
 
   <p class="back-link"><a href="../graph.html">← 返回图谱</a></p>

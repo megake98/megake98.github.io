@@ -11,10 +11,7 @@
 <!-- NAV-START -->
 <nav class="site-nav" aria-label="主导航">
   <a class="site-nav__brand" href="../index.html" aria-label="返回主页">
-    <svg class="site-nav__home-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-      <path d="M3 12l9-9 9 9"/>
-      <path d="M5 10v10h14V10"/>
-    </svg>
+    <span class="site-nav__brand-mark" aria-hidden="true">P</span>
     <span class="site-nav__brand-text">Paper Reading</span>
   </a>
   <div class="site-nav__links">
@@ -23,9 +20,11 @@
     <a class="site-nav__link" href="../surveys.html">调研</a>
     <a class="site-nav__link active" href="../graph.html">图谱</a>
     <button type="button" class="site-nav__search-btn" id="search-open" aria-label="搜索" aria-expanded="false" aria-controls="search-modal">
-      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
         <circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/>
       </svg>
+      <span class="site-nav__search-label">搜索</span>
+      <kbd class="site-nav__kbd">⌘K</kbd>
     </button>
     <button type="button" class="site-nav__theme-btn" id="theme-toggle" aria-label="切换深浅色主题">
       <svg class="theme-icon theme-icon--moon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
@@ -54,15 +53,15 @@
   </div>
   <h2>提到此概念的论文 / 教程</h2>
   <div class="post-grid">
-<div class="post-card post-card--paper">
-  <div class="post-card__head">
-    <span class="post-card__badge post-card__badge--paper">📄 论文</span>
-    <span class="post-card__date"><span class="post-card__added">📅 2026-06-04</span></span>
+<article class="post-card post-card--paper">
+  <div class="post-card__meta">
+    <span class="post-card__badge">论文</span>
+    <span class="post-card__date"><span class="post-card__added">2026-06-04</span><span class="post-card__extra">约 15 分钟</span></span>
   </div>
   <h3 class="post-card__title"><a class="post-card__title-link" href="../papers/thinking-visual-primitives-2026/index.html">Thinking with Visual Primitives: 让 MLLM 在思考时 &quot;用手指点&quot;——points/bboxes 作为最小思维单元穿插进 CoT 推理链</a></h3>
-  <p class="post-card__tldr">DeepSeek + 北大 + 清华 (技术报告 2026/04/30 release,代码 + 权重未公开)。MLLM 现在解决了 *Perception Gap* (高清 cropping / thinking-with-images),但还堵在 **Reference Gap** ——自然语言对密集空间布局指代太模糊,导致计数 / 拓扑推理时 &quot;逻辑塌方&quot;。提出 **Thinking with Visual Primitives**: 把 points / bboxes 当**思维原子**直接 interleave 进推理 trajectory,模型一边推理一边 &quot;点&quot;,把抽象语言概念锚到具体物理坐标。架构: DeepSeek-V4-Flash (284B MoE / 13B active) + DeepSeek-ViT。**视觉 token 压缩**: ViT 输出 3×3 spatial pooling (×9 压缩) + LLM 的 CSA (Compressed Sparse Attention) 把每 4 个 visual token 的 KV cache 压成 1 entry → 756×756 输入 (571,536 pixel) 最终 KV cache 仅 **81 entries**,**总压缩比 7,056×**。Pretraining 用 trillion+ tokens, 自建 40M 高质量 box-grounding 数据 (从 HF / 网络爬,两阶段 LLM 审核过滤)。Post-training 4 阶段: Specialized SFT → Specialized RL (GRPO 配 Format/Quality/Accuracy 3 个 RM) → Unified RFT → On-Policy Distillation。Cold-start 4 个任务: counting (10k), spatial reasoning (9k), maze navigation (460k), path tracing (125k)。结果: 选定子集 benchmark 上跟 **GPT-5.4 / Claude-Sonnet-4.6 / Gemini-3-Flash** 持平或反超,而 token efficiency 是这些 frontier model 的 1/8 到 1/10。本质是把 [[locate-anything-2026]] 的&quot;bbox 是 first-class output&quot; 进一步推进成&quot;bbox 是 first-class **thought**&quot;。
-</p>
-</div>
+  <p class="post-card__tldr">DeepSeek + 北大 + 清华 (技术报告 2026/04/30 release,代码 + 权重未公开)。MLLM 现在解决了 *Perception Gap* (高清 cropping / thinking-with-images),但还堵在 Reference Gap ——自然语言对密集空间布局指代太模糊,导致计数 / 拓扑推理时 &quot;逻辑塌方&quot;。提出 Thinking with Visual Primitives: 把 points / bboxes 当思维原子直接 interleave 进推理 trajectory,模型一边推理一边 &quot;点&quot;,把抽象语言概念锚到具体物理坐标。架构: DeepSeek-V4-Flash (284B MoE / 13B active) + DeepSeek-ViT。视觉 token 压缩: ViT 输出 3×3 spatial pooling (×9 压缩) + LLM 的 CSA (Compressed Sparse Attention) 把每 4 个 visual token 的 KV cache 压成 1 entry → 756×756 输入 (571,536 pixel) 最终 KV cache 仅 81 entries,总压缩比 7,056×。Pretraining 用 trillion+ tokens, 自建 40M 高质量 box-grounding 数据 (从 HF / 网络爬,两阶段 LLM 审核过滤)。Post-training 4 阶段: Specialized SFT → Specialized RL (GRPO 配 Format/Quality/Accuracy 3 个 RM) → Unified RFT → On-Policy Distillation。Cold-start 4 个任务: counting (10k), spatial reasoning (9k), maze navigation (460k), path tracing (125k)。结果: 选定子集 benchmark 上跟 GPT-5.4 / Claude-Sonnet-4.6 / Gemini-3-Flash 持平或反超,而 token efficiency 是这些 frontier model 的 1/8 到 1/10。本质是把 locate-anything-2026 的&quot;bbox 是 first-class output&quot; 进一步推进成&quot;bbox 是 first-class thought&quot;。</p>
+  <div class="post-card__tags"><a class="tag-chip" href="../concepts/mllm.html">mllm</a> <a class="tag-chip" href="../concepts/reasoning.html">reasoning</a> <a class="tag-chip" href="../concepts/chain-of-thought.html">chain-of-thought</a> <span class="tag-chip tag-chip--more">+6</span></div>
+</article>
 </div>
 
   <p class="back-link"><a href="../graph.html">← 返回图谱</a></p>

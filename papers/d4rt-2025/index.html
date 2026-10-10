@@ -37,16 +37,26 @@
       }, { rootMargin: '-20% 0px -70% 0px' });
       map.forEach((_, el) => observer.observe(el));
     });
+    // reading progress bar
+    document.addEventListener('DOMContentLoaded', () => {
+      const bar = document.querySelector('.read-progress');
+      if (!bar) return;
+      const update = () => {
+        const h = document.documentElement;
+        const max = h.scrollHeight - h.clientHeight;
+        bar.style.transform = 'scaleX(' + (max > 0 ? h.scrollTop / max : 0) + ')';
+      };
+      update();
+      window.addEventListener('scroll', update, { passive: true });
+    });
   </script>
 </head>
 <body>
+<div class="read-progress" aria-hidden="true"></div>
 <!-- NAV-START -->
 <nav class="site-nav" aria-label="主导航">
   <a class="site-nav__brand" href="../../index.html" aria-label="返回主页">
-    <svg class="site-nav__home-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-      <path d="M3 12l9-9 9 9"/>
-      <path d="M5 10v10h14V10"/>
-    </svg>
+    <span class="site-nav__brand-mark" aria-hidden="true">P</span>
     <span class="site-nav__brand-text">Paper Reading</span>
   </a>
   <div class="site-nav__links">
@@ -55,9 +65,11 @@
     <a class="site-nav__link" href="../../surveys.html">调研</a>
     <a class="site-nav__link" href="../../graph.html">图谱</a>
     <button type="button" class="site-nav__search-btn" id="search-open" aria-label="搜索" aria-expanded="false" aria-controls="search-modal">
-      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
         <circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/>
       </svg>
+      <span class="site-nav__search-label">搜索</span>
+      <kbd class="site-nav__kbd">⌘K</kbd>
     </button>
     <button type="button" class="site-nav__theme-btn" id="theme-toggle" aria-label="切换深浅色主题">
       <svg class="theme-icon theme-icon--moon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
@@ -99,9 +111,9 @@
 <main data-pagefind-body>
 <h1>Efficiently Reconstructing Dynamic Scenes One D4RT at a Time</h1>
 <aside class="post-meta">
-  <div class="post-meta__row"><span class="post-meta__date">📅 加入: <strong>2026-06-06</strong></span> · <span class="post-meta__paper-date">论文日期: 2026-06-06</span></div>
+  <div class="post-meta__row"><span class="post-meta__date">加入 <strong>2026-06-06</strong></span> · <span class="post-meta__paper-date">论文日期: 2026-06-06</span></div>
   <div class="post-meta__row"><span class="post-meta__authors">Chuhan Zhang, Guillaume Le Moing, Skanda Koppula, Ignacio Rocco, Liliane Momeni, Junyu Xie, Shuyang Sun, Rahul Sukthankar, Joëlle K. Barral, Raia Hadsell, Zoubin Ghahramani, Andrew Zisserman, Junlin Zhang, Mehdi S. M. Sajjadi</span> · <span class="post-meta__venue">CVPR 2026 (Best Paper Award)</span></div>
-  <div class="post-meta__row post-meta__links"><a class="post-meta__link" href="https://arxiv.org/abs/2512.08924">arXiv:2512.08924</a> · <a class="post-meta__link" href="https://d4rt-paper.github.io/">项目页</a> · <a class="post-meta__link" href="https://github.com/WangXueyang-uestc/D4RT">代码</a></div>
+  <div class="post-meta__row post-meta__links"><a class="post-meta__link" href="https://arxiv.org/abs/2512.08924">arXiv:2512.08924</a> · <a class="post-meta__link" href="https://d4rt-paper.github.io/">项目页</a> · <a class="post-meta__link" href="https://github.com/WangXueyang-uestc/D4RT">D4RT</a></div>
   <div class="post-meta__row post-meta__concepts"><a class="concept-chip" href="../../concepts/3d-reconstruction.html">3d-reconstruction</a> <a class="concept-chip" href="../../concepts/4d-reconstruction.html">4d-reconstruction</a> <a class="concept-chip" href="../../concepts/point-tracking.html">point-tracking</a> <a class="concept-chip" href="../../concepts/transformer.html">transformer</a> <a class="concept-chip" href="../../concepts/cross-attention.html">cross-attention</a> <a class="concept-chip" href="../../concepts/camera-pose.html">camera-pose</a> <a class="concept-chip" href="../../concepts/depth-estimation.html">depth-estimation</a> <a class="concept-chip" href="../../concepts/feedforward.html">feedforward</a></div>
 </aside>
 
@@ -313,5 +325,6 @@ def compute_l3d_loss(self, pred_3d, gt_3d, confidence=None, mask=None):
 <li>任务基准:TAPVid-3D(3D 点追踪)、MPI Sintel、ScanNet。</li>
 </ul>
 </main>
+<footer class="site-footer">Paper Reading · 由 markdown 静态生成 · <a href="https://github.com/megake98/megake98.github.io">GitHub</a></footer>
 </body>
 </html>

@@ -37,16 +37,26 @@
       }, { rootMargin: '-20% 0px -70% 0px' });
       map.forEach((_, el) => observer.observe(el));
     });
+    // reading progress bar
+    document.addEventListener('DOMContentLoaded', () => {
+      const bar = document.querySelector('.read-progress');
+      if (!bar) return;
+      const update = () => {
+        const h = document.documentElement;
+        const max = h.scrollHeight - h.clientHeight;
+        bar.style.transform = 'scaleX(' + (max > 0 ? h.scrollTop / max : 0) + ')';
+      };
+      update();
+      window.addEventListener('scroll', update, { passive: true });
+    });
   </script>
 </head>
 <body>
+<div class="read-progress" aria-hidden="true"></div>
 <!-- NAV-START -->
 <nav class="site-nav" aria-label="主导航">
   <a class="site-nav__brand" href="../../index.html" aria-label="返回主页">
-    <svg class="site-nav__home-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-      <path d="M3 12l9-9 9 9"/>
-      <path d="M5 10v10h14V10"/>
-    </svg>
+    <span class="site-nav__brand-mark" aria-hidden="true">P</span>
     <span class="site-nav__brand-text">Paper Reading</span>
   </a>
   <div class="site-nav__links">
@@ -55,9 +65,11 @@
     <a class="site-nav__link" href="../../surveys.html">调研</a>
     <a class="site-nav__link" href="../../graph.html">图谱</a>
     <button type="button" class="site-nav__search-btn" id="search-open" aria-label="搜索" aria-expanded="false" aria-controls="search-modal">
-      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
         <circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/>
       </svg>
+      <span class="site-nav__search-label">搜索</span>
+      <kbd class="site-nav__kbd">⌘K</kbd>
     </button>
     <button type="button" class="site-nav__theme-btn" id="theme-toggle" aria-label="切换深浅色主题">
       <svg class="theme-icon theme-icon--moon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
@@ -104,10 +116,12 @@
   </ul>
 </nav>
 <main data-pagefind-body>
+<p class="post-kicker">论文</p>
+<h1>f-loss：给像素空间流匹配换一副「频域眼镜」——先学频率、再抠像素</h1>
 <aside class="post-meta">
-  <div class="post-meta__row"><span class="post-meta__date">📅 加入: <strong>2026-10-10</strong></span> · <span class="post-meta__paper-date">论文日期: 2026-09-21</span></div>
+  <div class="post-meta__row"><span class="post-meta__date">加入 <strong>2026-10-10</strong></span> · <span class="post-meta__paper-date">论文日期: 2026-09-21</span></div>
   <div class="post-meta__row"><span class="post-meta__authors">Lucas Degeorge, Paul Couairon, Arijit Ghosh, Alexei A. Efros, David Picard, Vicky Kalogeiton</span> · <span class="post-meta__venue">arXiv preprint (cs.CV)</span></div>
-  <div class="post-meta__row post-meta__links"><a class="post-meta__link" href="https://arxiv.org/abs/2609.02748">arXiv:2609.02748</a> · <a class="post-meta__link" href="https://github.com/EndlessSora/focal-frequency-loss">代码</a></div>
+  <div class="post-meta__row post-meta__links"><a class="post-meta__link" href="https://arxiv.org/abs/2609.02748">arXiv:2609.02748</a> · <a class="post-meta__link" href="https://github.com/EndlessSora/focal-frequency-loss">focal-frequency-loss</a></div>
   <div class="post-meta__row post-meta__concepts"><a class="concept-chip" href="../../concepts/flow-matching.html">flow-matching</a> <a class="concept-chip" href="../../concepts/pixel-space-generation.html">pixel-space-generation</a> <a class="concept-chip" href="../../concepts/frequency-domain-loss.html">frequency-domain-loss</a> <a class="concept-chip" href="../../concepts/spectral-bias.html">spectral-bias</a> <a class="concept-chip" href="../../concepts/diffusion-transformer.html">diffusion-transformer</a> <a class="concept-chip" href="../../concepts/text-to-image.html">text-to-image</a> <a class="concept-chip" href="../../concepts/training-objective.html">training-objective</a> <a class="concept-chip" href="../../concepts/fourier-transform.html">fourier-transform</a></div>
 </aside>
 <h2 id="sec-1">出发点：为什么像素空间流模型「学得慢」</h2>
@@ -422,5 +436,6 @@ def fv_loss(x_pred, x_target, t, step, s_star, tau):
 <li><strong>「先粗后精」的调度哲学</strong>：早期用一个<strong>低保真但覆盖全频段</strong>的目标（f-loss）铺开，晚期切一个<strong>高保真但易偏科</strong>的目标（v-loss）精修——这个「先广度、后深度」的两段式，可迁移到蒸馏、对齐、RLHF 等任何「早期探索 vs 晚期利用」的训练场景。</li>
 </ul>
 </main>
+<footer class="site-footer">Paper Reading · 由 markdown 静态生成 · <a href="https://github.com/megake98/megake98.github.io">GitHub</a></footer>
 </body>
 </html>

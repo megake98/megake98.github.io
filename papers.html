@@ -11,10 +11,7 @@
 <!-- NAV-START -->
 <nav class="site-nav" aria-label="主导航">
   <a class="site-nav__brand" href="index.html" aria-label="返回主页">
-    <svg class="site-nav__home-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-      <path d="M3 12l9-9 9 9"/>
-      <path d="M5 10v10h14V10"/>
-    </svg>
+    <span class="site-nav__brand-mark" aria-hidden="true">P</span>
     <span class="site-nav__brand-text">Paper Reading</span>
   </a>
   <div class="site-nav__links">
@@ -23,9 +20,11 @@
     <a class="site-nav__link" href="surveys.html">调研</a>
     <a class="site-nav__link" href="graph.html">图谱</a>
     <button type="button" class="site-nav__search-btn" id="search-open" aria-label="搜索" aria-expanded="false" aria-controls="search-modal">
-      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
         <circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/>
       </svg>
+      <span class="site-nav__search-label">搜索</span>
+      <kbd class="site-nav__kbd">⌘K</kbd>
     </button>
     <button type="button" class="site-nav__theme-btn" id="theme-toggle" aria-label="切换深浅色主题">
       <svg class="theme-icon theme-icon--moon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
@@ -46,159 +45,92 @@
 <script defer src="assets/theme.js"></script>
 <!-- NAV-END -->
 <main class="page page--listing">
-<h1>论文</h1>
-<p class="page__intro">共 63 篇论文精读。</p>
+<header class="page-hero">
+  <h1 class="page-hero__title">论文</h1>
+  <p class="page-hero__intro">共 63 篇论文精读。</p>
+</header>
 <div class="post-grid">
-<div class="post-card post-card--paper">
-  <div class="post-card__head">
-    <span class="post-card__badge post-card__badge--paper">📄 论文</span>
-    <span class="post-card__date"><span class="post-card__added">📅 2026-10-10</span></span>
+<article class="post-card post-card--paper">
+  <div class="post-card__meta">
+    <span class="post-card__badge">论文</span>
+    <span class="post-card__date"><span class="post-card__added">2026-10-10</span><span class="post-card__extra">约 25 分钟</span></span>
   </div>
   <h3 class="post-card__title"><a class="post-card__title-link" href="papers/sparkdiffusion-2026/index.html">SparkDiffusion：识别「高稀疏陷阱」，把视频扩散在单卡上加速 265×</a></h3>
-  <p class="post-card__tldr">视频扩散 Transformer 的算力全被长时空序列上的注意力吃掉了。补偿式稀疏注意力（稀疏分支 + 低秩分支）能把注意力稀疏度推到 90%，但再往上推到 95%/97% 就会掉进一个坑：**step-local 训练损失（flow matching）还在稳稳下降，而最终生成出来的视频却结构崩坏、语义漂移、马赛克化**——作者把它命名为 **high-sparsity trap（高稀疏陷阱）**。
-诊断结论很干脆：这是**监督信号**的问题，不是表达能力的问题。用「oracle 探针」把稀疏学生在一小段采样步上的速度替换成稠密教师的速度，发现**只修高噪声（结构生成）那几步就能消掉绝大部分终端误差，修低噪声那几步几乎没用**。附录 C 用一个 Hilbert 空间的线性代数把它讲透：终端误差 $\Psi=\langle e, s\rangle$ 是逐步误差的**带符号、按敏感度加权**的和，而 step-local 损失 $L=\tfrac12\lVert e\rVert^2$ 只看**幅度**——两者看同一个残差的方式根本不同。
-于是 SparkDiffusion 给出一个分阶段配方：**① 短暂稀疏预热**（把稠密骨干适配成一个粗糙的先验）→ **② trajectory-mixed 蒸馏**（高噪声段用 PCM 一致性锚结构、低噪声段用 DMD 分布匹配补细节，3 步学生）→ **③ FP8 W8A8 量化 + 融合 kernel**（把省下的 FLOPs 兑现成真实墙钟加速）。结果：Wan2.1-T2V-14B-720P 在单张 RTX 5090 上端到端 **265×**（H100 220×），97% 稀疏度下 VBench 仍逼近稠密；1.3B-480P 一条视频 1.3 秒去噪完。
-</p>
-  <div class="post-card__tags">
-      <a class="tag-chip" href="concepts/video-diffusion.html">video-diffusion</a>
-      <a class="tag-chip" href="concepts/sparse-attention.html">sparse-attention</a>
-      <a class="tag-chip" href="concepts/block-sparse-attention.html">block-sparse-attention</a>
-      <span class="tag-chip tag-chip--more">+11 more</span>
-  </div>
-</div>
-<div class="post-card post-card--paper">
-  <div class="post-card__head">
-    <span class="post-card__badge post-card__badge--paper">📄 论文</span>
-    <span class="post-card__date"><span class="post-card__added">📅 2026-10-10</span></span>
+  <p class="post-card__tldr">视频扩散 Transformer 的算力全被长时空序列上的注意力吃掉了。补偿式稀疏注意力（稀疏分支 + 低秩分支）能把注意力稀疏度推到 90%，但再往上推到 95%/97% 就会掉进一个坑：step-local 训练损失（flow matching）还在稳稳下降，而最终生成出来的视频却结构崩坏、语义漂移、马赛克化——作者把它命名为 high-sparsity trap（高稀疏陷阱）。 诊断结论很干脆：这是监督信号的问题，不是表达能力的问题。用「oracle 探针」把稀疏学生在一小段采样步上的速度替换成稠密教师的速度，发现只修高噪声（结构生成）那几步就能消掉绝大部分终端误差，修低噪声那几步几乎没用。附录 C 用一个 Hilbert 空间的线性代数把它讲透：终端误差 $\Psi=\langle e, s\rangle$ 是逐步误差的带符号、按敏感度加权的和，而 step-local 损失 $L=\tfrac12\lVert e\rVert^2$ 只看幅度——两者看同一个残差的方式根本不同。 于是 SparkDiffusion 给出一个分阶段配方：① 短暂稀疏预热（把稠密骨干适配成一个粗糙的先验）→ ② trajectory-mixed 蒸馏（高噪声段用 PCM 一致性锚结构、低噪声段用 DMD 分布匹配补细节，3 步学生）→ ③ FP8 W8A8 量化 + 融合 kernel（把省下的 FLOPs 兑现成真实墙钟加速）。结果：Wan2.1-T2V-14B-720P 在单张 RTX 5090 上端到端 265×（H100 220×），97% 稀疏度下 VBench 仍逼近稠密；1.3B-480P 一条视频 1.3 秒去噪完。</p>
+  <div class="post-card__tags"><a class="tag-chip" href="concepts/video-diffusion.html">video-diffusion</a> <a class="tag-chip" href="concepts/sparse-attention.html">sparse-attention</a> <a class="tag-chip" href="concepts/block-sparse-attention.html">block-sparse-attention</a> <span class="tag-chip tag-chip--more">+11</span></div>
+</article>
+<article class="post-card post-card--paper">
+  <div class="post-card__meta">
+    <span class="post-card__badge">论文</span>
+    <span class="post-card__date"><span class="post-card__added">2026-10-10</span><span class="post-card__extra">约 30 分钟</span></span>
   </div>
   <h3 class="post-card__title"><a class="post-card__title-link" href="papers/self-play-zero-2026/index.html">Self-Play Pretraining with Zero Data：让模型从「零数据」里长出预训练</a></h3>
-  <p class="post-card__tldr">能不能让语言模型**从随机初始化出发、不看任何自然数据**，自己造出对自己最有用的预训练数据？这篇论文给了一个概念验证：两个从零初始化的 Transformer 对弈——**生成器**写通用图灵机（Brainf*ck 变体）程序，程序执行吐出字节序列；**学习器**用标准交叉熵去预测这些字节。
-关键在生成器的奖励：不是&quot;序列多难预测&quot;，而是&quot;这个程序让学习器产生的梯度，是否和学习器近期的学习轨迹对齐&quot;（AdamW 预条件下的内积），从而把课程锁在学习器能力的**前沿**。结果：在文本/图像/语音/旋律/DNA/数学序列六类自然数据上，zero-shot 损失随自算力**幂律下降**，指数与直接在自然数据上训练相当；模型涌现出 in-context learning，生成器还自发&quot;发现&quot;了等差、斐波那契、几何等数列。作者用「可迁移的普适结构 vs 世界相关的偶然信息」二分给出了一个解释性 ansatz。
-</p>
-  <div class="post-card__tags">
-      <a class="tag-chip" href="concepts/self-play.html">self-play</a>
-      <a class="tag-chip" href="concepts/synthetic-data.html">synthetic-data</a>
-      <a class="tag-chip" href="concepts/solomonoff-induction.html">solomonoff-induction</a>
-      <span class="tag-chip tag-chip--more">+11 more</span>
-  </div>
-</div>
-<div class="post-card post-card--paper">
-  <div class="post-card__head">
-    <span class="post-card__badge post-card__badge--paper">📄 论文</span>
-    <span class="post-card__date"><span class="post-card__added">📅 2026-10-10</span></span>
+  <p class="post-card__tldr">能不能让语言模型从随机初始化出发、不看任何自然数据，自己造出对自己最有用的预训练数据？这篇论文给了一个概念验证：两个从零初始化的 Transformer 对弈——生成器写通用图灵机（Brainf*ck 变体）程序，程序执行吐出字节序列；学习器用标准交叉熵去预测这些字节。 关键在生成器的奖励：不是&quot;序列多难预测&quot;，而是&quot;这个程序让学习器产生的梯度，是否和学习器近期的学习轨迹对齐&quot;（AdamW 预条件下的内积），从而把课程锁在学习器能力的前沿。结果：在文本/图像/语音/旋律/DNA/数学序列六类自然数据上，zero-shot 损失随自算力幂律下降，指数与直接在自然数据上训练相当；模型涌现出 in-context learning，生成器还自发&quot;发现&quot;了等差、斐波那契、几何等数列。作者用「可迁移的普适结构 vs 世界相关的偶然信息」二分给出了一个解释性 ansatz。</p>
+  <div class="post-card__tags"><a class="tag-chip" href="concepts/self-play.html">self-play</a> <a class="tag-chip" href="concepts/synthetic-data.html">synthetic-data</a> <a class="tag-chip" href="concepts/solomonoff-induction.html">solomonoff-induction</a> <span class="tag-chip tag-chip--more">+11</span></div>
+</article>
+<article class="post-card post-card--paper">
+  <div class="post-card__meta">
+    <span class="post-card__badge">论文</span>
+    <span class="post-card__date"><span class="post-card__added">2026-10-10</span><span class="post-card__extra">约 20 分钟</span></span>
   </div>
   <h3 class="post-card__title"><a class="post-card__title-link" href="papers/scale-dit-2025/index.html">Scale-DiT：用窗口稀疏注意力把预训练扩散模型拉到 4K/8K</a></h3>
-  <p class="post-card__tldr">高分辨率生成的瓶颈是 self-attention 的 O(N²)——4K 有 65536 个 token,全注意力算不动。
-Scale-DiT（arxiv:2510.16325,PDF 正文题名 UltraImageGen）把高清 latent 切成固定 256×256 的局部窗口,
-每个 token 只在窗口内 + 少量文本 + 对应低清引导块上做注意力,并用「窗口优先重排」把稀疏 mask
-变成内存连续的稠密块,复杂度降到近线性(4K 省 256×,8K 省 130×)。全局一致性靠一路带缩放位置锚点
-的低分辨率引导图 + 只挂在引导路径上的 LoRA 兜底,4K 几乎不需高分辨率训练数据。
-</p>
-  <div class="post-card__tags">
-      <a class="tag-chip" href="concepts/sparse-attention.html">sparse-attention</a>
-      <a class="tag-chip" href="concepts/block-sparse-attention.html">block-sparse-attention</a>
-      <a class="tag-chip" href="concepts/window-attention.html">window-attention</a>
-      <span class="tag-chip tag-chip--more">+8 more</span>
-  </div>
-</div>
-<div class="post-card post-card--paper">
-  <div class="post-card__head">
-    <span class="post-card__badge post-card__badge--paper">📄 论文</span>
-    <span class="post-card__date"><span class="post-card__added">📅 2026-10-10</span></span>
+  <p class="post-card__tldr">高分辨率生成的瓶颈是 self-attention 的 O(N²)——4K 有 65536 个 token,全注意力算不动。 Scale-DiT（arxiv:2510.16325,PDF 正文题名 UltraImageGen）把高清 latent 切成固定 256×256 的局部窗口, 每个 token 只在窗口内 + 少量文本 + 对应低清引导块上做注意力,并用「窗口优先重排」把稀疏 mask 变成内存连续的稠密块,复杂度降到近线性(4K 省 256×,8K 省 130×)。全局一致性靠一路带缩放位置锚点 的低分辨率引导图 + 只挂在引导路径上的 LoRA 兜底,4K 几乎不需高分辨率训练数据。</p>
+  <div class="post-card__tags"><a class="tag-chip" href="concepts/sparse-attention.html">sparse-attention</a> <a class="tag-chip" href="concepts/block-sparse-attention.html">block-sparse-attention</a> <a class="tag-chip" href="concepts/window-attention.html">window-attention</a> <span class="tag-chip tag-chip--more">+8</span></div>
+</article>
+<article class="post-card post-card--paper">
+  <div class="post-card__meta">
+    <span class="post-card__badge">论文</span>
+    <span class="post-card__date"><span class="post-card__added">2026-10-10</span><span class="post-card__extra">约 20 分钟</span></span>
   </div>
   <h3 class="post-card__title"><a class="post-card__title-link" href="papers/rola-2026/index.html">RoLA：把 3D-RoPE 塞进线性注意力——解「RoPE 两难」的旋转低秩补偿分支</a></h3>
-  <p class="post-card__tldr">视频 DiT 里「稀疏 + 线性」的混合注意力想用一条便宜的线性分支捞回稀疏分支丢掉的全局上下文,但撞上一个结构性矛盾——**RoPE 两难(RoPE Dilemma)**:线性注意力要求一个「与 query 无关、能复用的全局摘要」$C=\sum_q \phi(k_q)v_q^\top$,而 3D-RoPE 用「位置相关的旋转」编码相对几何;**如果先旋转再过非线性 $\phi$,旋转和非线性不对易,摘要就会被绝对位置污染**,既保不住相对几何、又丢了可复用性。
-已有做法(RoPeSLR)绕开矛盾:干脆不做跨 token 聚合,改用「逐 token 坐标 MLP + 可学习的绝对位置嵌入」去模仿相对衰减——但这既丢了真正的线性全局路由,又额外引入位置参数。RoLA 的解法极简却关键:**把 RoPE 放到非线性外面(先 SiLU 低秩投影、再旋转)**,这样全局摘要照样累加一次、被所有 query 复用,位置效应只在 query 读出时出现;再**复用预训练 RoPE 频率表的前 r 个坐标**(r=64,即 r/2 个旋转对)匹配低秩瓶颈,不引入任何新位置参数。
-机制实验直接验证:outside-activation 的位置核**紧贴全注意力的带状相对衰减**,shift 残差 $1.8\times10^{-5}$(inside 是 $3.7\times10^{-1}$,泄漏绝对位置);rank 到 64 时保真度饱和。生成上 Wan2.1-14B-720P 在 90% 稀疏度下 VBench 逼近稠密、端到端 2.63×。RoLA 正是 [[sparkdiffusion-2026]] 默认采用的稀疏模块。
-</p>
-  <div class="post-card__tags">
-      <a class="tag-chip" href="concepts/video-diffusion.html">video-diffusion</a>
-      <a class="tag-chip" href="concepts/sparse-attention.html">sparse-attention</a>
-      <a class="tag-chip" href="concepts/linear-attention.html">linear-attention</a>
-      <span class="tag-chip tag-chip--more">+7 more</span>
-  </div>
-</div>
-<div class="post-card post-card--paper">
-  <div class="post-card__head">
-    <span class="post-card__badge post-card__badge--paper">📄 论文</span>
-    <span class="post-card__date"><span class="post-card__added">📅 2026-10-10</span></span>
+  <p class="post-card__tldr">视频 DiT 里「稀疏 + 线性」的混合注意力想用一条便宜的线性分支捞回稀疏分支丢掉的全局上下文,但撞上一个结构性矛盾——RoPE 两难(RoPE Dilemma):线性注意力要求一个「与 query 无关、能复用的全局摘要」$C=\sum_q \phi(k_q)v_q^\top$,而 3D-RoPE 用「位置相关的旋转」编码相对几何;如果先旋转再过非线性 $\phi$,旋转和非线性不对易,摘要就会被绝对位置污染,既保不住相对几何、又丢了可复用性。 已有做法(RoPeSLR)绕开矛盾:干脆不做跨 token 聚合,改用「逐 token 坐标 MLP + 可学习的绝对位置嵌入」去模仿相对衰减——但这既丢了真正的线性全局路由,又额外引入位置参数。RoLA 的解法极简却关键:把 RoPE 放到非线性外面(先 SiLU 低秩投影、再旋转),这样全局摘要照样累加一次、被所有 query 复用,位置效应只在 query 读出时出现;再复用预训练 RoPE 频率表的前 r 个坐标(r=64,即 r/2 个旋转对)匹配低秩瓶颈,不引入任何新位置参数。 机制实验直接验证:outside-activation 的位置核紧贴全注意力的带状相对衰减,shift 残差 $1.8\times10^{-5}$(inside 是 $3.7\times10^{-1}$,泄漏绝对位置);rank 到 64 时保真度饱和。生成上 Wan2.1-14B-720P 在 90% 稀疏度下 VBench 逼近稠密、端到端 2.63×。RoLA 正是 sparkdiffusion-2026 默认采用的稀疏模块。</p>
+  <div class="post-card__tags"><a class="tag-chip" href="concepts/video-diffusion.html">video-diffusion</a> <a class="tag-chip" href="concepts/sparse-attention.html">sparse-attention</a> <a class="tag-chip" href="concepts/linear-attention.html">linear-attention</a> <span class="tag-chip tag-chip--more">+7</span></div>
+</article>
+<article class="post-card post-card--paper">
+  <div class="post-card__meta">
+    <span class="post-card__badge">论文</span>
+    <span class="post-card__date"><span class="post-card__added">2026-10-10</span><span class="post-card__extra">约 25 分钟</span></span>
   </div>
   <h3 class="post-card__title"><a class="post-card__title-link" href="papers/pixrestore-2026/index.html">PixRestore：扔掉 VAE 和 T2I 先验，从零训一个像素空间 DiT 做统一图像修复</a></h3>
-  <p class="post-card__tldr">港理工 VCLab 的统一图像修复（UIR）工作。核心主张：为 UIR 适配大 T2I 潜空间扩散模型是走了弯路——VAE 会丢掉修复最在意的细节，开放式生成先验会造出与输入不一致的伪影，十亿级骨干 + MLLM + MoE + VAE 编解码则纯属浪费算力。PixRestore 反其道而行：无 VAE、不用 T2I 预训练，直接在 patch 化的 RGB 像素上从零做 flow matching。为了适应不同退化，它用冻结的 DINOv2 多层特征作条件，并训一个「相似度引导的自适应层路由」——用 LQ–HQ 特征相似度当老师，可靠的层融合成 dense 条件（Eq 5），不可靠的层反而加大 HQ 特征监督（Eq 6）。最后把多步模型固定 t=1、配 DINO 特征判别器蒸成一步生成器。结果：约 50M 参数、单步推理、44ms，在 8 类退化上整体保真度/感知质量/退化去除都拿到最优或次优，算力只有 FoundIR-v2 的 1/181、Flux-IR 的 1/1209。
-</p>
-  <div class="post-card__tags">
-      <a class="tag-chip" href="concepts/image-restoration.html">image-restoration</a>
-      <a class="tag-chip" href="concepts/unified-image-restoration.html">unified-image-restoration</a>
-      <a class="tag-chip" href="concepts/pixel-diffusion.html">pixel-diffusion</a>
-      <span class="tag-chip tag-chip--more">+8 more</span>
-  </div>
-</div>
-<div class="post-card post-card--paper">
-  <div class="post-card__head">
-    <span class="post-card__badge post-card__badge--paper">📄 论文</span>
-    <span class="post-card__date"><span class="post-card__added">📅 2026-10-10</span></span>
+  <p class="post-card__tldr">港理工 VCLab 的统一图像修复（UIR）工作。核心主张：为 UIR 适配大 T2I 潜空间扩散模型是走了弯路——VAE 会丢掉修复最在意的细节，开放式生成先验会造出与输入不一致的伪影，十亿级骨干 + MLLM + MoE + VAE 编解码则纯属浪费算力。PixRestore 反其道而行：无 VAE、不用 T2I 预训练，直接在 patch 化的 RGB 像素上从零做 flow matching。为了适应不同退化，它用冻结的 DINOv2 多层特征作条件，并训一个「相似度引导的自适应层路由」——用 LQ–HQ 特征相似度当老师，可靠的层融合成 dense 条件（Eq 5），不可靠的层反而加大 HQ 特征监督（Eq 6）。最后把多步模型固定 t=1、配 DINO 特征判别器蒸成一步生成器。结果：约 50M 参数、单步推理、44ms，在 8 类退化上整体保真度/感知质量/退化去除都拿到最优或次优，算力只有 FoundIR-v2 的 1/181、Flux-IR 的 1/1209。</p>
+  <div class="post-card__tags"><a class="tag-chip" href="concepts/image-restoration.html">image-restoration</a> <a class="tag-chip" href="concepts/unified-image-restoration.html">unified-image-restoration</a> <a class="tag-chip" href="concepts/pixel-diffusion.html">pixel-diffusion</a> <span class="tag-chip tag-chip--more">+8</span></div>
+</article>
+<article class="post-card post-card--paper">
+  <div class="post-card__meta">
+    <span class="post-card__badge">论文</span>
+    <span class="post-card__date"><span class="post-card__added">2026-10-10</span><span class="post-card__extra">约 20 分钟</span></span>
   </div>
   <h3 class="post-card__title"><a class="post-card__title-link" href="papers/paint-anything-2026/index.html">Paint-Anything：把「任意颜色」做成提示词原生能力——用 24-bit hex 统一生成与编辑</a></h3>
-  <p class="post-card__tldr">字节跳动 Seed 的技术报告。核心主张：让图像模型「听懂十六进制颜色」不需要专用颜色编码器、也不需要推理时优化，而是把 &lt;color&gt;#AABBCC&lt;/color&gt; 直接写进提示词、再用物体级颜色监督数据把这套接口喂给模型。三件套：(1) Paint-500K 数据管线——VLM grounding + SAM3 分割 + CIELAB 空间 MeanShift 聚类抽物体主色，把 50 万张真实图变成 hex 标注（40 万 T2I + 10 万编辑）；(2) 纯色锚点 (pure-color anchor)——用纯色块给出干净的 hex→RGB 映射，且只在高噪声段 t∈[0.8,1] 激活，因为纯色轨迹里颜色早在 t≈0.8 就稳定了；(3) 显式 color 标签包裹 + 全量微调（冻结 VAE 和文本编码器）。FLUX.2-4B 上 ACBench-T2I +85.3%、ACBench-Edit +28.3%，8B 微调模型在颜色保真上反超 56B 的 FLUX.2-dev。
-</p>
-  <div class="post-card__tags">
-      <a class="tag-chip" href="concepts/color-control.html">color-control</a>
-      <a class="tag-chip" href="concepts/text-to-image.html">text-to-image</a>
-      <a class="tag-chip" href="concepts/image-editing.html">image-editing</a>
-      <span class="tag-chip tag-chip--more">+7 more</span>
-  </div>
-</div>
-<div class="post-card post-card--paper">
-  <div class="post-card__head">
-    <span class="post-card__badge post-card__badge--paper">📄 论文</span>
-    <span class="post-card__date"><span class="post-card__added">📅 2026-10-10</span></span>
+  <p class="post-card__tldr">字节跳动 Seed 的技术报告。核心主张：让图像模型「听懂十六进制颜色」不需要专用颜色编码器、也不需要推理时优化，而是把 #AABBCC 直接写进提示词、再用物体级颜色监督数据把这套接口喂给模型。三件套：(1) Paint-500K 数据管线——VLM grounding + SAM3 分割 + CIELAB 空间 MeanShift 聚类抽物体主色，把 50 万张真实图变成 hex 标注（40 万 T2I + 10 万编辑）；(2) 纯色锚点 (pure-color anchor)——用纯色块给出干净的 hex→RGB 映射，且只在高噪声段 t∈[0.8,1] 激活，因为纯色轨迹里颜色早在 t≈0.8 就稳定了；(3) 显式 color 标签包裹 + 全量微调（冻结 VAE 和文本编码器）。FLUX.2-4B 上 ACBench-T2I +85.3%、ACBench-Edit +28.3%，8B 微调模型在颜色保真上反超 56B 的 FLUX.2-dev。</p>
+  <div class="post-card__tags"><a class="tag-chip" href="concepts/color-control.html">color-control</a> <a class="tag-chip" href="concepts/text-to-image.html">text-to-image</a> <a class="tag-chip" href="concepts/image-editing.html">image-editing</a> <span class="tag-chip tag-chip--more">+7</span></div>
+</article>
+<article class="post-card post-card--paper">
+  <div class="post-card__meta">
+    <span class="post-card__badge">论文</span>
+    <span class="post-card__date"><span class="post-card__added">2026-10-10</span><span class="post-card__extra">约 20 分钟</span></span>
   </div>
   <h3 class="post-card__title"><a class="post-card__title-link" href="papers/llada-image-2026/index.html">LLaDA-Image：用完全开源配方从零训一个 6B 强图像生成器（技术报告精读 + 代码交叉验证）</a></h3>
-  <p class="post-card__tldr">Inclusion AI（蚂蚁 AGI）的开源技术报告。一句话：从零训一个 6B 单流 DiT，靠&quot;图像-only 预训练/中训练&quot;先学视觉先验、再引入语言对齐，把配对 caption 从最耗算力的阶段里拿掉。
-三大反常识选择：① 90%+ 训练样本无 caption（用冻结的扩散语言模型 VLM 从&quot;待生成的那块图&quot;自己抠语义当自条件），② 全程 98% 真图、SFT 里真图 &gt;70%（承认真图早期收敛慢，但换来更高的真实感天花板），③ 用**扩散语言模型（dLLM，LLaDA2.0-Mini）**而非自回归 VLM 当理解后端。
-工程上：DiT 里所有 Norm 换成**无参数 RMSNorm** + Muon 优化器稳住长训练；编辑走&quot;绕过 VLM 的参考图双通道&quot;（SigLIP-VQ 语义 + 干净 VAE latent 像素）；TwinFlow 用一个共享 DiT 的正/负时间双头做 DMD 蒸馏到 2–4 步。
-结果：Qwen-Image-Bench EN/CN 综合 53.53 / 53.38，开源第一（超次优 Z-Image Turbo 1.87 / 0.67）；GEdit-Bench 编辑 7.336 / 7.294。权重、推理代码、配方全开。
-</p>
-  <div class="post-card__tags">
-      <a class="tag-chip" href="concepts/text-to-image.html">text-to-image</a>
-      <a class="tag-chip" href="concepts/image-editing.html">image-editing</a>
-      <a class="tag-chip" href="concepts/unified-multimodal.html">unified-multimodal</a>
-      <span class="tag-chip tag-chip--more">+9 more</span>
-  </div>
-</div>
-<div class="post-card post-card--paper">
-  <div class="post-card__head">
-    <span class="post-card__badge post-card__badge--paper">📄 论文</span>
-    <span class="post-card__date"><span class="post-card__added">📅 2026-10-10</span></span>
+  <p class="post-card__tldr">Inclusion AI（蚂蚁 AGI）的开源技术报告。一句话：从零训一个 6B 单流 DiT，靠&quot;图像-only 预训练/中训练&quot;先学视觉先验、再引入语言对齐，把配对 caption 从最耗算力的阶段里拿掉。 三大反常识选择：① 90%+ 训练样本无 caption（用冻结的扩散语言模型 VLM 从&quot;待生成的那块图&quot;自己抠语义当自条件），② 全程 98% 真图、SFT 里真图 &gt;70%（承认真图早期收敛慢，但换来更高的真实感天花板），③ 用扩散语言模型（dLLM，LLaDA2.0-Mini）而非自回归 VLM 当理解后端。 工程上：DiT 里所有 Norm 换成无参数 RMSNorm + Muon 优化器稳住长训练；编辑走&quot;绕过 VLM 的参考图双通道&quot;（SigLIP-VQ 语义 + 干净 VAE latent 像素）；TwinFlow 用一个共享 DiT 的正/负时间双头做 DMD 蒸馏到 2–4 步。 结果：Qwen-Image-Bench EN/CN 综合 53.53 / 53.38，开源第一（超次优 Z-Image Turbo 1.87 / 0.67）；GEdit-Bench 编辑 7.336 / 7.294。权重、推理代码、配方全开。</p>
+  <div class="post-card__tags"><a class="tag-chip" href="concepts/text-to-image.html">text-to-image</a> <a class="tag-chip" href="concepts/image-editing.html">image-editing</a> <a class="tag-chip" href="concepts/unified-multimodal.html">unified-multimodal</a> <span class="tag-chip tag-chip--more">+9</span></div>
+</article>
+<article class="post-card post-card--paper">
+  <div class="post-card__meta">
+    <span class="post-card__badge">论文</span>
+    <span class="post-card__date"><span class="post-card__added">2026-10-10</span><span class="post-card__extra">约 15 分钟</span></span>
   </div>
   <h3 class="post-card__title"><a class="post-card__title-link" href="papers/jit-2025/index.html">JiT：让去噪模型真的去「噪」——预测干净图，一个朴素 ViT 就能直接在像素上做扩散</a></h3>
-  <p class="post-card__tldr">何恺明 + 李天弘（MIT）的「回到基本功」。一句话主张：**预测干净数据 x 和预测噪声 ε / 速度 v 是本质不同的两件事**。据流形假设,自然图像躺在高维像素空间里的一张低维流形上,而 ε、v 是「离流形」的、弥散在整个高维空间——所以让网络直接预测 x,一个「欠容量」的小网络也能在极高维空间里工作;反之预测 ε/v 会灾难性失败。
-由此得到 **JiT（Just image Transformers）**：一个朴素 ViT 直接吞大像素 patch(16×16×3=768 维,甚至 32×32×3=3072 维)、做 x-预测、配 v-loss。无 tokenizer、无预训练、无感知/对抗/表征对齐损失,自成一体。
-三个反直觉证据：① 玩具螺旋实验——把 2D 螺旋埋进 D 维,只有 x-预测能随 D→512 存活,ε/v-预测在 D=16 就崩、D=512 全崩;② ImageNet 256² 上 JiT-B/16 的 x-预测 FID 8.62,同架构 ε-预测 372、v-预测 96 直接爆掉;③ 给 patch embedding 加一个「降维瓶颈」(768→64 维)反而更好(FID 8.62→7.35),呼应经典流形学习。
-结果：同一套 base 尺寸、几乎恒定算力,把分辨率从 256 推到 1024(靠 patch 边长成比例放大、token 数固定 256);JiT-G 在 256²/512² 拿到 FID 1.82/1.78。代码极简开源(denoiser.py 就是论文 Algorithm 1)。
-</p>
-  <div class="post-card__tags">
-      <a class="tag-chip" href="concepts/diffusion-models.html">diffusion-models</a>
-      <a class="tag-chip" href="concepts/flow-matching.html">flow-matching</a>
-      <a class="tag-chip" href="concepts/pixel-space-generation.html">pixel-space-generation</a>
-      <span class="tag-chip tag-chip--more">+6 more</span>
-  </div>
-</div>
-<div class="post-card post-card--paper">
-  <div class="post-card__head">
-    <span class="post-card__badge post-card__badge--paper">📄 论文</span>
-    <span class="post-card__date"><span class="post-card__added">📅 2026-10-10</span></span>
+  <p class="post-card__tldr">何恺明 + 李天弘（MIT）的「回到基本功」。一句话主张：预测干净数据 x 和预测噪声 ε / 速度 v 是本质不同的两件事。据流形假设,自然图像躺在高维像素空间里的一张低维流形上,而 ε、v 是「离流形」的、弥散在整个高维空间——所以让网络直接预测 x,一个「欠容量」的小网络也能在极高维空间里工作;反之预测 ε/v 会灾难性失败。 由此得到 JiT（Just image Transformers）：一个朴素 ViT 直接吞大像素 patch(16×16×3=768 维,甚至 32×32×3=3072 维)、做 x-预测、配 v-loss。无 tokenizer、无预训练、无感知/对抗/表征对齐损失,自成一体。 三个反直觉证据：① 玩具螺旋实验——把 2D 螺旋埋进 D 维,只有 x-预测能随 D→512 存活,ε/v-预测在 D=16 就崩、D=512 全崩;② ImageNet 256² 上 JiT-B/16 的 x-预测 FID 8.62,同架构 ε-预测 372、v-预测 96 直接爆掉;③ 给 patch embedding 加一个「降维瓶颈」(768→64 维)反而更好(FID 8.62→7.35),呼应经典流形学习。 结果：同一套 base 尺寸、几乎恒定算力,把分辨率从 256 推到 1024(靠 patch 边长成比例放大、token 数固定 256);JiT-G 在 256²/512² 拿到 FID 1.82/1.78。代码极简开源(denoiser.py 就是论文 Algorithm 1)。</p>
+  <div class="post-card__tags"><a class="tag-chip" href="concepts/diffusion-models.html">diffusion-models</a> <a class="tag-chip" href="concepts/flow-matching.html">flow-matching</a> <a class="tag-chip" href="concepts/pixel-space-generation.html">pixel-space-generation</a> <span class="tag-chip tag-chip--more">+6</span></div>
+</article>
+<article class="post-card post-card--paper">
+  <div class="post-card__meta">
+    <span class="post-card__badge">论文</span>
+    <span class="post-card__date"><span class="post-card__added">2026-10-10</span><span class="post-card__extra">约 20 分钟</span></span>
   </div>
   <h3 class="post-card__title"><a class="post-card__title-link" href="papers/flowinone-2026/index.html">FlowInOne:把多模态生成统一成「图进图出」的流匹配</a></h3>
-  <p class="post-card__tldr">FlowInOne 抛弃「文本编码器条件化视觉」的主流范式,把文本、布局、编辑指令统统渲染进一张输入画布(visual prompt),让单个流匹配模型在一个共享视觉潜空间里学从「指令图」到「目标图」的确定性传输——真正的 image-in / image-out。配套开源 VisPrompt-5M(500 万视觉提示对,含物理力学/轨迹)和 VP-Bench。核心机制是 Dual-Path Spatially-Adaptive Modulation:纯生成时旁路结构分支、编辑时用交叉注意力+token 级 Sigmoid 门控注入源图结构。1.2B 模型在开源阵营 SOTA,部分维度逼近 Nano Banana。
-</p>
-  <div class="post-card__tags">
-      <a class="tag-chip" href="concepts/flow-matching.html">flow-matching</a>
-      <a class="tag-chip" href="concepts/multimodal-generation.html">multimodal-generation</a>
-      <a class="tag-chip" href="concepts/image-editing.html">image-editing</a>
-      <span class="tag-chip tag-chip--more">+7 more</span>
-  </div>
-</div>
+  <p class="post-card__tldr">FlowInOne 抛弃「文本编码器条件化视觉」的主流范式,把文本、布局、编辑指令统统渲染进一张输入画布(visual prompt),让单个流匹配模型在一个共享视觉潜空间里学从「指令图」到「目标图」的确定性传输——真正的 image-in / image-out。配套开源 VisPrompt-5M(500 万视觉提示对,含物理力学/轨迹)和 VP-Bench。核心机制是 Dual-Path Spatially-Adaptive Modulation:纯生成时旁路结构分支、编辑时用交叉注意力+token 级 Sigmoid 门控注入源图结构。1.2B 模型在开源阵营 SOTA,部分维度逼近 Nano Banana。</p>
+  <div class="post-card__tags"><a class="tag-chip" href="concepts/flow-matching.html">flow-matching</a> <a class="tag-chip" href="concepts/multimodal-generation.html">multimodal-generation</a> <a class="tag-chip" href="concepts/image-editing.html">image-editing</a> <span class="tag-chip tag-chip--more">+7</span></div>
+</article>
 </div>
 <nav class="pager" aria-label="分页">
   <span class="pager__nav pager__item--disabled" aria-disabled="true">上一页</span>
@@ -212,5 +144,6 @@ Scale-DiT（arxiv:2510.16325,PDF 正文题名 UltraImageGen）把高清 latent �
   <a class="pager__nav" href="papers-2.html">下一页</a>
 </nav>
 </main>
+<footer class="site-footer">Paper Reading · 由 markdown 静态生成 · <a href="https://github.com/megake98/megake98.github.io">GitHub</a></footer>
 </body>
 </html>

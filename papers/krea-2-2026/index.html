@@ -37,16 +37,26 @@
       }, { rootMargin: '-20% 0px -70% 0px' });
       map.forEach((_, el) => observer.observe(el));
     });
+    // reading progress bar
+    document.addEventListener('DOMContentLoaded', () => {
+      const bar = document.querySelector('.read-progress');
+      if (!bar) return;
+      const update = () => {
+        const h = document.documentElement;
+        const max = h.scrollHeight - h.clientHeight;
+        bar.style.transform = 'scaleX(' + (max > 0 ? h.scrollTop / max : 0) + ')';
+      };
+      update();
+      window.addEventListener('scroll', update, { passive: true });
+    });
   </script>
 </head>
 <body>
+<div class="read-progress" aria-hidden="true"></div>
 <!-- NAV-START -->
 <nav class="site-nav" aria-label="主导航">
   <a class="site-nav__brand" href="../../index.html" aria-label="返回主页">
-    <svg class="site-nav__home-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-      <path d="M3 12l9-9 9 9"/>
-      <path d="M5 10v10h14V10"/>
-    </svg>
+    <span class="site-nav__brand-mark" aria-hidden="true">P</span>
     <span class="site-nav__brand-text">Paper Reading</span>
   </a>
   <div class="site-nav__links">
@@ -55,9 +65,11 @@
     <a class="site-nav__link" href="../../surveys.html">调研</a>
     <a class="site-nav__link" href="../../graph.html">图谱</a>
     <button type="button" class="site-nav__search-btn" id="search-open" aria-label="搜索" aria-expanded="false" aria-controls="search-modal">
-      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
         <circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/>
       </svg>
+      <span class="site-nav__search-label">搜索</span>
+      <kbd class="site-nav__kbd">⌘K</kbd>
     </button>
     <button type="button" class="site-nav__theme-btn" id="theme-toggle" aria-label="切换深浅色主题">
       <svg class="theme-icon theme-icon--moon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
@@ -108,9 +120,9 @@
 <main data-pagefind-body>
 <h1>Krea 2 Technical Report：一个为「创意探索」设计的开源文生图基础模型</h1>
 <aside class="post-meta">
-  <div class="post-meta__row"><span class="post-meta__date">📅 加入: <strong>2026-06-25</strong></span> · <span class="post-meta__paper-date">论文日期: 2026-06-25</span></div>
+  <div class="post-meta__row"><span class="post-meta__date">加入 <strong>2026-06-25</strong></span> · <span class="post-meta__paper-date">论文日期: 2026-06-25</span></div>
   <div class="post-meta__row"><span class="post-meta__authors">Sangwu Lee, Erwann Millon, Le Zhuo, Matthew Newton, Andrei Filatov, Naga Sai Abhinay Devarinti, Dazhi Zhong, Avram Djordjevic, Gabriel Menezes, Will Beddow, Titus Ebbecke, Mihai Petrescu, Owen Fahey, Gian Saß, Felix Gil, Victor Perez (Krea)</span> · <span class="post-meta__venue">Krea Technical Report (blog), 2026-06-23</span></div>
-  <div class="post-meta__row post-meta__links"><a class="post-meta__link" href="https://www.krea.ai/blog/krea-2-technical-report">项目页</a> · <a class="post-meta__link" href="https://github.com/krea-ai">代码</a> · <a class="post-meta__link" href="https://github.com/pytorch/torchtitan">代码</a> · <a class="post-meta__link" href="https://huggingface.co/krea">权重</a></div>
+  <div class="post-meta__row post-meta__links"><a class="post-meta__link" href="https://www.krea.ai/blog/krea-2-technical-report">项目页</a> · <a class="post-meta__link" href="https://github.com/krea-ai">krea-ai</a> · <a class="post-meta__link" href="https://github.com/pytorch/torchtitan">torchtitan</a> · <a class="post-meta__link" href="https://huggingface.co/krea">权重</a></div>
   <div class="post-meta__row post-meta__concepts"><a class="concept-chip" href="../../concepts/text-to-image.html">text-to-image</a> <a class="concept-chip" href="../../concepts/diffusion-transformer.html">diffusion-transformer</a> <a class="concept-chip" href="../../concepts/mmdit.html">mmdit</a> <a class="concept-chip" href="../../concepts/flow-matching.html">flow-matching</a> <a class="concept-chip" href="../../concepts/rectified-flow.html">rectified-flow</a> <a class="concept-chip" href="../../concepts/grouped-query-attention.html">grouped-query-attention</a> <a class="concept-chip" href="../../concepts/gated-attention.html">gated-attention</a> <a class="concept-chip" href="../../concepts/rope.html">rope</a> <a class="concept-chip" href="../../concepts/rmsnorm.html">rmsnorm</a> <a class="concept-chip" href="../../concepts/repa.html">repa</a> <a class="concept-chip" href="../../concepts/classifier-free-guidance.html">classifier-free-guidance</a> <a class="concept-chip" href="../../concepts/direct-preference-optimization.html">direct-preference-optimization</a> <a class="concept-chip" href="../../concepts/grpo.html">grpo</a> <a class="concept-chip" href="../../concepts/distribution-matching-distillation.html">distribution-matching-distillation</a> <a class="concept-chip" href="../../concepts/model-merging.html">model-merging</a> <a class="concept-chip" href="../../concepts/prompt-expansion.html">prompt-expansion</a> <a class="concept-chip" href="../../concepts/style-transfer.html">style-transfer</a> <a class="concept-chip" href="../../concepts/reward-hacking.html">reward-hacking</a> <a class="concept-chip" href="../../concepts/data-curation.html">data-curation</a> <a class="concept-chip" href="../../concepts/distributed-training.html">distributed-training</a> <a class="concept-chip" href="../../concepts/midtraining.html">midtraining</a></div>
 </aside>
 
@@ -428,5 +440,6 @@ t.map(embed_func)   # 返回 handle，可附着查看实时进度
 <li>报告重度引用的外部方法：rectified flow / flow matching、REPA、GQA、Gated Attention for LLMs、Unifusion（多层特征聚合）、DPO / 扩散 DPO、TDM（轨迹分布匹配）、Muon、torchtitan。</li>
 </ul>
 </main>
+<footer class="site-footer">Paper Reading · 由 markdown 静态生成 · <a href="https://github.com/megake98/megake98.github.io">GitHub</a></footer>
 </body>
 </html>

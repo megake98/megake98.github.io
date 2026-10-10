@@ -38,6 +38,10 @@
     el.addEventListener("click", close);
   });
   document.addEventListener("keydown", function (e) {
-    if (e.key === "Escape" && !modal.hidden) close();
+    if (e.key === "Escape" && !modal.hidden) { close(); return; }
+    if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
+      e.preventDefault();
+      modal.hidden ? open() : close();
+    }
   });
 })();

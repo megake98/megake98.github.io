@@ -11,10 +11,7 @@
 <!-- NAV-START -->
 <nav class="site-nav" aria-label="主导航">
   <a class="site-nav__brand" href="../index.html" aria-label="返回主页">
-    <svg class="site-nav__home-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-      <path d="M3 12l9-9 9 9"/>
-      <path d="M5 10v10h14V10"/>
-    </svg>
+    <span class="site-nav__brand-mark" aria-hidden="true">P</span>
     <span class="site-nav__brand-text">Paper Reading</span>
   </a>
   <div class="site-nav__links">
@@ -23,9 +20,11 @@
     <a class="site-nav__link" href="../surveys.html">调研</a>
     <a class="site-nav__link active" href="../graph.html">图谱</a>
     <button type="button" class="site-nav__search-btn" id="search-open" aria-label="搜索" aria-expanded="false" aria-controls="search-modal">
-      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
         <circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/>
       </svg>
+      <span class="site-nav__search-label">搜索</span>
+      <kbd class="site-nav__kbd">⌘K</kbd>
     </button>
     <button type="button" class="site-nav__theme-btn" id="theme-toggle" aria-label="切换深浅色主题">
       <svg class="theme-icon theme-icon--moon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
@@ -54,81 +53,69 @@
   </div>
   <h2>提到此概念的论文 / 教程</h2>
   <div class="post-grid">
-<div class="post-card post-card--survey">
-  <div class="post-card__head">
-    <span class="post-card__badge post-card__badge--survey">📊 调研</span>
-    <span class="post-card__date"><span class="post-card__added">📅 2026-10-10</span></span>
+<article class="post-card post-card--survey">
+  <div class="post-card__meta">
+    <span class="post-card__badge">调研</span>
+    <span class="post-card__date"><span class="post-card__added">2026-10-10</span><span class="post-card__extra">约 30 分钟</span></span>
   </div>
   <h3 class="post-card__title"><a class="post-card__title-link" href="../surveys/llm-sparse-attention-2026/index.html">LLM 稀疏注意力架构调研：压缩、选择与 KV 共享三条主线——从 NSA/MoBA 到 DSA、HySparse2</a></h3>
-  <p class="post-card__tldr">以小米 HySparse2（arxiv 2609.26368）为锚点，调研 LLM 侧稀疏注意力架构的三条主线：**① 可训练原生稀疏**（NSA 三分支压缩+选择+滑窗、MoBA 的 MoE 式块路由、SeerAttention 的后训练自蒸馏块门控）；**② 索引器改装稀疏**（DeepSeek-V3.2 的闪电索引器 + token 级 top-k、V4 的 CSA/HCA 分层混合）；**③ 混合层级架构 + 跨层 KV 共享**（YOCO 自/交叉解码器、CLA、HySparse 的 oracle 选择 + KV 复用、HySparse2 的两级 KV 共享），另以训练无关的推理时稀疏/驱逐线（StreamingLLM、H2O、SnapKV、Quest、MInference）作对照轴。
-四条判断：**① 局部窗口不可或缺是最强共识**——NSA 的滑窗分支、MoBA 给自块 +inf、HySparse2 的 Forced SWA 消融（去掉局部分支 RULER 掉 5.3 分）、工业系 gpt-oss/Gemma/MiMo 全部内置 128-token 窗口，六家独立收敛。**② 块级 vs token 级粒度是真正的时代分界**——NSA/MoBA/HySparse 都报告块级近无损，但 HySparse2 与 DSA 在多轮 agentic 检索下证明块级明显掉分（RULER-v2 +6.57、2-needle MRCR +8.14），工作负载从单针检索变成多轮取证后结论反转。**③ 「谁来选 token」三条互斥路线**——学习型索引器（DSA/SeerAttention，要蒸馏 KL 对齐）、oracle 全注意力层（HySparse 系，免辅助损失）、无参数启发（MoBA mean-pool / Quest page min-max）——正在互相收敛。**④ 稀疏度不等于省显存**：NSA/MoBA/DSA 只砍 FLOPs 不砍 KV 存储，内存轴要靠跨层共享（YOCO/CLA/KV Bridging）、驱逐（H2O/SnapKV）或潜变量压缩（MLA）另行解决——HySparse2 的两级 KV 共享正是把两条轴拧到一起的当前最优解之一。
-</p>
-</div>
-<div class="post-card post-card--tutorial">
-  <div class="post-card__head">
-    <span class="post-card__badge post-card__badge--tutorial">📘 教程</span>
-    <span class="post-card__date"><span class="post-card__added">📅 2026-10-10</span></span>
+  <p class="post-card__tldr">以小米 HySparse2（arxiv 2609.26368）为锚点，调研 LLM 侧稀疏注意力架构的三条主线：① 可训练原生稀疏（NSA 三分支压缩+选择+滑窗、MoBA 的 MoE 式块路由、SeerAttention 的后训练自蒸馏块门控）；② 索引器改装稀疏（DeepSeek-V3.2 的闪电索引器 + token 级 top-k、V4 的 CSA/HCA 分层混合）；③ 混合层级架构 + 跨层 KV 共享（YOCO 自/交叉解码器、CLA、HySparse 的 oracle 选择 + KV 复用、HySparse2 的两级 KV 共享），另以训练无关的推理时稀疏/驱逐线（StreamingLLM、H2O、SnapKV、Quest、MInference）作对照轴。 四条判断：① 局部窗口不可或缺是最强共识——NSA 的滑窗分支、MoBA 给自块 +inf、HySparse2 的 Forced SWA 消融（去掉局部分支 RULER 掉 5.3 分）、工业系 gpt-oss/Gemma/MiMo 全部内置 128-token 窗口，六家独立收敛。② 块级 vs token 级粒度是真正的时代分界——NSA/MoBA/HySparse 都报告块级近无损，但 HySparse2 与 DSA 在多轮 agentic 检索下证明块级明显掉分（RULER-v2 +6.57、2-needle MRCR +8.14），工作负载从单针检索变成多轮取证后结论反转。③ 「谁来选 token」三条互斥路线——学习型索引器（DSA/SeerAttention，要蒸馏 KL 对齐）、oracle 全注意力层（HySparse 系，免辅助损失）、无参数启发（MoBA mean-pool / Quest page min-max）——正在互相收敛。④ 稀疏度不等于省显存：NSA/MoBA/DSA 只砍 FLOPs 不砍 KV 存储，内存轴要靠跨层共享（YOCO/CLA/KV Bridging）、驱逐（H2O/SnapKV）或潜变量压缩（MLA）另行解决——HySparse2 的两级 KV 共享正是把两条轴拧到一起的当前最优解之一。</p>
+  <div class="post-card__tags"><a class="tag-chip" href="../concepts/sparse-attention.html">sparse-attention</a> <a class="tag-chip" href="../concepts/kv-cache.html">kv-cache</a> <a class="tag-chip" href="../concepts/kv-cache-compression.html">kv-cache-compression</a> <span class="tag-chip tag-chip--more">+9</span></div>
+</article>
+<article class="post-card post-card--tutorial">
+  <div class="post-card__meta">
+    <span class="post-card__badge">教程</span>
+    <span class="post-card__date"><span class="post-card__added">2026-10-10</span><span class="post-card__extra">约 65 分钟</span></span>
   </div>
   <h3 class="post-card__title"><a class="post-card__title-link" href="../tutorials/llm-sparse-attention-2024/index.html">LLM 稀疏注意力与上下文压缩：从免训练选择到两级 KV 共享的八章架构教程</a></h3>
-  <p class="post-card__tldr">一条叙事弧线讲透 LLM 稀疏注意力的主流架构方案：先把成本拆成 FLOPs 与 KV 存储两本账（§1），再看免训练推理期稀疏能白拿多少（StreamingLLM/H2O/Quest/MInference，§2）；然后把「选哪些 token」变成可学习的——SeerAttention 用模型自己的注意力图当教师蒸馏块门控（§3），NSA 把压缩-选择-滑窗三分支做进预训练（§4），MoBA 用无参数 MoE 路由实现全/稀疏热切换（§5），DSA 用 FP8 闪电索引器把 671B 稠密旗舰改装成 token 级稀疏（§6）；存储轴上 YOCO→CLA→HySparse→HySparse2 一路把「层数」从 KV cache 的乘法因子里删掉，HySparse2 的两级 KV 共享让 prefill 只跑半个模型、全程只有 1 层全注意力（§7）；最后给出全景选型：1:5 混合比例的跨团队收敛、粒度结论的三元组绑定、prefill 可早退性这个新维度、以及三条选择器路线的合流趋势（§8）。全部 Step-4 代码逐字引自 8 个真实仓库（MoBA/SeerAttention/Quest/MInference/DeepSeek-V3.2-Exp/YOCO/fla-NSA/transformers），全部引用经联网核验。
-</p>
-</div>
-<div class="post-card post-card--survey">
-  <div class="post-card__head">
-    <span class="post-card__badge post-card__badge--survey">📊 调研</span>
-    <span class="post-card__date"><span class="post-card__added">📅 2026-10-10</span></span>
+  <p class="post-card__tldr">一条叙事弧线讲透 LLM 稀疏注意力的主流架构方案：先把成本拆成 FLOPs 与 KV 存储两本账（§1），再看免训练推理期稀疏能白拿多少（StreamingLLM/H2O/Quest/MInference，§2）；然后把「选哪些 token」变成可学习的——SeerAttention 用模型自己的注意力图当教师蒸馏块门控（§3），NSA 把压缩-选择-滑窗三分支做进预训练（§4），MoBA 用无参数 MoE 路由实现全/稀疏热切换（§5），DSA 用 FP8 闪电索引器把 671B 稠密旗舰改装成 token 级稀疏（§6）；存储轴上 YOCO→CLA→HySparse→HySparse2 一路把「层数」从 KV cache 的乘法因子里删掉，HySparse2 的两级 KV 共享让 prefill 只跑半个模型、全程只有 1 层全注意力（§7）；最后给出全景选型：1:5 混合比例的跨团队收敛、粒度结论的三元组绑定、prefill 可早退性这个新维度、以及三条选择器路线的合流趋势（§8）。全部 Step-4 代码逐字引自 8 个真实仓库（MoBA/SeerAttention/Quest/MInference/DeepSeek-V3.2-Exp/YOCO/fla-NSA/transformers），全部引用经联网核验。</p>
+  <div class="post-card__tags"><a class="tag-chip" href="../concepts/sparse-attention.html">sparse-attention</a> <a class="tag-chip" href="../concepts/kv-cache.html">kv-cache</a> <a class="tag-chip" href="../concepts/kv-cache-compression.html">kv-cache-compression</a> <span class="tag-chip tag-chip--more">+10</span></div>
+</article>
+<article class="post-card post-card--survey">
+  <div class="post-card__meta">
+    <span class="post-card__badge">调研</span>
+    <span class="post-card__date"><span class="post-card__added">2026-10-10</span><span class="post-card__extra">约 30 分钟</span></span>
   </div>
   <h3 class="post-card__title"><a class="post-card__title-link" href="../surveys/compensated-sparse-attention-2026/index.html">补偿式稀疏注意力：视频扩散的「稀疏分支 + 低秩/线性补偿」家族调研（VSA · SLA · SALAD · RoPeSLR · RoLA）</a></h3>
-  <p class="post-card__tldr">视频扩散 Transformer 的推理被长时空注意力的 $O(L^2)$ 主导。一条主线在过去一年半里成型：**块稀疏分支**（只算高能语义块）**+ 一条轻量补偿分支**（线性 / 低秩，把丢掉的全局上下文捞回来）。本调研把这条线上的 5 篇载重工作放在一起对比——VSA（2505，纯可训练块稀疏、无补偿，确立块稀疏计算范式）、SLA（2509，把注意力块三分为 critical→精确 / marginal→线性 / negligible→丢弃）、SALAD（2601，并联 ReLU 线性补偿分支 + 标量门，20.6 GPU 时超廉价微调）、RoPeSLR（2605，命名「RoPE 两难」、用可学习 3D 绝对位置注入救低秩分支）、RoLA（2609，把 RoPE 放到非线性之后作用在秩截断特征上，SparkDiffusion 的默认稀疏模块）。
-三条判断：**① 门控设计强收敛**——SALAD 的标量零初始门、RoLA 的逐 token 偏置 $-1.946$ 近零门、SLA 的可学习投影，独立三家都落到「初始几乎纯稀疏、补偿分支慢慢打开」，是强信号。**② RoPE 两难是真正的技术分歧点**——线性注意力的特征映射 $\phi$ 与旋转不可交换，导致「可复用的全局摘要」会烘焙进绝对位置；SALAD 直接加 3D RoPE 靠训练兜、RoPeSLR 弃用标准线性注意力改注入可学习 PE、RoLA 把旋转移到 $\phi$ 之外——三种解法互斥。**③ 90% 天花板的集体假象**——每篇都报「90% 稀疏近无损」，但 [[sparkdiffusion-2026]] 用 oracle 探针证明：97% 处补偿分支已经不够，问题从「表达能力」变成「监督信号」（high-sparsity trap）。补偿家族把稀疏度顶到 90–97%，但真正兑现质量还要靠终端对齐的蒸馏。
-与 LLM 侧的稀疏（[[deepseek-v4-2026]] 的 DSA/CSA「压缩+选择」）是两条独立演化线：视频扩散补偿家族赌「低秩线性摘要」，LLM 赌「压缩 KV + top-k 选择」。
-**T2I / 高分辨率图像侧（§5 新增对照）**：图像 token 数远小于视频，只有在 2K/4K/8K 才遇到同样的 $O(L^2)$ 墙；因注意力高秩、无时间冗余，主流答案不是「块稀疏+补偿」而是**线性化**（Sana、CLEAR、LinFusion，线性注意力当主力而非配角）、**局部/窗口化**（Scale-DiT）或**上游压 token**（DC-AE），块稀疏（ElasticDiT 的 SSBA、PAROAttention）反而是少数派。两域共享「线性注意力」积木，却把它放在不同位置——视频当补偿、图像当主力。
-</p>
-</div>
-<div class="post-card post-card--tutorial">
-  <div class="post-card__head">
-    <span class="post-card__badge post-card__badge--tutorial">📘 教程</span>
-    <span class="post-card__date"><span class="post-card__added">📅 2026-10-10</span></span>
+  <p class="post-card__tldr">视频扩散 Transformer 的推理被长时空注意力的 $O(L^2)$ 主导。一条主线在过去一年半里成型：块稀疏分支（只算高能语义块）+ 一条轻量补偿分支（线性 / 低秩，把丢掉的全局上下文捞回来）。本调研把这条线上的 5 篇载重工作放在一起对比——VSA（2505，纯可训练块稀疏、无补偿，确立块稀疏计算范式）、SLA（2509，把注意力块三分为 critical→精确 / marginal→线性 / negligible→丢弃）、SALAD（2601，并联 ReLU 线性补偿分支 + 标量门，20.6 GPU 时超廉价微调）、RoPeSLR（2605，命名「RoPE 两难」、用可学习 3D 绝对位置注入救低秩分支）、RoLA（2609，把 RoPE 放到非线性之后作用在秩截断特征上，SparkDiffusion 的默认稀疏模块）。 三条判断：① 门控设计强收敛——SALAD 的标量零初始门、RoLA 的逐 token 偏置 $-1.946$ 近零门、SLA 的可学习投影，独立三家都落到「初始几乎纯稀疏、补偿分支慢慢打开」，是强信号。② RoPE 两难是真正的技术分歧点——线性注意力的特征映射 $\phi$ 与旋转不可交换，导致「可复用的全局摘要」会烘焙进绝对位置；SALAD 直接加 3D RoPE 靠训练兜、RoPeSLR 弃用标准线性注意力改注入可学习 PE、RoLA 把旋转移到 $\phi$ 之外——三种解法互斥。③ 90% 天花板的集体假象——每篇都报「90% 稀疏近无损」，但 sparkdiffusion-2026 用 oracle 探针证明：97% 处补偿分支已经不够，问题从「表达能力」变成「监督信号」（high-sparsity trap）。补偿家族把稀疏度顶到 90–97%，但真正兑现质量还要靠终端对齐的蒸馏。 与 LLM 侧的稀疏（deepseek-v4-2026 的 DSA/CSA「压缩+选择」）是两条独立演化线：视频扩散补偿家族赌「低秩线性摘要」，LLM 赌「压缩 KV + top-k 选择」。 T2I / 高分辨率图像侧（§5 新增对照）：图像 token 数远小于视频，只有在 2K/4K/8K 才遇到同样的 $O(L^2)$ 墙；因注意力高秩、无时间冗余，主流答案不是「块稀疏+补偿」而是线性化（Sana、CLEAR、LinFusion，线性注意力当主力而非配角）、局部/窗口化（Scale-DiT）或上游压 token（DC-AE），块稀疏（ElasticDiT 的 SSBA、PAROAttention）反而是少数派。两域共享「线性注意力」积木，却把它放在不同位置——视频当补偿、图像当主力。</p>
+  <div class="post-card__tags"><a class="tag-chip" href="../concepts/sparse-attention.html">sparse-attention</a> <a class="tag-chip" href="../concepts/compensated-sparse-attention.html">compensated-sparse-attention</a> <a class="tag-chip" href="../concepts/block-sparse-attention.html">block-sparse-attention</a> <span class="tag-chip tag-chip--more">+9</span></div>
+</article>
+<article class="post-card post-card--tutorial">
+  <div class="post-card__meta">
+    <span class="post-card__badge">教程</span>
+    <span class="post-card__date"><span class="post-card__added">2026-10-10</span><span class="post-card__extra">~12k 中文字</span><span class="post-card__extra">35 分钟</span></span>
   </div>
   <h3 class="post-card__title"><a class="post-card__title-link" href="../tutorials/compensated-attention-2025/index.html">补偿式稀疏注意力：视频扩散如何在 90%+ 稀疏下不崩（VSA · SLA · SALAD · RoPeSLR · RoLA）</a></h3>
-  <p class="post-card__tldr">视频扩散 Transformer 的推理被长时空注意力的 $O(L^2)$ 主导。一条主线在 2025–2026 成型：**块稀疏分支**（只算高能语义块）**+ 一条 $O(L)$ 的线性/低秩补偿分支**（把稀疏丢掉的弥散全局背景捞回来），门控融合。本教程用 8 节螺旋结构（直觉 → 可跑 demo → 推导 → 真实 repo 代码 → 洞察）把这条线讲透：从「注意力为什么贵、朴素稀疏为什么崩」（§1），到补偿的核心武器「线性注意力的可复用全局摘要 $C=\phi(K)^\top V$」（§2），到补偿通式 $\tilde A=A_M+g\odot\mathrm{Proj}(C)$ 与「近零门控」的跨团队共识（§3），到「并联补偿 vs 按块路由」两范式（§4），到 3D RoPE 与线性注意力不可交换的「RoPE 两难」及 RoPeSLR / RoLA 两种互斥解法（§5），到把稠密模型改造成稀疏+补偿的**微调配方**——用什么数据、优化什么目标、动哪些参数（§6），再到 SparkDiffusion 揭示的 **high-sparsity trap**——90% 甜区、97% 崩坏是监督问题而非表达能力问题（§7），最后是把稀疏兑现成墙钟加速的系统落地（FP8 + 融合 kernel，265×，§8）。所有代码 verbatim 引自 thu-ml/SLA、AlibabaResearch/SparkDiffusion（RoLA 实现）、hao-ai-lab/FastVideo（VSA）真实仓库，行号经 sed 核对；引用经联网核实。配套调研见 [[compensated-sparse-attention-2026]]。
-</p>
-</div>
-<div class="post-card post-card--paper">
-  <div class="post-card__head">
-    <span class="post-card__badge post-card__badge--paper">📄 论文</span>
-    <span class="post-card__date"><span class="post-card__added">📅 2026-10-10</span></span>
+  <p class="post-card__tldr">视频扩散 Transformer 的推理被长时空注意力的 $O(L^2)$ 主导。一条主线在 2025–2026 成型：块稀疏分支（只算高能语义块）+ 一条 $O(L)$ 的线性/低秩补偿分支（把稀疏丢掉的弥散全局背景捞回来），门控融合。本教程用 8 节螺旋结构（直觉 → 可跑 demo → 推导 → 真实 repo 代码 → 洞察）把这条线讲透：从「注意力为什么贵、朴素稀疏为什么崩」（§1），到补偿的核心武器「线性注意力的可复用全局摘要 $C=\phi(K)^\top V$」（§2），到补偿通式 $\tilde A=A_M+g\odot\mathrm{Proj}(C)$ 与「近零门控」的跨团队共识（§3），到「并联补偿 vs 按块路由」两范式（§4），到 3D RoPE 与线性注意力不可交换的「RoPE 两难」及 RoPeSLR / RoLA 两种互斥解法（§5），到把稠密模型改造成稀疏+补偿的微调配方——用什么数据、优化什么目标、动哪些参数（§6），再到 SparkDiffusion 揭示的 high-sparsity trap——90% 甜区、97% 崩坏是监督问题而非表达能力问题（§7），最后是把稀疏兑现成墙钟加速的系统落地（FP8 + 融合 kernel，265×，§8）。所有代码 verbatim 引自 thu-ml/SLA、AlibabaResearch/SparkDiffusion（RoLA 实现）、hao-ai-lab/FastVideo（VSA）真实仓库，行号经 sed 核对；引用经联网核实。配套调研见 compensated-sparse-attention-2026。</p>
+  <div class="post-card__tags"><a class="tag-chip" href="../concepts/sparse-attention.html">sparse-attention</a> <a class="tag-chip" href="../concepts/compensated-sparse-attention.html">compensated-sparse-attention</a> <a class="tag-chip" href="../concepts/block-sparse-attention.html">block-sparse-attention</a> <span class="tag-chip tag-chip--more">+8</span></div>
+</article>
+<article class="post-card post-card--paper">
+  <div class="post-card__meta">
+    <span class="post-card__badge">论文</span>
+    <span class="post-card__date"><span class="post-card__added">2026-10-10</span><span class="post-card__extra">约 20 分钟</span></span>
   </div>
   <h3 class="post-card__title"><a class="post-card__title-link" href="../papers/rola-2026/index.html">RoLA：把 3D-RoPE 塞进线性注意力——解「RoPE 两难」的旋转低秩补偿分支</a></h3>
-  <p class="post-card__tldr">视频 DiT 里「稀疏 + 线性」的混合注意力想用一条便宜的线性分支捞回稀疏分支丢掉的全局上下文,但撞上一个结构性矛盾——**RoPE 两难(RoPE Dilemma)**:线性注意力要求一个「与 query 无关、能复用的全局摘要」$C=\sum_q \phi(k_q)v_q^\top$,而 3D-RoPE 用「位置相关的旋转」编码相对几何;**如果先旋转再过非线性 $\phi$,旋转和非线性不对易,摘要就会被绝对位置污染**,既保不住相对几何、又丢了可复用性。
-已有做法(RoPeSLR)绕开矛盾:干脆不做跨 token 聚合,改用「逐 token 坐标 MLP + 可学习的绝对位置嵌入」去模仿相对衰减——但这既丢了真正的线性全局路由,又额外引入位置参数。RoLA 的解法极简却关键:**把 RoPE 放到非线性外面(先 SiLU 低秩投影、再旋转)**,这样全局摘要照样累加一次、被所有 query 复用,位置效应只在 query 读出时出现;再**复用预训练 RoPE 频率表的前 r 个坐标**(r=64,即 r/2 个旋转对)匹配低秩瓶颈,不引入任何新位置参数。
-机制实验直接验证:outside-activation 的位置核**紧贴全注意力的带状相对衰减**,shift 残差 $1.8\times10^{-5}$(inside 是 $3.7\times10^{-1}$,泄漏绝对位置);rank 到 64 时保真度饱和。生成上 Wan2.1-14B-720P 在 90% 稀疏度下 VBench 逼近稠密、端到端 2.63×。RoLA 正是 [[sparkdiffusion-2026]] 默认采用的稀疏模块。
-</p>
-</div>
-<div class="post-card post-card--paper">
-  <div class="post-card__head">
-    <span class="post-card__badge post-card__badge--paper">📄 论文</span>
-    <span class="post-card__date"><span class="post-card__added">📅 2026-10-10</span></span>
+  <p class="post-card__tldr">视频 DiT 里「稀疏 + 线性」的混合注意力想用一条便宜的线性分支捞回稀疏分支丢掉的全局上下文,但撞上一个结构性矛盾——RoPE 两难(RoPE Dilemma):线性注意力要求一个「与 query 无关、能复用的全局摘要」$C=\sum_q \phi(k_q)v_q^\top$,而 3D-RoPE 用「位置相关的旋转」编码相对几何;如果先旋转再过非线性 $\phi$,旋转和非线性不对易,摘要就会被绝对位置污染,既保不住相对几何、又丢了可复用性。 已有做法(RoPeSLR)绕开矛盾:干脆不做跨 token 聚合,改用「逐 token 坐标 MLP + 可学习的绝对位置嵌入」去模仿相对衰减——但这既丢了真正的线性全局路由,又额外引入位置参数。RoLA 的解法极简却关键:把 RoPE 放到非线性外面(先 SiLU 低秩投影、再旋转),这样全局摘要照样累加一次、被所有 query 复用,位置效应只在 query 读出时出现;再复用预训练 RoPE 频率表的前 r 个坐标(r=64,即 r/2 个旋转对)匹配低秩瓶颈,不引入任何新位置参数。 机制实验直接验证:outside-activation 的位置核紧贴全注意力的带状相对衰减,shift 残差 $1.8\times10^{-5}$(inside 是 $3.7\times10^{-1}$,泄漏绝对位置);rank 到 64 时保真度饱和。生成上 Wan2.1-14B-720P 在 90% 稀疏度下 VBench 逼近稠密、端到端 2.63×。RoLA 正是 sparkdiffusion-2026 默认采用的稀疏模块。</p>
+  <div class="post-card__tags"><a class="tag-chip" href="../concepts/video-diffusion.html">video-diffusion</a> <a class="tag-chip" href="../concepts/sparse-attention.html">sparse-attention</a> <a class="tag-chip" href="../concepts/linear-attention.html">linear-attention</a> <span class="tag-chip tag-chip--more">+7</span></div>
+</article>
+<article class="post-card post-card--paper">
+  <div class="post-card__meta">
+    <span class="post-card__badge">论文</span>
+    <span class="post-card__date"><span class="post-card__added">2026-10-10</span><span class="post-card__extra">约 25 分钟</span></span>
   </div>
   <h3 class="post-card__title"><a class="post-card__title-link" href="../papers/sparkdiffusion-2026/index.html">SparkDiffusion：识别「高稀疏陷阱」，把视频扩散在单卡上加速 265×</a></h3>
-  <p class="post-card__tldr">视频扩散 Transformer 的算力全被长时空序列上的注意力吃掉了。补偿式稀疏注意力（稀疏分支 + 低秩分支）能把注意力稀疏度推到 90%，但再往上推到 95%/97% 就会掉进一个坑：**step-local 训练损失（flow matching）还在稳稳下降，而最终生成出来的视频却结构崩坏、语义漂移、马赛克化**——作者把它命名为 **high-sparsity trap（高稀疏陷阱）**。
-诊断结论很干脆：这是**监督信号**的问题，不是表达能力的问题。用「oracle 探针」把稀疏学生在一小段采样步上的速度替换成稠密教师的速度，发现**只修高噪声（结构生成）那几步就能消掉绝大部分终端误差，修低噪声那几步几乎没用**。附录 C 用一个 Hilbert 空间的线性代数把它讲透：终端误差 $\Psi=\langle e, s\rangle$ 是逐步误差的**带符号、按敏感度加权**的和，而 step-local 损失 $L=\tfrac12\lVert e\rVert^2$ 只看**幅度**——两者看同一个残差的方式根本不同。
-于是 SparkDiffusion 给出一个分阶段配方：**① 短暂稀疏预热**（把稠密骨干适配成一个粗糙的先验）→ **② trajectory-mixed 蒸馏**（高噪声段用 PCM 一致性锚结构、低噪声段用 DMD 分布匹配补细节，3 步学生）→ **③ FP8 W8A8 量化 + 融合 kernel**（把省下的 FLOPs 兑现成真实墙钟加速）。结果：Wan2.1-T2V-14B-720P 在单张 RTX 5090 上端到端 **265×**（H100 220×），97% 稀疏度下 VBench 仍逼近稠密；1.3B-480P 一条视频 1.3 秒去噪完。
-</p>
-</div>
-<div class="post-card post-card--paper">
-  <div class="post-card__head">
-    <span class="post-card__badge post-card__badge--paper">📄 论文</span>
-    <span class="post-card__date"><span class="post-card__added">📅 2026-10-10</span></span>
+  <p class="post-card__tldr">视频扩散 Transformer 的算力全被长时空序列上的注意力吃掉了。补偿式稀疏注意力（稀疏分支 + 低秩分支）能把注意力稀疏度推到 90%，但再往上推到 95%/97% 就会掉进一个坑：step-local 训练损失（flow matching）还在稳稳下降，而最终生成出来的视频却结构崩坏、语义漂移、马赛克化——作者把它命名为 high-sparsity trap（高稀疏陷阱）。 诊断结论很干脆：这是监督信号的问题，不是表达能力的问题。用「oracle 探针」把稀疏学生在一小段采样步上的速度替换成稠密教师的速度，发现只修高噪声（结构生成）那几步就能消掉绝大部分终端误差，修低噪声那几步几乎没用。附录 C 用一个 Hilbert 空间的线性代数把它讲透：终端误差 $\Psi=\langle e, s\rangle$ 是逐步误差的带符号、按敏感度加权的和，而 step-local 损失 $L=\tfrac12\lVert e\rVert^2$ 只看幅度——两者看同一个残差的方式根本不同。 于是 SparkDiffusion 给出一个分阶段配方：① 短暂稀疏预热（把稠密骨干适配成一个粗糙的先验）→ ② trajectory-mixed 蒸馏（高噪声段用 PCM 一致性锚结构、低噪声段用 DMD 分布匹配补细节，3 步学生）→ ③ FP8 W8A8 量化 + 融合 kernel（把省下的 FLOPs 兑现成真实墙钟加速）。结果：Wan2.1-T2V-14B-720P 在单张 RTX 5090 上端到端 265×（H100 220×），97% 稀疏度下 VBench 仍逼近稠密；1.3B-480P 一条视频 1.3 秒去噪完。</p>
+  <div class="post-card__tags"><a class="tag-chip" href="../concepts/video-diffusion.html">video-diffusion</a> <a class="tag-chip" href="../concepts/sparse-attention.html">sparse-attention</a> <a class="tag-chip" href="../concepts/block-sparse-attention.html">block-sparse-attention</a> <span class="tag-chip tag-chip--more">+11</span></div>
+</article>
+<article class="post-card post-card--paper">
+  <div class="post-card__meta">
+    <span class="post-card__badge">论文</span>
+    <span class="post-card__date"><span class="post-card__added">2026-10-10</span><span class="post-card__extra">约 20 分钟</span></span>
   </div>
   <h3 class="post-card__title"><a class="post-card__title-link" href="../papers/scale-dit-2025/index.html">Scale-DiT：用窗口稀疏注意力把预训练扩散模型拉到 4K/8K</a></h3>
-  <p class="post-card__tldr">高分辨率生成的瓶颈是 self-attention 的 O(N²)——4K 有 65536 个 token,全注意力算不动。
-Scale-DiT（arxiv:2510.16325,PDF 正文题名 UltraImageGen）把高清 latent 切成固定 256×256 的局部窗口,
-每个 token 只在窗口内 + 少量文本 + 对应低清引导块上做注意力,并用「窗口优先重排」把稀疏 mask
-变成内存连续的稠密块,复杂度降到近线性(4K 省 256×,8K 省 130×)。全局一致性靠一路带缩放位置锚点
-的低分辨率引导图 + 只挂在引导路径上的 LoRA 兜底,4K 几乎不需高分辨率训练数据。
-</p>
-</div>
+  <p class="post-card__tldr">高分辨率生成的瓶颈是 self-attention 的 O(N²)——4K 有 65536 个 token,全注意力算不动。 Scale-DiT（arxiv:2510.16325,PDF 正文题名 UltraImageGen）把高清 latent 切成固定 256×256 的局部窗口, 每个 token 只在窗口内 + 少量文本 + 对应低清引导块上做注意力,并用「窗口优先重排」把稀疏 mask 变成内存连续的稠密块,复杂度降到近线性(4K 省 256×,8K 省 130×)。全局一致性靠一路带缩放位置锚点 的低分辨率引导图 + 只挂在引导路径上的 LoRA 兜底,4K 几乎不需高分辨率训练数据。</p>
+  <div class="post-card__tags"><a class="tag-chip" href="../concepts/sparse-attention.html">sparse-attention</a> <a class="tag-chip" href="../concepts/block-sparse-attention.html">block-sparse-attention</a> <a class="tag-chip" href="../concepts/window-attention.html">window-attention</a> <span class="tag-chip tag-chip--more">+8</span></div>
+</article>
 </div>
 
   <p class="back-link"><a href="../graph.html">← 返回图谱</a></p>

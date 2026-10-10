@@ -37,16 +37,26 @@
       }, { rootMargin: '-20% 0px -70% 0px' });
       map.forEach((_, el) => observer.observe(el));
     });
+    // reading progress bar
+    document.addEventListener('DOMContentLoaded', () => {
+      const bar = document.querySelector('.read-progress');
+      if (!bar) return;
+      const update = () => {
+        const h = document.documentElement;
+        const max = h.scrollHeight - h.clientHeight;
+        bar.style.transform = 'scaleX(' + (max > 0 ? h.scrollTop / max : 0) + ')';
+      };
+      update();
+      window.addEventListener('scroll', update, { passive: true });
+    });
   </script>
 </head>
 <body>
+<div class="read-progress" aria-hidden="true"></div>
 <!-- NAV-START -->
 <nav class="site-nav" aria-label="主导航">
   <a class="site-nav__brand" href="../../index.html" aria-label="返回主页">
-    <svg class="site-nav__home-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-      <path d="M3 12l9-9 9 9"/>
-      <path d="M5 10v10h14V10"/>
-    </svg>
+    <span class="site-nav__brand-mark" aria-hidden="true">P</span>
     <span class="site-nav__brand-text">Paper Reading</span>
   </a>
   <div class="site-nav__links">
@@ -55,9 +65,11 @@
     <a class="site-nav__link" href="../../surveys.html">调研</a>
     <a class="site-nav__link" href="../../graph.html">图谱</a>
     <button type="button" class="site-nav__search-btn" id="search-open" aria-label="搜索" aria-expanded="false" aria-controls="search-modal">
-      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
         <circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/>
       </svg>
+      <span class="site-nav__search-label">搜索</span>
+      <kbd class="site-nav__kbd">⌘K</kbd>
     </button>
     <button type="button" class="site-nav__theme-btn" id="theme-toggle" aria-label="切换深浅色主题">
       <svg class="theme-icon theme-icon--moon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
@@ -110,9 +122,9 @@
 <main data-pagefind-body>
 <h1>MFD: 不比「瞬时速度」比「平均速度」——把时间积分当低通滤波器, 给 flow matching 蒸馏降方差</h1>
 <aside class="post-meta">
-  <div class="post-meta__row"><span class="post-meta__date">📅 加入: <strong>2026-07-06</strong></span> · <span class="post-meta__paper-date">论文日期: 2026-07-06</span></div>
+  <div class="post-meta__row"><span class="post-meta__date">加入 <strong>2026-07-06</strong></span> · <span class="post-meta__paper-date">论文日期: 2026-07-06</span></div>
   <div class="post-meta__row"><span class="post-meta__authors">An Zhao, Shengyuan Zhang, Zhongjian Sun, Yixiang Zhou, Zejian Li, Ling Yang, Tianrun Chen, Lingyun Sun</span> · <span class="post-meta__venue">ICML 2026</span></div>
-  <div class="post-meta__row post-meta__links"><a class="post-meta__link" href="https://arxiv.org/abs/2606.11155">arXiv:2606.11155</a> · <a class="post-meta__link" href="https://github.com/happyw1nd/MFD">代码</a></div>
+  <div class="post-meta__row post-meta__links"><a class="post-meta__link" href="https://arxiv.org/abs/2606.11155">arXiv:2606.11155</a> · <a class="post-meta__link" href="https://github.com/happyw1nd/MFD">MFD</a></div>
   <div class="post-meta__row post-meta__concepts"><a class="concept-chip" href="../../concepts/flow-matching.html">flow-matching</a> <a class="concept-chip" href="../../concepts/distillation.html">distillation</a> <a class="concept-chip" href="../../concepts/one-step-generation.html">one-step-generation</a> <a class="concept-chip" href="../../concepts/variational-score-distillation.html">variational-score-distillation</a> <a class="concept-chip" href="../../concepts/mean-flow.html">mean-flow</a> <a class="concept-chip" href="../../concepts/variance-reduction.html">variance-reduction</a> <a class="concept-chip" href="../../concepts/rectified-flow.html">rectified-flow</a> <a class="concept-chip" href="../../concepts/text-to-image.html">text-to-image</a> <a class="concept-chip" href="../../concepts/occupancy-forecasting.html">occupancy-forecasting</a></div>
 </aside>
 
@@ -632,5 +644,6 @@ optimizer_aux.step()
 </ol>
 <p><strong>一处真正的分歧</strong>(值得盯):<strong>单时刻速度匹配, 到底稳不稳?</strong> MFD 的整个卖点是「单个时刻的瞬时速度匹配(= VSD)方差大、必须靠区间积分来救」;但 <a class="wiki-link" data-slug="flow-opd-2026" href="../flow-opd-2026/index.html">flow-opd-2026</a> 恰恰证明 reverse-KL 对 flow <strong>精确退化成单时刻的速度 L2</strong>, 并把它当作稳定、够用的目标。同一件事(单时刻速度匹配), 一篇说是病根、一篇说是解药。可能的调和:Flow-OPD 的稳定性来自<strong>on-policy 采样 + 多教师 dense 监督 + SDE 共方差结构</strong>提供的隐式平均, 而 MFD 在<strong>没有这些外部稳定器</strong>时, 用时间积分显式地把平均补回来。换句话说, 两者都需要「某种形式的平均」来压方差, 只是一个来自采样/监督设计、一个来自时间积分。这条线索, 是判断「MFD 的区间积分是不是必要」的关键 —— 如果配上 on-policy dense 监督, MFD 的积分红利会不会被吃掉?论文没答, 但这是最该做的下一个消融。</p>
 </main>
+<footer class="site-footer">Paper Reading · 由 markdown 静态生成 · <a href="https://github.com/megake98/megake98.github.io">GitHub</a></footer>
 </body>
 </html>

@@ -11,10 +11,7 @@
 <!-- NAV-START -->
 <nav class="site-nav" aria-label="主导航">
   <a class="site-nav__brand" href="../index.html" aria-label="返回主页">
-    <svg class="site-nav__home-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-      <path d="M3 12l9-9 9 9"/>
-      <path d="M5 10v10h14V10"/>
-    </svg>
+    <span class="site-nav__brand-mark" aria-hidden="true">P</span>
     <span class="site-nav__brand-text">Paper Reading</span>
   </a>
   <div class="site-nav__links">
@@ -23,9 +20,11 @@
     <a class="site-nav__link" href="../surveys.html">调研</a>
     <a class="site-nav__link active" href="../graph.html">图谱</a>
     <button type="button" class="site-nav__search-btn" id="search-open" aria-label="搜索" aria-expanded="false" aria-controls="search-modal">
-      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
         <circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/>
       </svg>
+      <span class="site-nav__search-label">搜索</span>
+      <kbd class="site-nav__kbd">⌘K</kbd>
     </button>
     <button type="button" class="site-nav__theme-btn" id="theme-toggle" aria-label="切换深浅色主题">
       <svg class="theme-icon theme-icon--moon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
@@ -54,29 +53,24 @@
   </div>
   <h2>提到此概念的论文 / 教程</h2>
   <div class="post-grid">
-<div class="post-card post-card--paper">
-  <div class="post-card__head">
-    <span class="post-card__badge post-card__badge--paper">📄 论文</span>
-    <span class="post-card__date"><span class="post-card__added">📅 2026-10-10</span></span>
+<article class="post-card post-card--paper">
+  <div class="post-card__meta">
+    <span class="post-card__badge">论文</span>
+    <span class="post-card__date"><span class="post-card__added">2026-10-10</span><span class="post-card__extra">约 20 分钟</span></span>
   </div>
   <h3 class="post-card__title"><a class="post-card__title-link" href="../papers/llada-image-2026/index.html">LLaDA-Image：用完全开源配方从零训一个 6B 强图像生成器（技术报告精读 + 代码交叉验证）</a></h3>
-  <p class="post-card__tldr">Inclusion AI（蚂蚁 AGI）的开源技术报告。一句话：从零训一个 6B 单流 DiT，靠&quot;图像-only 预训练/中训练&quot;先学视觉先验、再引入语言对齐，把配对 caption 从最耗算力的阶段里拿掉。
-三大反常识选择：① 90%+ 训练样本无 caption（用冻结的扩散语言模型 VLM 从&quot;待生成的那块图&quot;自己抠语义当自条件），② 全程 98% 真图、SFT 里真图 &gt;70%（承认真图早期收敛慢，但换来更高的真实感天花板），③ 用**扩散语言模型（dLLM，LLaDA2.0-Mini）**而非自回归 VLM 当理解后端。
-工程上：DiT 里所有 Norm 换成**无参数 RMSNorm** + Muon 优化器稳住长训练；编辑走&quot;绕过 VLM 的参考图双通道&quot;（SigLIP-VQ 语义 + 干净 VAE latent 像素）；TwinFlow 用一个共享 DiT 的正/负时间双头做 DMD 蒸馏到 2–4 步。
-结果：Qwen-Image-Bench EN/CN 综合 53.53 / 53.38，开源第一（超次优 Z-Image Turbo 1.87 / 0.67）；GEdit-Bench 编辑 7.336 / 7.294。权重、推理代码、配方全开。
-</p>
-</div>
-<div class="post-card post-card--paper">
-  <div class="post-card__head">
-    <span class="post-card__badge post-card__badge--paper">📄 论文</span>
-    <span class="post-card__date"><span class="post-card__added">📅 2026-06-25</span></span>
+  <p class="post-card__tldr">Inclusion AI（蚂蚁 AGI）的开源技术报告。一句话：从零训一个 6B 单流 DiT，靠&quot;图像-only 预训练/中训练&quot;先学视觉先验、再引入语言对齐，把配对 caption 从最耗算力的阶段里拿掉。 三大反常识选择：① 90%+ 训练样本无 caption（用冻结的扩散语言模型 VLM 从&quot;待生成的那块图&quot;自己抠语义当自条件），② 全程 98% 真图、SFT 里真图 &gt;70%（承认真图早期收敛慢，但换来更高的真实感天花板），③ 用扩散语言模型（dLLM，LLaDA2.0-Mini）而非自回归 VLM 当理解后端。 工程上：DiT 里所有 Norm 换成无参数 RMSNorm + Muon 优化器稳住长训练；编辑走&quot;绕过 VLM 的参考图双通道&quot;（SigLIP-VQ 语义 + 干净 VAE latent 像素）；TwinFlow 用一个共享 DiT 的正/负时间双头做 DMD 蒸馏到 2–4 步。 结果：Qwen-Image-Bench EN/CN 综合 53.53 / 53.38，开源第一（超次优 Z-Image Turbo 1.87 / 0.67）；GEdit-Bench 编辑 7.336 / 7.294。权重、推理代码、配方全开。</p>
+  <div class="post-card__tags"><a class="tag-chip" href="../concepts/text-to-image.html">text-to-image</a> <a class="tag-chip" href="../concepts/image-editing.html">image-editing</a> <a class="tag-chip" href="../concepts/unified-multimodal.html">unified-multimodal</a> <span class="tag-chip tag-chip--more">+9</span></div>
+</article>
+<article class="post-card post-card--paper">
+  <div class="post-card__meta">
+    <span class="post-card__badge">论文</span>
+    <span class="post-card__date"><span class="post-card__added">2026-06-25</span><span class="post-card__extra">约 20 分钟</span></span>
   </div>
   <h3 class="post-card__title"><a class="post-card__title-link" href="../papers/krea-2-2026/index.html">Krea 2 技术报告精读：一个「为创意探索而生」的开源文生图基础模型，从数据、架构到万卡基建全栈拆解</a></h3>
-  <p class="post-card__tldr">Krea 2 是 Krea 自研的开源文生图（T2I）基础模型族，定位不是「给你一张最稳的默认图」，而是「让你在广阔的美学空间里探索」——刻意保留风格多样性、并配套 prompt 扩写器 + 风格参考系统两套可控性工具。开源权重 + 推理代码，permissive license，号称登上 Artificial Analysis T2I 榜前 10、独立实验室中第 2。
-这是一份「工程配方 + 系统基建」型技术报告（58 分钟阅读），重点不在新公式，而在**全栈决策**：数据策展原则（多样性优先、零 AI 生成图）、从 LLM 生态搬过来的极简 DiT（GQA + 门控 sigmoid 注意力 + SwiGLU + Qwen3-VL + 轻量时间步调制 + 多层特征聚合）、五阶段训练流水线（预训练→midtraining→SFT→偏好优化→RL→时间步蒸馏），以及从零自建的 Kubernetes 训练基建（Kueue 调度、Virtual Kubelet 外溢推理、Weka 文件系统、PostgreSQL「krablet」数据仓库 + FOR UPDATE SKIP LOCKED 队列）。
-本文按精读骨架交叉拆解，并补全报告用散文描述、但背后是标准公式的几处方法（rectified-flow v 参数化、DPO/STPO、多奖励 GRPO、DMD→TDM）。
-</p>
-</div>
+  <p class="post-card__tldr">Krea 2 是 Krea 自研的开源文生图（T2I）基础模型族，定位不是「给你一张最稳的默认图」，而是「让你在广阔的美学空间里探索」——刻意保留风格多样性、并配套 prompt 扩写器 + 风格参考系统两套可控性工具。开源权重 + 推理代码，permissive license，号称登上 Artificial Analysis T2I 榜前 10、独立实验室中第 2。 这是一份「工程配方 + 系统基建」型技术报告（58 分钟阅读），重点不在新公式，而在全栈决策：数据策展原则（多样性优先、零 AI 生成图）、从 LLM 生态搬过来的极简 DiT（GQA + 门控 sigmoid 注意力 + SwiGLU + Qwen3-VL + 轻量时间步调制 + 多层特征聚合）、五阶段训练流水线（预训练→midtraining→SFT→偏好优化→RL→时间步蒸馏），以及从零自建的 Kubernetes 训练基建（Kueue 调度、Virtual Kubelet 外溢推理、Weka 文件系统、PostgreSQL「krablet」数据仓库 + FOR UPDATE SKIP LOCKED 队列）。 本文按精读骨架交叉拆解，并补全报告用散文描述、但背后是标准公式的几处方法（rectified-flow v 参数化、DPO/STPO、多奖励 GRPO、DMD→TDM）。</p>
+  <div class="post-card__tags"><a class="tag-chip" href="../concepts/text-to-image.html">text-to-image</a> <a class="tag-chip" href="../concepts/diffusion-transformer.html">diffusion-transformer</a> <a class="tag-chip" href="../concepts/mmdit.html">mmdit</a> <span class="tag-chip tag-chip--more">+18</span></div>
+</article>
 </div>
 
   <p class="back-link"><a href="../graph.html">← 返回图谱</a></p>

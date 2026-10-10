@@ -11,10 +11,7 @@
 <!-- NAV-START -->
 <nav class="site-nav" aria-label="主导航">
   <a class="site-nav__brand" href="../index.html" aria-label="返回主页">
-    <svg class="site-nav__home-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-      <path d="M3 12l9-9 9 9"/>
-      <path d="M5 10v10h14V10"/>
-    </svg>
+    <span class="site-nav__brand-mark" aria-hidden="true">P</span>
     <span class="site-nav__brand-text">Paper Reading</span>
   </a>
   <div class="site-nav__links">
@@ -23,9 +20,11 @@
     <a class="site-nav__link" href="../surveys.html">调研</a>
     <a class="site-nav__link active" href="../graph.html">图谱</a>
     <button type="button" class="site-nav__search-btn" id="search-open" aria-label="搜索" aria-expanded="false" aria-controls="search-modal">
-      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
         <circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/>
       </svg>
+      <span class="site-nav__search-label">搜索</span>
+      <kbd class="site-nav__kbd">⌘K</kbd>
     </button>
     <button type="button" class="site-nav__theme-btn" id="theme-toggle" aria-label="切换深浅色主题">
       <svg class="theme-icon theme-icon--moon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
@@ -54,46 +53,33 @@
   </div>
   <h2>提到此概念的论文 / 教程</h2>
   <div class="post-grid">
-<div class="post-card post-card--survey">
-  <div class="post-card__head">
-    <span class="post-card__badge post-card__badge--survey">📊 调研</span>
-    <span class="post-card__date"><span class="post-card__added">📅 2026-10-10</span></span>
+<article class="post-card post-card--survey">
+  <div class="post-card__meta">
+    <span class="post-card__badge">调研</span>
+    <span class="post-card__date"><span class="post-card__added">2026-10-10</span><span class="post-card__extra">约 30 分钟</span></span>
   </div>
   <h3 class="post-card__title"><a class="post-card__title-link" href="../surveys/compensated-sparse-attention-2026/index.html">补偿式稀疏注意力：视频扩散的「稀疏分支 + 低秩/线性补偿」家族调研（VSA · SLA · SALAD · RoPeSLR · RoLA）</a></h3>
-  <p class="post-card__tldr">视频扩散 Transformer 的推理被长时空注意力的 $O(L^2)$ 主导。一条主线在过去一年半里成型：**块稀疏分支**（只算高能语义块）**+ 一条轻量补偿分支**（线性 / 低秩，把丢掉的全局上下文捞回来）。本调研把这条线上的 5 篇载重工作放在一起对比——VSA（2505，纯可训练块稀疏、无补偿，确立块稀疏计算范式）、SLA（2509，把注意力块三分为 critical→精确 / marginal→线性 / negligible→丢弃）、SALAD（2601，并联 ReLU 线性补偿分支 + 标量门，20.6 GPU 时超廉价微调）、RoPeSLR（2605，命名「RoPE 两难」、用可学习 3D 绝对位置注入救低秩分支）、RoLA（2609，把 RoPE 放到非线性之后作用在秩截断特征上，SparkDiffusion 的默认稀疏模块）。
-三条判断：**① 门控设计强收敛**——SALAD 的标量零初始门、RoLA 的逐 token 偏置 $-1.946$ 近零门、SLA 的可学习投影，独立三家都落到「初始几乎纯稀疏、补偿分支慢慢打开」，是强信号。**② RoPE 两难是真正的技术分歧点**——线性注意力的特征映射 $\phi$ 与旋转不可交换，导致「可复用的全局摘要」会烘焙进绝对位置；SALAD 直接加 3D RoPE 靠训练兜、RoPeSLR 弃用标准线性注意力改注入可学习 PE、RoLA 把旋转移到 $\phi$ 之外——三种解法互斥。**③ 90% 天花板的集体假象**——每篇都报「90% 稀疏近无损」，但 [[sparkdiffusion-2026]] 用 oracle 探针证明：97% 处补偿分支已经不够，问题从「表达能力」变成「监督信号」（high-sparsity trap）。补偿家族把稀疏度顶到 90–97%，但真正兑现质量还要靠终端对齐的蒸馏。
-与 LLM 侧的稀疏（[[deepseek-v4-2026]] 的 DSA/CSA「压缩+选择」）是两条独立演化线：视频扩散补偿家族赌「低秩线性摘要」，LLM 赌「压缩 KV + top-k 选择」。
-**T2I / 高分辨率图像侧（§5 新增对照）**：图像 token 数远小于视频，只有在 2K/4K/8K 才遇到同样的 $O(L^2)$ 墙；因注意力高秩、无时间冗余，主流答案不是「块稀疏+补偿」而是**线性化**（Sana、CLEAR、LinFusion，线性注意力当主力而非配角）、**局部/窗口化**（Scale-DiT）或**上游压 token**（DC-AE），块稀疏（ElasticDiT 的 SSBA、PAROAttention）反而是少数派。两域共享「线性注意力」积木，却把它放在不同位置——视频当补偿、图像当主力。
-</p>
-</div>
-<div class="post-card post-card--survey">
-  <div class="post-card__head">
-    <span class="post-card__badge post-card__badge--survey">📊 调研</span>
-    <span class="post-card__date"><span class="post-card__added">📅 2026-07-02</span></span>
+  <p class="post-card__tldr">视频扩散 Transformer 的推理被长时空注意力的 $O(L^2)$ 主导。一条主线在过去一年半里成型：块稀疏分支（只算高能语义块）+ 一条轻量补偿分支（线性 / 低秩，把丢掉的全局上下文捞回来）。本调研把这条线上的 5 篇载重工作放在一起对比——VSA（2505，纯可训练块稀疏、无补偿，确立块稀疏计算范式）、SLA（2509，把注意力块三分为 critical→精确 / marginal→线性 / negligible→丢弃）、SALAD（2601，并联 ReLU 线性补偿分支 + 标量门，20.6 GPU 时超廉价微调）、RoPeSLR（2605，命名「RoPE 两难」、用可学习 3D 绝对位置注入救低秩分支）、RoLA（2609，把 RoPE 放到非线性之后作用在秩截断特征上，SparkDiffusion 的默认稀疏模块）。 三条判断：① 门控设计强收敛——SALAD 的标量零初始门、RoLA 的逐 token 偏置 $-1.946$ 近零门、SLA 的可学习投影，独立三家都落到「初始几乎纯稀疏、补偿分支慢慢打开」，是强信号。② RoPE 两难是真正的技术分歧点——线性注意力的特征映射 $\phi$ 与旋转不可交换，导致「可复用的全局摘要」会烘焙进绝对位置；SALAD 直接加 3D RoPE 靠训练兜、RoPeSLR 弃用标准线性注意力改注入可学习 PE、RoLA 把旋转移到 $\phi$ 之外——三种解法互斥。③ 90% 天花板的集体假象——每篇都报「90% 稀疏近无损」，但 sparkdiffusion-2026 用 oracle 探针证明：97% 处补偿分支已经不够，问题从「表达能力」变成「监督信号」（high-sparsity trap）。补偿家族把稀疏度顶到 90–97%，但真正兑现质量还要靠终端对齐的蒸馏。 与 LLM 侧的稀疏（deepseek-v4-2026 的 DSA/CSA「压缩+选择」）是两条独立演化线：视频扩散补偿家族赌「低秩线性摘要」，LLM 赌「压缩 KV + top-k 选择」。 T2I / 高分辨率图像侧（§5 新增对照）：图像 token 数远小于视频，只有在 2K/4K/8K 才遇到同样的 $O(L^2)$ 墙；因注意力高秩、无时间冗余，主流答案不是「块稀疏+补偿」而是线性化（Sana、CLEAR、LinFusion，线性注意力当主力而非配角）、局部/窗口化（Scale-DiT）或上游压 token（DC-AE），块稀疏（ElasticDiT 的 SSBA、PAROAttention）反而是少数派。两域共享「线性注意力」积木，却把它放在不同位置——视频当补偿、图像当主力。</p>
+  <div class="post-card__tags"><a class="tag-chip" href="../concepts/sparse-attention.html">sparse-attention</a> <a class="tag-chip" href="../concepts/compensated-sparse-attention.html">compensated-sparse-attention</a> <a class="tag-chip" href="../concepts/block-sparse-attention.html">block-sparse-attention</a> <span class="tag-chip tag-chip--more">+9</span></div>
+</article>
+<article class="post-card post-card--survey">
+  <div class="post-card__meta">
+    <span class="post-card__badge">调研</span>
+    <span class="post-card__date"><span class="post-card__added">2026-07-02</span><span class="post-card__extra">约 20 分钟</span></span>
   </div>
   <h3 class="post-card__title"><a class="post-card__title-link" href="../surveys/native-8k-t2i-2026/index.html">业界有没有原生 8K 的文生图？—— 2026 超高分辨率 T2I 方案调研</a></h3>
-  <p class="post-card__tldr">一句话结论：截至 2026-07，业界没有任何一个「原生 8K」（训练分布 = 7680×4320 / 8192²）的文生图模型。
-原生训练的天花板停在 4K（4096²）：商用侧 Seedream 4.0 原生到 4K，学术侧 Sana / Diffusion-4K / L2P /
-AsymFlow 原生 4K，UltraPixel 靠级联做到 6K。真正的 8K 输出全部来自「免训练超分 / 外推」管线——
-HiWave（8192² 免训练）、PixelRush（单卡 8K &lt; 100s）、Scale-DiT（8K &lt; 2min）、L2P 的 8K zero-shot 外推——
-它们都建立在 ≤4K（甚至 1K 的 SDXL）底座之上，用分块反演 + 小波细节 / 窗口注意力把分辨率「拉」上去。
-本文把两条路线（原生训练 vs 免训练外推）并排，给出为什么 8K 原生至今是空白的三个硬约束，并对 Diffusion-4K
-的小波损失、Sana 的 f32 DC-AE 做了代码交叉验证。
-</p>
-</div>
-<div class="post-card post-card--paper">
-  <div class="post-card__head">
-    <span class="post-card__badge post-card__badge--paper">📄 论文</span>
-    <span class="post-card__date"><span class="post-card__added">📅 2026-10-10</span></span>
+  <p class="post-card__tldr">一句话结论：截至 2026-07，业界没有任何一个「原生 8K」（训练分布 = 7680×4320 / 8192²）的文生图模型。 原生训练的天花板停在 4K（4096²）：商用侧 Seedream 4.0 原生到 4K，学术侧 Sana / Diffusion-4K / L2P / AsymFlow 原生 4K，UltraPixel 靠级联做到 6K。真正的 8K 输出全部来自「免训练超分 / 外推」管线—— HiWave（8192² 免训练）、PixelRush（单卡 8K &lt; 100s）、Scale-DiT（8K &lt; 2min）、L2P 的 8K zero-shot 外推—— 它们都建立在 ≤4K（甚至 1K 的 SDXL）底座之上，用分块反演 + 小波细节 / 窗口注意力把分辨率「拉」上去。 本文把两条路线（原生训练 vs 免训练外推）并排，给出为什么 8K 原生至今是空白的三个硬约束，并对 Diffusion-4K 的小波损失、Sana 的 f32 DC-AE 做了代码交叉验证。</p>
+  <div class="post-card__tags"><a class="tag-chip" href="../concepts/ultra-high-resolution.html">ultra-high-resolution</a> <a class="tag-chip" href="../concepts/text-to-image.html">text-to-image</a> <a class="tag-chip" href="../concepts/training-free-upsampling.html">training-free-upsampling</a> <span class="tag-chip tag-chip--more">+6</span></div>
+</article>
+<article class="post-card post-card--paper">
+  <div class="post-card__meta">
+    <span class="post-card__badge">论文</span>
+    <span class="post-card__date"><span class="post-card__added">2026-10-10</span><span class="post-card__extra">约 20 分钟</span></span>
   </div>
   <h3 class="post-card__title"><a class="post-card__title-link" href="../papers/scale-dit-2025/index.html">Scale-DiT：用窗口稀疏注意力把预训练扩散模型拉到 4K/8K</a></h3>
-  <p class="post-card__tldr">高分辨率生成的瓶颈是 self-attention 的 O(N²)——4K 有 65536 个 token,全注意力算不动。
-Scale-DiT（arxiv:2510.16325,PDF 正文题名 UltraImageGen）把高清 latent 切成固定 256×256 的局部窗口,
-每个 token 只在窗口内 + 少量文本 + 对应低清引导块上做注意力,并用「窗口优先重排」把稀疏 mask
-变成内存连续的稠密块,复杂度降到近线性(4K 省 256×,8K 省 130×)。全局一致性靠一路带缩放位置锚点
-的低分辨率引导图 + 只挂在引导路径上的 LoRA 兜底,4K 几乎不需高分辨率训练数据。
-</p>
-</div>
+  <p class="post-card__tldr">高分辨率生成的瓶颈是 self-attention 的 O(N²)——4K 有 65536 个 token,全注意力算不动。 Scale-DiT（arxiv:2510.16325,PDF 正文题名 UltraImageGen）把高清 latent 切成固定 256×256 的局部窗口, 每个 token 只在窗口内 + 少量文本 + 对应低清引导块上做注意力,并用「窗口优先重排」把稀疏 mask 变成内存连续的稠密块,复杂度降到近线性(4K 省 256×,8K 省 130×)。全局一致性靠一路带缩放位置锚点 的低分辨率引导图 + 只挂在引导路径上的 LoRA 兜底,4K 几乎不需高分辨率训练数据。</p>
+  <div class="post-card__tags"><a class="tag-chip" href="../concepts/sparse-attention.html">sparse-attention</a> <a class="tag-chip" href="../concepts/block-sparse-attention.html">block-sparse-attention</a> <a class="tag-chip" href="../concepts/window-attention.html">window-attention</a> <span class="tag-chip tag-chip--more">+8</span></div>
+</article>
 </div>
 
   <p class="back-link"><a href="../graph.html">← 返回图谱</a></p>

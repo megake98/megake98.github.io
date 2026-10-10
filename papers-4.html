@@ -11,10 +11,7 @@
 <!-- NAV-START -->
 <nav class="site-nav" aria-label="主导航">
   <a class="site-nav__brand" href="index.html" aria-label="返回主页">
-    <svg class="site-nav__home-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-      <path d="M3 12l9-9 9 9"/>
-      <path d="M5 10v10h14V10"/>
-    </svg>
+    <span class="site-nav__brand-mark" aria-hidden="true">P</span>
     <span class="site-nav__brand-text">Paper Reading</span>
   </a>
   <div class="site-nav__links">
@@ -23,9 +20,11 @@
     <a class="site-nav__link" href="surveys.html">调研</a>
     <a class="site-nav__link" href="graph.html">图谱</a>
     <button type="button" class="site-nav__search-btn" id="search-open" aria-label="搜索" aria-expanded="false" aria-controls="search-modal">
-      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
         <circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/>
       </svg>
+      <span class="site-nav__search-label">搜索</span>
+      <kbd class="site-nav__kbd">⌘K</kbd>
     </button>
     <button type="button" class="site-nav__theme-btn" id="theme-toggle" aria-label="切换深浅色主题">
       <svg class="theme-icon theme-icon--moon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
@@ -46,153 +45,92 @@
 <script defer src="assets/theme.js"></script>
 <!-- NAV-END -->
 <main class="page page--listing">
-<h1>论文</h1>
-<p class="page__intro">共 63 篇论文精读。</p>
+<header class="page-hero">
+  <h1 class="page-hero__title">论文</h1>
+  <p class="page-hero__intro">共 63 篇论文精读。</p>
+</header>
 <div class="post-grid">
-<div class="post-card post-card--paper">
-  <div class="post-card__head">
-    <span class="post-card__badge post-card__badge--paper">📄 论文</span>
-    <span class="post-card__date"><span class="post-card__added">📅 2026-06-22</span></span>
+<article class="post-card post-card--paper">
+  <div class="post-card__meta">
+    <span class="post-card__badge">论文</span>
+    <span class="post-card__date"><span class="post-card__added">2026-06-22</span><span class="post-card__extra">约 15 分钟</span></span>
   </div>
   <h3 class="post-card__title"><a class="post-card__title-link" href="papers/argus-2026/index.html">ARGUS：把「身份」从一张参考图变成扩散同步的动态记忆</a></h3>
-  <p class="post-card__tldr">主体保持的视频生成（让生成视频里的人「还是同一个人」）长期被「点参考」范式卡住——一张参考图把&quot;这个人是谁&quot;和&quot;他这一帧恰好长这样（姿态/配饰/光照/背景）&quot;纠缠在一起，模型要么照抄噪声细节、要么身份漂移。
-ARGUS（快手/北大）提出 SMII：用 MLLM 当&quot;身份导演&quot;挑出多视角身份证据，拼成 3×3 马赛克，**和目标视频走同一条 Flow Matching 加噪路径**，再以&quot;负时间、只读记忆&quot;的方式注入 Wan 的原生 token 空间。配合无配对反事实训练 + TIA + ASLG，在 OpenS2V-Eval 拿到 64.38 总分、71.86 FaceSim 的 SOTA，大偏航/首帧遮挡鲁棒性分别再涨 12.6 / 15.1 分。
-</p>
-  <div class="post-card__tags">
-      <a class="tag-chip" href="concepts/subject-preserving-video.html">subject-preserving-video</a>
-      <a class="tag-chip" href="concepts/identity-preservation.html">identity-preservation</a>
-      <a class="tag-chip" href="concepts/video-diffusion.html">video-diffusion</a>
-      <span class="tag-chip tag-chip--more">+6 more</span>
-  </div>
-</div>
-<div class="post-card post-card--paper">
-  <div class="post-card__head">
-    <span class="post-card__badge post-card__badge--paper">📄 论文</span>
-    <span class="post-card__date"><span class="post-card__added">📅 2026-06-18</span></span>
+  <p class="post-card__tldr">主体保持的视频生成（让生成视频里的人「还是同一个人」）长期被「点参考」范式卡住——一张参考图把&quot;这个人是谁&quot;和&quot;他这一帧恰好长这样（姿态/配饰/光照/背景）&quot;纠缠在一起，模型要么照抄噪声细节、要么身份漂移。 ARGUS（快手/北大）提出 SMII：用 MLLM 当&quot;身份导演&quot;挑出多视角身份证据，拼成 3×3 马赛克，和目标视频走同一条 Flow Matching 加噪路径，再以&quot;负时间、只读记忆&quot;的方式注入 Wan 的原生 token 空间。配合无配对反事实训练 + TIA + ASLG，在 OpenS2V-Eval 拿到 64.38 总分、71.86 FaceSim 的 SOTA，大偏航/首帧遮挡鲁棒性分别再涨 12.6 / 15.1 分。</p>
+  <div class="post-card__tags"><a class="tag-chip" href="concepts/subject-preserving-video.html">subject-preserving-video</a> <a class="tag-chip" href="concepts/identity-preservation.html">identity-preservation</a> <a class="tag-chip" href="concepts/video-diffusion.html">video-diffusion</a> <span class="tag-chip tag-chip--more">+6</span></div>
+</article>
+<article class="post-card post-card--paper">
+  <div class="post-card__meta">
+    <span class="post-card__badge">论文</span>
+    <span class="post-card__date"><span class="post-card__added">2026-06-18</span><span class="post-card__extra">约 15 分钟</span></span>
   </div>
   <h3 class="post-card__title"><a class="post-card__title-link" href="papers/osprey-2023/index.html">Osprey:把「掩码」喂进 MLLM 的像素级区域理解</a></h3>
-  <p class="post-card__tldr">Osprey 把 referring 的输入从「框」升级到「掩码」:用 mask-aware visual extractor 在卷积 CLIP(ConvNeXt-L)的多尺度特征图上做 mask-average-pooling 抽语义、再把掩码本身展平投影成 spatial token,两者替换文本里的 &lt;region&gt; 占位符喂给 LLM。配 724K 掩码-文本指令数据(Osprey-724K),在开放词表分割、部件级分类、区域描述上全面超过 box 级方法和 Ferret。
-它是 [[ferret-2023|Ferret]]「自由形状区域输入」的掩码精化版,也是 [[lisa-2023|LISA]] 输出侧掩码的输入侧对偶。
-</p>
-  <div class="post-card__tags">
-      <a class="tag-chip" href="concepts/referring-grounding.html">referring-grounding</a>
-      <a class="tag-chip" href="concepts/region-input.html">region-input</a>
-      <a class="tag-chip" href="concepts/mask-pooling.html">mask-pooling</a>
-      <span class="tag-chip tag-chip--more">+4 more</span>
-  </div>
-</div>
-<div class="post-card post-card--paper">
-  <div class="post-card__head">
-    <span class="post-card__badge post-card__badge--paper">📄 论文</span>
-    <span class="post-card__date"><span class="post-card__added">📅 2026-06-18</span></span>
+  <p class="post-card__tldr">Osprey 把 referring 的输入从「框」升级到「掩码」:用 mask-aware visual extractor 在卷积 CLIP(ConvNeXt-L)的多尺度特征图上做 mask-average-pooling 抽语义、再把掩码本身展平投影成 spatial token,两者替换文本里的 占位符喂给 LLM。配 724K 掩码-文本指令数据(Osprey-724K),在开放词表分割、部件级分类、区域描述上全面超过 box 级方法和 Ferret。 它是 ferret-2023|Ferret「自由形状区域输入」的掩码精化版,也是 lisa-2023|LISA 输出侧掩码的输入侧对偶。</p>
+  <div class="post-card__tags"><a class="tag-chip" href="concepts/referring-grounding.html">referring-grounding</a> <a class="tag-chip" href="concepts/region-input.html">region-input</a> <a class="tag-chip" href="concepts/mask-pooling.html">mask-pooling</a> <span class="tag-chip tag-chip--more">+4</span></div>
+</article>
+<article class="post-card post-card--paper">
+  <div class="post-card__meta">
+    <span class="post-card__badge">论文</span>
+    <span class="post-card__date"><span class="post-card__added">2026-06-18</span><span class="post-card__extra">约 15 分钟</span></span>
   </div>
   <h3 class="post-card__title"><a class="post-card__title-link" href="papers/oftsr-2024/index.html">OFTSR：一步超分 + 可调「保真度↔真实感」的整条曲线</a></h3>
-  <p class="post-card__tldr">OFTSR 用两阶段方案做单步图像超分：先训一个「噪声增广的条件 rectified flow」当教师，再蒸馏出一个一步学生网络——蒸馏的约束是「学生从不同时间 t、s 的预测必须落在教师同一条 PF-ODE 轨迹上」。
-关键好处：一步推理时只需调一个超参 t，就能在「高 PSNR / 高保真」和「低 LPIPS / 高真实感」之间连续滑动，把感知-失真权衡的整条曲线塞进单步模型，而过去的单步蒸馏只能锁死在曲线上的一个点。
-</p>
-  <div class="post-card__tags">
-      <a class="tag-chip" href="concepts/image-super-resolution.html">image-super-resolution</a>
-      <a class="tag-chip" href="concepts/rectified-flow.html">rectified-flow</a>
-      <a class="tag-chip" href="concepts/flow-matching.html">flow-matching</a>
-      <span class="tag-chip tag-chip--more">+5 more</span>
-  </div>
-</div>
-<div class="post-card post-card--paper">
-  <div class="post-card__head">
-    <span class="post-card__badge post-card__badge--paper">📄 论文</span>
-    <span class="post-card__date"><span class="post-card__added">📅 2026-06-18</span></span>
+  <p class="post-card__tldr">OFTSR 用两阶段方案做单步图像超分：先训一个「噪声增广的条件 rectified flow」当教师，再蒸馏出一个一步学生网络——蒸馏的约束是「学生从不同时间 t、s 的预测必须落在教师同一条 PF-ODE 轨迹上」。 关键好处：一步推理时只需调一个超参 t，就能在「高 PSNR / 高保真」和「低 LPIPS / 高真实感」之间连续滑动，把感知-失真权衡的整条曲线塞进单步模型，而过去的单步蒸馏只能锁死在曲线上的一个点。</p>
+  <div class="post-card__tags"><a class="tag-chip" href="concepts/image-super-resolution.html">image-super-resolution</a> <a class="tag-chip" href="concepts/rectified-flow.html">rectified-flow</a> <a class="tag-chip" href="concepts/flow-matching.html">flow-matching</a> <span class="tag-chip tag-chip--more">+5</span></div>
+</article>
+<article class="post-card post-card--paper">
+  <div class="post-card__meta">
+    <span class="post-card__badge">论文</span>
+    <span class="post-card__date"><span class="post-card__added">2026-06-18</span><span class="post-card__extra">约 15 分钟</span></span>
   </div>
   <h3 class="post-card__title"><a class="post-card__title-link" href="papers/ggt-100k-2026/index.html">GGT-100K：用多模态大模型「生成」真实世界修复的 Ground Truth</a></h3>
-  <p class="post-card__tldr">真实世界图像修复（IR）卡在「没有成对训练数据」：合成退化不像真的，真实成对数据又贵又难采。GGT-100K 的思路是——既然没有干净参考图，那就让生成式多模态大模型（MFM）「画」一张出来当 ground truth。
-作者系统评测了 9 个 MFM × 4 种提示策略，发现 Nano-Banana-2 + Gemini 自适应提示在「保真 + 感知 + 无幻觉」上最均衡；再用它配合「指标过滤 → VLM 复检改写 → 人工验收」三级质控，构建出 103,707 对 LQ-HQ 训练对 + 500 对测试集。用它训各类 IR 模型都涨点，对生成式修复模型（FLUX/Qwen-Image-Edit）增益尤其大。
-</p>
-  <div class="post-card__tags">
-      <a class="tag-chip" href="concepts/image-restoration.html">image-restoration</a>
-      <a class="tag-chip" href="concepts/real-world-restoration.html">real-world-restoration</a>
-      <a class="tag-chip" href="concepts/dataset-construction.html">dataset-construction</a>
-      <span class="tag-chip tag-chip--more">+6 more</span>
-  </div>
-</div>
-<div class="post-card post-card--paper">
-  <div class="post-card__head">
-    <span class="post-card__badge post-card__badge--paper">📄 论文</span>
-    <span class="post-card__date"><span class="post-card__added">📅 2026-06-18</span></span>
+  <p class="post-card__tldr">真实世界图像修复（IR）卡在「没有成对训练数据」：合成退化不像真的，真实成对数据又贵又难采。GGT-100K 的思路是——既然没有干净参考图，那就让生成式多模态大模型（MFM）「画」一张出来当 ground truth。 作者系统评测了 9 个 MFM × 4 种提示策略，发现 Nano-Banana-2 + Gemini 自适应提示在「保真 + 感知 + 无幻觉」上最均衡；再用它配合「指标过滤 → VLM 复检改写 → 人工验收」三级质控，构建出 103,707 对 LQ-HQ 训练对 + 500 对测试集。用它训各类 IR 模型都涨点，对生成式修复模型（FLUX/Qwen-Image-Edit）增益尤其大。</p>
+  <div class="post-card__tags"><a class="tag-chip" href="concepts/image-restoration.html">image-restoration</a> <a class="tag-chip" href="concepts/real-world-restoration.html">real-world-restoration</a> <a class="tag-chip" href="concepts/dataset-construction.html">dataset-construction</a> <span class="tag-chip tag-chip--more">+6</span></div>
+</article>
+<article class="post-card post-card--paper">
+  <div class="post-card__meta">
+    <span class="post-card__badge">论文</span>
+    <span class="post-card__date"><span class="post-card__added">2026-06-18</span><span class="post-card__extra">约 10 分钟</span></span>
   </div>
   <h3 class="post-card__title"><a class="post-card__title-link" href="papers/boogu-image-2026/index.html">Boogu-Image-0.1：用 1/10 数据做开源「统一生成+编辑」大模型（代码精读）</a></h3>
-  <p class="post-card__tldr">Boogu-Image-0.1 是一个 Apache-2.0 开源的「统一文生图 + 图像编辑」模型族（Base / Edit / Turbo，均 10B），主打照片级真实感和中英双语文字渲染，号称用比同类开源模型少约一个数量级的训练数据做到接近闭源（GPT-Image-2 / Nano-Banana-Pro）的水平。
-架构是 Lumina-Image-2 谱系的 DiT（noise/context/ref 三套 refiner + 双流/单流 MMDiT 块），文本条件来自一个 Qwen3-VL 多模态大模型（既当指令编码器、又当 prompt 改写/推理器）；Turbo 变体用 Decoupled DMD 蒸馏到 4 步、无 CFG。
-⚠️ 正式技术报告尚未发布（仓库标注 &quot;Coming Soon&quot;），本文是基于 README + 推理代码的交叉精读，非官方报告解读。
-</p>
-  <div class="post-card__tags">
-      <a class="tag-chip" href="concepts/unified-multimodal.html">unified-multimodal</a>
-      <a class="tag-chip" href="concepts/text-to-image.html">text-to-image</a>
-      <a class="tag-chip" href="concepts/image-editing.html">image-editing</a>
-      <span class="tag-chip tag-chip--more">+7 more</span>
-  </div>
-</div>
-<div class="post-card post-card--paper">
-  <div class="post-card__head">
-    <span class="post-card__badge post-card__badge--paper">📄 论文</span>
-    <span class="post-card__date"><span class="post-card__added">📅 2026-06-14</span></span>
+  <p class="post-card__tldr">Boogu-Image-0.1 是一个 Apache-2.0 开源的「统一文生图 + 图像编辑」模型族（Base / Edit / Turbo，均 10B），主打照片级真实感和中英双语文字渲染，号称用比同类开源模型少约一个数量级的训练数据做到接近闭源（GPT-Image-2 / Nano-Banana-Pro）的水平。 架构是 Lumina-Image-2 谱系的 DiT（noise/context/ref 三套 refiner + 双流/单流 MMDiT 块），文本条件来自一个 Qwen3-VL 多模态大模型（既当指令编码器、又当 prompt 改写/推理器）；Turbo 变体用 Decoupled DMD 蒸馏到 4 步、无 CFG。 ⚠️ 正式技术报告尚未发布（仓库标注 &quot;Coming Soon&quot;），本文是基于 README + 推理代码的交叉精读，非官方报告解读。</p>
+  <div class="post-card__tags"><a class="tag-chip" href="concepts/unified-multimodal.html">unified-multimodal</a> <a class="tag-chip" href="concepts/text-to-image.html">text-to-image</a> <a class="tag-chip" href="concepts/image-editing.html">image-editing</a> <span class="tag-chip tag-chip--more">+7</span></div>
+</article>
+<article class="post-card post-card--paper">
+  <div class="post-card__meta">
+    <span class="post-card__badge">论文</span>
+    <span class="post-card__date"><span class="post-card__added">2026-06-14</span><span class="post-card__extra">约 20 分钟</span></span>
   </div>
   <h3 class="post-card__title"><a class="post-card__title-link" href="papers/molmo-2024/index.html">Molmo &amp; PixMo: 把「指」做成一等公民——2.3M 人工 pointing 数据如何点燃开源 VLM 的 grounding 能力</a></h3>
-  <p class="post-card__tldr">AllenAI + UW (arXiv 2409.17146, 2024/09)。当时最强开源 VLM 几乎都靠蒸馏 GPT-4V 合成数据,等于把闭源模型「偷」进开源。Molmo 反其道:**全程不用任何 VLM 生成训练数据**,核心是一套叫 PixMo 的自采数据集。最大创新是 **PixMo-Points**——让未受训标注员「点」图中物体 (语音描述 + 逐实例点击),收了 **2.3M question-point 对 / 223k 图**。Pointing 在 Molmo 里有三个用途:(1) 按文字指代去**点**物体;(2) **数数靠点**——把点序列当成一条 chain-of-thought,逐个点完再求和,counting 直接屠榜;(3) 把点当**视觉解释**塞进回答。模型把点输出成归一化到 0–100 的纯文本坐标 `&lt;point x=&quot;63.5&quot; y=&quot;44.5&quot; alt=&quot;Mt. Rainier&quot;&gt;Mt. Rainier&lt;/point&gt;`。架构是标准 ViT + connector + LLM,但有两个干净的工程点:**overlapping multi-crop** 解决裁剪边界丢上下文,**2×2 mean-query attention pooling** 压视觉 token。72B 版本学术 benchmark 第一、人评仅次于 GPT-4o,counting 任务全场最强。本质上,Molmo 是后来 [[locate-anything-2026]] (bbox 作 first-class **输出**) 和 [[thinking-visual-primitives-2026]] (primitives 作 first-class **思维**) 的共同祖先——这两篇 2026 的工作都直接拿 PixMo/Molmo 当 grounding 数据来源。
-</p>
-  <div class="post-card__tags">
-      <a class="tag-chip" href="concepts/vlm.html">vlm</a>
-      <a class="tag-chip" href="concepts/grounding.html">grounding</a>
-      <a class="tag-chip" href="concepts/pointing.html">pointing</a>
-      <span class="tag-chip tag-chip--more">+5 more</span>
-  </div>
-</div>
-<div class="post-card post-card--paper">
-  <div class="post-card__head">
-    <span class="post-card__badge post-card__badge--paper">📄 论文</span>
-    <span class="post-card__date"><span class="post-card__added">📅 2026-06-14</span></span>
+  <p class="post-card__tldr">AllenAI + UW (arXiv 2409.17146, 2024/09)。当时最强开源 VLM 几乎都靠蒸馏 GPT-4V 合成数据,等于把闭源模型「偷」进开源。Molmo 反其道:全程不用任何 VLM 生成训练数据,核心是一套叫 PixMo 的自采数据集。最大创新是 PixMo-Points——让未受训标注员「点」图中物体 (语音描述 + 逐实例点击),收了 2.3M question-point 对 / 223k 图。Pointing 在 Molmo 里有三个用途:(1) 按文字指代去点物体;(2) 数数靠点——把点序列当成一条 chain-of-thought,逐个点完再求和,counting 直接屠榜;(3) 把点当视觉解释塞进回答。模型把点输出成归一化到 0–100 的纯文本坐标 Mt. Rainier。架构是标准 ViT + connector + LLM,但有两个干净的工程点:overlapping multi-crop 解决裁剪边界丢上下文,2×2 mean-query attention pooling 压视觉 token。72B 版本学术 benchmark 第一、人评仅次于 GPT-4o,counting 任务全场最强。本质上,Molmo 是后来 locate-anything-2026 (bbox 作 first-class 输出) 和 thinking-visual-primitives-2026 (primitives 作 first-class 思维) 的共同祖先——这两篇 2026 的工作都直接拿 PixMo/Molmo 当 grounding 数据来源。</p>
+  <div class="post-card__tags"><a class="tag-chip" href="concepts/vlm.html">vlm</a> <a class="tag-chip" href="concepts/grounding.html">grounding</a> <a class="tag-chip" href="concepts/pointing.html">pointing</a> <span class="tag-chip tag-chip--more">+5</span></div>
+</article>
+<article class="post-card post-card--paper">
+  <div class="post-card__meta">
+    <span class="post-card__badge">论文</span>
+    <span class="post-card__date"><span class="post-card__added">2026-06-14</span><span class="post-card__extra">约 15 分钟</span></span>
   </div>
   <h3 class="post-card__title"><a class="post-card__title-link" href="papers/lisa-2023/index.html">LISA：用大语言模型做「推理分割」</a></h3>
-  <p class="post-card__tldr">LISA 给多模态大模型加一个 `&lt;SEG&gt;` token，把这个 token 的最后一层隐藏向量当作 SAM 的「文本提示」直接解码成掩码（embedding-as-mask），端到端用 LoRA 训练。
-由此首次让 LLM 能根据「需要推理的隐式指令」输出分割掩码，并开创了一整条 `&lt;SEG&gt;`-token 像素级多模态大模型的研究路线。
-</p>
-  <div class="post-card__tags">
-      <a class="tag-chip" href="concepts/reasoning-segmentation.html">reasoning-segmentation</a>
-      <a class="tag-chip" href="concepts/embedding-as-mask.html">embedding-as-mask</a>
-      <a class="tag-chip" href="concepts/multimodal-llm.html">multimodal-llm</a>
-      <span class="tag-chip tag-chip--more">+4 more</span>
-  </div>
-</div>
-<div class="post-card post-card--paper">
-  <div class="post-card__head">
-    <span class="post-card__badge post-card__badge--paper">📄 论文</span>
-    <span class="post-card__date"><span class="post-card__added">📅 2026-06-14</span></span>
+  <p class="post-card__tldr">LISA 给多模态大模型加一个 token，把这个 token 的最后一层隐藏向量当作 SAM 的「文本提示」直接解码成掩码（embedding-as-mask），端到端用 LoRA 训练。 由此首次让 LLM 能根据「需要推理的隐式指令」输出分割掩码，并开创了一整条 -token 像素级多模态大模型的研究路线。</p>
+  <div class="post-card__tags"><a class="tag-chip" href="concepts/reasoning-segmentation.html">reasoning-segmentation</a> <a class="tag-chip" href="concepts/embedding-as-mask.html">embedding-as-mask</a> <a class="tag-chip" href="concepts/multimodal-llm.html">multimodal-llm</a> <span class="tag-chip tag-chip--more">+4</span></div>
+</article>
+<article class="post-card post-card--paper">
+  <div class="post-card__meta">
+    <span class="post-card__badge">论文</span>
+    <span class="post-card__date"><span class="post-card__added">2026-06-14</span><span class="post-card__extra">约 10 分钟</span></span>
   </div>
   <h3 class="post-card__title"><a class="post-card__title-link" href="papers/ferret-v2-2024/index.html">Ferret-v2：给「指代+定位」MLLM 装上高分辨率的眼睛</a></h3>
-  <p class="post-card__tldr">Ferret-v2 是 Ferret 的重大升级,三招破解&quot;固定低分辨率编码器看不清小物体&quot;:(1) any-resolution——把大图切成子块各自编码,保住 CLIP 预训练知识;(2) 多粒度双编码器——全局图用 CLIP 抓语义、局部块用 DINOv2 抓细节;(3) 三阶段训练,中间插一个&quot;高分辨率密集对齐&quot;阶段。
-它把 [[ferret-2023|Ferret]] 的输入侧 grounding 推到高分辨率密集感知,也是 Ferret-UI 屏幕理解的技术底座。
-</p>
-  <div class="post-card__tags">
-      <a class="tag-chip" href="concepts/referring-grounding.html">referring-grounding</a>
-      <a class="tag-chip" href="concepts/any-resolution.html">any-resolution</a>
-      <a class="tag-chip" href="concepts/multi-granularity-encoding.html">multi-granularity-encoding</a>
-      <span class="tag-chip tag-chip--more">+4 more</span>
-  </div>
-</div>
-<div class="post-card post-card--paper">
-  <div class="post-card__head">
-    <span class="post-card__badge post-card__badge--paper">📄 论文</span>
-    <span class="post-card__date"><span class="post-card__added">📅 2026-06-14</span></span>
+  <p class="post-card__tldr">Ferret-v2 是 Ferret 的重大升级,三招破解&quot;固定低分辨率编码器看不清小物体&quot;:(1) any-resolution——把大图切成子块各自编码,保住 CLIP 预训练知识;(2) 多粒度双编码器——全局图用 CLIP 抓语义、局部块用 DINOv2 抓细节;(3) 三阶段训练,中间插一个&quot;高分辨率密集对齐&quot;阶段。 它把 ferret-2023|Ferret 的输入侧 grounding 推到高分辨率密集感知,也是 Ferret-UI 屏幕理解的技术底座。</p>
+  <div class="post-card__tags"><a class="tag-chip" href="concepts/referring-grounding.html">referring-grounding</a> <a class="tag-chip" href="concepts/any-resolution.html">any-resolution</a> <a class="tag-chip" href="concepts/multi-granularity-encoding.html">multi-granularity-encoding</a> <span class="tag-chip tag-chip--more">+4</span></div>
+</article>
+<article class="post-card post-card--paper">
+  <div class="post-card__meta">
+    <span class="post-card__badge">论文</span>
+    <span class="post-card__date"><span class="post-card__added">2026-06-14</span><span class="post-card__extra">约 15 分钟</span></span>
   </div>
   <h3 class="post-card__title"><a class="post-card__title-link" href="papers/ferret-2023/index.html">Ferret：任意形状、任意粒度的「指代 + 定位」多模态大模型</a></h3>
-  <p class="post-card__tldr">Ferret 用「混合区域表示」（离散坐标 + 连续特征）把用户圈的任意形状区域（点/框/涂鸦/自由形状）编码进 LLM 输入，同时在输出端把名词后接坐标实现定位——一个模型统一了 referring（区域→语义）和 grounding（语义→区域）。
-它是 LISA「文本→掩码」的**输入侧对偶**：LISA 解决&quot;想哪打哪&quot;的输出，Ferret 解决&quot;圈哪问哪&quot;的输入。
-</p>
-  <div class="post-card__tags">
-      <a class="tag-chip" href="concepts/referring-grounding.html">referring-grounding</a>
-      <a class="tag-chip" href="concepts/region-input.html">region-input</a>
-      <a class="tag-chip" href="concepts/hybrid-region-representation.html">hybrid-region-representation</a>
-      <span class="tag-chip tag-chip--more">+4 more</span>
-  </div>
-</div>
+  <p class="post-card__tldr">Ferret 用「混合区域表示」（离散坐标 + 连续特征）把用户圈的任意形状区域（点/框/涂鸦/自由形状）编码进 LLM 输入，同时在输出端把名词后接坐标实现定位——一个模型统一了 referring（区域→语义）和 grounding（语义→区域）。 它是 LISA「文本→掩码」的输入侧对偶：LISA 解决&quot;想哪打哪&quot;的输出，Ferret 解决&quot;圈哪问哪&quot;的输入。</p>
+  <div class="post-card__tags"><a class="tag-chip" href="concepts/referring-grounding.html">referring-grounding</a> <a class="tag-chip" href="concepts/region-input.html">region-input</a> <a class="tag-chip" href="concepts/hybrid-region-representation.html">hybrid-region-representation</a> <span class="tag-chip tag-chip--more">+4</span></div>
+</article>
 </div>
 <nav class="pager" aria-label="分页">
   <a class="pager__nav" href="papers-3.html">上一页</a>
@@ -206,5 +144,6 @@ ARGUS（快手/北大）提出 SMII：用 MLLM 当&quot;身份导演&quot;挑出
   <a class="pager__nav" href="papers-5.html">下一页</a>
 </nav>
 </main>
+<footer class="site-footer">Paper Reading · 由 markdown 静态生成 · <a href="https://github.com/megake98/megake98.github.io">GitHub</a></footer>
 </body>
 </html>
