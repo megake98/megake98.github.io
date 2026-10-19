@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <script>(function(){try{var t=localStorage.getItem('theme');if(!t)t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
+  <title>Hello-Agents：从零开始构建智能体</title>
+  <link rel="stylesheet" href="../../assets/style.css">
+  <script>
+    window.MathJax = { tex: { inlineMath: [['$','$'],['\\(','\\)']] } };
+  </script>
+  <script async src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-mml-chtml.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/highlight.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/highlightjs-line-numbers.js@2.9.0/dist/highlightjs-line-numbers.min.js"></script>
+  <script>document.addEventListener('DOMContentLoaded', () => { hljs.highlightAll(); hljs.initLineNumbersOnLoad(); });</script>
+  <script defer src="../../assets/lightbox.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const links = document.querySelectorAll('.toc a');
+      if (!links.length) return;
+      const map = new Map();
+      links.forEach(a => {
+        const el = document.getElementById(a.getAttribute('href').slice(1));
+        if (el) map.set(el, a);
+      });
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(e => {
+          const a = map.get(e.target);
+          if (!a) return;
+          if (e.isIntersecting) {
+            links.forEach(l => l.classList.remove('active'));
+            a.classList.add('active');
+            const toc = document.querySelector('.toc');
+            if (toc) toc.scrollTo({ top: a.offsetTop - toc.clientHeight / 2, behavior: 'smooth' });
+          }
+        });
+      }, { rootMargin: '-20% 0px -70% 0px' });
+      map.forEach((_, el) => observer.observe(el));
+    });
+    // reading progress bar
+    document.addEventListener('DOMContentLoaded', () => {
+      const bar = document.querySelector('.read-progress');
+      if (!bar) return;
+      const update = () => {
+        const h = document.documentElement;
+        const max = h.scrollHeight - h.clientHeight;
+        bar.style.transform = 'scaleX(' + (max > 0 ? h.scrollTop / max : 0) + ')';
+      };
+      update();
+      window.addEventListener('scroll', update, { passive: true });
+    });
+  </script>
+</head>
+<body class="tutorial-page">
+<div class="read-progress" aria-hidden="true"></div>
+<!-- NAV-START -->
+<nav class="site-nav" aria-label="主导航">
+  <a class="site-nav__brand" href="../../index.html" aria-label="返回主页">
+    <span class="site-nav__brand-mark" aria-hidden="true">P</span>
+    <span class="site-nav__brand-text">Paper Reading</span>
+  </a>
+  <div class="site-nav__links">
+    <a class="site-nav__link" href="../../papers.html">论文</a>
+    <a class="site-nav__link active" href="../../tutorials.html">教程</a>
+    <a class="site-nav__link" href="../../surveys.html">调研</a>
+    <a class="site-nav__link" href="../../graph.html">图谱</a>
+    <button type="button" class="site-nav__search-btn" id="search-open" aria-label="搜索" aria-expanded="false" aria-controls="search-modal">
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/>
+      </svg>
+      <span class="site-nav__search-label">搜索</span>
+      <kbd class="site-nav__kbd">⌘K</kbd>
+    </button>
+    <button type="button" class="site-nav__theme-btn" id="theme-toggle" aria-label="切换深浅色主题">
+      <svg class="theme-icon theme-icon--moon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
+      <svg class="theme-icon theme-icon--sun" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+    </button>
+  </div>
+</nav>
+<div class="search-modal" id="search-modal" hidden data-pagefind-path="../../pagefind/">
+  <div class="search-modal__backdrop" data-search-close></div>
+  <div class="search-modal__panel" role="dialog" aria-modal="true" aria-label="全文搜索">
+    <button type="button" class="search-modal__close" data-search-close aria-label="关闭">✕</button>
+    <div id="search"></div>
+  </div>
+</div>
+<link href="../../pagefind/pagefind-ui.css" rel="stylesheet">
+<script defer src="../../pagefind/pagefind-ui.js"></script>
+<script defer src="../../assets/search.js"></script>
+<script defer src="../../assets/theme.js"></script>
+<!-- NAV-END -->
+<nav class="toc" aria-label="目录">
+  <div class="toc-title">目录 / TOC</div>
+  <ul>
+    <li class="h2"><a href="#sec-1">前言</a></li>
+    <li class="h2"><a href="#sec-2">写给读者的建议</a></li>
+    <li class="h2"><a href="#sec-3">目录</a></li>
+    <li class="h3"><a href="#sec-3-1">第一部分：智能体与语言模型基础</a></li>
+    <li class="h3"><a href="#sec-3-2">第二部分：构建你的大语言模型智能体</a></li>
+    <li class="h3"><a href="#sec-3-3">第三部分：高级知识扩展</a></li>
+    <li class="h3"><a href="#sec-3-4">第四部分：综合案例进阶</a></li>
+    <li class="h3"><a href="#sec-3-5">第五部分：毕业设计及未来展望</a></li>
+  </ul>
+</nav>
+<main data-pagefind-body>
+<nav class="crumbs" aria-label="位置"><a href="../../tutorials.html">教程</a> › <a href="../../tutorials-agents.html">Agents</a></nav>
+<p class="post-kicker">教程</p>
+<h1>Hello-Agents：从零开始构建智能体</h1>
+<aside class="post-meta">
+  <div class="post-meta__row"><span class="post-meta__date">加入 <strong>2025-09-07</strong></span> · <span class="post-meta__paper-date">教程日期: 2025-09-07</span></div>
+  <div class="post-meta__row post-meta__links"><a class="post-meta__link" href="https://github.com/datawhalechina/hello-agents">hello-agents</a></div>
+  <div class="post-meta__row post-meta__concepts"><a class="concept-chip" href="../../concepts/agentic.html">agentic</a> <a class="concept-chip" href="../../concepts/multi-agent.html">multi-agent</a> <a class="concept-chip" href="../../concepts/agentic-rl.html">agentic-rl</a></div>
+</aside>
+<blockquote>
+<p>本文转载自 Datawhale 开源教程 <a href="https://github.com/datawhalechina/hello-agents">Hello-Agents</a>（commit 36f583c），遵循 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 协议，仅作学习整理。</p>
+</blockquote>
+<h2 id="sec-1">前言</h2>
+<p>自 2022 年底以来，以 ChatGPT 为代表的大语言模型（Large Language Model, LLM）如同一场技术海啸，彻底改变了我们与人工智能交互的方式。LLM 强大的自然语言理解和生成能力，让我们看到了通往通用人工智能（AGI）的曙光。然而，当最初的惊艳沉淀下来，开发者们开始探索下一个前沿：如何让 AI 不仅仅是一个“有问必答”的工具，而是成为一个能自主规划、调用工具、解决复杂问题的“行动者”？</p>
+<p>答案，就是 智能体（Agent）。</p>
+<p>如果说 2024 年是“百模大战”的元年，那么 2025 年无疑开启了“Agent 元年”。我们看到，技术的焦点正从训练更大、更强的基础模型，转向如何构建更聪明、更高效的智能体应用。单个智能体已经能胜任特定领域的任务，而由多个智能体分工、协作、甚至辩论，共同完成一个宏大目标的多智能体系统（Multi-Agent System, MAS），则被视为释放 LLM 全部潜能、解决真实世界复杂问题的关键钥匙。</p>
+<p>然而，当前的生态中存在一个明显的断层：一方面是层出不穷的 Agent 框架和应用，令人眼花缭乱；另一方面，却是系统性知识的极度匮乏。大多数教程聚焦于某个特定框架的 API 调用，学习者往往“知其然，而不知其所以然”，在面对复杂需求时，依然感到力不从心。我们缺少一本能够穿透框架表象，从第一性原理出发，系统讲解智能体设计、构建与协作的实战指南。</p>
+<p>鉴于此，我们发起了 Hello-Agents 项目，希望能为社区提供一本从零开始、理论与实战并重的智能体系统构建指南。我们不仅会带你领略智能体领域最前沿的技术，更会引导你深入其核心架构，理解其经典范式，并最终亲手构建起属于自己的多智能体应用。</p>
+<p>我们相信，最好的学习方式就是动手实践。希望这本教程能成为你探索智能体世界的起点，能够从一名大语言模型的&quot;使用者&quot;，蜕变为一名智能体系统的&quot;构建者&quot;。</p>
+<h2 id="sec-2">写给读者的建议</h2>
+<p>欢迎你，未来的智能系统构建者！在开启这段激动人心的旅程之前，请允许我们给你一些小小的建议。</p>
+<p>在阅读项目之前，我们希望你：</p>
+<ul>
+<li>
+<p>具备基础的 Python 编程能力。</p>
+</li>
+<li>
+<p>对大语言模型有基本的概念性了解（例如，知道如何获取 LLM 的 API）。</p>
+</li>
+<li>
+<p>请放心，你无需具备深厚的算法或模型训练背景，项目的重点是应用与构建。</p>
+</li>
+</ul>
+<p>本项目分为五部分，覆盖基础到实战，循序渐进，层层相扣：</p>
+<p>第一部分（基础篇）： 我们将为你铺垫人工智能与 LLM 的核心知识，让你对智能体的诞生背景有宏观的认识。</p>
+<p>第二部分（单体篇）： 这是你动手实践的开始。我们将带你从零开始，构建一个功能完备的单体智能，深入理解其内部的“心智”结构。</p>
+<p>第三部分（高级篇）： 在这里，你的智能体将“学会”思考、拥有记忆和工具，并掌握智能体之间的通信协议，最终完成评估的闭环。</p>
+<p>第四部分（实战篇）： 这是项目的核心价值所在。你将通过一系列精心设计的综合案例，将所学知识融会贯通，在实战中淬炼真金。</p>
+<p>第五部分（展望篇）： 旅程的终点是新的起点。你将亲手打造属于你的“毕业作品”，为你的学习之旅画上一个圆满的句号。</p>
+<p>纸上得来终觉浅，绝知此事要躬行。为了获得最佳的学习效果，我们在项目的<code>code</code>文件夹内提供了配套的全部代码，强烈建议你将理论与实践相结合。请务必亲手运行、调试甚至修改项目里提供的每一份代码。我们鼓励你举一反三，将所学技术应用到自己感兴趣的真实场景中，这才是学习的最终目的。</p>
+<p>最后，作为一个开源项目，我们热忱欢迎你的参与和贡献。当你遇到问题时，可以在我们的社区中提问；当你有了新的想法或发现时，也欢迎你随时加入到项目的共建中来。</p>
+<p>感谢你选择阅读 Hello-agents，祝你学习愉快，探索无限！</p>
+<h2 id="sec-3">目录</h2>
+<h3 id="sec-3-1">第一部分：智能体与语言模型基础</h3>
+<ul>
+<li><a class="wiki-link" data-slug="hello-agents-01" href="../hello-agents-01/index.html">第一章 初识智能体</a> — 智能体是什么、有哪些类型、如何感知与行动，并用 5 分钟动手实现第一个智能体。</li>
+<li><a class="wiki-link" data-slug="hello-agents-02" href="../hello-agents-02/index.html">第二章 智能体发展史</a> — 从符号逻辑、规则聊天机器人、心智社会到学习范式，回溯现代智能体设计思想的由来。</li>
+<li><a class="wiki-link" data-slug="hello-agents-03" href="../hello-agents-03/index.html">第三章 大语言模型基础</a> — 从 N-gram 到 Transformer，讲清大语言模型如何工作、如何交互，以及缩放法则与局限。</li>
+</ul>
+<h3 id="sec-3-2">第二部分：构建你的大语言模型智能体</h3>
+<ul>
+<li><a class="wiki-link" data-slug="hello-agents-04" href="../hello-agents-04/index.html">第四章 智能体经典范式构建</a> — 用原生 Python 从零实现 ReAct、Plan-and-Solve 与 Reflection 三种经典智能体范式。</li>
+<li><a class="wiki-link" data-slug="hello-agents-05" href="../hello-agents-05/index.html">第五章 基于低代码平台的智能体搭建</a> — 用 Coze、Dify、FastGPT、n8n 四个低代码平台快速搭建智能体应用。</li>
+<li><a class="wiki-link" data-slug="hello-agents-06" href="../hello-agents-06/index.html">第六章 框架开发实践</a> — 对比 AutoGen、AgentScope、CAMEL、LangGraph 四个主流框架，用框架规范地构建智能体。</li>
+<li><a class="wiki-link" data-slug="hello-agents-07" href="../hello-agents-07/index.html">第七章 构建你的Agent框架</a> — 从零搭建 HelloAgents 框架：LLM 封装、Agent 范式的框架化实现与工具系统。</li>
+</ul>
+<h3 id="sec-3-3">第三部分：高级知识扩展</h3>
+<ul>
+<li><a class="wiki-link" data-slug="hello-agents-08" href="../hello-agents-08/index.html">第八章 记忆与检索</a> — 从认知科学出发，为框架加入记忆系统与 RAG，并构建一个文档问答助手。</li>
+<li><a class="wiki-link" data-slug="hello-agents-09" href="../hello-agents-09/index.html">第九章 上下文工程</a> — 上下文工程：ContextBuilder、结构化笔记与终端工具，支撑长程任务的智能体。</li>
+<li><a class="wiki-link" data-slug="hello-agents-10" href="../hello-agents-10/index.html">第十章 智能体通信协议</a> — MCP、A2A、ANP 三种智能体通信协议的原理与实战，并构建自定义 MCP 服务器。</li>
+<li><a class="wiki-link" data-slug="hello-agents-11" href="../hello-agents-11/index.html">第十一章 Agentic-RL</a> — Agentic RL：从数据集与奖励函数出发，用 SFT 与 GRPO 训练具备推理和工具能力的智能体。</li>
+<li><a class="wiki-link" data-slug="hello-agents-12" href="../hello-agents-12/index.html">第十二章 智能体性能评估</a> — 智能体评估：用 BFCL 测工具调用、用 GAIA 测通用助手能力，并评估数据生成质量。</li>
+</ul>
+<h3 id="sec-3-4">第四部分：综合案例进阶</h3>
+<ul>
+<li><a class="wiki-link" data-slug="hello-agents-13" href="../hello-agents-13/index.html">第十三章 智能旅行助手</a> — 综合案例：多智能体协作 + MCP 工具的智能旅行助手，从数据模型到前端完整实现。</li>
+<li><a class="wiki-link" data-slug="hello-agents-14" href="../hello-agents-14/index.html">第十四章 自动化深度研究智能体</a> — 综合案例：TODO 驱动的自动化深度研究智能体，覆盖工具集成、服务层与前端。</li>
+<li><a class="wiki-link" data-slug="hello-agents-15" href="../hello-agents-15/index.html">第十五章 构建赛博小镇</a> — 综合案例：结合 Godot 游戏引擎，构建 NPC 拥有记忆与好感度的 AI 赛博小镇。</li>
+</ul>
+<h3 id="sec-3-5">第五部分：毕业设计及未来展望</h3>
+<ul>
+<li><a class="wiki-link" data-slug="hello-agents-16" href="../hello-agents-16/index.html">第十六章 毕业设计</a> — 毕业设计：选题、开发与提交 PR，构建并分享属于你自己的多智能体应用。</li>
+</ul>
+</main>
+<footer class="site-footer">Paper Reading · 由 markdown 静态生成 · <a href="https://github.com/megake98/megake98.github.io">GitHub</a></footer>
+</body>
+</html>

@@ -588,6 +588,159 @@
       "url": "tutorials/diffusion-sr-2021/index.html"
     },
     {
+      "id": "tutorials/hello-agents",
+      "type": "tutorial",
+      "slug": "hello-agents",
+      "title": "Hello-Agents：从零开始构建智能体",
+      "date": "2025-09-07",
+      "tldr": "Datawhale 开源的智能体系统教程，16 章从 LLM 基础、经典范式、自研框架、记忆与协议、Agentic RL 一路讲到综合实战。",
+      "url": "tutorials/hello-agents/index.html"
+    },
+    {
+      "id": "tutorials/hello-agents-01",
+      "type": "tutorial",
+      "slug": "hello-agents-01",
+      "title": "Hello-Agents · 第一章 初识智能体",
+      "date": "2025-09-07",
+      "tldr": "智能体是什么、有哪些类型、如何感知与行动，并用 5 分钟动手实现第一个智能体。",
+      "url": "tutorials/hello-agents-01/index.html"
+    },
+    {
+      "id": "tutorials/hello-agents-02",
+      "type": "tutorial",
+      "slug": "hello-agents-02",
+      "title": "Hello-Agents · 第二章 智能体发展史",
+      "date": "2025-09-07",
+      "tldr": "从符号逻辑、规则聊天机器人、心智社会到学习范式，回溯现代智能体设计思想的由来。",
+      "url": "tutorials/hello-agents-02/index.html"
+    },
+    {
+      "id": "tutorials/hello-agents-03",
+      "type": "tutorial",
+      "slug": "hello-agents-03",
+      "title": "Hello-Agents · 第三章 大语言模型基础",
+      "date": "2025-09-28",
+      "tldr": "从 N-gram 到 Transformer，讲清大语言模型如何工作、如何交互，以及缩放法则与局限。",
+      "url": "tutorials/hello-agents-03/index.html"
+    },
+    {
+      "id": "tutorials/hello-agents-04",
+      "type": "tutorial",
+      "slug": "hello-agents-04",
+      "title": "Hello-Agents · 第四章 智能体经典范式构建",
+      "date": "2025-09-08",
+      "tldr": "用原生 Python 从零实现 ReAct、Plan-and-Solve 与 Reflection 三种经典智能体范式。",
+      "url": "tutorials/hello-agents-04/index.html"
+    },
+    {
+      "id": "tutorials/hello-agents-05",
+      "type": "tutorial",
+      "slug": "hello-agents-05",
+      "title": "Hello-Agents · 第五章 基于低代码平台的智能体搭建",
+      "date": "2025-09-11",
+      "tldr": "用 Coze、Dify、FastGPT、n8n 四个低代码平台快速搭建智能体应用。",
+      "url": "tutorials/hello-agents-05/index.html"
+    },
+    {
+      "id": "tutorials/hello-agents-06",
+      "type": "tutorial",
+      "slug": "hello-agents-06",
+      "title": "Hello-Agents · 第六章 框架开发实践",
+      "date": "2025-09-11",
+      "tldr": "对比 AutoGen、AgentScope、CAMEL、LangGraph 四个主流框架，用框架规范地构建智能体。",
+      "url": "tutorials/hello-agents-06/index.html"
+    },
+    {
+      "id": "tutorials/hello-agents-07",
+      "type": "tutorial",
+      "slug": "hello-agents-07",
+      "title": "Hello-Agents · 第七章 构建你的智能体框架",
+      "date": "2025-09-11",
+      "tldr": "从零搭建 HelloAgents 框架：LLM 封装、Agent 范式的框架化实现与工具系统。",
+      "url": "tutorials/hello-agents-07/index.html"
+    },
+    {
+      "id": "tutorials/hello-agents-08",
+      "type": "tutorial",
+      "slug": "hello-agents-08",
+      "title": "Hello-Agents · 第八章 记忆与检索",
+      "date": "2025-09-22",
+      "tldr": "从认知科学出发，为框架加入记忆系统与 RAG，并构建一个文档问答助手。",
+      "url": "tutorials/hello-agents-08/index.html"
+    },
+    {
+      "id": "tutorials/hello-agents-09",
+      "type": "tutorial",
+      "slug": "hello-agents-09",
+      "title": "Hello-Agents · 第九章 上下文工程",
+      "date": "2025-10-19",
+      "tldr": "上下文工程：ContextBuilder、结构化笔记与终端工具，支撑长程任务的智能体。",
+      "url": "tutorials/hello-agents-09/index.html"
+    },
+    {
+      "id": "tutorials/hello-agents-10",
+      "type": "tutorial",
+      "slug": "hello-agents-10",
+      "title": "Hello-Agents · 第十章 智能体通信协议",
+      "date": "2025-09-11",
+      "tldr": "MCP、A2A、ANP 三种智能体通信协议的原理与实战，并构建自定义 MCP 服务器。",
+      "url": "tutorials/hello-agents-10/index.html"
+    },
+    {
+      "id": "tutorials/hello-agents-11",
+      "type": "tutorial",
+      "slug": "hello-agents-11",
+      "title": "Hello-Agents · 第十一章 Agentic-RL",
+      "date": "2025-10-07",
+      "tldr": "Agentic RL：从数据集与奖励函数出发，用 SFT 与 GRPO 训练具备推理和工具能力的智能体。",
+      "url": "tutorials/hello-agents-11/index.html"
+    },
+    {
+      "id": "tutorials/hello-agents-12",
+      "type": "tutorial",
+      "slug": "hello-agents-12",
+      "title": "Hello-Agents · 第十二章 智能体性能评估",
+      "date": "2025-09-11",
+      "tldr": "智能体评估：用 BFCL 测工具调用、用 GAIA 测通用助手能力，并评估数据生成质量。",
+      "url": "tutorials/hello-agents-12/index.html"
+    },
+    {
+      "id": "tutorials/hello-agents-13",
+      "type": "tutorial",
+      "slug": "hello-agents-13",
+      "title": "Hello-Agents · 第十三章 智能旅行助手",
+      "date": "2025-09-11",
+      "tldr": "综合案例：多智能体协作 + MCP 工具的智能旅行助手，从数据模型到前端完整实现。",
+      "url": "tutorials/hello-agents-13/index.html"
+    },
+    {
+      "id": "tutorials/hello-agents-14",
+      "type": "tutorial",
+      "slug": "hello-agents-14",
+      "title": "Hello-Agents · 第十四章 自动化深度研究智能体",
+      "date": "2025-09-11",
+      "tldr": "综合案例：TODO 驱动的自动化深度研究智能体，覆盖工具集成、服务层与前端。",
+      "url": "tutorials/hello-agents-14/index.html"
+    },
+    {
+      "id": "tutorials/hello-agents-15",
+      "type": "tutorial",
+      "slug": "hello-agents-15",
+      "title": "Hello-Agents · 第十五章 构建赛博小镇",
+      "date": "2025-10-14",
+      "tldr": "综合案例：结合 Godot 游戏引擎，构建 NPC 拥有记忆与好感度的 AI 赛博小镇。",
+      "url": "tutorials/hello-agents-15/index.html"
+    },
+    {
+      "id": "tutorials/hello-agents-16",
+      "type": "tutorial",
+      "slug": "hello-agents-16",
+      "title": "Hello-Agents · 第十六章 毕业设计：构建属于你的多智能体应用",
+      "date": "2025-09-11",
+      "tldr": "毕业设计：选题、开发与提交 PR，构建并分享属于你自己的多智能体应用。",
+      "url": "tutorials/hello-agents-16/index.html"
+    },
+    {
       "id": "tutorials/llm-sparse-attention-2024",
       "type": "tutorial",
       "slug": "llm-sparse-attention-2024",
@@ -3354,6 +3507,22 @@
       "name": "ODTSR"
     },
     {
+      "id": "concepts/agentic",
+      "type": "concept",
+      "slug": "agentic",
+      "name": "agentic",
+      "has_file": false,
+      "url": "concepts/agentic.html"
+    },
+    {
+      "id": "repos/datawhalechina/hello-agents",
+      "type": "repo",
+      "url": "https://github.com/datawhalechina/hello-agents",
+      "host": "github.com",
+      "owner": "datawhalechina",
+      "name": "hello-agents"
+    },
+    {
       "id": "concepts/kv-cache-compression",
       "type": "concept",
       "slug": "kv-cache-compression",
@@ -3800,14 +3969,6 @@
       "name": "anomaly-detection",
       "has_file": false,
       "url": "concepts/anomaly-detection.html"
-    },
-    {
-      "id": "concepts/agentic",
-      "type": "concept",
-      "slug": "agentic",
-      "name": "agentic",
-      "has_file": false,
-      "url": "concepts/agentic.html"
     },
     {
       "id": "repos/open-compass/VLMEvalKit",
@@ -4261,12 +4422,12 @@
     },
     {
       "from": "papers/bernini-2026",
-      "to": "papers/latent-to-pixel-2026",
+      "to": "papers/boogu-image-2026",
       "kind": "cites"
     },
     {
       "from": "papers/bernini-2026",
-      "to": "papers/boogu-image-2026",
+      "to": "papers/latent-to-pixel-2026",
       "kind": "cites"
     },
     {
@@ -4401,7 +4562,7 @@
     },
     {
       "from": "papers/colt-2026",
-      "to": "papers/thinking-visual-primitives-2026",
+      "to": "papers/rls-razor-2025",
       "kind": "cites"
     },
     {
@@ -4411,7 +4572,7 @@
     },
     {
       "from": "papers/colt-2026",
-      "to": "papers/rls-razor-2025",
+      "to": "papers/thinking-visual-primitives-2026",
       "kind": "cites"
     },
     {
@@ -4626,12 +4787,12 @@
     },
     {
       "from": "papers/dataevolver-2026",
-      "to": "papers/awm-2025",
+      "to": "papers/ggt-100k-2026",
       "kind": "cites"
     },
     {
       "from": "papers/dataevolver-2026",
-      "to": "papers/ggt-100k-2026",
+      "to": "papers/awm-2025",
       "kind": "cites"
     },
     {
@@ -4701,12 +4862,12 @@
     },
     {
       "from": "papers/diffusion-opd-2026",
-      "to": "papers/flow-opd-2026",
+      "to": "papers/dapo-2025",
       "kind": "cites"
     },
     {
       "from": "papers/diffusion-opd-2026",
-      "to": "papers/dapo-2025",
+      "to": "papers/flow-opd-2026",
       "kind": "cites"
     },
     {
@@ -4876,17 +5037,17 @@
     },
     {
       "from": "papers/ferret-2023",
+      "to": "papers/lisa-2023",
+      "kind": "cites"
+    },
+    {
+      "from": "papers/ferret-2023",
       "to": "tutorials/vlm-grounding-2025",
       "kind": "cites"
     },
     {
       "from": "papers/ferret-2023",
       "to": "papers/q-ground-2024",
-      "kind": "cites"
-    },
-    {
-      "from": "papers/ferret-2023",
-      "to": "papers/lisa-2023",
       "kind": "cites"
     },
     {
@@ -4931,7 +5092,7 @@
     },
     {
       "from": "papers/ferret-v2-2024",
-      "to": "tutorials/vlm-grounding-2025",
+      "to": "papers/lisa-2023",
       "kind": "cites"
     },
     {
@@ -4941,7 +5102,7 @@
     },
     {
       "from": "papers/ferret-v2-2024",
-      "to": "papers/lisa-2023",
+      "to": "tutorials/vlm-grounding-2025",
       "kind": "cites"
     },
     {
@@ -5026,12 +5187,12 @@
     },
     {
       "from": "papers/flowinone-2026",
-      "to": "papers/jit-2025",
+      "to": "papers/boogu-image-2026",
       "kind": "cites"
     },
     {
       "from": "papers/flowinone-2026",
-      "to": "papers/boogu-image-2026",
+      "to": "papers/jit-2025",
       "kind": "cites"
     },
     {
@@ -5091,12 +5252,12 @@
     },
     {
       "from": "papers/ggt-100k-2026",
-      "to": "papers/oftsr-2024",
+      "to": "papers/qwen-image-2-2026",
       "kind": "cites"
     },
     {
       "from": "papers/ggt-100k-2026",
-      "to": "papers/qwen-image-2-2026",
+      "to": "papers/oftsr-2024",
       "kind": "cites"
     },
     {
@@ -5176,12 +5337,12 @@
     },
     {
       "from": "papers/i1-2026",
-      "to": "papers/qwen-image-2-2026",
+      "to": "papers/boogu-image-2026",
       "kind": "cites"
     },
     {
       "from": "papers/i1-2026",
-      "to": "papers/sefi-image-2026",
+      "to": "papers/qwen-image-2-2026",
       "kind": "cites"
     },
     {
@@ -5191,12 +5352,12 @@
     },
     {
       "from": "papers/i1-2026",
-      "to": "papers/boogu-image-2026",
+      "to": "papers/flow-opd-2026",
       "kind": "cites"
     },
     {
       "from": "papers/i1-2026",
-      "to": "papers/flow-opd-2026",
+      "to": "papers/sefi-image-2026",
       "kind": "cites"
     },
     {
@@ -5251,17 +5412,7 @@
     },
     {
       "from": "papers/ideogram-4-2026",
-      "to": "papers/qwen-image-2-2026",
-      "kind": "cites"
-    },
-    {
-      "from": "papers/ideogram-4-2026",
       "to": "papers/diffusion-opd-2026",
-      "kind": "cites"
-    },
-    {
-      "from": "papers/ideogram-4-2026",
-      "to": "papers/rep-forcing-2026",
       "kind": "cites"
     },
     {
@@ -5271,7 +5422,17 @@
     },
     {
       "from": "papers/ideogram-4-2026",
+      "to": "papers/qwen-image-2-2026",
+      "kind": "cites"
+    },
+    {
+      "from": "papers/ideogram-4-2026",
       "to": "papers/flow-opd-2026",
+      "kind": "cites"
+    },
+    {
+      "from": "papers/ideogram-4-2026",
+      "to": "papers/rep-forcing-2026",
       "kind": "cites"
     },
     {
@@ -5326,7 +5487,7 @@
     },
     {
       "from": "papers/jit-2025",
-      "to": "papers/f-loss-2026",
+      "to": "papers/pixrestore-2026",
       "kind": "cites"
     },
     {
@@ -5336,7 +5497,7 @@
     },
     {
       "from": "papers/jit-2025",
-      "to": "papers/pixrestore-2026",
+      "to": "papers/f-loss-2026",
       "kind": "cites"
     },
     {
@@ -5556,12 +5717,7 @@
     },
     {
       "from": "papers/la-sr-2026",
-      "to": "papers/omgsr-2025",
-      "kind": "cites"
-    },
-    {
-      "from": "papers/la-sr-2026",
-      "to": "surveys/diffusion-sr-2026",
+      "to": "papers/op4ksr-2026",
       "kind": "cites"
     },
     {
@@ -5571,7 +5727,12 @@
     },
     {
       "from": "papers/la-sr-2026",
-      "to": "papers/op4ksr-2026",
+      "to": "papers/omgsr-2025",
+      "kind": "cites"
+    },
+    {
+      "from": "papers/la-sr-2026",
+      "to": "surveys/diffusion-sr-2026",
       "kind": "cites"
     },
     {
@@ -5701,11 +5862,6 @@
     },
     {
       "from": "papers/lingbot-video-2026",
-      "to": "papers/dapo-2025",
-      "kind": "cites"
-    },
-    {
-      "from": "papers/lingbot-video-2026",
       "to": "papers/worldforge-2026",
       "kind": "cites"
     },
@@ -5716,12 +5872,17 @@
     },
     {
       "from": "papers/lingbot-video-2026",
+      "to": "papers/self-forcing-2025",
+      "kind": "cites"
+    },
+    {
+      "from": "papers/lingbot-video-2026",
       "to": "papers/awm-2025",
       "kind": "cites"
     },
     {
       "from": "papers/lingbot-video-2026",
-      "to": "papers/self-forcing-2025",
+      "to": "papers/dapo-2025",
       "kind": "cites"
     },
     {
@@ -5766,12 +5927,12 @@
     },
     {
       "from": "papers/lisa-2023",
-      "to": "tutorials/vlm-grounding-2025",
+      "to": "papers/locate-anything-2026",
       "kind": "cites"
     },
     {
       "from": "papers/lisa-2023",
-      "to": "papers/locate-anything-2026",
+      "to": "tutorials/vlm-grounding-2025",
       "kind": "cites"
     },
     {
@@ -5851,17 +6012,17 @@
     },
     {
       "from": "papers/llada-image-2026",
+      "to": "papers/context-scaling-2026",
+      "kind": "cites"
+    },
+    {
+      "from": "papers/llada-image-2026",
       "to": "papers/boogu-image-2026",
       "kind": "cites"
     },
     {
       "from": "papers/llada-image-2026",
       "to": "papers/i1-2026",
-      "kind": "cites"
-    },
-    {
-      "from": "papers/llada-image-2026",
-      "to": "papers/context-scaling-2026",
       "kind": "cites"
     },
     {
@@ -6006,12 +6167,12 @@
     },
     {
       "from": "papers/mfd-2026",
-      "to": "papers/flow-opd-2026",
+      "to": "papers/rdm-2026",
       "kind": "cites"
     },
     {
       "from": "papers/mfd-2026",
-      "to": "papers/rdm-2026",
+      "to": "papers/flow-opd-2026",
       "kind": "cites"
     },
     {
@@ -6061,12 +6222,7 @@
     },
     {
       "from": "papers/molmo-2024",
-      "to": "papers/thinking-visual-primitives-2026",
-      "kind": "cites"
-    },
-    {
-      "from": "papers/molmo-2024",
-      "to": "papers/rep-forcing-2026",
+      "to": "papers/locate-anything-2026",
       "kind": "cites"
     },
     {
@@ -6076,7 +6232,12 @@
     },
     {
       "from": "papers/molmo-2024",
-      "to": "papers/locate-anything-2026",
+      "to": "papers/rep-forcing-2026",
+      "kind": "cites"
+    },
+    {
+      "from": "papers/molmo-2024",
+      "to": "papers/thinking-visual-primitives-2026",
       "kind": "cites"
     },
     {
@@ -6126,12 +6287,12 @@
     },
     {
       "from": "papers/mrt-2026",
-      "to": "papers/qwen-image-2-2026",
+      "to": "papers/diffusion-opd-2026",
       "kind": "cites"
     },
     {
       "from": "papers/mrt-2026",
-      "to": "papers/diffusion-opd-2026",
+      "to": "papers/qwen-image-2-2026",
       "kind": "cites"
     },
     {
@@ -6236,12 +6397,12 @@
     },
     {
       "from": "papers/omgsr-2025",
-      "to": "papers/oftsr-2024",
+      "to": "papers/op4ksr-2026",
       "kind": "cites"
     },
     {
       "from": "papers/omgsr-2025",
-      "to": "papers/op4ksr-2026",
+      "to": "papers/oftsr-2024",
       "kind": "cites"
     },
     {
@@ -6301,12 +6462,12 @@
     },
     {
       "from": "papers/op4ksr-2026",
-      "to": "papers/omgsr-2025",
+      "to": "papers/oftsr-2024",
       "kind": "cites"
     },
     {
       "from": "papers/op4ksr-2026",
-      "to": "papers/oftsr-2024",
+      "to": "papers/omgsr-2025",
       "kind": "cites"
     },
     {
@@ -6346,17 +6507,17 @@
     },
     {
       "from": "papers/osprey-2023",
+      "to": "papers/lisa-2023",
+      "kind": "cites"
+    },
+    {
+      "from": "papers/osprey-2023",
       "to": "papers/ferret-v2-2024",
       "kind": "cites"
     },
     {
       "from": "papers/osprey-2023",
       "to": "papers/ferret-2023",
-      "kind": "cites"
-    },
-    {
-      "from": "papers/osprey-2023",
-      "to": "papers/lisa-2023",
       "kind": "cites"
     },
     {
@@ -6416,12 +6577,12 @@
     },
     {
       "from": "papers/paint-anything-2026",
-      "to": "papers/latent-to-pixel-2026",
+      "to": "papers/bernini-2026",
       "kind": "cites"
     },
     {
       "from": "papers/paint-anything-2026",
-      "to": "papers/bernini-2026",
+      "to": "papers/latent-to-pixel-2026",
       "kind": "cites"
     },
     {
@@ -6471,12 +6632,12 @@
     },
     {
       "from": "papers/physeditworld-2026",
-      "to": "papers/self-forcing-2025",
+      "to": "papers/starchild-1-2026",
       "kind": "cites"
     },
     {
       "from": "papers/physeditworld-2026",
-      "to": "papers/starchild-1-2026",
+      "to": "papers/self-forcing-2025",
       "kind": "cites"
     },
     {
@@ -6541,12 +6702,7 @@
     },
     {
       "from": "papers/pixrestore-2026",
-      "to": "papers/omgsr-2025",
-      "kind": "cites"
-    },
-    {
-      "from": "papers/pixrestore-2026",
-      "to": "papers/asymflow-2026",
+      "to": "papers/oftsr-2024",
       "kind": "cites"
     },
     {
@@ -6561,7 +6717,12 @@
     },
     {
       "from": "papers/pixrestore-2026",
-      "to": "papers/oftsr-2024",
+      "to": "papers/asymflow-2026",
+      "kind": "cites"
+    },
+    {
+      "from": "papers/pixrestore-2026",
+      "to": "papers/omgsr-2025",
       "kind": "cites"
     },
     {
@@ -6611,12 +6772,12 @@
     },
     {
       "from": "papers/q-ground-2024",
-      "to": "papers/thinking-visual-primitives-2026",
+      "to": "papers/locate-anything-2026",
       "kind": "cites"
     },
     {
       "from": "papers/q-ground-2024",
-      "to": "papers/locate-anything-2026",
+      "to": "papers/thinking-visual-primitives-2026",
       "kind": "cites"
     },
     {
@@ -6691,12 +6852,22 @@
     },
     {
       "from": "papers/qwen-image-flash-2026",
+      "to": "papers/diffusion-opd-2026",
+      "kind": "cites"
+    },
+    {
+      "from": "papers/qwen-image-flash-2026",
       "to": "papers/qwen-image-2-2026",
       "kind": "cites"
     },
     {
       "from": "papers/qwen-image-flash-2026",
-      "to": "papers/self-forcing-2025",
+      "to": "papers/mambo-g-2025",
+      "kind": "cites"
+    },
+    {
+      "from": "papers/qwen-image-flash-2026",
+      "to": "papers/flow-opd-2026",
       "kind": "cites"
     },
     {
@@ -6711,17 +6882,7 @@
     },
     {
       "from": "papers/qwen-image-flash-2026",
-      "to": "papers/mambo-g-2025",
-      "kind": "cites"
-    },
-    {
-      "from": "papers/qwen-image-flash-2026",
-      "to": "papers/diffusion-opd-2026",
-      "kind": "cites"
-    },
-    {
-      "from": "papers/qwen-image-flash-2026",
-      "to": "papers/flow-opd-2026",
+      "to": "papers/self-forcing-2025",
       "kind": "cites"
     },
     {
@@ -6791,7 +6952,7 @@
     },
     {
       "from": "papers/rdm-2026",
-      "to": "papers/self-flow-2026",
+      "to": "papers/diffusion-opd-2026",
       "kind": "cites"
     },
     {
@@ -6801,17 +6962,17 @@
     },
     {
       "from": "papers/rdm-2026",
+      "to": "papers/flow-opd-2026",
+      "kind": "cites"
+    },
+    {
+      "from": "papers/rdm-2026",
       "to": "papers/asymflow-2026",
       "kind": "cites"
     },
     {
       "from": "papers/rdm-2026",
-      "to": "papers/diffusion-opd-2026",
-      "kind": "cites"
-    },
-    {
-      "from": "papers/rdm-2026",
-      "to": "papers/flow-opd-2026",
+      "to": "papers/self-flow-2026",
       "kind": "cites"
     },
     {
@@ -6856,12 +7017,12 @@
     },
     {
       "from": "papers/rep-forcing-2026",
-      "to": "papers/latent-to-pixel-2026",
+      "to": "papers/mrt-2026",
       "kind": "cites"
     },
     {
       "from": "papers/rep-forcing-2026",
-      "to": "papers/mrt-2026",
+      "to": "papers/latent-to-pixel-2026",
       "kind": "cites"
     },
     {
@@ -7001,12 +7162,12 @@
     },
     {
       "from": "papers/scale-dit-2025",
-      "to": "surveys/native-8k-t2i-2026",
+      "to": "surveys/compensated-sparse-attention-2026",
       "kind": "cites"
     },
     {
       "from": "papers/scale-dit-2025",
-      "to": "surveys/compensated-sparse-attention-2026",
+      "to": "surveys/native-8k-t2i-2026",
       "kind": "cites"
     },
     {
@@ -7401,6 +7562,11 @@
     },
     {
       "from": "papers/thinking-visual-primitives-2026",
+      "to": "papers/locate-anything-2026",
+      "kind": "cites"
+    },
+    {
+      "from": "papers/thinking-visual-primitives-2026",
       "to": "papers/mrt-2026",
       "kind": "cites"
     },
@@ -7412,11 +7578,6 @@
     {
       "from": "papers/thinking-visual-primitives-2026",
       "to": "papers/deepseek-v4-2026",
-      "kind": "cites"
-    },
-    {
-      "from": "papers/thinking-visual-primitives-2026",
-      "to": "papers/locate-anything-2026",
       "kind": "cites"
     },
     {
@@ -7641,7 +7802,7 @@
     },
     {
       "from": "tutorials/diffusion-sr-2021",
-      "to": "papers/omgsr-2025",
+      "to": "papers/op4ksr-2026",
       "kind": "covers"
     },
     {
@@ -7651,7 +7812,7 @@
     },
     {
       "from": "tutorials/diffusion-sr-2021",
-      "to": "papers/op4ksr-2026",
+      "to": "papers/omgsr-2025",
       "kind": "covers"
     },
     {
@@ -7707,6 +7868,296 @@
     {
       "from": "tutorials/diffusion-sr-2021",
       "to": "repos/MediaX-SJTU/ODTSR",
+      "kind": "implements"
+    },
+    {
+      "from": "tutorials/hello-agents",
+      "to": "concepts/agentic",
+      "kind": "mentions"
+    },
+    {
+      "from": "tutorials/hello-agents",
+      "to": "concepts/multi-agent",
+      "kind": "mentions"
+    },
+    {
+      "from": "tutorials/hello-agents",
+      "to": "concepts/agentic-rl",
+      "kind": "mentions"
+    },
+    {
+      "from": "tutorials/hello-agents",
+      "to": "tutorials/hello-agents-01",
+      "kind": "covers"
+    },
+    {
+      "from": "tutorials/hello-agents",
+      "to": "tutorials/hello-agents-09",
+      "kind": "covers"
+    },
+    {
+      "from": "tutorials/hello-agents",
+      "to": "tutorials/hello-agents-14",
+      "kind": "covers"
+    },
+    {
+      "from": "tutorials/hello-agents",
+      "to": "tutorials/hello-agents-03",
+      "kind": "covers"
+    },
+    {
+      "from": "tutorials/hello-agents",
+      "to": "tutorials/hello-agents-11",
+      "kind": "covers"
+    },
+    {
+      "from": "tutorials/hello-agents",
+      "to": "tutorials/hello-agents-07",
+      "kind": "covers"
+    },
+    {
+      "from": "tutorials/hello-agents",
+      "to": "tutorials/hello-agents-12",
+      "kind": "covers"
+    },
+    {
+      "from": "tutorials/hello-agents",
+      "to": "tutorials/hello-agents-13",
+      "kind": "covers"
+    },
+    {
+      "from": "tutorials/hello-agents",
+      "to": "tutorials/hello-agents-04",
+      "kind": "covers"
+    },
+    {
+      "from": "tutorials/hello-agents",
+      "to": "tutorials/hello-agents-06",
+      "kind": "covers"
+    },
+    {
+      "from": "tutorials/hello-agents",
+      "to": "tutorials/hello-agents-05",
+      "kind": "covers"
+    },
+    {
+      "from": "tutorials/hello-agents",
+      "to": "tutorials/hello-agents-16",
+      "kind": "covers"
+    },
+    {
+      "from": "tutorials/hello-agents",
+      "to": "tutorials/hello-agents-10",
+      "kind": "covers"
+    },
+    {
+      "from": "tutorials/hello-agents",
+      "to": "tutorials/hello-agents-08",
+      "kind": "covers"
+    },
+    {
+      "from": "tutorials/hello-agents",
+      "to": "tutorials/hello-agents-15",
+      "kind": "covers"
+    },
+    {
+      "from": "tutorials/hello-agents",
+      "to": "tutorials/hello-agents-02",
+      "kind": "covers"
+    },
+    {
+      "from": "tutorials/hello-agents",
+      "to": "repos/datawhalechina/hello-agents",
+      "kind": "implements"
+    },
+    {
+      "from": "tutorials/hello-agents-01",
+      "to": "concepts/agentic",
+      "kind": "mentions"
+    },
+    {
+      "from": "tutorials/hello-agents-01",
+      "to": "repos/datawhalechina/hello-agents",
+      "kind": "implements"
+    },
+    {
+      "from": "tutorials/hello-agents-02",
+      "to": "concepts/agentic",
+      "kind": "mentions"
+    },
+    {
+      "from": "tutorials/hello-agents-02",
+      "to": "repos/datawhalechina/hello-agents",
+      "kind": "implements"
+    },
+    {
+      "from": "tutorials/hello-agents-03",
+      "to": "concepts/agentic",
+      "kind": "mentions"
+    },
+    {
+      "from": "tutorials/hello-agents-03",
+      "to": "repos/datawhalechina/hello-agents",
+      "kind": "implements"
+    },
+    {
+      "from": "tutorials/hello-agents-04",
+      "to": "concepts/agentic",
+      "kind": "mentions"
+    },
+    {
+      "from": "tutorials/hello-agents-04",
+      "to": "concepts/tool-calling",
+      "kind": "mentions"
+    },
+    {
+      "from": "tutorials/hello-agents-04",
+      "to": "repos/datawhalechina/hello-agents",
+      "kind": "implements"
+    },
+    {
+      "from": "tutorials/hello-agents-05",
+      "to": "concepts/agentic",
+      "kind": "mentions"
+    },
+    {
+      "from": "tutorials/hello-agents-05",
+      "to": "repos/datawhalechina/hello-agents",
+      "kind": "implements"
+    },
+    {
+      "from": "tutorials/hello-agents-06",
+      "to": "concepts/agentic",
+      "kind": "mentions"
+    },
+    {
+      "from": "tutorials/hello-agents-06",
+      "to": "repos/datawhalechina/hello-agents",
+      "kind": "implements"
+    },
+    {
+      "from": "tutorials/hello-agents-07",
+      "to": "concepts/agentic",
+      "kind": "mentions"
+    },
+    {
+      "from": "tutorials/hello-agents-07",
+      "to": "repos/datawhalechina/hello-agents",
+      "kind": "implements"
+    },
+    {
+      "from": "tutorials/hello-agents-08",
+      "to": "concepts/agentic",
+      "kind": "mentions"
+    },
+    {
+      "from": "tutorials/hello-agents-08",
+      "to": "concepts/experience-memory",
+      "kind": "mentions"
+    },
+    {
+      "from": "tutorials/hello-agents-08",
+      "to": "repos/datawhalechina/hello-agents",
+      "kind": "implements"
+    },
+    {
+      "from": "tutorials/hello-agents-09",
+      "to": "concepts/agentic",
+      "kind": "mentions"
+    },
+    {
+      "from": "tutorials/hello-agents-09",
+      "to": "repos/datawhalechina/hello-agents",
+      "kind": "implements"
+    },
+    {
+      "from": "tutorials/hello-agents-10",
+      "to": "concepts/agentic",
+      "kind": "mentions"
+    },
+    {
+      "from": "tutorials/hello-agents-10",
+      "to": "concepts/multi-agent",
+      "kind": "mentions"
+    },
+    {
+      "from": "tutorials/hello-agents-10",
+      "to": "repos/datawhalechina/hello-agents",
+      "kind": "implements"
+    },
+    {
+      "from": "tutorials/hello-agents-11",
+      "to": "concepts/agentic",
+      "kind": "mentions"
+    },
+    {
+      "from": "tutorials/hello-agents-11",
+      "to": "concepts/agentic-rl",
+      "kind": "mentions"
+    },
+    {
+      "from": "tutorials/hello-agents-11",
+      "to": "repos/datawhalechina/hello-agents",
+      "kind": "implements"
+    },
+    {
+      "from": "tutorials/hello-agents-12",
+      "to": "concepts/agentic",
+      "kind": "mentions"
+    },
+    {
+      "from": "tutorials/hello-agents-12",
+      "to": "concepts/tool-calling",
+      "kind": "mentions"
+    },
+    {
+      "from": "tutorials/hello-agents-12",
+      "to": "repos/datawhalechina/hello-agents",
+      "kind": "implements"
+    },
+    {
+      "from": "tutorials/hello-agents-13",
+      "to": "concepts/agentic",
+      "kind": "mentions"
+    },
+    {
+      "from": "tutorials/hello-agents-13",
+      "to": "concepts/multi-agent",
+      "kind": "mentions"
+    },
+    {
+      "from": "tutorials/hello-agents-13",
+      "to": "repos/datawhalechina/hello-agents",
+      "kind": "implements"
+    },
+    {
+      "from": "tutorials/hello-agents-14",
+      "to": "concepts/agentic",
+      "kind": "mentions"
+    },
+    {
+      "from": "tutorials/hello-agents-14",
+      "to": "repos/datawhalechina/hello-agents",
+      "kind": "implements"
+    },
+    {
+      "from": "tutorials/hello-agents-15",
+      "to": "concepts/agentic",
+      "kind": "mentions"
+    },
+    {
+      "from": "tutorials/hello-agents-15",
+      "to": "repos/datawhalechina/hello-agents",
+      "kind": "implements"
+    },
+    {
+      "from": "tutorials/hello-agents-16",
+      "to": "concepts/agentic",
+      "kind": "mentions"
+    },
+    {
+      "from": "tutorials/hello-agents-16",
+      "to": "repos/datawhalechina/hello-agents",
       "kind": "implements"
     },
     {
@@ -7776,12 +8227,12 @@
     },
     {
       "from": "tutorials/llm-sparse-attention-2024",
-      "to": "surveys/llm-sparse-attention-2026",
+      "to": "papers/deepseek-v4-2026",
       "kind": "covers"
     },
     {
       "from": "tutorials/llm-sparse-attention-2024",
-      "to": "papers/deepseek-v4-2026",
+      "to": "surveys/llm-sparse-attention-2026",
       "kind": "covers"
     },
     {
@@ -7986,12 +8437,12 @@
     },
     {
       "from": "tutorials/step-distillation-2022",
-      "to": "papers/self-forcing-2025",
+      "to": "papers/krea-2-2026",
       "kind": "covers"
     },
     {
       "from": "tutorials/step-distillation-2022",
-      "to": "papers/krea-2-2026",
+      "to": "papers/self-forcing-2025",
       "kind": "covers"
     },
     {
@@ -8266,12 +8717,12 @@
     },
     {
       "from": "tutorials/vlm-benchmarks-2024",
-      "to": "papers/q-ground-2024",
+      "to": "papers/molmo-2024",
       "kind": "covers"
     },
     {
       "from": "tutorials/vlm-benchmarks-2024",
-      "to": "papers/molmo-2024",
+      "to": "papers/q-ground-2024",
       "kind": "covers"
     },
     {
@@ -8336,12 +8787,12 @@
     },
     {
       "from": "tutorials/vlm-grounding-2025",
-      "to": "papers/thinking-visual-primitives-2026",
+      "to": "papers/locate-anything-2026",
       "kind": "covers"
     },
     {
       "from": "tutorials/vlm-grounding-2025",
-      "to": "papers/locate-anything-2026",
+      "to": "papers/thinking-visual-primitives-2026",
       "kind": "covers"
     },
     {
@@ -8451,22 +8902,22 @@
     },
     {
       "from": "surveys/compensated-sparse-attention-2026",
-      "to": "papers/deepseek-v4-2026",
-      "kind": "covers"
-    },
-    {
-      "from": "surveys/compensated-sparse-attention-2026",
-      "to": "surveys/native-8k-t2i-2026",
-      "kind": "covers"
-    },
-    {
-      "from": "surveys/compensated-sparse-attention-2026",
       "to": "tutorials/compensated-attention-2025",
       "kind": "covers"
     },
     {
       "from": "surveys/compensated-sparse-attention-2026",
+      "to": "papers/deepseek-v4-2026",
+      "kind": "covers"
+    },
+    {
+      "from": "surveys/compensated-sparse-attention-2026",
       "to": "papers/sparkdiffusion-2026",
+      "kind": "covers"
+    },
+    {
+      "from": "surveys/compensated-sparse-attention-2026",
+      "to": "surveys/native-8k-t2i-2026",
       "kind": "covers"
     },
     {
@@ -8671,12 +9122,7 @@
     },
     {
       "from": "surveys/diffusion-sr-2026",
-      "to": "papers/omgsr-2025",
-      "kind": "covers"
-    },
-    {
-      "from": "surveys/diffusion-sr-2026",
-      "to": "papers/oftsr-2024",
+      "to": "papers/op4ksr-2026",
       "kind": "covers"
     },
     {
@@ -8686,7 +9132,12 @@
     },
     {
       "from": "surveys/diffusion-sr-2026",
-      "to": "papers/op4ksr-2026",
+      "to": "papers/oftsr-2024",
+      "kind": "covers"
+    },
+    {
+      "from": "surveys/diffusion-sr-2026",
+      "to": "papers/omgsr-2025",
       "kind": "covers"
     },
     {
@@ -8886,12 +9337,12 @@
     },
     {
       "from": "surveys/native-8k-t2i-2026",
-      "to": "papers/latent-to-pixel-2026",
+      "to": "papers/op4ksr-2026",
       "kind": "covers"
     },
     {
       "from": "surveys/native-8k-t2i-2026",
-      "to": "papers/l2p-2026",
+      "to": "papers/latent-to-pixel-2026",
       "kind": "covers"
     },
     {
@@ -8901,7 +9352,7 @@
     },
     {
       "from": "surveys/native-8k-t2i-2026",
-      "to": "papers/op4ksr-2026",
+      "to": "papers/l2p-2026",
       "kind": "covers"
     },
     {
