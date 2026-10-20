@@ -62,6 +62,15 @@
   <p class="post-card__tldr">OFTSR 用两阶段方案做单步图像超分：先训一个「噪声增广的条件 rectified flow」当教师，再蒸馏出一个一步学生网络——蒸馏的约束是「学生从不同时间 t、s 的预测必须落在教师同一条 PF-ODE 轨迹上」。 关键好处：一步推理时只需调一个超参 t，就能在「高 PSNR / 高保真」和「低 LPIPS / 高真实感」之间连续滑动，把感知-失真权衡的整条曲线塞进单步模型，而过去的单步蒸馏只能锁死在曲线上的一个点。</p>
   <div class="post-card__tags"><a class="tag-chip" href="../concepts/image-super-resolution.html">image-super-resolution</a> <a class="tag-chip" href="../concepts/rectified-flow.html">rectified-flow</a> <a class="tag-chip" href="../concepts/flow-matching.html">flow-matching</a> <span class="tag-chip tag-chip--more">+5</span></div>
 </article>
+<article class="post-card post-card--paper">
+  <div class="post-card__meta">
+    <span class="post-card__badge">论文</span>
+    <span class="post-card__date"><span class="post-card__added">2024-03-24</span><span class="post-card__extra">约 30 分钟</span></span>
+  </div>
+  <h3 class="post-card__title"><a class="post-card__title-link" href="../papers/diffraw-2024/index.html">DiffRAW：用扩散模型把手机 RAW 变成单反观感——RAW 管结构、确定性 ISP 输出锁颜色和位置、扩散只补细节</a></h3>
+  <p class="post-card__tldr">DiffRAW（AAAI 2024，清华深研院 + 华为）第一次把扩散模型用到「手机 RAW → 单反 sRGB」的学习式 ISP 上，分工是：手机 RAW 当条件，负责轮廓和纹理结构；一张确定性 sRGB（训练时是单反图的合成退化版，测试时是 LiteISPNet 的输出）当「颜色-位置保持条件」，锁住颜色和像素位置；扩散模型负责补出单反级的高频细节。 为了少走几步，它还设计了 DTDM：前向过程边加噪边从 y 往 x 退化，于是推理可以直接从「加噪后的 LiteISPNet 输出」出发，100 步以内做完。ZRR 上 LPIPS 0.187→0.145、FID 17.04→15.10，无参考指标与单反真值持平，但 PSNR/SSIM 反而比 LiteISPNet 低一点。没有官方代码。</p>
+  <div class="post-card__tags"><a class="tag-chip" href="../concepts/learned-isp.html">learned-isp</a> <a class="tag-chip" href="../concepts/raw-image.html">raw-image</a> <a class="tag-chip" href="../concepts/phone-to-dslr.html">phone-to-dslr</a> <span class="tag-chip tag-chip--more">+6</span></div>
+</article>
 </div>
 
   <p class="back-link"><a href="../graph.html">← 返回图谱</a></p>

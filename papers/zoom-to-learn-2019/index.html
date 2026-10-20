@@ -1,0 +1,640 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <script>(function(){try{var t=localStorage.getItem('theme');if(!t)t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
+  <title>Zoom to Learn, Learn to Zoom：从 Bayer RAW 直接超分，用光学变焦拍真值</title>
+  <link rel="stylesheet" href="../../assets/style.css">
+  <script>
+    window.MathJax = { tex: { inlineMath: [['$','$'],['\\(','\\)']] } };
+  </script>
+  <script async src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-mml-chtml.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/highlight.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/highlightjs-line-numbers.js@2.9.0/dist/highlightjs-line-numbers.min.js"></script>
+  <script>document.addEventListener('DOMContentLoaded', () => { hljs.highlightAll(); hljs.initLineNumbersOnLoad(); });</script>
+  <script defer src="../../assets/lightbox.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const links = document.querySelectorAll('.toc a');
+      if (!links.length) return;
+      const map = new Map();
+      links.forEach(a => {
+        const el = document.getElementById(a.getAttribute('href').slice(1));
+        if (el) map.set(el, a);
+      });
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(e => {
+          const a = map.get(e.target);
+          if (!a) return;
+          if (e.isIntersecting) {
+            links.forEach(l => l.classList.remove('active'));
+            a.classList.add('active');
+            const toc = document.querySelector('.toc');
+            if (toc) toc.scrollTo({ top: a.offsetTop - toc.clientHeight / 2, behavior: 'smooth' });
+          }
+        });
+      }, { rootMargin: '-20% 0px -70% 0px' });
+      map.forEach((_, el) => observer.observe(el));
+    });
+    // reading progress bar
+    document.addEventListener('DOMContentLoaded', () => {
+      const bar = document.querySelector('.read-progress');
+      if (!bar) return;
+      const update = () => {
+        const h = document.documentElement;
+        const max = h.scrollHeight - h.clientHeight;
+        bar.style.transform = 'scaleX(' + (max > 0 ? h.scrollTop / max : 0) + ')';
+      };
+      update();
+      window.addEventListener('scroll', update, { passive: true });
+    });
+  </script>
+</head>
+<body>
+<div class="read-progress" aria-hidden="true"></div>
+<!-- NAV-START -->
+<nav class="site-nav" aria-label="主导航">
+  <a class="site-nav__brand" href="../../index.html" aria-label="返回主页">
+    <span class="site-nav__brand-mark" aria-hidden="true">P</span>
+    <span class="site-nav__brand-text">Paper Reading</span>
+  </a>
+  <div class="site-nav__links">
+    <a class="site-nav__link active" href="../../papers.html">论文</a>
+    <a class="site-nav__link" href="../../tutorials.html">教程</a>
+    <a class="site-nav__link" href="../../surveys.html">调研</a>
+    <a class="site-nav__link" href="../../graph.html">图谱</a>
+    <button type="button" class="site-nav__search-btn" id="search-open" aria-label="搜索" aria-expanded="false" aria-controls="search-modal">
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/>
+      </svg>
+      <span class="site-nav__search-label">搜索</span>
+      <kbd class="site-nav__kbd">⌘K</kbd>
+    </button>
+    <button type="button" class="site-nav__theme-btn" id="theme-toggle" aria-label="切换深浅色主题">
+      <svg class="theme-icon theme-icon--moon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
+      <svg class="theme-icon theme-icon--sun" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+    </button>
+  </div>
+</nav>
+<div class="search-modal" id="search-modal" hidden data-pagefind-path="../../pagefind/">
+  <div class="search-modal__backdrop" data-search-close></div>
+  <div class="search-modal__panel" role="dialog" aria-modal="true" aria-label="全文搜索">
+    <button type="button" class="search-modal__close" data-search-close aria-label="关闭">✕</button>
+    <div id="search"></div>
+  </div>
+</div>
+<link href="../../pagefind/pagefind-ui.css" rel="stylesheet">
+<script defer src="../../pagefind/pagefind-ui.js"></script>
+<script defer src="../../assets/search.js"></script>
+<script defer src="../../assets/theme.js"></script>
+<!-- NAV-END -->
+<nav class="toc" aria-label="目录">
+  <div class="toc-title">目录 / TOC</div>
+  <ul>
+    <li class="h2"><a href="#sec-1">1. 出发点 (Motivation)</a></li>
+    <li class="h2"><a href="#sec-2">2. 方法 (Method)</a></li>
+    <li class="h3"><a href="#sec-2-1">2.1 SR-RAW：用一支变焦镜头拍出真值</a></li>
+    <li class="h3"><a href="#sec-2-2">2.2 输入：把 Bayer 打包成 4 通道，再接一个 SRResNet</a></li>
+    <li class="h3"><a href="#sec-2-3">2.3 从 Contextual Loss 到 CoBi</a></li>
+    <li class="h3"><a href="#sec-2-4">2.4 CoBi 在代码里实际是怎么算的</a></li>
+    <li class="h3"><a href="#sec-2-5">2.5 对照组：Ours-png 和 Ours-syn-raw</a></li>
+    <li class="h2"><a href="#sec-3">3. 结论 (Key findings)</a></li>
+    <li class="h2"><a href="#sec-4">4. 实现细节 (Implementation notes)</a></li>
+    <li class="h2"><a href="#sec-5">5. 批判性总结 (Critical assessment)</a></li>
+    <li class="h3"><a href="#sec-5-1">Strengths</a></li>
+    <li class="h3"><a href="#sec-5-2">Limitations / open questions</a></li>
+    <li class="h3"><a href="#sec-5-3">When to use / not use</a></li>
+    <li class="h3"><a href="#sec-5-4">延伸阅读 (Further reading)</a></li>
+    <li class="h2"><a href="#sec-6">6. 研究启发 (Transferable takeaways)</a></li>
+    <li class="h3"><a href="#sec-6-1">1. RAW 入口值多少，这篇给了受控数字</a></li>
+    <li class="h3"><a href="#sec-6-2">2. "用更好的光学拍真值"可以直接改成"用目标相机拍真值"</a></li>
+    <li class="h3"><a href="#sec-6-3">3. CoBi 能吸收错位，但不能代替粗对齐</a></li>
+    <li class="h3"><a href="#sec-6-4">4. 颜色剥离给物理，网络只学空间结构</a></li>
+    <li class="h3"><a href="#sec-6-5">5. 反直觉点：真值也有衍射上限</a></li>
+    <li class="h3"><a href="#sec-6-6">6. 单帧学习 vs 多帧真实信息：要分工</a></li>
+  </ul>
+</nav>
+<main data-pagefind-body>
+<p class="post-kicker">论文</p>
+<h1>Zoom to Learn, Learn to Zoom：从 Bayer RAW 直接超分，用光学变焦拍真值</h1>
+<aside class="post-meta">
+  <div class="post-meta__row"><span class="post-meta__date">加入 <strong>2026-10-20</strong></span> · <span class="post-meta__paper-date">论文日期: 2026-10-20</span></div>
+  <div class="post-meta__row"><span class="post-meta__authors">Xuaner Zhang, Qifeng Chen, Ren Ng, Vladlen Koltun (UC Berkeley · HKUST · Intel Labs)</span> · <span class="post-meta__venue">CVPR 2019</span></div>
+  <div class="post-meta__row post-meta__links"><a class="post-meta__link" href="https://arxiv.org/abs/1905.05169">arXiv:1905.05169</a> · <a class="post-meta__link" href="https://ceciliavision.github.io/project-pages/project-zoom.html">项目页</a> · <a class="post-meta__link" href="https://github.com/ceciliavision/zoom-learn-zoom">zoom-learn-zoom</a></div>
+  <div class="post-meta__row post-meta__concepts"><a class="concept-chip" href="../../concepts/raw-image.html">raw-image</a> <a class="concept-chip" href="../../concepts/learned-isp.html">learned-isp</a> <a class="concept-chip" href="../../concepts/image-super-resolution.html">image-super-resolution</a> <a class="concept-chip" href="../../concepts/real-isr.html">real-isr</a> <a class="concept-chip" href="../../concepts/phone-to-dslr.html">phone-to-dslr</a> <a class="concept-chip" href="../../concepts/denoising.html">denoising</a> <a class="concept-chip" href="../../concepts/data-synthesis.html">data-synthesis</a> <a class="concept-chip" href="../../concepts/contextual-loss.html">contextual-loss</a> <a class="concept-chip" href="../../concepts/computational-zoom.html">computational-zoom</a></div>
+</aside>
+<figure>
+  <img class="zoomable" src="figures/fig1-teaser.png" alt="Zoom to Learn teaser: ESRGAN vs 合成 RAW 训练 vs 真 RAW 训练">
+  <figcaption><b>图 1（论文 Fig. 1）。</b>约 50 米外的格栅做 4X 计算变焦。(A) 左：bicubic 数字变焦；右：光学变焦拍出的真值。(B) ESRGAN 吃 8-bit RGB；(C) 同一网络在<em>合成</em> Bayer（RGB 重采样 + 高斯噪声）上训练；(D) 在<em>真实</em>传感器 RAW 上训练。下排示意每种方法的输入数据类型。格栅这种高频结构上，只有 (D) 没有噪点和锯齿。</figcaption>
+</figure>
+<h2 id="sec-1">1. 出发点 (Motivation)</h2>
+<p>2019 年的学习型超分（SRGAN、ESRGAN、LapSRN 等）几乎都在同一个人造设定里训练：拿一张高清 RGB，bicubic 下采样当输入，原图当真值。作者认为这个设定在两个地方和&quot;真的拍远处物体&quot;对不上 [§1]：</p>
+<ol>
+<li><strong>噪声被下采样洗掉了。</strong> 下采样会顺带平均掉噪声，所以合成输入很干净。真实场景里远处物体在画面中只占很少像素，进光量少，噪声反而更重。</li>
+<li><strong>输入已经是 ISP 的产物。</strong> 8-bit RGB 经过了相机 ISP 的降噪、锐化和色调映射，这些步骤为了&quot;整张图好看&quot;会丢掉 12–14 bit RAW 里的高频信号。超分网络拿到的是被抹过一遍的信号。</li>
+</ol>
+<p>所以作者想让网络直接吃 RAW，把去马赛克、去噪、超分合成一个端到端模型（相当于一个&quot;带超分的学习型 ISP&quot;）。障碍是<strong>真值从哪来</strong>：RAW 没有对应的&quot;高分辨率 RAW&quot;。一种办法是从 RGB 合成 RAW（如 Gharbi 等的做法），但真实传感器噪声里有色彩串扰、填充因子、微透镜等效应，简单噪声模型模拟不出来 [§1, Fig. 4]。作者的答案是 <strong>&quot;Zoom to Learn&quot;</strong>：用变焦镜头的长焦端当真值，因为长焦镜头对窄视场采光，物理上就是光学放大。</p>
+<div class="term-grid">
+  <div class="card"><h4>Bayer RAW</h4><p>传感器原始读数，每个像素只记录 R/G/B 中的一个颜色（RGGB 马赛克），通常 12–14 bit，线性、未降噪。</p></div>
+  <div class="card"><h4>ISP</h4><p>相机里把 RAW 变成 JPEG 的流水线：去马赛克、白平衡、降噪、色彩矩阵、gamma/色调映射、锐化、压缩。</p></div>
+  <div class="card"><h4>计算变焦 / 数字变焦</h4><p>不动镜头，只靠裁剪 + 放大得到"拉近"效果；本文就是让学到的模型替代 bicubic 放大。</p></div>
+  <div class="card"><h4>光学变焦真值</h4><p>同一场景用长焦端（如 150mm）拍的照片，当短焦端（35mm）照片放大 4 倍后的标准答案。</p></div>
+  <div class="card"><h4>FOV 匹配</h4><p>按焦距比从短焦图中裁出和长焦图同一视场的区域，让输入和真值看的是同一块场景。</p></div>
+  <div class="card"><h4>ECC 对齐</h4><p>Enhanced Correlation Coefficient，OpenCV 里一种迭代求几何变换（平移/旋转/仿射）的图像配准算法。</p></div>
+  <div class="card"><h4>Contextual Loss (CX)</h4><p>把两张图都看成"特征点的集合"，每个特征去对方集合里找最像的那个，不要求像素位置对齐。</p></div>
+  <div class="card"><h4>CoBi</h4><p>本文提出的 Contextual Bilateral loss：在 CX 的特征相似度上再加空间坐标项，让匹配优先找"附近"的特征。</p></div>
+  <div class="card"><h4>LPIPS</h4><p>用预训练网络特征衡量两张图的感知差异，越低越像。</p></div>
+</div>
+<h2 id="sec-2">2. 方法 (Method)</h2>
+<p>整个方法由三件事组成：一个数据集（SR-RAW）、一个吃 4 通道 RAW 的 ResNet、一个能容忍错位的损失（CoBi）。网络本身没有新东西，真正的贡献在数据和损失。</p>
+<h3 id="sec-2-1">2.1 SR-RAW：用一支变焦镜头拍出真值</h3>
+<p>作者用 Sony FE 24–240mm 镜头，对每个场景依次拍 7 档焦距，共 500 组序列，室内外都有，ISO 100–400 [§3.1]。同一序列里任意两张都能组成一对训练样本：短焦的 <strong>RAW</strong> 当输入，长焦的 <strong>RGB（相机 JPEG）</strong> 当真值。比如 70mm 的 RGB 就是 35mm RAW 的 2X 真值。4X 模型每个序列能拿到 3 对，8X 模型只有 1 对；按 80/10/10 切成 400/50/50 序列 [§5]。</p>
+<figure>
+  <img class="zoomable" src="figures/fig2-srraw-misalignment.png" alt="SR-RAW 示例序列与三类错位">
+  <figcaption><b>图 2（论文 Fig. 2）。</b>(A) 一组 SR-RAW 序列：上排是 240mm→24mm 的 7 档焦距原图，红框是长焦对应的视场；下排是 FOV 匹配后的裁剪。(B1) 镜头伸缩导致投影中心移动，不同深度的物体产生视差（L₁≠L₂）；(B2) 不同焦距景深不同；(B3) 高分辨率的锐利边缘和低分辨率的模糊边缘本来就无法精确对齐。三者合起来，8MP 图像对里通常有 40–80 像素的错位 [§3.3]。</figcaption>
+</figure>
+<p>拍摄时的三个物理约束，正是后面要设计 CoBi 的原因 [§3.1]：</p>
+<ul>
+<li><strong>景深</strong>：焦距一变景深就变。作者统一用很小的光圈（至少 f/20）来压小景深差异，室内上三脚架长曝光。</li>
+<li><strong>曝光</strong>：整组用同一快门时间，保证噪声水平不随焦距变化；但机械快门和光圈仍造成可见的亮度/颜色波动，这也是不能用逐像素损失的理由之一。</li>
+<li><strong>视差</strong>：变焦时投影中心会移动。作者算过，这支镜头要离物体至少 56.4 米，相距 5 米的两个物体才能保证视差小于 1 像素。所以近景基本不拍，但数据里仍然留有视差。</li>
+</ul>
+<p>预处理分两步 [§3.2]：先按 EXIF 焦距比匹配 FOV，再用 ECC 在 RGB-L 和 RGB-H 之间求几何变换来补偿手动变焦时的相机晃动。焦距标称值和目标倍率对不上时，再乘一个尺度修正（例如用 35mm/150mm 训 4X 时，修正系数 1.07）。</p>
+<p>代码里 FOV 匹配就是按 EXIF 焦距比裁剪再缩放（<code>repo/main_crop.py:L36-L56</code>），几何对齐由 <code>repo/main_align_camera.py</code> 调 <code>utils_align.align_ecc</code> 完成。</p>
+<p>这里有一个容易忽略的设计选择，写在 <code>demo_rawrgb_pair.ipynb</code> 的注释里：<strong>对齐时只变换目标 RGB，永远不重采样 RAW</strong>（&quot;because we don't want to transform or sample the raw sensor&quot;）。RAW 是马赛克，任何插值都会破坏 Bayer 结构和噪声统计，所以几何变换只施加在真值一侧。</p>
+<h3 id="sec-2-2">2.2 输入：把 Bayer 打包成 4 通道，再接一个 SRResNet</h3>
+<p>网络输入是把每个 2×2 的 Bayer 块打包成 4 个通道，空间分辨率减半但信号不丢 [§5]；减黑电平后归一化到 [0,1]。白平衡<strong>不交给网络学</strong>，而是从 EXIF 读出来，作为后处理乘到网络输出上。</p>
+<p class="code-source">repo/utils.py:L154-L172 — 读 RAW、减黑电平归一化、把 RGGB 打包成 4 通道</p>
+<pre><code class="language-python">def get_bayer(path, black_lv, white_lv):
+    try:
+        raw = rawpy.imread(path)
+    except:
+        return None
+    bayer = raw.raw_image_visible.astype(np.float32)
+    bayer = (bayer - black_lv)/ (white_lv - black_lv) #subtract the black level
+    return bayer
+
+def reshape_raw(bayer):
+    bayer = np.expand_dims(bayer,axis=2) 
+    bayer_shape = bayer.shape
+    H = bayer_shape[0]
+    W = bayer_shape[1]
+    reshaped = np.concatenate((bayer[0:H:2,0:W:2,:], 
+                       bayer[0:H:2,1:W:2,:],
+                       bayer[1:H:2,1:W:2,:],
+                       bayer[1:H:2,0:W:2,:]), axis=2)
+    return reshaped
+</code></pre>
+<p>通道顺序是 (0,0)、(0,1)、(1,1)、(1,0)，对 RGGB 传感器就是 R、G、B、G。黑白电平是按设备写死的（<code>utils.py:L34-L44</code>）：Sony 是 512/16383（14 bit），<strong>还有一组 iPhone 的 528/4367</strong>。这说明作者 §6.4 的 iPhoneX 微调实验确实走的是同一条 RAW 入口。</p>
+<p>网络是一个 16 个残差块的 SRResNet，后面接 <span class="math inline">\(\log_2 N + 1\)</span> 个上采样层 [§5]。多出来的那个&quot;+1&quot;是为了把打包时减掉的一半分辨率补回来：</p>
+<div class="math block">
+\[\underbrace{\tfrac{H}{2}\times\tfrac{W}{2}\times 4}_{\text{打包 RAW}} \;\xrightarrow{\;\times 2^{\log_2 N + 1}\;}\; N H \times N W \times 3\]
+</div>
+<p class="math-translation">—— 翻译：打包后的 RAW 只有原分辨率的一半；放大 $2^{\log_2 N+1} = 2N$ 倍之后，正好是原 Bayer 分辨率的 $N$ 倍。4X 模型需要 3 层 ×2 上采样，8X 需要 4 层。</p>
+<p class="code-source">repo/net.py:L135-L163 — 反卷积上采样分支：up_ratio=4 走 3 层、up_ratio=8 走 4 层，最后 9×9 卷积出 3 通道 RGB</p>
+<pre><code class="language-python">        elif up_type == 'deconv':
+            with tf.variable_scope('deconv_stage1'):
+                net = conv2(net, 3, 256, 1, scope='conv')
+                net = deconv2(net, 3, 256, 2)
+                net = prelu_tf(net)
+
+            with tf.variable_scope('deconv_stage2'):
+                net = conv2(net, 3, 256, 1, scope='conv')
+                net = deconv2(net, 3, 256, 2)
+                net = prelu_tf(net)
+
+            if up_ratio == 4:
+                with tf.variable_scope('deconv_stage3'):
+                    net = conv2(net, 3, 256, 1, scope='conv')
+                    net = deconv2(net, 3, 256, 2)
+                    net = prelu_tf(net)
+
+            if up_ratio == 8:
+                with tf.variable_scope('deconv_stage3'):
+                    net = conv2(net, 3, 256, 1, scope='conv')
+                    net = deconv2(net, 3, 256, 2)
+                    net = prelu_tf(net)
+                with tf.variable_scope('deconv_stage4'):
+                    net = conv2(net, 3, 256, 1, scope='conv')
+                    net = deconv2(net, 3, 256, 2)
+                    net = prelu_tf(net)
+
+            with tf.variable_scope('deconv_output_stage'):
+                net = conv2(net, 9, gen_output_channels, 1, scope='conv')
+</code></pre>
+<p>代码和论文的公式对得上：<code>config/inference.yaml</code> 里 <code>up_ratio: 4</code>，正好走 stage1–3 共 3 层。</p>
+<h3 id="sec-2-3">2.3 从 Contextual Loss 到 CoBi</h3>
+<p><strong>为什么不能用 L1/L2？</strong> 40–80 像素的错位下，逐像素损失会把&quot;真值在左边 3 像素&quot;和&quot;真值在右边 3 像素&quot;平均起来，学出来的就是糊图 [§4]。</p>
+<p><strong>Contextual Loss (CX)</strong> 的做法是不管位置：把输出图 <span class="math inline">\(P\)</span> 看成特征集合 <span class="math inline">\(\{p_i\}_{i=1}^N\)</span>，真值 <span class="math inline">\(Q\)</span> 看成 <span class="math inline">\(\{q_j\}_{j=1}^M\)</span>，每个 <span class="math inline">\(p_i\)</span> 去 <span class="math inline">\(Q\)</span> 里找距离最近的特征：</p>
+<div class="math block">
+\[\mathrm{CX}(P,Q) = \frac{1}{N}\sum_{i=1}^{N} \min_{j=1,\dots,M} \mathbb{D}_{p_i,q_j}\]
+</div>
+<p class="math-translation">—— 翻译：输出里的每个小块都去真值里"找最像的那块"，只要找得到，在哪儿都行；损失就是这些最近距离的平均。</p>
+<p>问题在于&quot;在哪儿都行&quot;太宽松了。作者发现用 CX 训练会在平坦墙面上出现周期性伪影（图 3B），统计后发现只有 <strong>43.7%</strong> 的目标特征被唯一一个源特征匹配上 [§4]，也就是说很多特征都去抢同一个&quot;最像&quot;的目标。</p>
+<p><strong>CoBi</strong> 借鉴双边滤波的思路，把空间坐标也算进距离：</p>
+<div class="math block">
+\[\mathrm{CoBi}(P,Q) = \frac{1}{N}\sum_{i=1}^{N} \min_{j=1,\dots,M}\Big(\mathbb{D}_{p_i,q_j} + w_s\,\mathbb{D}'_{p_i,q_j}\Big),\qquad \mathbb{D}'_{p_i,q_j} = \big\|(x_i,y_i)-(x_j,y_j)\big\|_2\]
+</div>
+<p class="math-translation">—— 翻译：还是找最像的那块，但离得越远扣分越多，$w_s$ 决定"多远算远"。类比双边滤波：既看颜色像不像，也看位置近不近。论文说这把唯一匹配率从 43.7% 提到了 93.9%。</p>
+<p>最终损失在两个特征空间上各算一次 CoBi [§4]：</p>
+<div class="math block">
+\[\mathcal{L} = \mathrm{CoBi}_{\text{RGB}}(P,Q,n) + \lambda\,\mathrm{CoBi}_{\text{VGG}}(P,Q)\]
+</div>
+<p class="math-translation">—— 翻译：一项用 $n\times n$ 的原始 RGB 块当特征（4X 最优 $n=10$，8X 最优 $n=15$），管颜色和细节；另一项用 VGG-19 的 conv1_2/conv2_2/conv3_2 特征加余弦距离，管纹理和结构。$\lambda$ 的取值论文放在补充材料里。</p>
+<figure>
+  <img class="zoomable" src="figures/fig3-cx-vs-cobi.png" alt="CX 与 CoBi 训练结果对比">
+  <figcaption><b>图 3（论文 Fig. 3）。</b>(A) Bicubic；(B) 用 CX 训练：平坦墙面上出现周期性纹理伪影，文字边缘发虚；(C) 用 CoBi 训练：墙面干净，字形清楚；(D) 真值。作者把 (B) 的伪影归因于不考虑位置的错误特征匹配。</figcaption>
+</figure>
+<h3 id="sec-2-4">2.4 CoBi 在代码里实际是怎么算的</h3>
+<p>损失本体在 <code>CX/</code> 目录，从 Mechrez 等人的 contextual loss 官方实现改过来（README 原话）。和论文 Eq. 2 不同，代码<strong>不是</strong>&quot;距离相加再取 min&quot;，而是沿用了 CX 原论文的&quot;归一化相似度&quot;写法，然后在<strong>相似度空间</strong>里把特征项和空间项按 <span class="math inline">\(w_s\)</span> 线性混合。</p>
+<p>先看相似度怎么来。代码先把原始距离 <span class="math inline">\(d_{ij}\)</span> 变成相对距离，再过一个指数核并归一化：</p>
+<p class="code-source">repo/CX/CSFlow.py:L100-L104 — 相对距离：每个 d_ij 除以该行的最小距离</p>
+<pre><code class="language-python">    def calc_relative_distances(self, axis=TensorAxis.C):
+        epsilon = 1e-3
+        div = tf.reduce_min(self.raw_distances, axis=axis, keepdims=True)
+        relative_dist = self.raw_distances / (div + epsilon)
+        return relative_dist
+</code></pre>
+<div class="math block">
+\[\tilde d_{ij} = \frac{d_{ij}}{\min_k d_{ik} + \epsilon},\qquad
+\mathrm{CX}_{ij} = \frac{\exp\big((1-\tilde d_{ij})/h\big)}{\sum_k \exp\big((1-\tilde d_{ik})/h\big)}\]
+</div>
+<p class="math-translation">—— 翻译：先把"最近的那个"的距离当 1，其他按倍数算（$\tilde d$），然后用指数核把倍数变成相似度（`CSFlow.py:L14`），再归一化成和为 1 的分布。最像的那个分到最大的权重，其他按差距指数衰减。$h$ 在代码里是 <code>nn_stretch_sigma = 0.5</code>。</p>
+<p>空间项是把每个位置的 (行, 列) 坐标当成 2 维&quot;特征&quot;，走同一套 L2 + 相对距离流程：</p>
+<p class="code-source">repo/CX/CSFlow.py:L115-L134 — 用坐标网格当特征构造空间相似度 cs_flow_sp，特征相似度 cs_flow 另算</p>
+<pre><code class="language-python">    def create(I_features, T_features, distance, nnsigma=float(1.0), b=float(1.0)):
+        # added spatial constraint, by having coordinates as additional feature maps
+        N,H,W,C=T_features.shape.as_list()
+        rows = tf.range(H)
+        cols = tf.range(W)
+        rows = tf.cast(rows, dtype=tf.float32)/(H) * 255.
+        cols = tf.cast(cols, dtype=tf.float32)/(W) * 255.
+        features_grid = tf.meshgrid(rows, cols)
+        features_grid = tf.concat([tf.expand_dims(features_grid_i, 2) for features_grid_i in features_grid], axis=2)
+        features_grid = tf.expand_dims(features_grid, axis=0)
+        features_grid = tf.tile(features_grid, multiples = tf.constant([N, 1, 1, 1]))
+        cs_flow_sp = CSFlow.create_using_L2(features_grid, features_grid, nnsigma, b)
+
+        if distance.value == enums.Distance.DotProduct.value:
+            cs_flow = CSFlow.create_using_dotP(I_features, T_features, nnsigma, b)
+        elif distance.value == enums.Distance.L2.value:
+            cs_flow = CSFlow.create_using_L2(I_features, T_features, nnsigma, b)
+        else:
+            raise &quot;not supported distance &quot; + distance.__str__()
+        return cs_flow,cs_flow_sp
+</code></pre>
+<p>然后在相似度上混合、取 max、取平均、取负对数：</p>
+<p class="code-source">repo/CX/CSFlow.py:L199-L220 — CoBi 的核心：cs_comb = (1−w_s)·特征相似度 + w_s·空间相似度</p>
+<pre><code class="language-python">def CX_loss(T_features, I_features, distance=Distance.L2, nnsigma=float(1.0), w_spatial=0.1):
+    T_features = tf.convert_to_tensor(T_features, dtype=tf.float32)
+    I_features = tf.convert_to_tensor(I_features, dtype=tf.float32)
+
+    with tf.name_scope('CX'):
+        cs_flow, cs_flow_sp = CSFlow.create(I_features, T_features, distance, nnsigma)
+        # sum_normalize:
+        height_width_axis = [TensorAxis.H, TensorAxis.W]
+        # To:
+        cs = cs_flow.cs_NHWC
+        cs_sp = cs_flow_sp.cs_NHWC
+        cs_comb = cs * (1.-w_spatial) + cs_sp * w_spatial
+        k_max_NC = tf.reduce_max(cs_comb, axis=height_width_axis)
+        
+        k_arg_max_NC = tf.argmax(tf.reshape(cs_comb, [tf.shape(cs_comb)[0], -1, tf.shape(cs_comb)[3]]), axis=1)
+        # k_max_NC_feature = tf.slice()
+
+        CS = tf.reduce_mean(k_max_NC, axis=[1])
+        CX_as_loss = 1 - CS
+        CX_loss = -tf.log(1 - CX_as_loss)
+        CX_loss = tf.reduce_mean(CX_loss)
+        return CX_loss,k_arg_max_NC
+</code></pre>
+<p>写成公式，代码实际优化的是：</p>
+<div class="math block">
+\[\mathcal{L}_{\text{code}} = -\log\Big(\frac{1}{M}\sum_{j}\max_{i}\big[(1-w_s)\,\mathrm{CX}^{\text{feat}}_{ij} + w_s\,\mathrm{CX}^{\text{sp}}_{ij}\big]\Big)\]
+</div>
+<p class="math-translation">—— 翻译：对每个目标特征 $j$，在所有源位置 $i$ 里找"特征相似度和空间相似度加权和"最高的那个，把这些最高分取平均，再取 $-\log$。分数越接近 1，损失越接近 0。</p>
+<p><strong>这里有一个论文没讲的事实。</strong> 空间项的输入是同一张坐标网格和它自己比，所以对每个位置 <span class="math inline">\(i\)</span>，最近的&quot;邻居&quot;就是它自己，<span class="math inline">\(\min_k d^{\text{sp}}_{ik}=0\)</span>。代入 L100–L104，其他所有位置的相对距离都是 <span class="math inline">\(d/10^{-3}\)</span>。坐标被缩放到 0–255，L2 用的是平方距离（<code>CSFlow.py:L49</code>，没开根号），即使在最密的 63×63 网格上，相邻两格的平方距离也有 <span class="math inline">\((255/63)^2\approx 16.4\)</span>，相对距离约 <span class="math inline">\(1.6\times 10^4\)</span>，再过 <span class="math inline">\(\exp(-\cdot/0.5)\)</span> 直接下溢成 0。也就是说：</p>
+<div class="math block">
+\[\mathrm{CX}^{\text{sp}}_{ij} \approx \delta_{ij}\]
+</div>
+<p class="math-translation">—— 翻译：代码里的"空间相似度"实际上是一个单位矩阵：同位置得满分，隔一格就是 0。没有"越近越好"的平滑衰减。</p>
+<p>所以代码版 CoBi 的真实含义是：<strong>位置完全相同的特征对额外加 <span class="math inline">\(w_s=0.1\)</span> 分</strong>，其余情况退化回纯 CX。它确实做到了论文说的&quot;优先本地、允许全局搜索&quot;，但这里的&quot;本地&quot;是<strong>同一个像素位置</strong>，不是&quot;附近一圈&quot;。论文 Eq. 2 的 <span class="math inline">\(\mathbb{D}'\)</span> 是按距离线性惩罚，代码里没有这件事。这也提供了一个解释 93.9% 唯一匹配率的视角：同位置加分本身就在鼓励一一对应。（这一段是按代码逐行推出来的；训练脚本没开源，我没法实测训练时的数值。）</p>
+<p>再看 VGG 和 RGB 两项各自的配置：</p>
+<p class="code-source">repo/loss.py:L86-L105 — CoBi_VGG：conv1_2/conv2_2/conv3_2，余弦距离（DotProduct），w_spatial 默认 0.1</p>
+<pre><code class="language-python">def compute_contextual_loss(input, output, reuse=False, w_spatial=0.1):
+    CX = edict()
+    CX.crop_quarters = False
+    CX.max_sampling_1d_size = 63
+    CX.feat_layers = {'conv1_2' : 1.0, 'conv2_2' : 1.0, 'conv3_2': 0.5}
+    CX.Dist = Distance.DotProduct # Distance.L2 # Distance.DotProduct
+    CX.nn_stretch_sigma = 0.5 #0.1
+    CX.w_spatial = w_spatial
+
+    features = list(CX.feat_layers.keys())
+
+    vgg_real=build_vgg19(input*255.0, features, reuse=reuse)
+    vgg_fake=build_vgg19(output*255.0, features, reuse=True)
+    CX_loss_list = []
+    for layer, w in CX.feat_layers.items():
+        CX_loss_i = CX_loss_helper(vgg_real[layer], vgg_fake[layer], CX)
+        CX_loss_list.append(w * CX_loss_i)
+    
+    CX_loss = tf.reduce_sum(CX_loss_list)
+    return CX_loss
+</code></pre>
+<p class="code-source">repo/loss.py:L107-L127 — CoBi_RGB：把 n×n 像素块展开成特征向量，用 L2 距离</p>
+<pre><code class="language-python">def compute_patch_contextual_loss(input, output, reuse=False, patch_sz=5, rates=1, w_spatial=0.1):
+    CX = edict()
+    CX.crop_quarters = False
+    CX.max_sampling_1d_size = 63
+    CX.Dist = Distance.L2 # Distance.L2 # Distance.DotProduct
+    CX.nn_stretch_sigma = 0.5 #0.1
+    CX.w_spatial = w_spatial
+
+    # to have the same scale as the VGG features
+    input_patch = tf.extract_image_patches(input*255.0, ksizes=[1,patch_sz,patch_sz,1], 
+        strides=[1,1,1,1],
+        rates=[1,rates,rates,1],
+        padding=&quot;SAME&quot;)
+    output_patch = tf.extract_image_patches(output*255.0, ksizes=[1,patch_sz,patch_sz,1], 
+        strides=[1,1,1,1],
+        rates=[1,rates,rates,1],
+        padding=&quot;SAME&quot;)
+    CX_loss_i = CX_loss_helper(input_patch, output_patch, CX_config=CX)
+    
+    CX_loss = tf.reduce_sum(CX_loss_i)
+    return CX_loss
+</code></pre>
+<p>两个细节：<code>max_sampling_1d_size = 63</code> 表示特征图大于 63×63 时会<strong>随机抽 3969 个位置</strong>再算（<code>CX_helper.py:L94-L98</code>），两张图用同一组下标，所以&quot;同位置&quot;的含义得以保留；<code>patch_sz</code> 默认是 5，而论文说 4X 最优 <span class="math inline">\(n=10\)</span>，实际训练用的值要看未开源的训练脚本。</p>
+<h3 id="sec-2-5">2.5 对照组：Ours-png 和 Ours-syn-raw</h3>
+<p>为了证明&quot;增益来自 RAW&quot;，作者训了两个同结构的对照模型 [§5.2]：</p>
+<ul>
+<li><strong>Ours-png</strong>：输入换成短焦拍的 8-bit JPEG（注意是真实拍摄的低分辨率图，不是下采样的），真值不变。</li>
+<li><strong>Ours-syn-raw</strong>：按 Gharbi 等的做法从白平衡 + gamma 后的 sRGB 合成 Bayer：每像素保留一个颜色，加上方差随机的高斯噪声；测试时把真实 RAW 也做白平衡 + gamma 后再喂进去。</li>
+</ul>
+<p>代码里的合成器很简单，正好印证了论文&quot;简单噪声模型不够&quot;的论点：</p>
+<p class="code-source">repo/utils.py:L135-L151 — 合成 Bayer：按 RGGB 抽样 + 单一 i.i.d. 高斯噪声，σ ~ U(0, 0.0784)</p>
+<pre><code class="language-python">def make_mosaic(im, mosaic_type='bayer'):
+    H, W=im.shape[:2]
+    mosaic=np.zeros((H, W))
+    mosaic[0:H:2, 0:W:2] = im[0:H:2, 0:W:2, 0]
+    mosaic[0:H:2, 1:W:2] = im[0:H:2, 1:W:2, 1]
+    mosaic[1:H:2, 0:W:2] = im[1:H:2, 0:W:2, 1]
+    mosaic[1:H:2, 1:W:2] = im[1:H:2, 1:W:2, 2]
+    return mosaic
+
+def add_noise(im):
+    sz = im.shape
+    noise_level = np.random.rand(1)
+    noise_level *= 0.0784
+    noise_level += 0.0000
+    noise = noise_level*np.random.randn(sz[0], sz[1])
+    im += noise
+    return im, noise_level
+</code></pre>
+<p>噪声与信号无关（没有 shot noise 的泊松成分），而且加在 gamma 之后的非线性域里；0.0784 ≈ 20/255。这是一个相当弱的合成基线，后面 §5 会回到这一点。</p>
+<figure>
+  <img class="zoomable" src="figures/fig4-real-vs-syn-sensor.png" alt="真实传感器与合成传感器的差异">
+  <figcaption><b>图 4（论文 Fig. 4）。</b>合成传感器数据缺少的四类真实特性：① 抗混叠滤镜（部分机型有）；② 位深（合成 8 bit，真实 12–14 bit）；③ 相邻像素间的色彩串扰；④ 填充因子小于 100%。作者认为 ③④ 很难用简单噪声模型参数化 [§5.2]。</figcaption>
+</figure>
+<h2 id="sec-3">3. 结论 (Key findings)</h2>
+<p><strong>主表：真 RAW + 光学真值碾压所有 RGB 基线</strong> [Table 1，SR-RAW 50 个测试序列]</p>
+<table>
+<thead>
+<tr>
+<th>方法</th>
+<th>4X SSIM↑</th>
+<th>4X PSNR↑</th>
+<th>4X LPIPS↓</th>
+<th>8X SSIM↑</th>
+<th>8X PSNR↑</th>
+<th>8X LPIPS↓</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Bicubic</td>
+<td>0.615</td>
+<td>20.15</td>
+<td>0.344</td>
+<td>0.488</td>
+<td>14.71</td>
+<td>0.525</td>
+</tr>
+<tr>
+<td>SRGAN</td>
+<td>0.384</td>
+<td>20.31</td>
+<td>0.260</td>
+<td>0.393</td>
+<td>19.23</td>
+<td>0.395</td>
+</tr>
+<tr>
+<td>SRResnet</td>
+<td>0.683</td>
+<td>23.13</td>
+<td>0.364</td>
+<td>0.633</td>
+<td>19.48</td>
+<td>0.416</td>
+</tr>
+<tr>
+<td>LapSRN</td>
+<td>0.632</td>
+<td>21.01</td>
+<td>0.324</td>
+<td>0.539</td>
+<td>17.55</td>
+<td>0.525</td>
+</tr>
+<tr>
+<td>Johnson et al.</td>
+<td>0.354</td>
+<td>18.83</td>
+<td>0.270</td>
+<td>0.421</td>
+<td>18.18</td>
+<td>0.394</td>
+</tr>
+<tr>
+<td>ESRGAN</td>
+<td>0.603</td>
+<td>22.12</td>
+<td>0.311</td>
+<td>0.662</td>
+<td>20.68</td>
+<td>0.416</td>
+</tr>
+<tr>
+<td><strong>Ours</strong></td>
+<td><strong>0.781</strong></td>
+<td><strong>26.88</strong></td>
+<td><strong>0.190</strong></td>
+<td><strong>0.779</strong></td>
+<td><strong>24.73</strong></td>
+<td><strong>0.311</strong></td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>4X：PSNR 比最好的基线（SRResnet 23.13）高 <strong>3.75 dB</strong>，LPIPS 比最好的基线（SRGAN 0.260）低 0.07。</li>
+<li>8X：PSNR 比 ESRGAN 高 <strong>4.05 dB</strong>，LPIPS 从 0.394 降到 0.311。</li>
+<li>GAN 类方法（SRGAN、Johnson）SSIM 只有 0.35–0.39，比 bicubic 还低。作者的解释是它们把真实输入里的噪声当纹理放大了。</li>
+<li>作者也试过在 SR-RAW 上按&quot;bicubic 下采样&quot;的标准设定微调基线，差异很小（SSIM &lt; ±0.04，PSNR &lt; ±0.05），所以表里直接用了公开预训练权重 [§5.1]。</li>
+</ul>
+<p><strong>受控实验：同一网络，只换输入数据</strong> [Table 2]</p>
+<table>
+<thead>
+<tr>
+<th>输入</th>
+<th>4X SSIM</th>
+<th>4X PSNR</th>
+<th>4X LPIPS</th>
+<th>8X SSIM</th>
+<th>8X PSNR</th>
+<th>8X LPIPS</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Ours-png（真实 8-bit JPEG）</td>
+<td>0.589</td>
+<td>22.34</td>
+<td>0.305</td>
+<td>0.638</td>
+<td>21.21</td>
+<td>0.584</td>
+</tr>
+<tr>
+<td>Ours-syn-raw（合成 Bayer）</td>
+<td>0.677</td>
+<td>23.98</td>
+<td>0.231</td>
+<td>0.643</td>
+<td>22.02</td>
+<td>0.473</td>
+</tr>
+<tr>
+<td><strong>Ours（真实 RAW）</strong></td>
+<td><strong>0.781</strong></td>
+<td><strong>26.88</strong></td>
+<td><strong>0.190</strong></td>
+<td><strong>0.779</strong></td>
+<td><strong>24.73</strong></td>
+<td><strong>0.311</strong></td>
+</tr>
+</tbody>
+</table>
+<p>这张表才是全文最硬的证据：网络、损失、真值都一样，4X 下真 RAW 比 JPEG 输入高 <strong>4.54 dB</strong>，比合成 RAW 高 <strong>2.90 dB</strong>。合成 RAW 介于两者之间，说明&quot;RAW 格式&quot;本身有用，&quot;真实传感器统计&quot;又额外有用。</p>
+<figure>
+  <img class="zoomable" src="figures/fig6-syn-raw-vs-real.png" alt="合成传感器训练 vs 真实传感器训练">
+  <figcaption><b>图 5（论文 Fig. 6）。</b>Mario（约 40m）、Pattern（约 4m）、Poster（约 20m）三个场景，从左到右：输入全图、Bicubic、合成传感器训练、本文（真实传感器训练）、真值。合成 RAW 训练的模型在 Mario 和 Poster 上出现锯齿边，在 Pattern 上出现去马赛克伪色；真 RAW 训练的模型边缘干净。也要注意：Poster 里真值上的小字（邮箱地址）在所有方法里都没恢复出来。</figcaption>
+</figure>
+<p><strong>人类偏好</strong> [Table 3，AMT 上 50 名受试者、100 张 4X 图（50 张有真值 + 50 张无真值）]：本文对 Syn-raw 胜率 80.6%，对 ESRGAN 83.4%，对 LapSRN 88.5%，对 Johnson 92.1%。</p>
+<p><strong>跨传感器</strong> [§6.4]：额外拍 50 对 iPhoneX–单反数据，只微调 5000 步，就能让模型适配 iPhoneX 的 Bayer。论文只给了一张定性图，没有数字。</p>
+<figure>
+  <img class="zoomable" src="figures/fig7-iphone-finetune.png" alt="iPhoneX 微调结果">
+  <figcaption><b>图 6（论文 Fig. 7）。</b>左：iPhoneX 拍摄的输入；右上：bicubic 放大；右下：在 50 对 iPhoneX–单反数据上微调 5000 步后的结果。作者据此说"输入和真值可以来自不同设备"，这正是手机→相机画质迁移的基本设定。</figcaption>
+</figure>
+<h2 id="sec-4">4. 实现细节 (Implementation notes)</h2>
+<ol>
+<li><strong>训练脚本没开源。</strong> README 写的是&quot;full training pipeline is under preparation and will be released somewhere around October&quot;，但截至我克隆的 commit（<code>8b1dcf6</code>，2025-05）仓库里仍然只有推理、对齐预处理、白平衡计算和损失函数。所以 <span class="math inline">\(\lambda\)</span>、<span class="math inline">\(w_s\)</span> 的实际取值、两项 CoBi 怎么组合、学习率等都无法从代码核实。</li>
+<li><strong>CoBi 空间项退化为同位置加分</strong>（§2.4 推导）：<code>repo/CX/CSFlow.py:L100-L104</code> 的相对距离 + <code>L120-L126</code> 的 0–255 坐标网格 + <code>L49</code> 的平方 L2，使得 <span class="math inline">\(\mathrm{CX}^{\text{sp}}\approx I\)</span>。论文 Eq. 2 的 <span class="math inline">\(w_s\|\Delta xy\|_2\)</span> 是距离线性惩罚，代码不是。<strong>这是最重要的一处论文–代码出入。</strong></li>
+<li><strong>混合位置也不同</strong>：论文 Eq. 2 在<strong>距离</strong>上相加后取 min；代码 <code>repo/CX/CSFlow.py:L210</code> 在<strong>归一化相似度</strong>上加权平均后取 max，再取 <span class="math inline">\(-\log\)</span>（L216–L218）。两者不等价。</li>
+<li><strong>对齐模型不是论文写的 Euclidean</strong>：§3.2 说&quot;Euclidean motion model（旋转 + 平移）&quot;，但 <code>repo/utils_align.py:L58</code> 实际用的是 <code>cv2.MOTION_AFFINE</code>（6 自由度，含缩放和错切），<code>MOTION_EUCLIDEAN</code> 在注释里。仿射能顺带吸收焦距标称值不准造成的尺度误差，可能正因如此才换的。</li>
+<li><strong>白平衡在 gamma 域里乘</strong>：<code>repo/inference.py:L115-L118</code> 把 EXIF 读出的 WB 增益开 1/2.2 次方后乘到网络输出上（蓝通道取 <code>out_wb[0,3]</code>，对应 R-G-G-B 顺序的第 4 个）。这说明网络学的是&quot;未白平衡、但已 gamma&quot;的输出空间；WB 增益本身由 <code>repo/main_wb.py:L15-L28</code> 用 rawpy 分别开/关相机 WB 渲染两次、求通道均值比得到，作者自己的注释是&quot;a hacky way&quot;。</li>
+<li><strong>黑白电平按设备硬编码</strong>：<code>repo/utils.py:L34-L44</code>，Sony 512/16383、iPhone 528/4367。换传感器必须自己补这张表，否则归一化就错了。</li>
+<li><strong>残差块第一层是 4×4 卷积</strong>：<code>repo/net.py:L77</code> 用的是 <code>kernel=4</code>，第二层才是 3×3。偶数核在 SAME padding 下会有半像素不对称，论文没提。另外论文说&quot;16-layer ResNet&quot;，代码是 16 个<strong>残差块</strong>（每块 2 层卷积，<code>net.py:L95-L97</code>）。</li>
+<li><strong>推理裁边</strong>：<code>repo/inference.py:L40-L42</code> 在输出四周各裁掉 <code>raw_tol/2 × up_ratio × 4</code> 像素，作者注释说是边界伪影。</li>
+<li><strong>训练 patch 尺寸的出入</strong>：论文 §5 说&quot;从全分辨率 Bayer 里随机裁 64×64&quot;；notebook 示例里 <code>crop_pair</code> 用 <code>patch_sz=512</code>（RGB），对应打包 RAW 64×64（<code>utils.py:L336</code>），也就是 Bayer 128×128。两者差两倍，但 notebook 只是示例，以论文为准还是以代码为准无法判断。</li>
+<li><strong>未使用的辅助函数里有 bug</strong>：<code>repo/loss.py:L153-L185</code> 的 <code>compute_unalign_loss</code>（平移搜索版 L1，论文未提）用 <code>tf.unravel_index(..., (tol, tol))</code> 解下标，但平移网格的大小是 <code>(2·tol/stride)²</code>，维度对不上。它和 <code>learn_align</code>（L16-L23）都没有被仓库其他地方调用。<code>loss.py:L12</code> 还硬编码了作者本机的 VGG 权重路径。</li>
+</ol>
+<h2 id="sec-5">5. 批判性总结 (Critical assessment)</h2>
+<h3 id="sec-5-1">Strengths</h3>
+<ul>
+<li><strong>把&quot;真值从哪来&quot;变成了一个物理问题。</strong> 用长焦端当短焦端的真值，GT 来自真实光学而不是退化模型。这是后来 RealSR（<a class="wiki-link" data-slug="realsr-2019" href="../realsr-2019/index.html">realsr-2019</a>，Cai et al., ICCV 2019）、DRealSR 等&quot;同机变焦配对&quot;数据集的直接先例。</li>
+<li><strong>受控实验干净。</strong> Table 2 只换输入，把&quot;RAW 的价值&quot;和&quot;真实传感器统计的价值&quot;分开量化了。这比&quot;我们的方法比别人好&quot;更有信息量。</li>
+<li><strong>诚实面对错位。</strong> 没有假装预处理能对齐，而是量化了 40–80 像素的错位来源（Fig. 2），再从损失层面去容忍它。</li>
+<li><strong>颜色与纹理解耦。</strong> WB 不交给网络学，直接从元数据施加，让网络把容量花在去马赛克/去噪/超分上。</li>
+</ul>
+<h3 id="sec-5-2">Limitations / open questions</h3>
+<ul>
+<li><strong>真值本身受衍射限制。</strong> 为了压景深差异，所有图都用 f/20 或更小光圈。按艾里斑直径 <span class="math inline">\(\approx 2.44\lambda N\)</span>，<span class="math inline">\(\lambda=550\,\text{nm}\)</span>、<span class="math inline">\(N=20\)</span> 时约 27 µm，比常见全画幅传感器 4–6 µm 的像素间距大好几倍。也就是说&quot;光学真值&quot;本身就是被衍射软化过的，模型学到的上限是&quot;f/20 的锐度&quot;，不是镜头的最佳锐度。论文没讨论这一点。</li>
+<li><strong>真值是相机 JPEG，不是线性图像。</strong> 模型学到的映射里混进了 Sony 机内 ISP 的锐化、降噪、色调曲线和 JPEG 压缩。对&quot;学某台相机的观感&quot;来说这反而是想要的；但对&quot;恢复物理细节&quot;来说，部分&quot;细节&quot;可能是机内锐化造出来的。</li>
+<li><strong>评测在错位的 GT 上算 PSNR/SSIM。</strong> 作者说&quot;所有方法共享同样的错位所以公平&quot;，但错位会系统性压低所有方法的绝对值，并且偏向输出偏模糊的方法；GAN 类方法 SSIM 比 bicubic 还低，部分可能是错位惩罚，而不全是&quot;放大了噪声&quot;。</li>
+<li><strong>基线对比不完全对称。</strong> 基线要么用公开权重（在合成 bicubic 设定上训的），要么在 SR-RAW 上用 bicubic 下采样设定微调，<strong>都没有在真实的短焦–长焦 RGB 对上用 CoBi 训练</strong>。Ours-png 部分弥补了这一点（且 4X PSNR 22.34 反而低于 SRResnet 的 23.13），但&quot;同样数据、同样损失、只是换成 SOTA 架构吃 RGB&quot;这个对照缺失。</li>
+<li><strong>合成 RAW 基线偏弱。</strong> 合成器只有 i.i.d. 高斯噪声、加在 gamma 后的 sRGB 上，没有逆色彩矩阵、没有信号相关的 shot noise（<code>utils.py:L144-L151</code>）。&quot;合成 RAW 不如真 RAW&quot;在这个强度的合成器上成立，不能直接推广到更真实的合成管线（见下表 <a class="wiki-link" data-slug="unprocessing-2018" href="../unprocessing-2018/index.html">unprocessing-2018</a>）。</li>
+<li><strong>单相机、单镜头、静态场景。</strong> 一台 Sony 机身 + 一支镜头；ISO 只有 100–400，没有低光；拍摄需要远景 + 三脚架，动态物体几乎不可能入库。跨传感器只有一张定性图（§6.4）。</li>
+<li><strong>8X 表里有一些反常值没解释。</strong> ESRGAN 的 SSIM 在 8X（0.662）比 4X（0.603）还高；Ours-png 8X 的 LPIPS（0.584）比 bicubic（0.525）还差。</li>
+<li><strong>CoBi 的空间项与论文描述不一致</strong>（§4 第 2、3 条），而且训练代码缺失，论文报告的 43.7%→93.9% 唯一匹配率无法独立复现。</li>
+</ul>
+<h3 id="sec-5-3">When to use / not use</h3>
+<ul>
+<li><strong>适合</strong>：手里有能拍&quot;更好光学&quot;的设备（长焦、更大传感器的相机）并且能拍静态远景配对；想端到端从 RAW 出图；能接受 SRResNet 级别的小模型。</li>
+<li><strong>不适合</strong>：动态场景；需要恢复超出输入带宽的真实细节（单帧方法只能靠先验&quot;补&quot;，远处树叶这类目标会被平滑或幻想化）；需要精确颜色保真（模型继承了 GT 相机的 JPEG 观感）。</li>
+</ul>
+<h3 id="sec-5-4">延伸阅读 (Further reading)</h3>
+<p><strong>交叉验证比较</strong>：挑 4 篇和本文的核心主张（&quot;真 RAW 输入 + 真实配对真值 + 容忍错位&quot;）直接对话的工作：</p>
+<table>
+<thead>
+<tr>
+<th>工作</th>
+<th>核心结论</th>
+<th>关键观察</th>
+<th>与本文的异 / 同</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>本文</td>
+<td>真 RAW 输入 + 光学变焦 GT 训出的 SR 显著优于 RGB/合成 RAW</td>
+<td>同网络 4X：真 RAW 比 JPEG 高 4.54 dB，比合成 RAW 高 2.90 dB；错位 40–80 px</td>
+<td>—</td>
+</tr>
+<tr>
+<td><a class="wiki-link" data-slug="dped-2017" href="../dped-2017/index.html">dped-2017</a></td>
+<td>手机照片可以学到单反观感（同场景双机配对）</td>
+<td>双机同步拍摄，错位靠 SIFT 配准 + 裁块；用模糊后的颜色损失 + 灰度纹理 GAN 来回避逐像素损失</td>
+<td>同：都承认跨设备配对必然错位，都避开严格的逐像素损失。异：DPED 吃手机 JPEG（RGB），不做超分；本文吃 RAW、做变焦</td>
+</tr>
+<tr>
+<td><a class="wiki-link" data-slug="pynet-2020" href="../pynet-2020/index.html">pynet-2020</a></td>
+<td>一个网络可以直接替代手机 ISP（华为 P20 RAW → 佳能 5D IV RGB）</td>
+<td>Zurich RAW-to-RGB 数据集；配准后多尺度金字塔逐级训练，用 L2/VGG/MS-SSIM 组合</td>
+<td>同：RAW 进、目标相机 RGB 出，本质是学习型 ISP。异：同尺度不做超分，配准更精细后仍以像素/感知损失为主，没有 CX 类损失</td>
+</tr>
+<tr>
+<td><a class="wiki-link" data-slug="unprocessing-2018" href="../unprocessing-2018/index.html">unprocessing-2018</a></td>
+<td>把 sRGB &quot;逆 ISP&quot; 回线性 RAW 并加 shot+read 噪声，只用合成数据就能在真实 RAW 去噪基准上很强</td>
+<td>逆 tone/gamma/CCM/WB/马赛克，噪声模型与信号相关</td>
+<td><strong>异（直接矛盾）</strong>：本文说&quot;合成 RAW 明显不如真 RAW&quot;；Unprocessing 说&quot;足够真实的合成 RAW 够用&quot;。见下方成因</td>
+</tr>
+<tr>
+<td><a class="wiki-link" data-slug="handheld-mfsr-2019" href="../handheld-mfsr-2019/index.html">handheld-mfsr-2019</a></td>
+<td>多帧手持 RAW 可以真实地超出单帧分辨率，并顺带替代去马赛克</td>
+<td>利用手抖造成的亚像素位移做核回归融合，已在 Pixel 3 Super Res Zoom 落地</td>
+<td>同：都从 RAW 出发、都针对手机变焦。异：多帧提供<strong>真实</strong>新信息，本文单帧只能靠学到的先验补细节</td>
+</tr>
+</tbody>
+</table>
+<p><strong>分歧成因</strong>：本文和 Unprocessing 对&quot;合成 RAW 够不够用&quot;的结论相反，主要差在合成器的保真度和任务。本文的合成器只有 gamma 域里的 i.i.d. 高斯噪声，既没有逆色彩矩阵和 tone curve，也没有信号相关的 shot noise；Unprocessing 逐级逆向了 ISP，并按真实传感器标定噪声参数。任务也不同：去噪只需要建模噪声；超分 + 去马赛克还要建模串扰、AA 滤镜、填充因子这些空间结构（Fig. 4），这些恰好是简单合成管线最难覆盖的。所以更准确的说法是：<strong>粗糙的合成 RAW 不够用</strong>；精细合成是否够用于 RAW 超分，本文没有回答。</p>
+<p><strong>相关工作</strong></p>
+<ul>
+<li><a class="wiki-link" data-slug="diffusion-sr-2026" href="../../surveys/diffusion-sr-2026/index.html">diffusion-sr-2026</a>：生成式真实超分的调研。本文是&quot;真实配对数据 + 判别式小网络&quot;路线的起点，那边是&quot;合成退化 + 大生成先验&quot;路线，两者在&quot;细节是恢复还是生成&quot;上立场不同。</li>
+</ul>
+<h2 id="sec-6">6. 研究启发 (Transferable takeaways)</h2>
+<p>这一节针对专项「手机照片 → 相机画质：细节与质感迁移」（目标：iPhone 照片，最好从 Bayer RAW 出发，在细节和质感上变成某台目标相机的效果；颜色用 DNG 色彩矩阵 / 色卡做物理对齐，生成模型只补高频纹理，多帧合成提供真实信息）。</p>
+<div class="summary-grid">
+  <div class="card"><h3 id="sec-6-1">1. RAW 入口值多少，这篇给了受控数字</h3><p>同一网络 + 同一 GT，只把输入从 8-bit JPEG 换成真 RAW，4X 下 +4.54 dB PSNR、LPIPS 0.305→0.190（Table 2）。这是"优先从 Bayer RAW 出发"最直接的量化依据。iPhone 侧要注意：作者 README 建议用 Halide 这类 App 存 Bayer DNG；Apple ProRAW 是已经去马赛克的线性 DNG，不是 Bayer，不能直接套用 4 通道打包。黑白电平也得按设备标（代码里 iPhone 是 528/4367）。</p></div>
+  <div class="card"><h3 id="sec-6-2">2. "用更好的光学拍真值"可以直接改成"用目标相机拍真值"</h3><p>§6.4 已经做了 iPhoneX→单反 50 对 + 5000 步微调，输入和 GT 来自不同设备。迁移到本专项：iPhone RAW 当输入、目标相机同场景同视角当 GT，就是一个"跨设备 SR-RAW"。50 对就能把一个预训练模型拉到新传感器上，说明配对数据量不必很大；更划算的做法可能是先在 SR-RAW 这类同机数据上预训，再用少量跨设备对微调。</p></div>
+  <div class="card"><h3 id="sec-6-3">3. CoBi 能吸收错位，但不能代替粗对齐</h3><p>跨设备配对的错位只会比变焦镜头更大（两颗镜头光心不同，视差更大）。CoBi 的价值是容忍剩下的几十像素误差。但从代码看，它的空间项实际是"同位置加 0.1 分"，非常依赖预对齐后大部分特征已经大致落在原位；README 也说预对齐能明显加速收敛。实操上：先做 FOV 匹配 + 仿射/单应配准（只变换 GT，不碰 RAW），再用 CX/CoBi 处理残差。如果想要论文 Eq. 2 那种"按距离衰减"的效果，需要自己改实现（例如去掉空间项的相对距离归一化）。</p></div>
+  <div class="card"><h3 id="sec-6-4">4. 颜色剥离给物理，网络只学空间结构</h3><p>本文把 WB 从网络里拿出来、按 EXIF 后处理施加（inference.py:L115-L118），作者也提到机械快门/光圈导致的亮度和颜色波动是不用像素损失的原因之一。这和专项"颜色用 DNG 色彩矩阵 / 色卡对齐"的思路一致，而且可以做得更彻底：GT 先用色卡或 CCM 对齐到手机输入的色彩空间，再训练，让损失只看纹理和细节。否则网络会把两台机器的色差当成"细节"去拟合。</p></div>
+  <div class="card"><h3 id="sec-6-5">5. 反直觉点：真值也有衍射上限</h3><p>为了让景深一致，SR-RAW 全部用 f/20 以上光圈拍，艾里斑约 27 µm，远大于像素间距，所以"光学真值"本身被衍射软化了。专项讨论过"远处树叶受衍射极限限制"：这篇说明 GT 侧也有衍射上限，而且拍 GT 时的光圈选择会直接决定模型能学到的锐度上限。给目标相机拍 GT 时，应在景深够用的前提下选该镜头的最佳光圈（通常 f/5.6–f/8），不要为了省事一律缩到很小。</p></div>
+  <div class="card"><h3 id="sec-6-6">6. 单帧学习 vs 多帧真实信息：要分工</h3><p>本文是单帧方法，远处树叶这种低于输入带宽的细节只能由 CoBi/VGG 引导网络"补"出统计上合理的纹理。和专项的思路对应：多帧合成（如 <a class="wiki-link" data-slug="handheld-mfsr-2019" href="../handheld-mfsr-2019/index.html">handheld-mfsr-2019</a>）负责提供真实的亚像素信息，生成模型只补剩下的高频质感。本文的 RAW 入口和配对采集方案可以用在"多帧融合结果 → 目标相机观感"这一段，而不是指望单帧网络承担全部细节恢复。</p></div>
+</div>
+</main>
+<footer class="site-footer">Paper Reading · 由 markdown 静态生成 · <a href="https://github.com/megake98/megake98.github.io">GitHub</a></footer>
+</body>
+</html>

@@ -56,11 +56,65 @@
 <article class="post-card post-card--paper">
   <div class="post-card__meta">
     <span class="post-card__badge">论文</span>
+    <span class="post-card__date"><span class="post-card__added">2026-10-20</span><span class="post-card__extra">约 30 分钟</span></span>
+  </div>
+  <h3 class="post-card__title"><a class="post-card__title-link" href="../papers/zoom-to-learn-2019/index.html">Zoom to Learn, Learn to Zoom：从 Bayer RAW 直接超分，用光学变焦拍真值</a></h3>
+  <p class="post-card__tldr">CVPR 2019 的「真实数据超分」奠基作之一。论文主张：数字变焦（计算变焦）应该直接吃 12–14 bit 的 Bayer RAW，而不是吃被 ISP 降噪、压到 8 bit 的 RGB。难点是 RAW 没有高分辨率真值，于是作者用一支 24–240mm 变焦镜头对同一场景拍 7 档焦距，长焦 RGB 当短焦 RAW 的真值，攒出 500 组序列的 SR-RAW 数据集。不同焦距拍出来的图必然有 40–80 像素的错位（视差、景深、清晰度差），像素损失会糊，所以作者在 Contextual Loss 上加了空间坐标项，提出 CoBi 损失。 结果：4X 下 PSNR 26.88 / LPIPS 0.190，比最好的 RGB 基线高 3.75 dB；受控实验里同一网络吃真 RAW 比吃 8-bit RGB 高 4.54 dB，比吃合成 RAW 高 2.90 dB。代码只开源了推理、数据对齐和 CoBi 损失本体，训练脚本没放出来。从代码看，CoBi 的「空间项」实际退化成了「同位置特征加 0.1 分」，和论文 Eq. 2 写的「按距离惩罚」并不一样。</p>
+  <div class="post-card__tags"><a class="tag-chip" href="../concepts/raw-image.html">raw-image</a> <a class="tag-chip" href="../concepts/learned-isp.html">learned-isp</a> <a class="tag-chip" href="../concepts/image-super-resolution.html">image-super-resolution</a> <span class="tag-chip tag-chip--more">+6</span></div>
+</article>
+<article class="post-card post-card--paper">
+  <div class="post-card__meta">
+    <span class="post-card__badge">论文</span>
+    <span class="post-card__date"><span class="post-card__added">2026-10-20</span><span class="post-card__extra">约 30 分钟</span></span>
+  </div>
+  <h3 class="post-card__title"><a class="post-card__title-link" href="../papers/unprocessing-2018/index.html">Unprocessing：把网上的 sRGB 照片逐步「逆 ISP」回 RAW，造出逼真的去噪训练对</a></h3>
+  <p class="post-card__tldr">Google Research 的 CVPR 2019 工作。真实 RAW 去噪数据难采，合成数据又不像真 RAW，于是作者把一张普通 sRGB 照片按相机 ISP 的反向顺序逐步「解处理」：逆 smoothstep 色调曲线 → 逆 gamma → 乘 sRGB→相机 RGB 的 CCM → 带高光保护地除掉白平衡与数字增益 → 抽成 RGGB 马赛克。在这份伪 RAW 上加按 ISO 联合采样的泊松-高斯（shot/read）噪声得到输入，再把网络输出和真值都过一遍简化正向 ISP 后算 L1。一个 22ms 的普通 U-Net 在 Darmstadt 真实噪声基准上 raw PSNR 48.89 / sRGB PSNR 40.35，相对此前最好的方法误差降低 14%–38%、快 9–18 倍。</p>
+  <div class="post-card__tags"><a class="tag-chip" href="../concepts/raw-image.html">raw-image</a> <a class="tag-chip" href="../concepts/denoising.html">denoising</a> <a class="tag-chip" href="../concepts/data-synthesis.html">data-synthesis</a> <span class="tag-chip tag-chip--more">+5</span></div>
+</article>
+<article class="post-card post-card--survey">
+  <div class="post-card__meta">
+    <span class="post-card__badge">调研</span>
+    <span class="post-card__date"><span class="post-card__added">2026-10-20</span><span class="post-card__extra">约 40 分钟</span></span>
+  </div>
+  <h3 class="post-card__title"><a class="post-card__title-link" href="../surveys/phone2camera-2026/index.html">手机照片 → 相机画质：细节与质感迁移调研（2017→2026）</a></h3>
+  <p class="post-card__tldr">专项「把 iPhone 照片（优先 Bayer RAW）在细节与质感上变成某台目标相机的效果」的入口调研。按五组覆盖本站刚精读的 12 篇：A 手机→单反画质（DPED / WESPE / PyNET / LiteISPNet / ISPW / DiffRAW / ISPDiffuser），B 用更好的光学拍真值（Zoom-to-Learn / RealSR），C RAW 域造数据（Unprocessing），D 跨相机颜色（C5），E 多帧（Handheld MFSR）。逐篇给出核心贡献、方法、带数字的结果和代码位置，再用一张矩阵按输入域、监督、对齐、颜色/纹理是否分离、骨干、数据集、代码对比，写出一致与矛盾。代码交叉验证汇总各页发现，其中有三条会直接影响复用：ISPDiffuser 发布版颜色一致性损失恒为 0、Canny 纹理损失无梯度、评测取 best-of-10；C5 的 apply_cst 原地覆盖导致 3×3 算错；ZRR 和 ISPW 都不提供单反 RAW。最后对照「物理颜色 + 多帧真实细节 + 强度可控的高频生成 + 目标相机 ISP 出图」这条管线，列出每一步的证据和缺口。</p>
+  <div class="post-card__tags"><a class="tag-chip" href="../concepts/learned-isp.html">learned-isp</a> <a class="tag-chip" href="../concepts/raw-image.html">raw-image</a> <a class="tag-chip" href="../concepts/phone-to-dslr.html">phone-to-dslr</a> <span class="tag-chip tag-chip--more">+9</span></div>
+</article>
+<article class="post-card post-card--paper">
+  <div class="post-card__meta">
+    <span class="post-card__badge">论文</span>
+    <span class="post-card__date"><span class="post-card__added">2026-10-20</span><span class="post-card__extra">约 35 分钟</span></span>
+  </div>
+  <h3 class="post-card__title"><a class="post-card__title-link" href="../papers/ispw-2022/index.html">ISPW：把「颜色」从学习式 ISP 里拆出去——颜色条件网络 + 逐图参数化颜色映射 + 掩码对齐损失</a></h3>
+  <p class="post-card__tldr">ETH CVL 的 ECCV 2022 工作，任务是手机 RAW → 单反 sRGB。作者认为难点在于每对训练图的颜色映射都不一样（相机参数、光照各异），而且两台机器拍的画面没对齐。做法是把颜色和细节拆开：ISP 网络 F(x, ĉ) 额外吃一张低分辨率的「目标颜色图」ĉ，只负责去噪、去马赛克和细节；训练时 ĉ 来自一个逐图闭式拟合的分 bin 仿射颜色映射 C（15 个 bin，每个 bin 一个 3→1 仿射，约 180 个参数），它把单反 GT 的颜色搬到手机 RAW 上，但带不过去 GT 的细节；推理时 ĉ 由带 Perceiver 式全局上下文 Transformer 的 U-Net 颜色预测器 G(x) 给出。监督端用 PWC-Net 光流对齐 GT，再用前后向一致性掩码剔除流不准的区域。 ZRR 上 PSNR 25.24 / SSIM 0.879（LiteISPNet 23.81），自建 ISPW（华为 Mate 30 Pro RAW ↔ Canon 5D IV sRGB，200 组，单反侧三档曝光）上 25.05 vs 23.51。官方仓库只有 README，代码一直没放出来；ISPW 的单反侧只有 sRGB，没有单反 RAW，下载链接目前 404。</p>
+  <div class="post-card__tags"><a class="tag-chip" href="../concepts/learned-isp.html">learned-isp</a> <a class="tag-chip" href="../concepts/raw-image.html">raw-image</a> <a class="tag-chip" href="../concepts/phone-to-dslr.html">phone-to-dslr</a> <span class="tag-chip tag-chip--more">+6</span></div>
+</article>
+<article class="post-card post-card--paper">
+  <div class="post-card__meta">
+    <span class="post-card__badge">论文</span>
+    <span class="post-card__date"><span class="post-card__added">2026-10-20</span><span class="post-card__extra">约 35 分钟</span></span>
+  </div>
+  <h3 class="post-card__title"><a class="post-card__title-link" href="../papers/handheld-mfsr-2019/index.html">Handheld MFSR：用手抖当免费的像素位移，一次合并跳过去马赛克——Pixel 3 Super-Res Zoom 背后的多帧超分</a></h3>
+  <p class="post-card__tldr">手机传感器小、Bayer 阵列又让每个颜色只采到 1/4–1/2 的像素，去马赛克必然丢细节、出摩尔纹。Wronski 等人 (Google) 的做法是不做去马赛克:把一组手持连拍的 Bayer RAW 当作同一连续信号在不同亚像素偏移下的稀疏采样，自然手抖提供的偏移已经足够随机，然后用各向异性高斯核回归把 R/G/B 三个平面直接累加到任意分辨率的输出网格上，再用「局部方差 vs 颜色差」的统计鲁棒性模型把运动和配准失败的区域剔掉。合成数据上比 DeepJoint 高 3 dB 以上，手机 GPU 上每帧 12MP 约 100 ms，是 Pixel 3 Super-Res Zoom 和 Night Sight 的默认合并算法。Google 没有官方代码，本文对照的是 Lafenetre 等人的非官方复现 (IPOL 2023)。</p>
+  <div class="post-card__tags"><a class="tag-chip" href="../concepts/burst-photography.html">burst-photography</a> <a class="tag-chip" href="../concepts/raw-image.html">raw-image</a> <a class="tag-chip" href="../concepts/image-super-resolution.html">image-super-resolution</a> <span class="tag-chip tag-chip--more">+4</span></div>
+</article>
+<article class="post-card post-card--paper">
+  <div class="post-card__meta">
+    <span class="post-card__badge">论文</span>
     <span class="post-card__date"><span class="post-card__added">2026-10-10</span><span class="post-card__extra">约 15 分钟</span></span>
   </div>
   <h3 class="post-card__title"><a class="post-card__title-link" href="../papers/jit-2025/index.html">JiT：让去噪模型真的去「噪」——预测干净图，一个朴素 ViT 就能直接在像素上做扩散</a></h3>
   <p class="post-card__tldr">何恺明 + 李天弘（MIT）的「回到基本功」。一句话主张：预测干净数据 x 和预测噪声 ε / 速度 v 是本质不同的两件事。据流形假设,自然图像躺在高维像素空间里的一张低维流形上,而 ε、v 是「离流形」的、弥散在整个高维空间——所以让网络直接预测 x,一个「欠容量」的小网络也能在极高维空间里工作;反之预测 ε/v 会灾难性失败。 由此得到 JiT（Just image Transformers）：一个朴素 ViT 直接吞大像素 patch(16×16×3=768 维,甚至 32×32×3=3072 维)、做 x-预测、配 v-loss。无 tokenizer、无预训练、无感知/对抗/表征对齐损失,自成一体。 三个反直觉证据：① 玩具螺旋实验——把 2D 螺旋埋进 D 维,只有 x-预测能随 D→512 存活,ε/v-预测在 D=16 就崩、D=512 全崩;② ImageNet 256² 上 JiT-B/16 的 x-预测 FID 8.62,同架构 ε-预测 372、v-预测 96 直接爆掉;③ 给 patch embedding 加一个「降维瓶颈」(768→64 维)反而更好(FID 8.62→7.35),呼应经典流形学习。 结果：同一套 base 尺寸、几乎恒定算力,把分辨率从 256 推到 1024(靠 patch 边长成比例放大、token 数固定 256);JiT-G 在 256²/512² 拿到 FID 1.82/1.78。代码极简开源(denoiser.py 就是论文 Algorithm 1)。</p>
   <div class="post-card__tags"><a class="tag-chip" href="../concepts/diffusion-models.html">diffusion-models</a> <a class="tag-chip" href="../concepts/flow-matching.html">flow-matching</a> <a class="tag-chip" href="../concepts/pixel-space-generation.html">pixel-space-generation</a> <span class="tag-chip tag-chip--more">+6</span></div>
+</article>
+<article class="post-card post-card--paper">
+  <div class="post-card__meta">
+    <span class="post-card__badge">论文</span>
+    <span class="post-card__date"><span class="post-card__added">2020-02-13</span><span class="post-card__extra">约 25 分钟</span></span>
+  </div>
+  <h3 class="post-card__title"><a class="post-card__title-link" href="../papers/pynet-2020/index.html">PyNET：用一个金字塔 CNN 把手机 Bayer RAW 直接变成单反照片</a></h3>
+  <p class="post-card__tldr">PyNET 把手机相机的整条 ISP（去马赛克、降噪、白平衡、色彩/对比度校正……）换成一个端到端 CNN：输入华为 P20 的原始 Bayer RAW，监督目标是同场景下 Canon 5D Mark IV 拍的照片。 模型是 5 层倒金字塔，从 1/16 分辨率开始逐层训练，低层用 MSE 管全局颜色和亮度，高层用 VGG+SSIM 管纹理。配套的 Zurich RAW-to-RGB（ZRR）数据集有 4.8 万对对齐 patch。PSNR 21.19，MOS 2.77，高于 P20 原厂 ISP 的 2.56。</p>
+  <div class="post-card__tags"><a class="tag-chip" href="../concepts/learned-isp.html">learned-isp</a> <a class="tag-chip" href="../concepts/raw-image.html">raw-image</a> <a class="tag-chip" href="../concepts/phone-to-dslr.html">phone-to-dslr</a> <span class="tag-chip tag-chip--more">+4</span></div>
 </article>
 </div>
 

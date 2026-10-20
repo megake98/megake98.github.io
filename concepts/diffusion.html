@@ -53,6 +53,24 @@
   </div>
   <h2>提到此概念的论文 / 教程</h2>
   <div class="post-grid">
+<article class="post-card post-card--survey">
+  <div class="post-card__meta">
+    <span class="post-card__badge">调研</span>
+    <span class="post-card__date"><span class="post-card__added">2026-10-20</span><span class="post-card__extra">约 40 分钟</span></span>
+  </div>
+  <h3 class="post-card__title"><a class="post-card__title-link" href="../surveys/phone2camera-2026/index.html">手机照片 → 相机画质：细节与质感迁移调研（2017→2026）</a></h3>
+  <p class="post-card__tldr">专项「把 iPhone 照片（优先 Bayer RAW）在细节与质感上变成某台目标相机的效果」的入口调研。按五组覆盖本站刚精读的 12 篇：A 手机→单反画质（DPED / WESPE / PyNET / LiteISPNet / ISPW / DiffRAW / ISPDiffuser），B 用更好的光学拍真值（Zoom-to-Learn / RealSR），C RAW 域造数据（Unprocessing），D 跨相机颜色（C5），E 多帧（Handheld MFSR）。逐篇给出核心贡献、方法、带数字的结果和代码位置，再用一张矩阵按输入域、监督、对齐、颜色/纹理是否分离、骨干、数据集、代码对比，写出一致与矛盾。代码交叉验证汇总各页发现，其中有三条会直接影响复用：ISPDiffuser 发布版颜色一致性损失恒为 0、Canny 纹理损失无梯度、评测取 best-of-10；C5 的 apply_cst 原地覆盖导致 3×3 算错；ZRR 和 ISPW 都不提供单反 RAW。最后对照「物理颜色 + 多帧真实细节 + 强度可控的高频生成 + 目标相机 ISP 出图」这条管线，列出每一步的证据和缺口。</p>
+  <div class="post-card__tags"><a class="tag-chip" href="../concepts/learned-isp.html">learned-isp</a> <a class="tag-chip" href="../concepts/raw-image.html">raw-image</a> <a class="tag-chip" href="../concepts/phone-to-dslr.html">phone-to-dslr</a> <span class="tag-chip tag-chip--more">+9</span></div>
+</article>
+<article class="post-card post-card--paper">
+  <div class="post-card__meta">
+    <span class="post-card__badge">论文</span>
+    <span class="post-card__date"><span class="post-card__added">2026-10-20</span><span class="post-card__extra">约 25 分钟</span></span>
+  </div>
+  <h3 class="post-card__title"><a class="post-card__title-link" href="../papers/ispdiffuser-2025/index.html">ISPDiffuser：灰度空间用扩散补纹理，颜色交给「直方图」模块——RAW-to-sRGB 的颜色/纹理解耦</a></h3>
+  <p class="post-card__tldr">川大 + 电子科大 + 旷视的 AAAI 2025 工作，做手机 RAW → 单反风格 sRGB（ZRR: 华为 P20 → 佳能；MAI: IMX586 → 富士）。核心主张：扩散模型擅长高频细节、却在颜色/曝光这类低频量上有偏，所以把映射拆成两半——先在 1/4 分辨率的灰度潜空间里用以 RAW 特征为条件的扩散模型（TADM）重建纹理，并加 Canny 边缘损失；再用「直方图引导颜色一致性模块」（HCCM）从 RAW 特征预测颜色直方图，以 cross-attention 给灰度特征上色。ZRR 对齐 GT 上 PSNR 24.09 / LPIPS 0.111，MAI 上 25.64 / 0.071，均优于 FourierISP。代码交叉核对发现几处要紧的出入：发布版里颜色一致性损失恒为 0（&quot;GT 直方图&quot;其实也是由 RAW 算出来的），Canny 边缘损失包在 no_grad 里、梯度为 0，所谓直方图实际是 256×256 的可学习通道混合矩阵，评测时对每张图采 10 次、按与 GT 的 PSNR 挑最好的那张。</p>
+  <div class="post-card__tags"><a class="tag-chip" href="../concepts/learned-isp.html">learned-isp</a> <a class="tag-chip" href="../concepts/raw-image.html">raw-image</a> <a class="tag-chip" href="../concepts/phone-to-dslr.html">phone-to-dslr</a> <span class="tag-chip tag-chip--more">+4</span></div>
+</article>
 <article class="post-card post-card--paper">
   <div class="post-card__meta">
     <span class="post-card__badge">论文</span>
@@ -277,6 +295,15 @@
   <h3 class="post-card__title"><a class="post-card__title-link" href="../papers/omgsr-2025/index.html">OMGSR：一步超分的关键不是蒸馏，是把低清图喂到「中间时刻」——SNR 算出最佳注入点 + GAN 训练</a></h3>
   <p class="post-card__tldr">OMGSR 把一步真实世界超分（Real-ISR）的成败归结为一个「潜空间鸿沟」：以往方法把低清图 latent 注入到扩散调度器的 t=999（纯噪声）或 t=1（干净图），但低清图 latent 既不是噪声也不是干净图——它最接近预训练扩散在某个中间时刻 t\* 的带噪 latent。 作者用信噪比 (SNR) 把这个「最佳中间时刻」算出来（SD2.1-base 上 t\*=273），再用 LRR 损失（LoRA 微调 VAE 编码器）把低清 latent 进一步拉向 t\* 的带噪 latent，然后在 t\* 处做一步去噪。整套是 GAN 训练（生成器=扩散模型本身，判别器=DINOv3-ConvNeXt + 多级头），不是师生蒸馏。这就是 op4ksr-2026 4K 超分的直接前身。</p>
   <div class="post-card__tags"><a class="tag-chip" href="../concepts/image-super-resolution.html">image-super-resolution</a> <a class="tag-chip" href="../concepts/real-isr.html">real-isr</a> <a class="tag-chip" href="../concepts/one-step-generation.html">one-step-generation</a> <span class="tag-chip tag-chip--more">+7</span></div>
+</article>
+<article class="post-card post-card--paper">
+  <div class="post-card__meta">
+    <span class="post-card__badge">论文</span>
+    <span class="post-card__date"><span class="post-card__added">2024-03-24</span><span class="post-card__extra">约 30 分钟</span></span>
+  </div>
+  <h3 class="post-card__title"><a class="post-card__title-link" href="../papers/diffraw-2024/index.html">DiffRAW：用扩散模型把手机 RAW 变成单反观感——RAW 管结构、确定性 ISP 输出锁颜色和位置、扩散只补细节</a></h3>
+  <p class="post-card__tldr">DiffRAW（AAAI 2024，清华深研院 + 华为）第一次把扩散模型用到「手机 RAW → 单反 sRGB」的学习式 ISP 上，分工是：手机 RAW 当条件，负责轮廓和纹理结构；一张确定性 sRGB（训练时是单反图的合成退化版，测试时是 LiteISPNet 的输出）当「颜色-位置保持条件」，锁住颜色和像素位置；扩散模型负责补出单反级的高频细节。 为了少走几步，它还设计了 DTDM：前向过程边加噪边从 y 往 x 退化，于是推理可以直接从「加噪后的 LiteISPNet 输出」出发，100 步以内做完。ZRR 上 LPIPS 0.187→0.145、FID 17.04→15.10，无参考指标与单反真值持平，但 PSNR/SSIM 反而比 LiteISPNet 低一点。没有官方代码。</p>
+  <div class="post-card__tags"><a class="tag-chip" href="../concepts/learned-isp.html">learned-isp</a> <a class="tag-chip" href="../concepts/raw-image.html">raw-image</a> <a class="tag-chip" href="../concepts/phone-to-dslr.html">phone-to-dslr</a> <span class="tag-chip tag-chip--more">+6</span></div>
 </article>
 </div>
 

@@ -1,0 +1,669 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <script>(function(){try{var t=localStorage.getItem('theme');if(!t)t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
+  <title>DPED：把手机 JPEG 翻译成单反画质，「颜色、纹理、内容」三路分开监督</title>
+  <link rel="stylesheet" href="../../assets/style.css">
+  <script>
+    window.MathJax = { tex: { inlineMath: [['$','$'],['\\(','\\)']] } };
+  </script>
+  <script async src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-mml-chtml.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/highlight.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/highlightjs-line-numbers.js@2.9.0/dist/highlightjs-line-numbers.min.js"></script>
+  <script>document.addEventListener('DOMContentLoaded', () => { hljs.highlightAll(); hljs.initLineNumbersOnLoad(); });</script>
+  <script defer src="../../assets/lightbox.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const links = document.querySelectorAll('.toc a');
+      if (!links.length) return;
+      const map = new Map();
+      links.forEach(a => {
+        const el = document.getElementById(a.getAttribute('href').slice(1));
+        if (el) map.set(el, a);
+      });
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(e => {
+          const a = map.get(e.target);
+          if (!a) return;
+          if (e.isIntersecting) {
+            links.forEach(l => l.classList.remove('active'));
+            a.classList.add('active');
+            const toc = document.querySelector('.toc');
+            if (toc) toc.scrollTo({ top: a.offsetTop - toc.clientHeight / 2, behavior: 'smooth' });
+          }
+        });
+      }, { rootMargin: '-20% 0px -70% 0px' });
+      map.forEach((_, el) => observer.observe(el));
+    });
+    // reading progress bar
+    document.addEventListener('DOMContentLoaded', () => {
+      const bar = document.querySelector('.read-progress');
+      if (!bar) return;
+      const update = () => {
+        const h = document.documentElement;
+        const max = h.scrollHeight - h.clientHeight;
+        bar.style.transform = 'scaleX(' + (max > 0 ? h.scrollTop / max : 0) + ')';
+      };
+      update();
+      window.addEventListener('scroll', update, { passive: true });
+    });
+  </script>
+</head>
+<body>
+<div class="read-progress" aria-hidden="true"></div>
+<!-- NAV-START -->
+<nav class="site-nav" aria-label="主导航">
+  <a class="site-nav__brand" href="../../index.html" aria-label="返回主页">
+    <span class="site-nav__brand-mark" aria-hidden="true">P</span>
+    <span class="site-nav__brand-text">Paper Reading</span>
+  </a>
+  <div class="site-nav__links">
+    <a class="site-nav__link active" href="../../papers.html">论文</a>
+    <a class="site-nav__link" href="../../tutorials.html">教程</a>
+    <a class="site-nav__link" href="../../surveys.html">调研</a>
+    <a class="site-nav__link" href="../../graph.html">图谱</a>
+    <button type="button" class="site-nav__search-btn" id="search-open" aria-label="搜索" aria-expanded="false" aria-controls="search-modal">
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/>
+      </svg>
+      <span class="site-nav__search-label">搜索</span>
+      <kbd class="site-nav__kbd">⌘K</kbd>
+    </button>
+    <button type="button" class="site-nav__theme-btn" id="theme-toggle" aria-label="切换深浅色主题">
+      <svg class="theme-icon theme-icon--moon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
+      <svg class="theme-icon theme-icon--sun" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+    </button>
+  </div>
+</nav>
+<div class="search-modal" id="search-modal" hidden data-pagefind-path="../../pagefind/">
+  <div class="search-modal__backdrop" data-search-close></div>
+  <div class="search-modal__panel" role="dialog" aria-modal="true" aria-label="全文搜索">
+    <button type="button" class="search-modal__close" data-search-close aria-label="关闭">✕</button>
+    <div id="search"></div>
+  </div>
+</div>
+<link href="../../pagefind/pagefind-ui.css" rel="stylesheet">
+<script defer src="../../pagefind/pagefind-ui.js"></script>
+<script defer src="../../assets/search.js"></script>
+<script defer src="../../assets/theme.js"></script>
+<!-- NAV-END -->
+<nav class="toc" aria-label="目录">
+  <div class="toc-title">目录 / TOC</div>
+  <ul>
+    <li class="h2"><a href="#sec-1">1. 出发点 (Motivation)</a></li>
+    <li class="h3"><a href="#sec-1-1">1.1 问题：手机和单反的差距不是一种退化</a></li>
+    <li class="h3"><a href="#sec-1-2">1.2 两个随之而来的难点</a></li>
+    <li class="h2"><a href="#sec-2">2. 方法 (Method)</a></li>
+    <li class="h3"><a href="#sec-2-1">2.1 数据：同步拍摄 + 两级对齐</a></li>
+    <li class="h3"><a href="#sec-2-2">2.2 总目标：一个函数，拟合配对分布</a></li>
+    <li class="h3"><a href="#sec-2-3">2.3 颜色损失：先模糊，再比</a></li>
+    <li class="h3"><a href="#sec-2-4">2.4 纹理损失：只看灰度的判别器</a></li>
+    <li class="h3"><a href="#sec-2-5">2.5 内容损失与 TV 损失</a></li>
+    <li class="h3"><a href="#sec-2-6">2.6 总损失与网络结构</a></li>
+    <li class="h3"><a href="#sec-2-7">2.7 训练：生成器与判别器交替一步</a></li>
+    <li class="h2"><a href="#sec-3">3. 结论 (Key findings)</a></li>
+    <li class="h3"><a href="#sec-3-1">3.1 有参考指标：SSIM 全胜，PSNR 与 Johnson 持平</a></li>
+    <li class="h3"><a href="#sec-3-2">3.2 用户研究：增强图和单反原图「分不出来」</a></li>
+    <li class="h3"><a href="#sec-3-3">3.3 损失消融：没有颜色损失，GAN 会把颜色带偏</a></li>
+    <li class="h3"><a href="#sec-3-4">3.4 失败模式（论文自述）</a></li>
+    <li class="h2"><a href="#sec-4">4. 实现细节 (Implementation notes)</a></li>
+    <li class="h2"><a href="#sec-5">5. 批判性总结 (Critical assessment)</a></li>
+    <li class="h3"><a href="#sec-5-1">Strengths</a></li>
+    <li class="h3"><a href="#sec-5-2">Limitations / open questions</a></li>
+    <li class="h3"><a href="#sec-5-3">When to use / not use</a></li>
+    <li class="h3"><a href="#sec-5-4">延伸阅读 (Further reading)</a></li>
+    <li class="h2"><a href="#sec-6">6. 研究启发 (Transferable takeaways)</a></li>
+    <li class="h3"><a href="#sec-6-1">1. 配对采集与对齐流程可以直接照搬</a></li>
+    <li class="h3"><a href="#sec-6-2">2. 「颜色看低频、纹理看灰度」就是按频段分工</a></li>
+    <li class="h3"><a href="#sec-6-3">3. 损失要对配对错位宽容</a></li>
+    <li class="h3"><a href="#sec-6-4">4. 反直觉点：PSNR 最高的损失画面最差</a></li>
+    <li class="h3"><a href="#sec-6-5">5. 噪声放大说明单帧 GAN 补纹理的上限</a></li>
+    <li class="h3"><a href="#sec-6-6">6. 目标相机的「风格」要和「画质」分开</a></li>
+  </ul>
+</nav>
+<main data-pagefind-body>
+<h1>DSLR-Quality Photos on Mobile Devices with Deep Convolutional Networks</h1>
+<aside class="post-meta">
+  <div class="post-meta__row"><span class="post-meta__date">加入 <strong>2017-04-08</strong></span> · <span class="post-meta__paper-date">论文日期: 2017-04-08</span></div>
+  <div class="post-meta__row"><span class="post-meta__authors">Andrey Ignatov, Nikolay Kobyshev, Radu Timofte, Kenneth Vanhoey, Luc Van Gool</span> · <span class="post-meta__venue">ICCV 2017</span></div>
+  <div class="post-meta__row post-meta__links"><a class="post-meta__link" href="https://arxiv.org/abs/1704.02470">arXiv:1704.02470</a> · <a class="post-meta__link" href="https://aiff22.github.io/">项目页</a> · <a class="post-meta__link" href="https://github.com/aiff22/DPED">DPED</a> · <a class="post-meta__link" href="https://github.com/aiff22/DPED/tree/master/models_orig">权重</a></div>
+  <div class="post-meta__row post-meta__concepts"><a class="concept-chip" href="../../concepts/phone-to-dslr.html">phone-to-dslr</a> <a class="concept-chip" href="../../concepts/image-enhancement.html">image-enhancement</a> <a class="concept-chip" href="../../concepts/learned-isp.html">learned-isp</a> <a class="concept-chip" href="../../concepts/gan.html">gan</a> <a class="concept-chip" href="../../concepts/color-constancy.html">color-constancy</a> <a class="concept-chip" href="../../concepts/data-synthesis.html">data-synthesis</a> <a class="concept-chip" href="../../concepts/perceptual-loss.html">perceptual-loss</a> <a class="concept-chip" href="../../concepts/paired-dataset-alignment.html">paired-dataset-alignment</a></div>
+</aside>
+
+<figure>
+  <img class="zoomable" src="figures/fig1-teaser.png" alt="iPhone 3GS 原图与 DPED 增强结果对比">
+  <figcaption>
+    <strong>Fig. 1</strong> — 左：iPhone 3GS 原图；右：DPED 生成器输出。暗部被提亮、雾感减弱、草地和树枝的局部反差变强。注意这是对<strong>手机 JPEG</strong> 做的后处理，不是从 RAW 出发。（论文 Fig. 1）
+  </figcaption>
+</figure>
+<blockquote>
+<p><strong>专项定位</strong>：本页属于专项「手机照片 → 相机画质：细节与质感迁移」。读者的目标是从 iPhone（优先 Bayer RAW）出发，把整体细节与质感变成某台目标相机的样子；已有的设计思路是：颜色用物理方法（DNG 色彩矩阵 / 色卡）对齐，生成模型只补高频纹理，多帧合成提供真实信息。DPED 是这条线上第一篇把「手机 → 单反」作为配对监督任务认真做出来的工作，下文 §5 和 §6 会对照这个目标逐条说它能借什么、缺什么。</p>
+</blockquote>
+<h2 id="sec-1">1. 出发点 (Motivation)</h2>
+<h3 id="sec-1-1">1.1 问题：手机和单反的差距不是一种退化</h3>
+<p>手机相机的劣势来自物理：传感器小、镜头小、没有专用硬件。结果是分辨率、色彩还原、噪声都比单反差。论文的观察是，这些差距同时存在，且彼此纠缠：锐度、纹理细节、细微的颜色变化在传感器层面就已经丢了。所以：</p>
+<ul>
+<li><strong>不能靠手调规则</strong>：现有自动增强工具大多只调全局参数（对比度、亮度），不管纹理和语义 [§1]。</li>
+<li><strong>不能靠人造退化</strong>：把单反图人为劣化再训练「去劣化」，只有在能准确建模真实退化时才能泛化；而手机的退化是光学、传感器、ISP、压缩叠加出来的，建模它「is infeasible」[§1.2]。</li>
+</ul>
+<p>于是作者换了个思路：<strong>不建模退化，直接学两个真实分布之间的翻译</strong>。输入分布由某台手机的成像链定义，目标分布由单反定义，用同一时刻、同一场景的配对照片监督。</p>
+<h3 id="sec-1-2">1.2 两个随之而来的难点</h3>
+<ol>
+<li><strong>数据</strong>：需要大量同步拍摄、可对齐的「手机 / 单反」配对。这就是 DPED 数据集。</li>
+<li><strong>损失</strong>：两台相机的光学畸变不同，即便精确配准后像素之间仍有非恒定的错位（论文说 patch 级错位 ≤5 px）[§2, §3.1]。逐像素 MSE 在这种条件下既不可靠，也不是好的感知指标。所以每一项损失都必须对小错位不敏感。</li>
+</ol>
+<div class="term-grid">
+  <div class="card"><h4>DSLR / 单反</h4><p>可换镜头的大画幅相机；本文目标机是 Canon 70D（20 MP APS-C）。</p></div>
+  <div class="card"><h4>ISP</h4><p>相机内把传感器 RAW 数据变成 JPEG 的流水线（去马赛克、降噪、白平衡、调色、锐化、压缩）。DPED 的输入是 ISP 已经处理完的 JPEG。</p></div>
+  <div class="card"><h4>SIFT + RANSAC 单应</h4><p>先找两张图中的同名特征点，再用抗外点的方式拟合一个平面投影变换，把两张图对齐。</p></div>
+  <div class="card"><h4>Content loss (VGG)</h4><p>不比像素，比两张图送进预训练 VGG-19 后某层特征的差异，衡量「内容/语义是否一致」。</p></div>
+  <div class="card"><h4>判别器 / 对抗损失</h4><p>另训一个网络判断「这张是真单反图还是网络生成的」；生成器的目标是骗过它。本文用它来定义纹理质量。</p></div>
+  <div class="card"><h4>TV loss</h4><p>全变分：相邻像素差的大小，惩罚它可以压掉椒盐噪声。</p></div>
+  <div class="card"><h4>PSNR / SSIM</h4><p>有参考的保真度指标：PSNR 看像素误差，SSIM 看局部结构相似度。对配对错位都很敏感。</p></div>
+  <div class="card"><h4>APE</h4><p>Apple Photo Enhancer，苹果「照片」应用里的一键自动增强，作为商业基线。</p></div>
+</div>
+<h2 id="sec-2">2. 方法 (Method)</h2>
+<h3 id="sec-2-1">2.1 数据：同步拍摄 + 两级对齐</h3>
+<figure>
+  <img class="zoomable" src="figures/fig3-dataset-matching.png" alt="DPED 四台相机同步拍摄的样例与 SIFT 匹配裁剪流程">
+  <figcaption>
+    <strong>Fig. 3 + Fig. 4</strong> — 左：同一时刻四台设备（iPhone 3GS / BlackBerry Passport / Sony Xperia Z / Canon 70D）拍到的四元组，能看到视角、白平衡、动态范围都不一样。右：配对流程，SIFT 匹配 → RANSAC 估单应 → 裁出重叠区 → 把单反裁片<strong>缩小到手机裁片的分辨率</strong>。（论文 Fig. 3、Fig. 4）
+  </figcaption>
+</figure>
+<p>四台设备装在同一个三脚架上（论文 Fig. 2），无线遥控同时触发，3 周里在白天各种场景、光照、天气下拍了 22K+ 张：Sony 4549、iPhone 5727、Canon 与 BlackBerry 各 6015 张，<strong>全部自动模式、默认设置</strong> [§2]。</p>
+<p>对齐分两级：</p>
+<ol>
+<li><strong>整图级</strong>：SIFT 关键点匹配 + RANSAC 单应，裁到交集，再把单反裁片下采样到手机裁片的尺寸 [§2 Matching algorithm]。</li>
+<li><strong>patch 级</strong>：以非重叠滑窗同时在两张图上切 100×100 patch，手机侧窗口位置再按互相关做平移和旋转微调，<strong>只保留互相关 &gt; 0.9 的 patch</strong> [§2]。</li>
+</ol>
+<p>最终得到 BlackBerry / iPhone / Sony 对 Canon 分别 139K / 160K / 162K 训练 patch、2.4–4.3K 测试 patch，每对 patch 的残余错位不超过 5 px [§2]。</p>
+<p>一个容易忽略的细节：单反裁片被缩小到手机分辨率。所以目标图每个像素背后是单反更大的传感器面积、更好的镜头，目标是「同分辨率下单反的画质」，不涉及超分。</p>
+<h3 id="sec-2-2">2.2 总目标：一个函数，拟合配对分布</h3>
+<div class="math block">
+\[\mathbf{W}^{*} = \arg\min_{\mathbf{W}} \frac{1}{N}\sum_{j=1}^{N} \mathcal{L}\big(F_{\mathbf{W}}(I_s^{j}),\, I_t^{j}\big)\]
+</div>
+<p class="math-translation">—— 翻译：$I_s$ 是手机拍的 patch，$I_t$ 是同一时刻单反拍的 patch，$F_{\mathbf{W}}$ 是要学的翻译网络。找一组参数，让「翻译后的手机图」和「单反图」在损失 $\mathcal{L}$ 下平均最接近。整篇论文的关键都在 $\mathcal{L}$ 怎么设计。</p>
+<p>作者的假设是：感知画质可以拆成<strong>颜色、纹理、内容</strong>三个独立部分，每部分单独设计一个对小错位不敏感的损失 [§3.1]。</p>
+<h3 id="sec-2-3">2.3 颜色损失：先模糊，再比</h3>
+<div class="math block">
+\[\mathcal{L}_{\text{color}}(X, Y) = \|X_b - Y_b\|_2^2,\qquad
+X_b(i,j) = \sum_{k,l} X(i+k, j+l)\, G(k,l)\]
+</div>
+<div class="math block">
+\[G(k,l) = A \exp\Big(-\frac{(k-\mu_x)^2}{2\sigma_x} - \frac{(l-\mu_y)^2}{2\sigma_y}\Big),\quad A=0.053,\ \mu=0,\ \sigma=3\]
+</div>
+<p class="math-translation">—— 翻译：先用一个固定的高斯核把两张图都糊掉，糊到纹理和细节都看不见，只剩亮度、对比度和大块颜色，再算均方差。因为图已经糊了，错开一两个像素几乎不改变糊后的结果，所以这个损失对错位不敏感。</p>
+<p>打个比方：两个人站在略微不同的位置给同一面墙拍照，你眯起眼睛看两张照片，只比「墙是什么颜色、亮不亮」，不去管砖缝对不对得上。眯眼就是高斯模糊。</p>
+<p>Fig. 6 量化了这一点：把一张图平移 n 像素后和原图比，n ≤ 2 时颜色损失几乎为 0；n 在 3–5 px（正好是 DPED 的残余错位范围）时仍比 MSE 小 5–10 倍 [§3.1.1]。</p>
+<figure>
+  <img class="zoomable" src="figures/fig6-color-loss.png" alt="模糊前后的手机与单反 patch 以及 MSE 与颜色损失随平移量的变化">
+  <figcaption>
+    <strong>Fig. 5 + Fig. 6</strong> — 左：手机（左两张）与单反（右两张）的原图和模糊图，模糊后只剩颜色差异。右：MSE（红）与颜色损失（蓝）随图像平移像素数的变化，50K 张图平均。小平移区间颜色损失几乎是平的。（论文 Fig. 5、Fig. 6）
+  </figcaption>
+</figure>
+<p>代码里，高斯核由 <code>gauss_kernel</code> 生成、<code>blur</code> 以 depthwise 卷积作用于 RGB 三通道：</p>
+<p class="code-source">repo/utils.py:L20-L34 — 颜色损失用的高斯核与模糊算子（论文 Eq. 3–4）</p>
+<pre><code class="language-python">def gauss_kernel(kernlen=21, nsig=3, channels=1):
+    interval = (2*nsig+1.)/(kernlen)
+    x = np.linspace(-nsig-interval/2., nsig+interval/2., kernlen+1)
+    kern1d = np.diff(st.norm.cdf(x))
+    kernel_raw = np.sqrt(np.outer(kern1d, kern1d))
+    kernel = kernel_raw/kernel_raw.sum()
+    out_filter = np.array(kernel, dtype = np.float32)
+    out_filter = out_filter.reshape((kernlen, kernlen, 1, 1))
+    out_filter = np.repeat(out_filter, channels, axis = 2)
+    return out_filter
+
+
+def blur(x):
+    kernel_var = gauss_kernel(21, 3, 3)
+    return tf.nn.depthwise_conv2d(x, kernel_var, [1, 1, 1, 1], padding='SAME')
+</code></pre>
+<p>注意 <code>kernel_raw = np.sqrt(np.outer(...))</code> 这一行：对两个一维高斯的外积开根号，等于把方差翻倍。我用纯 Python 复算：一维核的像素标准差约 3.3 px，开根号后的二维核约 4.3 px。论文 Eq. 4 写的却是分母 <span class="math inline">\(2\sigma\)</span>（不是 <span class="math inline">\(2\sigma^2\)</span>）、<span class="math inline">\(A=0.053\)</span>，而 <span class="math inline">\(0.053 \approx 1/(2\pi\cdot 3)\)</span>，按字面理解是「方差 3、标准差约 1.73 px」。论文和代码的模糊半径差了约 2.5 倍，详见 §4。</p>
+<h3 id="sec-2-4">2.4 纹理损失：只看灰度的判别器</h3>
+<div class="math block">
+\[\mathcal{L}_{\text{texture}} = -\sum_i \log D\big(F_{\mathbf{W}}(I_s),\, I_t\big)\]
+</div>
+<p class="math-translation">—— 翻译：$D$ 是一个判别器，输出「这张图是真单反拍的」的概率。生成器希望自己的输出被 $D$ 判成真，所以最小化 $-\log D$。关键在于判别器只看灰度图，颜色信息被拿掉了，它只能靠纹理、锐度、噪声形态来分辨真假。</p>
+<p>这一项的思路是：纹理质量很难手写公式，那就学一个。判别器看不到颜色，就只能比高频结构，于是这个损失只负责纹理；判别器又只做整体真假判断、不做逐像素比较，所以天然不需要对齐 [§3.1.2]。</p>
+<p>代码实现很紧凑：用一个 0/1 开关 <code>adv_</code> 决定每个样本送进判别器的是增强图还是单反图（都先转灰度）：</p>
+<p class="code-source">repo/train_model.py:L48-L66 — 灰度化 + 随机交换真假 + 判别器交叉熵与纹理损失（论文 Eq. 5）</p>
+<pre><code class="language-python">    # transform both dslr and enhanced images to grayscale
+
+    enhanced_gray = tf.reshape(tf.image.rgb_to_grayscale(enhanced), [-1, PATCH_WIDTH * PATCH_HEIGHT])
+    dslr_gray = tf.reshape(tf.image.rgb_to_grayscale(dslr_image),[-1, PATCH_WIDTH * PATCH_HEIGHT])
+
+    # push randomly the enhanced or dslr image to an adversarial CNN-discriminator
+
+    adversarial_ = tf.multiply(enhanced_gray, 1 - adv_) + tf.multiply(dslr_gray, adv_)
+    adversarial_image = tf.reshape(adversarial_, [-1, PATCH_HEIGHT, PATCH_WIDTH, 1])
+
+    discrim_predictions = models.adversarial(adversarial_image)
+
+    # losses
+    # 1) texture (adversarial) loss
+
+    discrim_target = tf.concat([adv_, 1 - adv_], 1)
+
+    loss_discrim = -tf.reduce_sum(discrim_target * tf.compat.v1.log(tf.clip_by_value(discrim_predictions, 1e-10, 1.0)))
+    loss_texture = -loss_discrim
+</code></pre>
+<p><code>loss_texture = -loss_discrim</code> 是本页最值得注意的一行。生成器步里 <code>adv_</code> 全是 0（见 §2.7），此时判别器输入全是增强图，目标是 <code>[0, 1]</code>，于是 <code>loss_discrim = -Σ log p₁</code>（<span class="math inline">\(p_1\)</span> = 判为「增强图」的概率），而 <code>loss_texture = Σ log p₁ = Σ log(1 − D)</code>。这是 GAN 原始 minimax 的<strong>饱和式</strong>生成器目标，不是论文 Eq. 5 写的非饱和 <span class="math inline">\(-\log D\)</span>。</p>
+<h3 id="sec-2-5">2.5 内容损失与 TV 损失</h3>
+<div class="math block">
+\[\mathcal{L}_{\text{content}} = \frac{1}{C_j H_j W_j}\,\big\|\psi_j\big(F_{\mathbf{W}}(I_s)\big) - \psi_j(I_t)\big\|\]
+</div>
+<p class="math-translation">—— 翻译：$\psi_j$ 是 VGG-19 第 $j$ 层（本文用 relu5_4，很深的一层）的特征图。两张图在这一层的特征越接近，说明「画的是同样的东西」。除以 $C_jH_jW_j$ 是对特征图大小做归一化。relu5_4 的感受野很大，几个像素的错位对它几乎没影响。</p>
+<div class="math block">
+\[\mathcal{L}_{\text{tv}} = \frac{1}{CHW}\,\big\|\nabla_x F_{\mathbf{W}}(I_s) + \nabla_y F_{\mathbf{W}}(I_s)\big\|\]
+</div>
+<p class="math-translation">—— 翻译：输出图横向、纵向相邻像素差的大小。惩罚它会让图更平滑，主要用来抹掉椒盐状的孤立噪点。论文说权重很小，不会伤害高频。</p>
+<p>内容损失的作用是「保语义」：颜色损失不看细节，纹理损失不看颜色、也不看具体画了什么，需要有一项保证输出和输入是同一个场景 [§3.1.3]。</p>
+<h3 id="sec-2-6">2.6 总损失与网络结构</h3>
+<div class="math block">
+\[\mathcal{L}_{\text{total}} = \mathcal{L}_{\text{content}} + 0.4\,\mathcal{L}_{\text{texture}} + 0.1\,\mathcal{L}_{\text{color}} + 400\,\mathcal{L}_{\text{tv}}\]
+</div>
+<p class="math-translation">—— 翻译：四项加权求和，权重是作者在 DPED 训练集上的初步实验里调出来的。数值本身没有物理意义，因为各项的量纲和归一化方式都不同；代码里的实际权重也不是这组（见 §4）。</p>
+<p>代码把四项损失放在一起，和论文公式逐项对应：</p>
+<p class="code-source">repo/train_model.py:L71-L99 — VGG 内容损失、模糊颜色损失、TV 损失与加权总损失（论文 Eq. 2/6/7/8）</p>
+<pre><code class="language-python">    # 2) content loss
+
+    CONTENT_LAYER = 'relu5_4'
+
+    enhanced_vgg = vgg.net(vgg_dir, vgg.preprocess(enhanced * 255))
+    dslr_vgg = vgg.net(vgg_dir, vgg.preprocess(dslr_image * 255))
+
+    content_size = utils._tensor_size(dslr_vgg[CONTENT_LAYER]) * batch_size
+    loss_content = 2 * tf.nn.l2_loss(enhanced_vgg[CONTENT_LAYER] - dslr_vgg[CONTENT_LAYER]) / content_size
+
+    # 3) color loss
+
+    enhanced_blur = utils.blur(enhanced)
+    dslr_blur = utils.blur(dslr_image)
+
+    loss_color = tf.reduce_sum(tf.pow(dslr_blur - enhanced_blur, 2))/(2 * batch_size)
+
+    # 4) total variation loss
+
+    batch_shape = (batch_size, PATCH_WIDTH, PATCH_HEIGHT, 3)
+    tv_y_size = utils._tensor_size(enhanced[:,1:,:,:])
+    tv_x_size = utils._tensor_size(enhanced[:,:,1:,:])
+    y_tv = tf.nn.l2_loss(enhanced[:,1:,:,:] - enhanced[:,:batch_shape[1]-1,:,:])
+    x_tv = tf.nn.l2_loss(enhanced[:,:,1:,:] - enhanced[:,:,:batch_shape[2]-1,:])
+    loss_tv = 2 * (x_tv/tv_x_size + y_tv/tv_y_size) / batch_size
+
+    # final loss
+
+    loss_generator = w_content * loss_content + w_texture * loss_texture + w_color * loss_color + w_tv * loss_tv
+</code></pre>
+<p><code>tf.nn.l2_loss(t)</code> 等于 <code>sum(t**2)/2</code>，所以 <code>2 * l2_loss / size</code> 就是平方误差的均值。也就是说代码里内容损失和 TV 损失都是<strong>平方</strong>范数的均值，论文 Eq. 6/7 写的是不带平方的范数。颜色损失则是在 patch 内求和（<code>reduce_sum / (2*batch)</code>），没有按像素数归一化，单个样本里有 3×10⁴ 个元素，所以它的量级远大于其他项。</p>
+<figure>
+  <img class="zoomable" src="figures/fig7-architecture.png" alt="DPED 生成器、判别器与 VGG-19 内容损失的整体结构">
+  <figcaption>
+    <strong>Fig. 7</strong> — 上：生成器 $F_\mathbf{W}$，9×9 卷积 → 4 个残差块（每块两层 3×3 + 归一化）→ 两层 3×3 → 9×9 输出；颜色损失和 TV 损失接在输出上。中：判别器 $D$，5 层卷积（第 1/2/5 层步长 4/2/2）+ 1024 维全连接 + sigmoid。下：VGG-19 计算内容损失。图中写的是「Batch NN」，代码实际用的是 instance norm。（论文 Fig. 7）
+  </figcaption>
+</figure>
+<p>生成器是全卷积、全程 64 通道、不做下采样，所以训练用 100×100 patch，推理可以直接吃整张图（<code>test_model.py</code> 默认按原分辨率处理）。代码开头一段：</p>
+<p class="code-source">repo/models.py:L4-L17 — 生成器入口：9×9 卷积 + 第一个残差块（instance norm）</p>
+<pre><code class="language-python">def resnet(input_image):
+
+    with tf.compat.v1.variable_scope(&quot;generator&quot;):
+
+        W1 = weight_variable([9, 9, 3, 64], name=&quot;W1&quot;); b1 = bias_variable([64], name=&quot;b1&quot;);
+        c1 = tf.nn.relu(conv2d(input_image, W1) + b1)
+
+        # residual 1
+
+        W2 = weight_variable([3, 3, 64, 64], name=&quot;W2&quot;); b2 = bias_variable([64], name=&quot;b2&quot;);
+        c2 = tf.nn.relu(_instance_norm(conv2d(c1, W2) + b2))
+
+        W3 = weight_variable([3, 3, 64, 64], name=&quot;W3&quot;); b3 = bias_variable([64], name=&quot;b3&quot;);
+        c3 = tf.nn.relu(_instance_norm(conv2d(c2, W3) + b3)) + c1
+</code></pre>
+<p>输出层和判别器：</p>
+<p class="code-source">repo/models.py:L51-L82 — 缩放 tanh 输出层与灰度判别器（论文 §3.2）</p>
+<pre><code class="language-python">        # Final
+
+        W12 = weight_variable([9, 9, 64, 3], name=&quot;W12&quot;); b12 = bias_variable([3], name=&quot;b12&quot;);
+        enhanced = tf.nn.tanh(conv2d(c11, W12) + b12) * 0.58 + 0.5
+
+    return enhanced
+
+
+def adversarial(image_):
+
+    with tf.compat.v1.variable_scope(&quot;discriminator&quot;):
+
+        conv1 = _conv_layer(image_, 48, 11, 4, batch_nn = False)
+        conv2 = _conv_layer(conv1, 128, 5, 2)
+        conv3 = _conv_layer(conv2, 192, 3, 1)
+        conv4 = _conv_layer(conv3, 192, 3, 1)
+        conv5 = _conv_layer(conv4, 128, 3, 2)
+        
+        flat_size = 128 * 7 * 7
+        conv5_flat = tf.reshape(conv5, [-1, flat_size])
+
+        W_fc = tf.Variable(tf.compat.v1.truncated_normal([flat_size, 1024], stddev=0.01))
+        bias_fc = tf.Variable(tf.constant(0.01, shape=[1024]))
+
+        fc = leaky_relu(tf.matmul(conv5_flat, W_fc) + bias_fc)
+
+        W_out = tf.Variable(tf.compat.v1.truncated_normal([1024, 2], stddev=0.01))
+        bias_out = tf.Variable(tf.constant(0.01, shape=[2]))
+
+        adv_out = tf.nn.softmax(tf.matmul(fc, W_out) + bias_out)
+    
+    return adv_out
+</code></pre>
+<p>两个细节：</p>
+<ul>
+<li><code>tanh(·) * 0.58 + 0.5</code> 把输出范围定在 [−0.08, 1.08]，比 [0, 1] 略宽，留出一点过冲空间，避免高光和暗部在 tanh 饱和区梯度消失。</li>
+<li>判别器的 <code>flat_size = 128 * 7 * 7</code> 是写死的：100 → 25（步长 4）→ 13（步长 2）→ 13 → 13 → 7（步长 2）。所以判别器只能吃 100×100 的输入，这也是 patch 尺寸在代码里没法随便改的原因之一。</li>
+</ul>
+<h3 id="sec-2-7">2.7 训练：生成器与判别器交替一步</h3>
+<p class="code-source">repo/train_model.py:L145-L170 — 交替训练：生成器步 adv_=0，判别器步随机交换真假</p>
+<pre><code class="language-python">    for i in range(num_train_iters):
+
+        # train generator
+
+        idx_train = np.random.randint(0, train_size, batch_size)
+
+        phone_images = train_data[idx_train]
+        dslr_images = train_answ[idx_train]
+
+        [loss_temp, temp] = sess.run([loss_generator, train_step_gen],
+                                        feed_dict={phone_: phone_images, dslr_: dslr_images, adv_: all_zeros})
+        train_loss_gen += loss_temp / eval_step
+
+        # train discriminator
+
+        idx_train = np.random.randint(0, train_size, batch_size)
+
+        # generate image swaps (dslr or enhanced) for discriminator
+        swaps = np.reshape(np.random.randint(0, 2, batch_size), [batch_size, 1])
+
+        phone_images = train_data[idx_train]
+        dslr_images = train_answ[idx_train]
+
+        [accuracy_temp, temp] = sess.run([discim_accuracy, train_step_disc],
+                                        feed_dict={phone_: phone_images, dslr_: dslr_images, adv_: swaps})
+        train_acc_discrim += accuracy_temp / eval_step
+</code></pre>
+<p>生成器和判别器各用一个独立采样的 batch，1:1 交替。判别器步里每个样本以 50% 概率看真单反图、50% 看增强图，所以它在 batch 内是「一半真一半假」，不是传统 GAN 那样真假各一整个 batch。</p>
+<h2 id="sec-3">3. 结论 (Key findings)</h2>
+<h3 id="sec-3-1">3.1 有参考指标：SSIM 全胜，PSNR 与 Johnson 持平</h3>
+<figure>
+  <img class="zoomable" src="figures/fig8-comparison-table2.png" alt="iPhone 原图、APE、Dong、Johnson、DPED 与单反原图的视觉对比及 Table 2">
+  <figcaption>
+    <strong>Fig. 8 + Table 2</strong> — 上：iPhone 原图 / APE / Dong et al.（SRCNN 式 3 层 CNN + MSE）/ Johnson et al.（感知损失）/ DPED / Canon 单反原图。放大区域（路牌 Feldegg、红色遮阳篷）上，DPED 的字边缘更锐、颜色更接近单反。下：三台手机的平均 PSNR / SSIM。（论文 Fig. 8、Table 2）
+  </figcaption>
+</figure>
+<table>
+<thead>
+<tr>
+<th>手机</th>
+<th>原图 → APE</th>
+<th>Dong et al.</th>
+<th>Johnson et al.</th>
+<th>DPED</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>iPhone</td>
+<td>17.28 / 0.8631</td>
+<td>19.27 / 0.8992</td>
+<td><strong>20.32</strong> / 0.9161</td>
+<td>20.08 / <strong>0.9201</strong></td>
+</tr>
+<tr>
+<td>BlackBerry</td>
+<td>18.91 / 0.8922</td>
+<td>18.89 / 0.9134</td>
+<td><strong>20.11</strong> / 0.9298</td>
+<td>20.07 / <strong>0.9328</strong></td>
+</tr>
+<tr>
+<td>Sony</td>
+<td>19.45 / 0.9168</td>
+<td>21.21 / 0.9382</td>
+<td>21.33 / 0.9434</td>
+<td><strong>21.81</strong> / <strong>0.9437</strong></td>
+</tr>
+</tbody>
+</table>
+<p>（PSNR dB / SSIM，数据来自论文 Table 2）</p>
+<ul>
+<li>DPED 在三台手机上 SSIM 都是第一，但领先幅度很小（对 Johnson 只多 0.0003–0.004）。</li>
+<li>PSNR 上 iPhone、BlackBerry 两台略输 Johnson（−0.24 / −0.04 dB），Sony 赢 0.48 dB。作者自己的说法是两者「equivalent」[§4.2]。</li>
+<li>所有方法的 PSNR 都只有 20 dB 左右。这个数字很低，主要原因是配对图之间残余的几像素错位：错位会给 PSNR 定一个上限，和方法好坏关系不大。所以在 DPED 上比 PSNR / SSIM 只能粗看。</li>
+</ul>
+<h3 id="sec-3-2">3.2 用户研究：增强图和单反原图「分不出来」</h3>
+<figure>
+  <img class="zoomable" src="figures/fig10-user-study.png" alt="四组两两比较的用户研究结果柱状图">
+  <figcaption>
+    <strong>Fig. 10</strong> — 42 名受试者（多为计算机背景的年轻研究者），每台手机 9 个场景、两两比较。(a–c) 三台手机上「原图 / 单反 / DPED」的比较；(d) iPhone 上「DPED / 人工 PS 修图 / APE」的比较。每组最后一根柱是汇总得分。（论文 Fig. 10）
+  </figcaption>
+</figure>
+<table>
+<thead>
+<tr>
+<th>比较</th>
+<th>BlackBerry</th>
+<th>iPhone</th>
+<th>Sony</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>单反 vs 原图</td>
+<td>75.65% : 24.35%</td>
+<td>91.74% : 8.26%</td>
+<td>75.99% : 24.01%</td>
+</tr>
+<tr>
+<td>DPED vs 原图</td>
+<td>69.18% : 30.82%</td>
+<td>81.18% : 18.82%</td>
+<td>73.43% : 26.57%</td>
+</tr>
+<tr>
+<td><strong>DPED vs 单反</strong></td>
+<td><strong>50.38% : 49.62%</strong></td>
+<td>46.11% : 53.89%</td>
+<td>47.44% : 52.56%</td>
+</tr>
+</tbody>
+</table>
+<p>iPhone 上另一组：DPED 对人工修图（画师 Photoshop CS6、每张一个工作日）61.90% : 38.10%，DPED 对 APE 78.38% : 21.62%，人工对 APE 54.71% : 45.29%。</p>
+<p>结论是 DPED 和单反之间的选择接近随机，而且自动结果比画师修一天还更受欢迎。但规模很小：每台手机只有 9 个场景，受试者背景单一，图是全分辨率展示的，没有控制观看距离和屏幕。</p>
+<h3 id="sec-3-3">3.3 损失消融：没有颜色损失，GAN 会把颜色带偏</h3>
+<figure>
+  <img class="zoomable" src="figures/fig19-loss-ablation.png" alt="四种损失组合的 PSNR/SSIM 表与 iPhone 视觉结果">
+  <figcaption>
+    <strong>Table 3 + Fig. 19</strong> — 四种损失组合：颜色+内容+纹理（本文）/ 内容+纹理 / MSE+纹理 / 纯 MSE。纯 MSE 的 PSNR 最高（iPhone 20.56），但画面发软；MSE+纹理出现明显偏色（第一行草地发黄）；去掉颜色项后色彩发灰、饱和度不足。（论文附录 §9，Table 3、Fig. 19）
+  </figcaption>
+</figure>
+<table>
+<thead>
+<tr>
+<th>组件</th>
+<th>起点</th>
+<th>消融方向</th>
+<th>最终选择</th>
+<th>为什么</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>像素保真项</td>
+<td>MSE</td>
+<td>换成 VGG relu5_4 内容损失</td>
+<td>内容损失</td>
+<td>配对有几 px 错位，MSE 在这种条件下「not precise」，压不住 GAN 带来的偏色；深层特征对错位不敏感 [§9]</td>
+</tr>
+<tr>
+<td>颜色监督</td>
+<td>无（仅内容+纹理）</td>
+<td>加模糊后 L2 的颜色项</td>
+<td>加</td>
+<td>iPhone PSNR 19.05 → 20.08、SSIM 0.9166 → 0.9201，颜色更饱和、更接近单反 [Table 3]</td>
+</tr>
+<tr>
+<td>纹理监督</td>
+<td>无（纯 MSE）</td>
+<td>加灰度判别器</td>
+<td>加</td>
+<td>纯 MSE 指标好看（iPhone 20.56 dB）但「strong artifacts and slightly degrading image sharpness」[§9]</td>
+</tr>
+<tr>
+<td>判别器输入</td>
+<td>RGB</td>
+<td>灰度</td>
+<td>灰度</td>
+<td>让判别器只能比纹理，不去管颜色，颜色交给专门的颜色项 [§3.1.2]</td>
+</tr>
+<tr>
+<td>patch 尺寸</td>
+<td>100×100</td>
+<td>更大</td>
+<td>100×100</td>
+<td>初步实验显示更大的 patch 没有提升，但计算量大很多 [§2]</td>
+</tr>
+</tbody>
+</table>
+<p>消融里纯 MSE 的 PSNR 比最终方案还高 0.48 dB（iPhone）。这说明在这类配对数据上，PSNR 不能用来选损失，作者最终是按视觉效果和 SSIM 选的。</p>
+<h3 id="sec-3-4">3.4 失败模式（论文自述）</h3>
+<figure>
+  <img class="zoomable" src="figures/fig12-artifacts.png" alt="DPED 在 iPhone 图像上的典型伪影：偏色、过高对比度与噪声放大">
+  <figcaption>
+    <strong>Fig. 12</strong> — 第一行 iPhone 原图，第二行 DPED 输出。典型问题：偏色（第二张柏油路发绿）、对比度过高，以及原图噪声被放大（第二、三张的放大框）。作者说噪声放大主要出现在最差的 iPhone 3GS 上。（论文 Fig. 12）
+  </figcaption>
+</figure>
+<p>论文 §4.4 列了三条：(1) 偏色与过高对比度，偶尔造成看起来不真实的内容变化（「greenish asphalt」）；(2) GAN 会恢复高频，也会一起把高频噪声放大；(3) 需要严格配对的数据，换一台相机就要重拍一遍。第 (3) 条是同组后续工作 WESPE 的出发点。</p>
+<h2 id="sec-4">4. 实现细节 (Implementation notes)</h2>
+<p>仓库是官方实现（论文脚注 1 即指向 <code>github.com/aiff22/DPED</code>），当前版本已迁移到 <code>tf.compat.v1</code>，可在 TF 1.x / 2.x 上运行（README）。克隆的是 <code>d1fbb62</code>（2025-08-23）。</p>
+<ol>
+<li><strong>输入是 8-bit JPEG，不是 RAW。</strong> <code>load_dataset.py</code> 直接 <code>imread</code> 手机和单反的 <code>.jpg</code> patch，除以 255 归一化，并且先转成 <code>float16</code> 存储以节省内存（<code>repo/load_dataset.py:L54-L62</code>）。整个方法建立在手机 ISP 的输出之上。</li>
+</ol>
+<p class="code-source">repo/load_dataset.py:L54-L62 — 训练对读取：手机与单反都是 JPEG patch，float16 存储</p>
+<pre><code class="language-python">    for img in TRAIN_IMAGES:
+
+        I = np.asarray(misc.imread(train_directory_phone + str(img) + '.jpg'))
+        I = np.float16(np.reshape(I, [1, IMAGE_SIZE])) / 255
+        train_data[i, :] = I
+
+        I = np.asarray(misc.imread(train_directory_dslr + str(img) + '.jpg'))
+        I = np.float16(np.reshape(I, [1, IMAGE_SIZE])) / 255
+        train_answ[i, :] = I
+</code></pre>
+<ol start="2">
+<li>
+<p><strong>损失权重和论文不一致。</strong> 代码默认 <code>w_content=10, w_color=0.5, w_texture=1, w_tv=2000</code>（<code>repo/utils.py:L46-L49</code>）。按内容项归一化后是 1 : 0.1（纹理）: 0.05（颜色）: 200（TV），论文 Eq. 8 是 1 : 0.4 : 0.1 : 400。再加上各项在代码里的归一化方式也和论文公式不同（下一条），两组数字其实没法直接对应。复现时应以代码为准。</p>
+</li>
+<li>
+<p><strong>各项损失的范数和归一化与论文公式不一致。</strong> 内容损失和 TV 损失在代码里是<strong>平方</strong>误差的均值（<code>2 * tf.nn.l2_loss(...) / size</code>，<code>repo/train_model.py:L79</code>、<code>L95</code>），论文 Eq. 6/7 是不带平方的范数；颜色损失在每个 patch 内对 3×10⁴ 个元素<strong>求和</strong>而不是求均值（<code>repo/train_model.py:L86</code>）。纹理损失则是在 batch 上<strong>求和</strong>（<code>reduce_sum</code>，<code>repo/train_model.py:L65</code>），量级随 batch size 线性增长。README 提醒「smaller values [of batch_size] can lead to unstable training」，可能和这一点有关（README 没有给出解释，这是我的推测）。</p>
+</li>
+<li>
+<p><strong>纹理损失是饱和式 minimax，不是论文写的 <span class="math inline">\(-\log D\)</span>。</strong> 见 §2.4：<code>loss_texture = -loss_discrim</code>（<code>repo/train_model.py:L66</code>），在 <code>adv_=0</code> 时等于 <span class="math inline">\(\sum\log(1-D)\)</span>。判别器早期很容易赢，此时这种写法给生成器的梯度偏小。论文 Eq. 5 是非饱和式，两者训练动力学不同。</p>
+</li>
+<li>
+<p><strong>高斯模糊半径和论文不一致。</strong> 见 §2.3：代码核 21×21，<code>nsig=3</code>，再对外积开根号，实际标准差约 4.3 px（<code>repo/utils.py:L20-L29</code>）；论文 Eq. 4 按字面（分母 <span class="math inline">\(2\sigma\)</span>、<span class="math inline">\(A=0.053=1/(2\pi\cdot3)\)</span>）对应标准差约 1.73 px。代码的模糊比论文描述的更重，颜色项对错位就更宽容，代价是比较的颜色更粗。</p>
+</li>
+<li>
+<p><strong>判别器没有预训练，归一化是 instance norm。</strong> 论文 §3.1.2 说判别器先在 {手机, 单反} 对上预训练，再联合训练；<code>train_model.py</code> 里两者从第 0 步开始一起训练（<code>L145-L170</code>），没有预训练阶段。论文和 Fig. 7 都写 batch normalization，代码的 <code>_instance_norm</code> 是逐样本、逐通道在空间维度上归一化（<code>repo/models.py:L120-L132</code>）。判别器输出是 2 类 softmax（<code>repo/models.py:L80</code>），论文写 sigmoid，二者在数学上等价。</p>
+</li>
+<li>
+<p><strong>数据分批换入内存。</strong> 每次只随机载入 <code>train_size=30000</code> 个 patch，每 <code>eval_step=1000</code> 步重新抽一批（<code>repo/train_model.py:L236-L240</code>）。20K 步 × batch 50 = 100 万次样本，对 iPhone 的 160K patch 相当于约 6 个 epoch。</p>
+</li>
+<li>
+<p><strong>判别器只能吃 100×100。</strong> <code>flat_size = 128 * 7 * 7</code> 写死（<code>repo/models.py:L69</code>），和 <code>PATCH_WIDTH = PATCH_HEIGHT = 100</code>（<code>repo/train_model.py:L18-L19</code>）绑定。生成器全卷积，推理时可吃任意尺寸；<code>test_model.py</code> 先把测试图 resize 到每台手机预设分辨率（BlackBerry 是 2080×1560，即原始 4160×3120 的一半，<code>repo/utils.py:L168-L178</code>），再可选中心裁剪。</p>
+</li>
+<li>
+<p><strong>仓库自带三个预训练模型。</strong> <code>models_orig/{iphone,blackberry,sony}_orig</code>，可直接用 <code>test_model.py model=iphone_orig</code> 跑。</p>
+</li>
+</ol>
+<p><strong>论文与代码的差异汇总</strong>：损失权重（第 2 条）、范数与归一化（第 3 条）、纹理损失形式（第 4 条）、模糊半径（第 5 条）、判别器预训练与归一化类型（第 6 条），共五处。都不影响方法的主要思路，但如果要逐项复现论文数字，这些地方要先对齐。</p>
+<h2 id="sec-5">5. 批判性总结 (Critical assessment)</h2>
+<h3 id="sec-5-1">Strengths</h3>
+<ul>
+<li><strong>问题定义对了</strong>：直接学两个真实成像链之间的映射，不去建模退化。在手机这种退化混杂、无法写成解析形式的场景，这是唯一现实的监督方式。这个设定后来变成了一整个方向（learned ISP、phone-to-DSLR）。</li>
+<li><strong>数据工程扎实</strong>：三脚架同步触发、整图单应、patch 级互相关微调、0.9 阈值过滤，一套流程把配对误差压到 5 px 以内，并且整体开源。后续很多工作都沿用了「同步拍摄 + 两级对齐 + 质量阈值」这个套路。</li>
+<li><strong>损失按频段分工</strong>：颜色项只看低频（模糊）、纹理项只看高频结构（灰度判别器）、内容项保语义。每一项都针对「配对有错位」这个约束设计，消融（Table 3、Fig. 19）也确实说明颜色项能压住 GAN 的偏色。</li>
+<li><strong>评测诚实</strong>：作者自己承认 PSNR 和 Johnson 持平，并单列了三类失败模式。</li>
+</ul>
+<h3 id="sec-5-2">Limitations / open questions</h3>
+<ul>
+<li><strong>从 JPEG 出发，信息已经丢了。</strong> 手机 ISP 已经做过降噪、锐化、色调映射和压缩，网络只能在这个结果上修补。Fig. 12 的噪声放大就是直接后果：ISP 没有完全去掉的噪声，在 JPEG 里已经和真实纹理混在一起，GAN 分不清，就一起增强了。</li>
+<li><strong>单帧，没有额外的真实信息来源。</strong> 所有补出来的纹理都只是「看起来像单反」，不一定是场景里真实存在的细节。用户研究只问「哪张更好看」，没有问「细节是否忠实」，所以检测不出这类幻觉。</li>
+<li><strong>颜色由网络学，会出错。</strong> 颜色损失只是在模糊后做 L2，没有任何物理约束；遇到训练集里少见的场景就会偏色（「greenish asphalt」）。另外 Canon 70D 本身也是「自动模式、默认设置」，所以学到的颜色是「70D 机内 JPEG 的调色风格」，而不是场景的真实颜色。</li>
+<li><strong>感受野与 patch 尺寸限制全局处理。</strong> 训练 patch 只有 100×100，生成器不下采样，感受野只有几十个像素；推理时虽然吃整图，但网络学不到依赖全图的色调和曝光决策。</li>
+<li><strong>评测规模小，指标有上限。</strong> PSNR 约 20 dB 主要受错位影响，方法之间的差距被淹没；用户研究每台手机 9 个场景，受试者背景单一。</li>
+<li><strong>每台手机单独训练，需要重拍配对。</strong> 论文自己承认这一点。</li>
+<li><strong>论文与代码有五处不一致</strong>（§4），复现时容易踩坑。</li>
+</ul>
+<h3 id="sec-5-3">When to use / not use</h3>
+<ul>
+<li><strong>适合</strong>：手里有（或能拍）一批同步配对的「源相机 / 目标相机」照片，想得到一个可以跑整图的轻量前馈增强网络；或者需要一个损失设计范本，处理「配对有几像素错位」的监督问题。</li>
+<li><strong>不适合</strong>：要从 RAW 出发、要求细节真实可信（例如做数据集或做测量），或者没有配对数据。前者看 PyNET 一类 RAW-to-RGB 工作，后者看 WESPE。</li>
+</ul>
+<h3 id="sec-5-4">延伸阅读 (Further reading)</h3>
+<p><strong>交叉验证比较 (Cross-validation against similar work)</strong></p>
+<table>
+<thead>
+<tr>
+<th>工作</th>
+<th>核心结论</th>
+<th>关键观察</th>
+<th>与本文的异 / 同</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>本文 DPED (ICCV 2017)</td>
+<td>配对监督 + 颜色/纹理/内容三分损失，可以把手机 JPEG 做到用户分不出和单反的区别</td>
+<td>纯 MSE PSNR 最高但画面软；去掉颜色项 GAN 会偏色；噪声会被放大</td>
+<td>—</td>
+</tr>
+<tr>
+<td>[[wespe-2017|WESPE]]（同组，arXiv 1709.01118）</td>
+<td>不需要配对，只要「源相机照片集 + 任意高质量照片集」（可从网上爬，内容无关）就能训练增强器</td>
+<td>用反向生成器做内容一致性，颜色/纹理判别器分开；作者自述在 DPED、KITTI、Cityscapes 上与强监督方法效果相当或更好</td>
+<td>同：沿用颜色（模糊）判别与纹理（灰度）判别的分工；异：去掉了配对要求，代价是不再有逐 patch 的参考，内容只能靠循环一致保证</td>
+</tr>
+<tr>
+<td>[[pynet-2020|PyNET]]（arXiv 2002.05509）</td>
+<td>从手机 <strong>RAW</strong> 直接学到单反级 RGB，用一个网络替代整个手机 ISP</td>
+<td>多尺度金字塔、从粗到细分层训练；RAW 输入保留了 JPEG 已经丢掉的信息</td>
+<td>同：仍然是「手机 → 单反（Canon）」配对监督，仍然面对配对错位问题；异：输入从 JPEG 换成 RAW，任务从「后处理增强」变成「学一个完整 ISP」</td>
+</tr>
+<tr>
+<td><em>Zoom to Learn, Learn to Zoom</em> <a class="wiki-link" data-slug="zoom-to-learn-2019" href="../zoom-to-learn-2019/index.html">zoom-to-learn-2019</a>（Zhang et al., CVPR 2019，SR-RAW）</td>
+<td>用 RAW 做超分比用 RGB 好；配对错位可以用 CoBi（上下文双边）损失容忍</td>
+<td>同一台相机不同焦距拍配对，仍然存在错位和色差</td>
+<td>同：都承认「真实配对一定有错位」，都设计了容错的损失；异：DPED 靠模糊和深层特征绕开错位，SR-RAW 用特征匹配式的损失直接容忍错位</td>
+</tr>
+</tbody>
+</table>
+<p><strong>分歧的可能成因</strong>：几篇工作在「颜色交给谁」上的选择不同，根源是输入不同。DPED 和 WESPE 都从 JPEG 出发，手机 ISP 已经把颜色做歪了，网络只能整体重新学颜色，于是需要专门的颜色项来压住 GAN；PyNET 和 SR-RAW 从 RAW 出发，颜色可以从更原始的信号里恢复，错位问题也就从「颜色/纹理拆开」变成了「怎样设计对错位不敏感的重建损失」。</p>
+<p><strong>相关工作 (Related work)</strong></p>
+<ul>
+<li><a class="wiki-link" data-slug="wespe-2017" href="../wespe-2017/index.html">wespe-2017</a>：同组的弱监督版本</li>
+<li><a class="wiki-link" data-slug="pynet-2020" href="../pynet-2020/index.html">pynet-2020</a>：同一作者从 RAW 出发的后续工作</li>
+</ul>
+<h2 id="sec-6">6. 研究启发 (Transferable takeaways)</h2>
+<p>下面这些卡片对照专项目标来写：iPhone（优先 Bayer RAW）→ 目标相机的细节与质感；颜色走物理对齐，生成模型只补高频，多帧提供真实信息。</p>
+<div class="summary-grid">
+  <div class="card"><h3 id="sec-6-1">1. 配对采集与对齐流程可以直接照搬</h3><p>三脚架同步触发 → 整图 SIFT + RANSAC 单应 → 把目标相机裁片缩到源分辨率 → patch 级互相关微调 → 阈值过滤（DPED 用 0.9）。iPhone 与目标相机的配对数据就可以这样做。如果从 RAW 出发，对齐最好在 RAW 去马赛克后的线性 RGB 上做，然后把变换回写到 Bayer 网格，否则插值会污染 RAW。</p></div>
+  <div class="card"><h3 id="sec-6-2">2. 「颜色看低频、纹理看灰度」就是按频段分工</h3><p>DPED 的颜色项（重度模糊后 L2）和灰度判别器，等于把监督拆成低频和高频两半。专项方案更进一步：低频颜色干脆不交给网络，用 DNG 色彩矩阵 / 色卡做物理对齐；生成模型只负责高频，判别器或扩散模型只在灰度或高通残差上工作。DPED 的消融（不加颜色项 GAN 就偏色）正好说明颜色不该交给对抗损失。</p></div>
+  <div class="card"><h3 id="sec-6-3">3. 损失要对配对错位宽容</h3><p>真实跨相机配对一定有几像素错位（DPED 是 ≤5 px），会直接给 PSNR 设一个上限。可借鉴的做法：颜色项在模糊尺度上比，内容项用深层特征，纹理项用不需要对齐的判别器；更新的方案是 CoBi / contextual loss 或先做光流再比。评测时不要只看 PSNR。</p></div>
+  <div class="card"><h3 id="sec-6-4">4. 反直觉点：PSNR 最高的损失画面最差</h3><p>纯 MSE 的 iPhone PSNR 是 20.56 dB，比最终方案高 0.48 dB，但画面最软、伪影最重。错位 + 回归到均值，会让 PSNR 奖励模糊。专项里选损失、选 checkpoint 都应该用感知指标或盲评，而不是 PSNR。</p></div>
+  <div class="card"><h3 id="sec-6-5">5. 噪声放大说明单帧 GAN 补纹理的上限</h3><p>Fig. 12 显示，最差的 iPhone 3GS 上 GAN 会把噪声当纹理一起放大。生成模型没法区分「噪声」和「真实细节」，因为两者都是高频。这正是专项里用多帧合成提供真实信息的理由：先用 burst 把噪声压下去、把真实细节恢复出来，生成模型只补多帧也补不出来的那部分质感。</p></div>
+  <div class="card"><h3 id="sec-6-6">6. 目标相机的「风格」要和「画质」分开</h3><p>DPED 的目标是 70D 的机内 JPEG（自动模式），网络学到的同时包含 70D 的光学画质和佳能的调色风格。专项目标是「某台相机的质感」，建议把目标端也拆开：目标相机 RAW 经同一套物理色彩流程处理后作为颜色基准，只让网络学两者在纹理、锐度、噪声形态上的差异。</p></div>
+</div>
+</main>
+<footer class="site-footer">Paper Reading · 由 markdown 静态生成 · <a href="https://github.com/megake98/megake98.github.io">GitHub</a></footer>
+</body>
+</html>

@@ -1,0 +1,605 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <script>(function(){try{var t=localStorage.getItem('theme');if(!t)t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
+  <title>Handheld MFSR：用手抖当免费的像素位移，一次合并跳过去马赛克——Pixel 3 Super-Res Zoom 背后的多帧超分</title>
+  <link rel="stylesheet" href="../../assets/style.css">
+  <script>
+    window.MathJax = { tex: { inlineMath: [['$','$'],['\\(','\\)']] } };
+  </script>
+  <script async src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-mml-chtml.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/highlight.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/highlightjs-line-numbers.js@2.9.0/dist/highlightjs-line-numbers.min.js"></script>
+  <script>document.addEventListener('DOMContentLoaded', () => { hljs.highlightAll(); hljs.initLineNumbersOnLoad(); });</script>
+  <script defer src="../../assets/lightbox.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const links = document.querySelectorAll('.toc a');
+      if (!links.length) return;
+      const map = new Map();
+      links.forEach(a => {
+        const el = document.getElementById(a.getAttribute('href').slice(1));
+        if (el) map.set(el, a);
+      });
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(e => {
+          const a = map.get(e.target);
+          if (!a) return;
+          if (e.isIntersecting) {
+            links.forEach(l => l.classList.remove('active'));
+            a.classList.add('active');
+            const toc = document.querySelector('.toc');
+            if (toc) toc.scrollTo({ top: a.offsetTop - toc.clientHeight / 2, behavior: 'smooth' });
+          }
+        });
+      }, { rootMargin: '-20% 0px -70% 0px' });
+      map.forEach((_, el) => observer.observe(el));
+    });
+    // reading progress bar
+    document.addEventListener('DOMContentLoaded', () => {
+      const bar = document.querySelector('.read-progress');
+      if (!bar) return;
+      const update = () => {
+        const h = document.documentElement;
+        const max = h.scrollHeight - h.clientHeight;
+        bar.style.transform = 'scaleX(' + (max > 0 ? h.scrollTop / max : 0) + ')';
+      };
+      update();
+      window.addEventListener('scroll', update, { passive: true });
+    });
+  </script>
+</head>
+<body>
+<div class="read-progress" aria-hidden="true"></div>
+<!-- NAV-START -->
+<nav class="site-nav" aria-label="主导航">
+  <a class="site-nav__brand" href="../../index.html" aria-label="返回主页">
+    <span class="site-nav__brand-mark" aria-hidden="true">P</span>
+    <span class="site-nav__brand-text">Paper Reading</span>
+  </a>
+  <div class="site-nav__links">
+    <a class="site-nav__link active" href="../../papers.html">论文</a>
+    <a class="site-nav__link" href="../../tutorials.html">教程</a>
+    <a class="site-nav__link" href="../../surveys.html">调研</a>
+    <a class="site-nav__link" href="../../graph.html">图谱</a>
+    <button type="button" class="site-nav__search-btn" id="search-open" aria-label="搜索" aria-expanded="false" aria-controls="search-modal">
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/>
+      </svg>
+      <span class="site-nav__search-label">搜索</span>
+      <kbd class="site-nav__kbd">⌘K</kbd>
+    </button>
+    <button type="button" class="site-nav__theme-btn" id="theme-toggle" aria-label="切换深浅色主题">
+      <svg class="theme-icon theme-icon--moon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
+      <svg class="theme-icon theme-icon--sun" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+    </button>
+  </div>
+</nav>
+<div class="search-modal" id="search-modal" hidden data-pagefind-path="../../pagefind/">
+  <div class="search-modal__backdrop" data-search-close></div>
+  <div class="search-modal__panel" role="dialog" aria-modal="true" aria-label="全文搜索">
+    <button type="button" class="search-modal__close" data-search-close aria-label="关闭">✕</button>
+    <div id="search"></div>
+  </div>
+</div>
+<link href="../../pagefind/pagefind-ui.css" rel="stylesheet">
+<script defer src="../../pagefind/pagefind-ui.js"></script>
+<script defer src="../../assets/search.js"></script>
+<script defer src="../../assets/theme.js"></script>
+<!-- NAV-END -->
+<nav class="toc" aria-label="目录">
+  <div class="toc-title">目录 / TOC</div>
+  <ul>
+    <li class="h2"><a href="#sec-1">1. 出发点 (Motivation)</a></li>
+    <li class="h2"><a href="#sec-2">2. 方法 (Method)</a></li>
+    <li class="h3"><a href="#sec-2-1">2.1 手抖够不够「随机」:亚像素覆盖分析</a></li>
+    <li class="h3"><a href="#sec-2-2">2.2 配准:块匹配 + 3 次 Lucas-Kanade</a></li>
+    <li class="h3"><a href="#sec-2-3">2.3 核心:逐通道核回归合并 (Eq. 1)</a></li>
+    <li class="h3"><a href="#sec-2-4">2.4 各向异性核:由结构张量决定核的形状 (Eq. 2–4)</a></li>
+    <li class="h3"><a href="#sec-2-5">2.5 统计鲁棒性模型:混叠和错位怎么区分 (Eq. 5–6)</a></li>
+    <li class="h3"><a href="#sec-2-6">2.6 运动先验与形态学收尾 (Eq. 7–9)</a></li>
+    <li class="h2"><a href="#sec-3">3. 结论 (Key findings)</a></li>
+    <li class="h2"><a href="#sec-4">4. 实现细节 (Implementation notes)</a></li>
+    <li class="h2"><a href="#sec-5">5. 批判性总结 (Critical assessment)</a></li>
+    <li class="h3"><a href="#sec-5-1">Strengths</a></li>
+    <li class="h3"><a href="#sec-5-2">Limitations / open questions</a></li>
+    <li class="h3"><a href="#sec-5-3">When to use / not use</a></li>
+    <li class="h3"><a href="#sec-5-4">延伸阅读 (Further reading)</a></li>
+    <li class="h2"><a href="#sec-6">6. 研究启发 (Transferable takeaways)</a></li>
+    <li class="h3"><a href="#sec-6-1">1. 「真实细节层」的现成配方</a></li>
+    <li class="h3"><a href="#sec-6-2">2. 累计鲁棒性 / 分母图可以当生成模型的「许可证」</a></li>
+    <li class="h3"><a href="#sec-6-3">3. 颜色对齐的切入点在合并之后、白平衡之前</a></li>
+    <li class="h3"><a href="#sec-6-4">4. 远处树叶:预期是「伪影或退化」二选一</a></li>
+    <li class="h3"><a href="#sec-6-5">5. iPhone 落地的三个前置风险</a></li>
+    <li class="h3"><a href="#sec-6-6">6. 反直觉点:混叠是信息，不是缺陷</a></li>
+  </ul>
+</nav>
+<main data-pagefind-body>
+<h1>Handheld Multi-Frame Super-Resolution</h1>
+<aside class="post-meta">
+  <div class="post-meta__row"><span class="post-meta__date">加入 <strong>2026-10-20</strong></span> · <span class="post-meta__paper-date">论文日期: 2026-10-20</span></div>
+  <div class="post-meta__row"><span class="post-meta__authors">Bartlomiej Wronski, Ignacio Garcia-Dorado, Manfred Ernst, Damien Kelly, Michael Krainin, Chia-Kai Liang, Marc Levoy, Peyman Milanfar (Google Research)</span> · <span class="post-meta__venue">ACM TOG 38(4) / SIGGRAPH 2019</span></div>
+  <div class="post-meta__row post-meta__links"><a class="post-meta__link" href="https://arxiv.org/abs/1905.03277">arXiv:1905.03277</a> · <a class="post-meta__link" href="https://sites.google.com/view/handheld-super-res/">项目页</a> · <a class="post-meta__link" href="https://github.com/Jamy-L/Handheld-Multi-Frame-Super-Resolution">Handheld-Multi-Frame-Super-Resolution</a></div>
+  <div class="post-meta__row post-meta__concepts"><a class="concept-chip" href="../../concepts/burst-photography.html">burst-photography</a> <a class="concept-chip" href="../../concepts/raw-image.html">raw-image</a> <a class="concept-chip" href="../../concepts/image-super-resolution.html">image-super-resolution</a> <a class="concept-chip" href="../../concepts/denoising.html">denoising</a> <a class="concept-chip" href="../../concepts/phone-to-dslr.html">phone-to-dslr</a> <a class="concept-chip" href="../../concepts/demosaicing.html">demosaicing</a> <a class="concept-chip" href="../../concepts/kernel-regression.html">kernel-regression</a></div>
+</aside>
+
+<blockquote>
+<p><strong>关于代码</strong>:Google 没有公开官方实现。本文引用的全部代码出自 <strong>非官方复现</strong> <a href="https://github.com/Jamy-L/Handheld-Multi-Frame-Super-Resolution">Jamy-L/Handheld-Multi-Frame-Super-Resolution</a>(MIT 许可，约 215★，Numba-CUDA 实现，配套论文 Lafenetre, Facciolo, Eboli, <em>Implementing Handheld Burst Super-Resolution</em>, IPOL 2023)。本文对照的是 2026-09-30 的 <code>main</code> 分支 (commit <code>27c4655</code>)。README 自己写明这一版「已与 IPOL 在线 demo 有较大出入」。下文凡是「代码这样做」,指的都是这份复现，不代表 Google 产线实现。</p>
+</blockquote>
+<figure>
+  <img class="zoomable" src="figures/fig1-teaser.png" alt="Fig.1: 上排为先合并同色通道再去马赛克的结果，下排为本文直接从 RAW 连拍合成 RGB 的结果，红框布纹处上排出现摩尔纹而下排纹理清晰">
+  <figcaption>
+    <strong>Fig. 1</strong> — 上排是「先按同色通道合并 (Hasinoff 2016 式)，再去马赛克」,下排是本文「直接从 Bayer RAW 连拍合成 RGB」。第三个 (红框) 布纹插图最说明问题:单帧去马赛克把布纹混叠成了摩尔纹，而本文利用<strong>每帧混叠相位不同</strong>这一点把混叠消掉，布纹的真实纹理反而显现出来。这一组是 Pixel 手持拍摄、在手机上处理的结果。
+  </figcaption>
+</figure>
+<div class="summary-grid">
+  <div class="card"><h3>问题</h3><p>手机像素小、镜头采样率低于 2 (镜头光斑小于两个像素，所以会混叠),Bayer 阵列又让 R/B 只有 1/4 采样。去马赛克只能靠「颜色局部恒定」的先验去猜，猜错就是拉链纹、伪彩和摩尔纹。</p></div>
+  <div class="card"><h3>观察</h3><p>手持拍摄时手总在抖 (8–12 Hz 的生理震颤)。对齐到基准帧后，各帧像素中心在亚像素空间里近似均匀分布。混叠在这里是可用的信息，前提是每帧的混叠相位不同。</p></div>
+  <div class="card"><h3>方法</h3><p>块匹配 + 3 次 Lucas-Kanade 做亚像素配准，再把每个 Bayer 像素当作稀疏样本，用结构张量控制的<strong>各向异性高斯核</strong>在输出网格上做核回归，R/G/B 分开累加，全程不做去马赛克。</p></div>
+  <div class="card"><h3>鲁棒性</h3><p>引导图上比较「两帧颜色差 d」和「基准帧局部标准差 σ」:d 小于 σ 时合并 (去噪),d 接近 σ 的一定比例时也合并 (算作混叠，用于超分),d 远大于 σ 时剔除 (错位或运动)。再叠加一个光流不平滑的运动先验和 5×5 最小值腐蚀。</p></div>
+  <div class="card"><h3>结果</h3><p>Kodak/McMaster 合成连拍 PSNR 42.86/41.26 dB,DeepJoint 是 39.67/37.58。MTurk 两两比较中，相对第二名 (Hasinoff+DeepJoint) 的偏好率为 79.2%。Adreno 630 上每 MPix 每帧 7.8 ms。</p></div>
+</div>
+<h2 id="sec-1">1. 出发点 (Motivation)</h2>
+<p>一块 12MP 手机传感器给出的「分辨率」其实比 12MP 低，原因有两层。</p>
+<p><strong>第一层是 Bayer 阵列 (CFA)。</strong> 每个像素只有一个颜色的滤光片，RGGB 排列下绿色占 50%,红蓝各 25%。完整的 RGB 要靠<strong>去马赛克</strong>插值出来，而所有去马赛克算法都建立在「局部颜色近似恒定、通道之间高度相关」这个假设上 [§1]。遇到高饱和的单色区域 (纯红布、纯蓝衣服),假设失效，就会出现色彩渗漏、细节丢失和拉链纹 (zipper)[§6.1, Fig. 13]。</p>
+<p><strong>第二层是混叠。</strong> 论文 §7.1 给了一个关键数字:iPhone X 和 Pixel 3 主摄的<strong>采样比</strong> (镜头衍射光斑与像素尺寸之比) 在亮度通道上约 1.5–1.8,低于不混叠所需的 2。再算上 CFA,绿色通道的混叠要多 50%,红蓝通道最多多一倍。高于奈奎斯特频率的纹理在单帧里会以「假的低频」形式出现，也就是摩尔纹。</p>
+<p>传统多帧超分的经典结论 [Tsai &amp; Huang 1984] 说，要把混叠还原成真实高频需要两个条件:(1) 输入帧本身是混叠的;(2) 有多帧，并且采样相位 (亚像素偏移) 不同。手机恰好天然满足这两点:采样比低于 2 保证了条件 (1),手抖提供了条件 (2)。相机厂商的「像素位移多帧合成」(Sony A6000、Pentax K1、Olympus E-M1 等) 要靠三脚架和传感器主动位移，本文想去掉这个限制，做到<strong>单次快门、手持、交互速度、不怕运动、不放大噪声</strong>,这四条是 §1 列出的硬性要求。</p>
+<p>另一个出发点是对 [Hasinoff 2016 (HDR+)] 的改进。HDR+ 把同色通道先做时域维纳合并，再交给单帧去马赛克，相当于 SNR 提上去了，分辨率还是单帧水平。本文要把「合并」和「去马赛克」两步合成一步。</p>
+<div class="term-grid">
+  <div class="card"><h4>CFA / Bayer</h4><p>传感器表面的彩色滤光片阵列。RGGB 每 2×2 一组，每个像素只记录一种颜色。</p></div>
+  <div class="card"><h4>去马赛克 (demosaicing)</h4><p>根据只有单色的 Bayer 像素插值出每个像素完整的 RGB,是 ISP 最早的几步之一。</p></div>
+  <div class="card"><h4>混叠 (aliasing)</h4><p>高于采样率一半的频率在采样后伪装成低频，摩尔纹就是一例。多帧超分要「解开」的正是它。</p></div>
+  <div class="card"><h4>采样比 (sampling ratio)</h4><p>镜头光斑尺寸与像素尺寸之比。大于等于 2 时不混叠，小于 2 时镜头比传感器更锐，有超分的余地。</p></div>
+  <div class="card"><h4>基准帧 (base frame)</h4><p>连拍中被选作坐标参考的那一帧，其他帧都向它对齐。它的鲁棒性权重恒为 1。</p></div>
+  <div class="card"><h4>核回归 (kernel regression)</h4><p>把散落的样本用核函数加权平均，得到任意位置上的连续信号估计。Takeda & Milanfar 2006/2007 的框架。</p></div>
+  <div class="card"><h4>结构张量</h4><p>局部梯度外积 $\nabla I\nabla I^T$ 的邻域和。特征值的大小说明梯度有多强，特征向量给出边缘方向。</p></div>
+  <div class="card"><h4>鲁棒性掩码 R</h4><p>每帧每个位置 0–1 的置信度，1 表示放心合并，0 表示整块拒绝 (错位、运动或遮挡)。</p></div>
+  <div class="card"><h4>Pixel locking</h4><p>亚像素配准估计偏向整数像素的系统性偏差，内容越高频、越混叠，偏差越强。</p></div>
+</div>
+<h2 id="sec-2">2. 方法 (Method)</h2>
+<figure>
+  <img class="zoomable" src="figures/fig2-overview.png" alt="Fig.2 方法总览: RAW 连拍 → 局部梯度/核、对齐向量、局部统计 → 运动鲁棒性 → 按通道累加 → 合并结果">
+  <figcaption>
+    <strong>Fig. 2</strong> — 总流程。(a) Bayer RAW 连拍;(d) 每帧对基准帧做局部对齐;(b→c) 由局部梯度估计每个位置的核形状;(e→f) 由局部统计和对齐场算出鲁棒性掩码;(g) R/G/B 三个平面分别累加加权样本;(h) 逐通道归一化，得到完整 RGB。论文把 (b)–(g) 统称为 <em>merge</em>。整个过程是<strong>在线</strong>的:一帧处理完就累加，内存与帧数无关。
+  </figcaption>
+</figure>
+<h3 id="sec-2-1">2.1 手抖够不够「随机」:亚像素覆盖分析</h3>
+<p>论文 §4 先回答一个前提问题:手抖产生的偏移能不能均匀铺满亚像素空间?他们用 10 位用户日常拍摄的 86 组连拍，积分陀螺仪角速度，得到的角位移分布近似各向同性，1σ 约对应 0.89 像素 [Fig. 3]。</p>
+<p>更有意思的是最悲观情形的论证:假设短时间内手抖是<strong>匀速直线</strong>,即每帧偏移固定的 <span class="math inline">\(a\)</span> 像素。按 Weyl 等分布定理，当 <span class="math inline">\(a\)</span> 为无理数时，序列 <span class="math inline">\(\{a, 2a, 3a, \dots\} \bmod 1\)</span> 在 <span class="math inline">\([0,1)\)</span> 上均匀分布。也就是说，即便手走的是一条直线，对齐后各帧的采样点仍然会均匀铺开 [Fig. 4]。</p>
+<figure>
+  <img class="zoomable" src="figures/fig4-subpixel-coverage.png" alt="Fig.4: 四帧沿直线手抖，每帧相对前一帧偏移 x 半像素、y 四分之一像素，对齐后采样点更密地覆盖网格">
+  <figcaption>
+    <strong>Fig. 4</strong> — 理想化示意:每帧相对前一帧 x 方向偏 0.5 像素，y 方向偏 0.25 像素。对齐到基准帧后，黑点 (像素中心) 以更高密度覆盖了重采样网格。真实情况比这更随机。
+  </figcaption>
+</figure>
+<figure>
+  <img class="zoomable" src="figures/fig5-subpixel-histogram.png" alt="Fig.5: 20 组手持连拍 16x16 块的亚像素位移直方图，两端 (接近整数) 偏高，中间仍有足够覆盖">
+  <figcaption>
+    <strong>Fig. 5</strong> — 20 组手持连拍中 16×16 块的实测亚像素位移直方图。两端偏高是 <em>pixel locking</em>:配准估计偏向整数像素。中间区间 (0.35–0.65) 的频率仍有约 0.07,覆盖足够支撑超分。x 与 y 互不相关。
+  </figcaption>
+</figure>
+<p><strong>类比</strong>:这和 TAA (游戏里的时间抗锯齿) 每帧给相机加一个 Halton 抖动序列是同一回事，区别是这里的抖动由人手免费提供，而且事先不知道偏移量，只能事后靠配准估出来。</p>
+<h3 id="sec-2-2">2.2 配准:块匹配 + 3 次 Lucas-Kanade</h3>
+<p>对齐沿用 HDR+ 的金字塔块匹配，但 HDR+ 只需要像素级精度，超分需要亚像素精度。作者试过对块匹配误差拟合二次曲线求极小 [Kanade &amp; Okutomi 1991],精度不够，最后改成在块匹配结果上再做 <strong>3 次 Lucas-Kanade 迭代</strong> [§3.2]。复现中每个 tile 解一个 2×2 正规方程，下面是一次迭代的核心:</p>
+<p class="code-source">repo/handheld_super_resolution/ICA.py:L180-L203 — 每个 tile 一次 Lucas-Kanade (逆合成) 迭代:时间差分 × 空间梯度，块内归约，再解 2×2 系统更新位移</p>
+<pre><code class="language-python">        mov_interp = lerpx_top + (lerpx_bot - lerpx_top) * frac_y
+
+        gradt = mov_interp - ref_c
+
+        ##### Reduce within the block (=sum)
+        # The reduce methods using shfl on warps is slower than this, idk why
+        s_B0[tid] = -l_gradx * gradt
+        s_B1[tid] = -l_grady * gradt
+        N = TILE_SIZE * TILE_SIZE // 2
+        while N &gt; 0:
+            cuda.syncthreads()
+            if tid &lt; N:
+                s_B0[tid] += max(min(s_B0[tid + N], clip_radius), -clip_radius)
+                s_B1[tid] += max(min(s_B1[tid + N], clip_radius), -clip_radius)
+            N = N // 2
+        #############
+
+        if tid == 0:
+            B0 = s_B0[0]
+            B1 = s_B1[0]
+
+            # solve Ax = B
+            s_alignment[0] += det_inv * (A11 * B0 - A01 * B1)
+            s_alignment[1] += det_inv * (-A10 * B0 + A00 * B1)
+</code></pre>
+<p><span class="math inline">\(A\)</span> 是基准帧梯度的 Hessian 近似 <span class="math inline">\(\sum \nabla I \nabla I^T\)</span>,在 <code>init_ica</code> 里预先算好，每次迭代不变 (这就是「逆合成」形式省算力的地方)。<span class="math inline">\(B=-\sum \nabla I \cdot (I_\text{mov}(x+v) - I_\text{ref}(x))\)</span>。迭代次数 <code>n_iter=3</code> 与论文一致 (<code>config.py:L59</code>)。这里有一个复现特有的小改动:归约时把每个部分和夹到 <code>clip_radius</code>(搜索半径) 以内，论文没有这一步。</p>
+<h3 id="sec-2-3">2.3 核心:逐通道核回归合并 (Eq. 1)</h3>
+<p>论文最核心的式子是一个加权平均。对每个输出像素 <span class="math inline">\((x,y)\)</span> 和每个颜色通道:</p>
+<div class="math block">
+\[C(x,y)=\frac{\sum_n \sum_i c_{n,i}\, w_{n,i}\, \hat R_n}{\sum_n \sum_i w_{n,i}\, \hat R_n}\]
+</div>
+<p class="math-translation">—— 翻译: 输出像素的某个颜色 = 所有帧 n、邻域 3×3 内所有「恰好是这个颜色」的 Bayer 样本 i 的加权平均。权重由两部分相乘:w 表示样本离输出点有多近 (按局部核形状量距离),R̂ 表示这一帧这个位置能不能信。基准帧的 R̂ 恒为 1。</p>
+<p>符号逐个拆开:<span class="math inline">\(c_{n,i}\)</span> 是第 <span class="math inline">\(n\)</span> 帧第 <span class="math inline">\(i\)</span> 个邻域样本的原始 Bayer 值，没有经过任何插值。<span class="math inline">\(w_{n,i}\)</span> 是核权重。<span class="math inline">\(\hat R_n\)</span> 是鲁棒性。分子分母分别累加，所有帧处理完后做一次除法。这种「gather」写法让每个输出像素在每帧只被处理一次，正好对应 GPU 的一线程一像素。</p>
+<p><strong>数值小例子</strong>:设输出像素附近有 3 个绿色样本，值为 0.40、0.50、0.60,核权重为 0.9、0.5、0.1,鲁棒性都是 1。<span class="math inline">\(C=(0.36+0.25+0.06)/(0.9+0.5+0.1)=0.67/1.5\approx0.447\)</span>,结果被拉向最近的样本。如果第三个样本所在帧被判为错位 (<span class="math inline">\(\hat R=0\)</span>),它就完全不参与。</p>
+<p>复现里 Eq. 1 的分子分母累加就是这段 (每个 HR 像素一个线程):</p>
+<p class="code-source">repo/handheld_super_resolution/merge.py:L185-L221 — Eq. 1 + Eq. 2:对齐后位置周围 3×3 个 Bayer 样本，按 RGGB 位置分配通道，用 Ω⁻¹ 二次型算高斯权重，再乘鲁棒性后累加</p>
+<pre><code class="language-python">    for di in range(-1, 2):
+        for dj in range(-1, 2):
+    
+            j = center_j + dj
+            i = center_i + di
+
+            if not (0 &lt;= j &lt; lr_w and
+                    0 &lt;= i &lt; lr_h):
+                continue
+
+            if bayer_mode:
+                # rggb harcoded. so i,j even -&gt; 0; both odd -&gt; 2, else 1
+                channel = i%2 + j%2
+            else:
+                channel = 0
+
+            c = comp_img[i, j]
+        
+            # computing distance
+            dist_x = j - lr_mov_j
+            dist_y = i - lr_mov_i
+
+            ### Computing w
+            z = cov_i_xx * dist_x * dist_x + 2 * cov_i_xy * dist_x * dist_y + cov_i_yy * dist_y * dist_y
+            # z can be slightly negative because of numerical precision.
+            # I clamp it to not explode the error with exp
+            z = max(0, z)
+
+            w = math.exp(-0.5*z)
+            ############
+                
+            val[channel] += w * local_r * c
+            acc[channel] += w * local_r
+        
+    for chan in range(n_channels):
+        num[hr_i, hr_j, chan] += val[chan] 
+        den[hr_i, hr_j, chan] += acc[chan]
+</code></pre>
+<p><code>channel = i%2 + j%2</code> 一行就替代了去马赛克:Bayer 样本按位置直接落进 R/G/B 三个累加器，任何样本都不会被插值成别的颜色。输出网格的尺寸由 <code>scale</code> 决定 (<code>merge.py:L62</code>),这就是论文所说的「可以直接合并到任意倍率网格，不需要再重采样」。</p>
+<p>基准帧同样走 <code>merge</code>,只是传入全零位移和全 1 的鲁棒性，与论文「基准帧 <span class="math inline">\(\hat R = 1\)</span>」一致:</p>
+<p class="code-source">repo/handheld_super_resolution/super_resolution.py:L139-L145 — 基准帧也经过同一个累加器，位移为 0、鲁棒性恒为 1</p>
+<pre><code class="language-python">    #### Ref kernel estimation
+    cuda_kernels = estimate_kernels_(cuda_ref_img, config)
+    
+    ##### Merge ref
+    dummy_alignment = cuda.to_device(np.zeros(ref_hessian[-1].shape[:-1], dtype = DEFAULT_NUMPY_FLOAT_TYPE))
+    dummy_r = cuda.to_device(np.ones(cuda_ref_img.shape, dtype = DEFAULT_NUMPY_FLOAT_TYPE))
+    merge_(cuda_ref_img, dummy_alignment, cuda_kernels, dummy_r, num, den, config)
+</code></pre>
+<p>其余帧在 <code>super_resolution.py:L152-L195</code> 的循环里依次执行「对齐 → 鲁棒性 → 核估计 → merge」,最后 <code>divide_(num, den)</code>(L206) 完成 Eq. 1 的除法。</p>
+<h3 id="sec-2-4">2.4 各向异性核:由结构张量决定核的形状 (Eq. 2–4)</h3>
+<p>核权重是一个未归一化的各向异性高斯:</p>
+<div class="math block">
+\[w_{n,i}=\exp\!\left(-\tfrac12\, d_i^T\,\Omega^{-1}\,d_i\right),\qquad d_i=[x_i-x_0,\; y_i-y_0]^T\]
+</div>
+<p class="math-translation">—— 翻译: 样本 i 到输出点的偏移 d_i,用协方差 Ω 定义的「椭圆距离」来量。Ω 大的方向 (椭圆长轴) 上远处样本也给较高权重，Ω 小的方向上稍远就几乎不给权重。</p>
+<p><span class="math inline">\(\Omega\)</span> 怎么来?在半分辨率灰度图 (2×2 Bayer quad 合成一个像素) 上算局部梯度的结构张量:</p>
+<div class="math block">
+\[\hat\Omega=\begin{bmatrix} I_x^2 &amp; I_xI_y\\ I_xI_y &amp; I_y^2\end{bmatrix},\qquad
+\Omega=\begin{bmatrix}e_1 &amp; e_2\end{bmatrix}\begin{bmatrix}k_1 &amp; 0\\ 0 &amp; k_2\end{bmatrix}\begin{bmatrix}e_1^T\\ e_2^T\end{bmatrix}\]
+</div>
+<p class="math-translation">—— 翻译: 对 Ω̂ 做特征分解，e₁ 是梯度最强的方向 (垂直于边缘),e₂ 沿着边缘。然后人为设定两个方向上的方差 k₁、k₂,重新拼出一个椭圆核:边缘处沿边拉长、垂直于边压窄;平坦处变成又大又圆的核，用来去噪。</p>
+<p><strong>为什么要各向异性?</strong> 理由不只是保边。边缘区域正是孔径问题 (aperture problem) 让配准出错最多的地方:沿边方向的位移估不准。把核沿边拉长后，沿边方向的配准误差几乎不影响结果，垂直于边的样本被压低权重。论文 Fig. 7 显示，用各向同性核时轻微错位就会在边缘产生严重拉链纹，换成 <span class="math inline">\(k_\text{stretch}=4, k_\text{shrink}=2\)</span> 后拉链纹消失。</p>
+<p>补充材料 §S.2 给出了 <span class="math inline">\(k_1,k_2\)</span> 的启发式:</p>
+<div class="math block">
+\[A=1+\sqrt{\frac{\lambda_1-\lambda_2}{\lambda_1+\lambda_2}},\qquad
+D=\mathrm{clamp}\!\left(1-\frac{\sqrt{\lambda_1}}{D_{tr}}+D_{th},\,0,\,1\right)\]
+</div>
+<p class="math-translation">—— 翻译: A ∈ [1,2] 衡量各向异性 (1 = 各向同性，2 = 纯边缘);D ∈ [0,1] 衡量「这里该去噪还是该超分」:梯度弱 (λ₁ 小，接近噪声水平) 时 D→1,用大圆核去噪;梯度强时 D→0,用小核保细节。最终核尺寸在「k_detail × 各向异性」和「k_detail × k_denoise」之间按 D 插值。</p>
+<p>复现中的结构张量和协方差重建:</p>
+<p class="code-source">repo/handheld_super_resolution/kernels.py:L175-L207 — Eq. 3:2×2 邻域累加梯度外积得到结构张量;Eq. 4:用特征向量和 k₁²、k₂² 重建协方差 Ω</p>
+<pre><code class="language-python">    for i in range(0, 2):
+        for j in range(0, 2):
+            x = pixel_idx - 1 + j
+            y = pixel_idy - 1 + i
+            
+            if (0 &lt;= y &lt; full_grads.shape[0] and
+                0 &lt;= x &lt; full_grads.shape[1]):
+                
+                gx = full_grads[y, x, 0]
+                gy = full_grads[y, x, 1]
+
+                structure_tensor[0, 0] += gx * gx
+                structure_tensor[1, 0] += gx * gy
+                structure_tensor[0, 1] += gx * gy
+                structure_tensor[1, 1] += gy * gy
+    
+    l = cuda.local.array(2, dtype=DEFAULT_CUDA_FLOAT_TYPE)
+    e1 = cuda.local.array(2, dtype=DEFAULT_CUDA_FLOAT_TYPE)
+    e2 = cuda.local.array(2, dtype=DEFAULT_CUDA_FLOAT_TYPE)
+    k = cuda.local.array(2, dtype=DEFAULT_CUDA_FLOAT_TYPE)
+
+    get_eigen_elmts_2x2(structure_tensor, l, e1, e2)
+
+    compute_k(l[0], l[1], k, k_detail, k_denoise, D_th, D_tr, k_stretch,
+        k_shrink, selection_law)
+
+    k_1_sq = k[0]*k[0]
+    k_2_sq = k[1]*k[1]
+    
+    covs[pixel_idy, pixel_idx, 0, 0] = k_1_sq*e1[0]*e1[0] + k_2_sq*e2[0]*e2[0]
+    covs[pixel_idy, pixel_idx, 0, 1] = k_1_sq*e1[0]*e1[1] + k_2_sq*e2[0]*e2[1] 
+    covs[pixel_idy, pixel_idx, 1, 0] = k_1_sq*e1[0]*e1[1] + k_2_sq*e2[0]*e2[1]
+    covs[pixel_idy, pixel_idx, 1, 1] = k_1_sq*e1[1]*e1[1] + k_2_sq*e2[1]*e2[1]
+</code></pre>
+<p class="code-source">repo/handheld_super_resolution/kernels.py:L234-L259 — 补充材料 §S.2 的 A、D 启发式，以及复现自己的两种「选择律」(hard_threshold / linear,默认 linear)</p>
+<pre><code class="language-python">    A = 1 + math.sqrt((l1 - l2)/(l1 + l2))
+    D = clamp(1 - math.sqrt(l1)/D_tr + D_th, 0, 1)
+
+    if selection_law == SEL_HARD_THRESHOLD:
+        k1, k2 = hard_threshold(A, k_shrink, k_stretch)
+    else: # LINEAR
+        k1, k2 = linear(A, k_shrink, k_stretch)
+    
+    k[0] = k_detail * ((1-D)*k1 + D*k_denoise)
+    k[1] = k_detail * ((1-D)*k2 + D*k_denoise)
+
+@cuda.jit(device=True)
+def hard_threshold(A, k_shrink, k_stretch):
+    if A &gt; 1.95:
+        k1 = 1/k_shrink
+        k2 = k_stretch
+    else: # When A is Nan, we fall back to this condition
+        k1 = 1
+        k2 = 1
+    return k1, k2
+
+@cuda.jit(device=True)
+def linear(A, k_shrink, k_stretch):
+    k1 = (2-A) + (A-1)/k_shrink 
+    k2 = (2-A) + (A-1)*k_stretch
+    return k1, k2
+</code></pre>
+<p><span class="math inline">\(A\)</span>、<span class="math inline">\(D\)</span> 两行与论文逐字一致，但 <span class="math inline">\(k_1,k_2\)</span> 的组合方式不一样，§4 会展开讲。这里先指出复现的语义:<code>linear</code> 在 <span class="math inline">\(A=1\)</span> 时给各向同性 (<span class="math inline">\(k_1=k_2=1\)</span>),在 <span class="math inline">\(A=2\)</span> 时给 <span class="math inline">\(e_1\)</span>(梯度方向) 压窄到 <span class="math inline">\(1/k_\text{shrink}\)</span>、给 <span class="math inline">\(e_2\)</span>(沿边) 拉长到 <span class="math inline">\(k_\text{stretch}\)</span>。这与论文正文「沿边拉长」的意思一致。</p>
+<h3 id="sec-2-5">2.5 统计鲁棒性模型:混叠和错位怎么区分 (Eq. 5–6)</h3>
+<p>整篇论文最难的问题是:一帧与基准帧在某处不一致，到底是<strong>混叠</strong> (该合并，超分正是要用它) 还是<strong>错位/运动</strong> (必须剔除，否则出鬼影)?</p>
+<p>作者借用了实时渲染 TAA 的经验 [Salvi 2016]:<strong>容易混叠的区域在单帧内部就有很大的空间方差</strong>。于是在半分辨率 RGB 引导图上比较两个量:基准帧的局部标准差 <span class="math inline">\(\sigma\)</span>,以及对齐后两帧局部均值的颜色差 <span class="math inline">\(d\)</span>:</p>
+<div class="math block">
+\[R=s\cdot\exp\!\left(-\frac{d^2}{\sigma^2}\right)-t\]
+</div>
+<p class="math-translation">—— 翻译: 颜色差 d 用「本地有多花哨」σ 来归一化。同样的差异出现在平坦处 (σ 小) 说明对错了，要剔除;出现在纹理处 (σ 大) 可能只是混叠相位不同，可以合并。s 和 t 是缩放和阈值，保证小差异得到满权重 1,大差异被压到 0。</p>
+<figure>
+  <img class="zoomable" src="figures/fig10-robustness-model.png" alt="Fig.10: 以局部标准差 σ 为横轴、颜色差 d 为纵轴的鲁棒性热图，分为 Misalignment、Aliasing、Denoising 三个区域">
+  <figcaption>
+    <strong>Fig. 10</strong> — 统计鲁棒性模型的三个区域。$d \ll \sigma$:Denoising,放心合并，起时域去噪作用;$d$ 约等于 $\sigma$ 的一定比例:Aliasing,同样合并，贡献超分;$d \gg \sigma$:Misalignment,剔除。两条虚线的斜率由 $s$ 决定，有运动时 $s$ 会改变 (§2.6)。
+  </figcaption>
+</figure>
+<p><strong>噪声修正 (Eq. 6)。</strong> <span class="math inline">\(\sigma_{ms}\)</span> 和 <span class="math inline">\(d_{ms}\)</span> 都只用 3×3 = 9 个样本估计，暗光下噪声会让正确对齐的帧也显得「差异很大」。论文用传感器噪声模型 (异方差高斯，方差是亮度的线性函数) 做 <strong>Monte Carlo 模拟</strong>,得到平坦区域在给定亮度下的期望值 <span class="math inline">\(\sigma_{md}\)</span> 和 <span class="math inline">\(d_{md}\)</span>,然后:</p>
+<div class="math block">
+\[\sigma=\max(\sigma_{ms},\,\sigma_{md}),\qquad d=d_{ms}\,\frac{d_{ms}^2}{d_{ms}^2+d_{md}^2}\]
+</div>
+<p class="math-translation">—— 翻译: σ 下限截断到噪声水平，避免平坦噪声区的 σ 被低估;d 做维纳式收缩:比噪声预期还小的颜色差基本被压成 0,远大于噪声的颜色差几乎不变。效果是暗光平坦区不会因为噪声被误判为错位 (Fig. 11)。</p>
+<p>复现的实现基本是 Eq. 6 的平方形式:</p>
+<p class="code-source">repo/handheld_super_resolution/robustness.py:L401-L434 — Eq. 6:按基准帧亮度查 Monte Carlo LUT,σ² 取 max,d² 乘以 (d²/(d²+d_md²))² 做维纳收缩</p>
+<pre><code class="language-python">def cuda_compute_d_sigma(means_r, means_m, var_r, sigma_sq_curve, d_sq_curve, d_sq, sigma_sq, do_noise_correction):
+    x, y = cuda.grid(2)
+    nc, ny, nx = means_r.shape
+    
+    if not (0 &lt;= y &lt; ny and
+            0 &lt;= x &lt; nx):
+        return
+
+    d_sq_ = 0
+    sigma_sq_ = 0
+    for c in range(nc):
+        error = means_r[c, y, x] - means_m[c, y, x]
+        d_sq_ += error * error
+        sigma_sq_ += var_r[c, y, x]
+
+
+    if do_noise_correction:
+        brightness = 0
+        for c in range(nc):
+            brightness += means_r[c, y, x]
+        brightness /= nc
+        brightness = clamp(brightness, 0, 1)
+        id_noise = round((sigma_sq_curve.shape[0] - 1) * brightness)
+
+        d_noise_sq = d_sq_curve[id_noise]
+        sigma_noise_sq = sigma_sq_curve[id_noise]
+        sigma_sq_ = max(sigma_sq_, sigma_noise_sq)
+
+        if d_sq_ &gt; 0:
+            shrink = d_sq_ / (d_sq_ + d_noise_sq)
+            d_sq_ *= shrink * shrink
+
+    d_sq[y, x] = d_sq_
+    sigma_sq[y, x] = sigma_sq_
+</code></pre>
+<p>注意 <span class="math inline">\(\sigma^2\)</span> 只用了<strong>基准帧</strong>的局部方差 (<code>var_r</code>),<span class="math inline">\(d\)</span> 则把三个颜色通道的平方差加在一起，得到一个标量。LUT 由 <code>monte_carlo.py</code> 按论文所说的 Monte Carlo 方式生成，模拟时把噪声样本截断到 <span class="math inline">\([0,1]\)</span>,对应论文提到的「白点附近的传感器截断非线性」(<code>monte_carlo.py:L25-L35</code>)。</p>
+<h3 id="sec-2-6">2.6 运动先验与形态学收尾 (Eq. 7–9)</h3>
+<p>只看颜色统计还不够 (Fig. 12 中段仍有伪影)。第二个信号来自<strong>对齐场本身</strong>:只有相机运动且对齐正确时，相邻 tile 的位移应该平滑;3×3 tile 邻域内位移的极差一旦很大，就说明这里有局部运动或孔径问题。</p>
+<div class="math block">
+\[M=\sqrt{\Big(\max_{j\in N_3} v_x(j)-\min_{j\in N_3} v_x(j)\Big)^2+\Big(\max_{j\in N_3} v_y(j)-\min_{j\in N_3} v_y(j)\Big)^2}\]
+</div>
+<p class="math-translation">—— 翻译: M 是 3×3 tile 邻域内对齐向量的「摊开程度」。M 超过阈值 M_th (0.8 像素) 的位置被认为光流不可信，要换一个更严格的 s。</p>
+<p>最后对 <span class="math inline">\(R\)</span> 取 5×5 窗口最小值 <span class="math inline">\(\hat R=\min_{j\in N_5}R(j)\)</span>,让拒绝区域向外扩一圈 (Eq. 9)。复现中阈值化这一步:</p>
+<p class="code-source">repo/handheld_super_resolution/robustness.py:L527-L541 — Eq. 5:按 tile 取 s(由运动先验决定),R = clamp(s·exp(−d²/σ²) − t, 0, 1)</p>
+<pre><code class="language-python">@cuda.jit    
+def cuda_robustness_threshold(d_sq, sigma_sq, S, t, tile_size, bayer_mode, R):
+    idx, idy = cuda.grid(2)
+    tile_size = tile_size//2
+
+    if not (0 &lt;= idy &lt; R.shape[0] and
+            0 &lt;= idx &lt; R.shape[1]):
+        return
+        
+    patch_idy = int(idy//tile_size)
+    patch_idx = int(idx//tile_size)
+        
+        
+    R[idy, idx] = clamp(S[patch_idy, patch_idx] * math.exp(-d_sq[idy, idx]/sigma_sq[idy, idx]) - t,
+                        0, 1)
+</code></pre>
+<p>运动先验 <span class="math inline">\(M\)</span> 在 <code>robustness.py:L488-L512</code>(<code>cuda_compute_s</code>),写法是比较 <span class="math inline">\(M^2\)</span> 和 <span class="math inline">\(M_{th}^2\)</span>,5×5 最小值在 <code>robustness.py:L572-L589</code>。两处都和论文一致。</p>
+<figure>
+  <img class="zoomable" src="figures/fig9-motion-robustness.png" alt="Fig.9: 左为无鲁棒性的移动公交车合成结果有严重鬼影，中为累计鲁棒性掩码，右为启用鲁棒性后的结果">
+  <figcaption>
+    <strong>Fig. 9</strong> — 鲁棒性的效果。左:关掉鲁棒性，移动的公交车出现块状鬼影;中:累计鲁棒性掩码，白色表示所有帧都参与合并，黑色表示因运动或错位只合并了少数帧;右:启用鲁棒性后的结果。黑色区域在质量上会<strong>退化回单帧去马赛克</strong>。
+  </figcaption>
+</figure>
+<h2 id="sec-3">3. 结论 (Key findings)</h2>
+<p><strong>合成数据 (Table 1)。</strong> Kodak (25 张) 和 McMaster (18 张) 上，每张图生成 15 个随机偏移 (二维高斯，标准差 2 像素),用最近邻重采样后再 Bayer 化，模拟混叠的连拍。</p>
+<figure>
+  <img class="zoomable" src="figures/tab1-synthetic-psnr.png" alt="Table 1: ADMM、VNG、FlexISP、DeepJoint 与本文在 Kodak/McMaster 上的 PSNR、SSIM 和 MPix/s">
+  <figcaption>
+    <strong>Table 1</strong> — 本文 Kodak 42.86 dB / 0.996,McMaster 41.26 dB / 0.993,比最强的单帧方法 DeepJoint (39.67 / 37.58 dB) 高 3.2 / 3.7 dB。吞吐 1756.9 MPix/s (GPU),DeepJoint 为 0.33 MPix/s。注意这是<strong>多帧对单帧</strong>的比较，信息量本来就不对等。
+  </figcaption>
+</figure>
+<p><strong>真实连拍上的用户研究 (Table 2)。</strong> 115 名 MTurk 参与者做两两比较 (问题是「你更喜欢哪台相机的画质?」)。本文相对 Hasinoff+DeepJoint 的偏好率为 0.792,相对 Hasinoff+VNG 为 0.901,相对单帧+DeepJoint / 单帧+VNG 都是 0.941。</p>
+<p><strong>鲁棒性压力测试 (§6.2, Fig. 17/29)。</strong> 把 10%–50% 的 tile 对齐向量替换成错误值，或者给对齐向量加 0.05–0.25 像素的高斯噪声。最强扰动下 (50% 坏 tile 或 0.25 px 噪声),算法几乎只合并基准帧，PSNR 降到简单去马赛克的水平，但<strong>不出现融合伪影</strong>。这是一种「失败时安全」的设计。</p>
+<p><strong>帧数 (§6.4, Fig. 18/19)。</strong> 586 组连拍的统计:PSNR 随帧数近似线性上升 (噪声方差下降)。光线好时约 8 帧就达到 40 dB (肉眼不可分辨),锐度在约 7 帧时达到峰值，之后缓慢下降 (配准误差在累积);暗光下直到 15 帧都还有收益。产品里固定使用 15 帧。</p>
+<p><strong>超分倍率的物理上限 (§7.1, Fig. 20)。</strong> Pixel 3 主摄采样比约 1.5,在测试卡上 1.5× 提升明显，到 2× 只剩小幅提升，3× 没有额外收益。作者据此称:在 2× 以内，画质可以比肩专门的长焦镜头。</p>
+<p><strong>速度 (Table 3)。</strong> Adreno 630:固定开销 15.4 ms,每帧 7.8 ms/MPix,显存 22 MB/MPix,与帧数无关 (在线累加)。即 12MP 每帧约 100 ms。GTX 980 上是 0.4 ms/MPix。FRVSR 处理 Full HD 每帧要 191 ms (P100),本文快约两个数量级。</p>
+<p><strong>暗光 (§7.2)。</strong> 分辨率与 SNR 是幂律关系，SNR 趋于 0 时，超分能力迅速消失。所以在暗光下，本文的好处主要体现为「保细节的时空去噪」,这也是它被选为 Night Sight 默认合并的原因。所有参数只由一个输入驱动:基准帧估计出的 SNR (6–30 区间上分段线性插值)。</p>
+<h2 id="sec-4">4. 实现细节 (Implementation notes)</h2>
+<p>以下都对照非官方复现 (<code>repo/handheld_super_resolution/</code>)。论文本身对很多细节只写到「见补充材料」,复现填上了这些空白，也留下了几处与论文不一致的地方。</p>
+<ol>
+<li>
+<p><strong>SNR 驱动的全部调参。</strong> <code>params.py:L59-L82</code> 把 SNR 截断到 [6, 30],tile 尺寸取 64/32/16 (SNR ≤14 / ≤22 / 其他),<span class="math inline">\(k_\text{detail}\)</span> 在 0.33→0.25、<span class="math inline">\(k_\text{denoise}\)</span> 在 5.0→3.0 之间线性插值。这与补充材料 §S.2 的 <span class="math inline">\(T_s=[16,32,64]\)</span>、<span class="math inline">\(k_\text{detail}=[0.25..0.33]\)</span>、<span class="math inline">\(k_\text{denoise}=[3..5]\)</span> 吻合。SNR 本身由 <code>utils_image.py:L341</code> 的 <code>estimate_image_snr</code> 用噪声参数 α、β 估计。</p>
+</li>
+<li>
+<p><strong>鲁棒性 s1/s2 的取值与论文对调。⚠️ 差异。</strong> 论文 Eq. 8 写的是「<span class="math inline">\(M&gt;M_{th}\)</span> 时 <span class="math inline">\(s=s_1\)</span>」,补充材料给出 <span class="math inline">\(s_1=12, s_2=2\)</span>。按 <span class="math inline">\(R=s\cdot e^{-d^2/\sigma^2}-t\)</span>,<span class="math inline">\(s\)</span> 越大越宽容 (s=12 时 <span class="math inline">\(d^2/\sigma^2\lt 2.37\)</span> 即满权重;s=2 时要 <span class="math inline">\(\lt 0.58\)</span>)。照论文字面，<strong>检测到运动的区域反而更宽容</strong>,与 §5.2.3「运动处应更严格」的说法矛盾。复现的默认值是 <code>s1: float = 2</code>、<code>s2: float = 12</code>(<code>config.py:L84-L85</code>),配合 <code>robustness.py:L509-L512</code>「超阈值取 s1」,语义是运动处更严格，与论文的文字描述一致。看起来是补充材料把 s1/s2 的数值写反了。</p>
+</li>
+</ol>
+<p class="code-source">repo/handheld_super_resolution/config.py:L78-L96 — 复现的鲁棒性与核参数默认值:t、Mt、k_stretch、k_shrink 与论文一致，s1/s2 与补充材料对调</p>
+<pre><code class="language-python">@dataclass
+class RobustnessConfig:
+    enabled: bool = True
+    noise_correction: bool = True
+    save_mask: bool = True
+    t: float = 0.12
+    s1: float = 2
+    s2: float = 12
+    Mt: float = 0.8
+
+
+@dataclass
+class KernelConfig:
+    k_detail: SNRBasedFloat = SNR_BASED
+    k_denoise: SNRBasedFloat = SNR_BASED
+    D_th: SNRBasedFloat = SNR_BASED
+    D_tr: SNRBasedFloat = SNR_BASED
+    k_stretch: float = 4
+    k_shrink: float = 2
+</code></pre>
+<ol start="3">
+<li>
+<p><strong>核尺寸的组合公式与补充材料不同。⚠️ 差异。</strong> 补充材料写 <span class="math inline">\(\hat k_1=k_\text{detail}\cdot k_\text{stretch}\cdot A\)</span>、<span class="math inline">\(\hat k_2=k_\text{detail}/(k_\text{shrink}\cdot A)\)</span>。按字面:(a) <span class="math inline">\(A=1\)</span>(平坦/各向同性) 时 <span class="math inline">\(\hat k_1/\hat k_2=k_\text{stretch}k_\text{shrink}=8\)</span>,核依然是细长的;(b) 被拉长的是 <span class="math inline">\(e_1\)</span>,而 <span class="math inline">\(e_1\)</span> 对应主特征值 <span class="math inline">\(\lambda_1\)</span>,即梯度方向 (复现 <code>linalg.py:L66-L71</code> 把绝对值大的根排在第一位,<code>get_eigen_vect_2x2</code> 由 <span class="math inline">\(\lambda_2\)</span> 构造 <span class="math inline">\(e_1\)</span>),这等于「垂直于边拉长」,与正文「沿边拉长」相反。复现改为自定的 <code>linear</code> 选择律 (<code>kernels.py:L255-L259</code>):<span class="math inline">\(A\)</span> 从 1 到 2 时，核从各向同性线性过渡到「<span class="math inline">\(e_1\)</span> 压窄、<span class="math inline">\(e_2\)</span> 拉长」,并保留了一个 <code>A &gt; 1.95</code> 的硬阈值版本可选。论文的公式究竟是笔误，还是另有一套特征向量记号约定，从论文本身无法判断。</p>
+</li>
+<li>
+<p><strong><span class="math inline">\(D_{th}/D_{tr}\)</span> 的数值与论文相差约 100 倍。⚠️ 差异。</strong> 论文 <span class="math inline">\(D_{th}=[0.001..0.010]\)</span>、<span class="math inline">\(D_{tr}=[0.006..0.020]\)</span>(单位是归一化到 [0,1] 的梯度幅值)。复现 <code>params.py:L79-L82</code> 用的是 0.71–0.81 和 1.0–1.24。原因是复现在求梯度之前先对 RAW 做了<strong>广义 Anscombe 变换 (GAT)</strong>(<code>config.py:L101</code> <code>preprocessing = &quot;gat&quot;</code>,实现见 <code>utils_image.py:L183-L206</code>),把异方差噪声稳定成单位方差，梯度量纲随之改变。论文没有提 VST,这是复现自己的设计。</p>
+</li>
+<li>
+<p><strong>引导图取了平方根。⚠️ 差异 (复现自认)。</strong> <code>robustness.py:L202-L204</code> 生成引导图时对每个通道取 <span class="math inline">\(\sqrt{\max(x,0)}\)</span>。论文只说「R、B 直接取，G 求平均」。README 的「Calibrating robustness noise correction」一节明确说这部分偏离了 IPOL 论文，理由是 <span class="math inline">\(d\)</span> 和 <span class="math inline">\(\sigma\)</span> 应在感知相关的色彩空间里比较，并且「推测 Wronski 等人用了 <span class="math inline">\(\sqrt{\cdot}\)</span>」。这一点是推测，不是事实。Monte Carlo LUT 也是走同一个平方根链路生成的 (<code>monte_carlo.py:L38-L47</code>)。</p>
+</li>
+<li>
+<p><strong>配准用 FFT 低通灰度图。</strong> <code>utils_image.py:L88-L103</code> 把 Bayer 图做 2D FFT,把四周各 1/4 的频谱置零 (这一带就是 Bayer 调制产生的色度载波),再逆变换，得到全分辨率的灰度图用于对齐 (<code>config.py:L66</code> 默认 <code>grey_method=&quot;FFT&quot;</code>)。核估计则用 2×2 平均抽取 (<code>cuda_decimate_to_grey</code>,L225-L235)。论文只写了后者 (§5.1.2)。</p>
+</li>
+<li>
+<p><strong>光流在 merge 时按 tile 取最近邻。</strong> <code>merge.py:L103-L106</code> 用 <code>int(lr_x//tile_size)</code> 直接取所在 tile 的位移，没有在 tile 之间插值;鲁棒性也是用最近邻从半分辨率上采样 (<code>merge.py:L113-L119</code> 注释)。论文 §3.2 只说「每个 tile 一个对齐向量」。这种写法在 tile 边界处可能出现微小台阶，复现靠 5×5 最小值腐蚀和各向异性核来掩盖。</p>
+</li>
+<li>
+<p><strong>核在对齐后位置上双线性插值。</strong> <code>merge.py:L141-L179</code> 在 comp 帧对齐后的位置上，对半分辨率协方差做双线性插值再求逆，与论文 §5.1.2「双线性上采样 kernel covariance」一致。<code>z = max(0, z)</code> 防止数值误差让指数爆掉 (L211)。</p>
+</li>
+<li>
+<p><strong>基准帧鲁棒性恒为 1,其余逐帧在线累加。</strong> <code>super_resolution.py:L143-L145</code> 和 L152-L195 与论文的在线描述一致，显存与帧数无关。补充材料 §S.3 的「高频方差损失」检测器 (专门对付测试卡类重复纹理) 在复现中<strong>没有找到</strong>对应实现 (grep <code>variance loss</code> 无结果)。</p>
+</li>
+</ol>
+<h2 id="sec-5">5. 批判性总结 (Critical assessment)</h2>
+<h3 id="sec-5-1">Strengths</h3>
+<ul>
+<li><strong>问题重述很漂亮。</strong> 把「去马赛克 + 多帧合并 + 超分 + 去噪」统一成一个核回归问题，一行 <code>channel = i%2 + j%2</code> 就绕开了去马赛克，在饱和单色区域避免了「跨通道相关」先验失效的问题。</li>
+<li><strong>失败时安全。</strong> 鲁棒性模型的设计目标是「宁可退化成单帧，也不出融合伪影」。Fig. 17/29 的扰动实验验证了这一点，这对上线产品是决定性的属性。</li>
+<li><strong>工程上一路做到出货。</strong> 在线累加、显存与帧数无关、GPU gather、只有一个 SNR 输入参数，都是「能在 2018 年手机上 100 ms/帧跑完」所需的设计。</li>
+<li><strong>对超分上限的论述很诚实。</strong> §7.1 用采样比说明了为什么超过 2× 就没有收益，没有夸大成「任意倍率」。</li>
+</ul>
+<h3 id="sec-5-2">Limitations / open questions</h3>
+<ul>
+<li><strong>合成评测偏向本方法。</strong> Table 1 的连拍用最近邻重采样 + 理想 Bayer 化生成，没有镜头 PSF、没有真实噪声，偏移也由程序生成 (σ=2 px 高斯),而对手全是单帧方法。3 dB 的优势中有多少来自「多帧信息量」、有多少来自核回归本身，论文没有拆开 (例如缺少「Hasinoff 合并 + DeepJoint」在合成数据上的 PSNR)。</li>
+<li><strong>真实数据上没有全参考指标。</strong> 真实连拍只有用户研究和视觉对比，并且对比前统一加了 3 px 半径的 USM 锐化和 S 曲线 (§6.3),锐化强度会影响人的偏好。</li>
+<li><strong>关键超参只给区间、调参靠主观感知。</strong> <span class="math inline">\(s\)</span>、<span class="math inline">\(M_{th}\)</span>、<span class="math inline">\(D_{th}\)</span> 等是按感知质量手调的 (补充 §S.2),而补充材料中 s1/s2 的取值和 <span class="math inline">\(k\)</span> 的组合公式看起来写反了 (见 §4 第 2、3 条),不读复现很难照着论文复现出来。IPOL 复现论文之所以存在，正是因为「实现空白」太多。</li>
+<li><strong>小幅高频运动是公开承认的盲区。</strong> §7.5 / Fig. 23 右:水面波纹、<strong>树叶轻微摆动</strong>这类小幅高频变化，一旦被「正确」对齐，统计模型就分不出它和混叠，会融合出特征明显的高频伪影。论文只说「可以用专门的检测器解决」。</li>
+<li><strong>大运动区只能退回单帧。</strong> 大幅运动或遮挡区域的 <span class="math inline">\(\hat R\)</span> 接近 0,画质退回单帧去马赛克，暗光下还会明显更噪 (Fig. 22,需要额外的空间去噪补救)。</li>
+<li><strong>超分倍率被光学锁死在约 1.5–2×。</strong> 这不是算法缺陷，但意味着它<strong>不能凭空造出目标相机的分辨率</strong>,只能把手机自身光学的潜力用足。</li>
+<li><strong>没有学习组件，也就没有纹理先验。</strong> 去噪与保细节的取舍全靠结构张量启发式，暗光下只能偏向平滑。</li>
+</ul>
+<figure>
+  <img class="zoomable" src="figures/fig23-fusion-artifacts.png" alt="Fig.23: 左为孔径问题导致的边缘错位，右为草叶等高频区域在亚像素运动下产生的特征性高频伪影">
+  <figcaption>
+    <strong>Fig. 23</strong> — 论文自认的两类残余伪影。左:孔径问题导致边缘被错位合并;右:小幅运动的草叶 (高频 + 亚像素运动) 被当作混叠合进来，产生特征性的高频伪影。对「远处树叶被风吹动」的场景来说，这张图就是要预期的失败模式。
+  </figcaption>
+</figure>
+<h3 id="sec-5-3">When to use / not use</h3>
+<ul>
+<li><strong>适合</strong>:能拿到<strong>真正的 Bayer RAW 连拍</strong> (不是已经去马赛克、合成过的 RAW),场景以静态为主，目标放大 ≤ 2×,需要「真实细节、不编造」的底图。</li>
+<li><strong>不适合</strong>:单帧输入;已经 demosaic 的线性 DNG 或 JPEG (CFA 结构没了，跳过去马赛克这一主要收益也就没了);大面积非刚性运动 (人群、水面、风中的植被);三脚架完全静止 (没有手抖，§7.3 要靠 OIS 主动位移)。</li>
+</ul>
+<h3 id="sec-5-4">延伸阅读 (Further reading)</h3>
+<p><strong>交叉验证比较</strong>:同样是「RAW 连拍 → 高分辨率 RGB」,学习派和本文的经典派结论并不相同。</p>
+<table>
+<thead>
+<tr>
+<th>工作</th>
+<th>核心结论</th>
+<th>关键观察</th>
+<th>与本文的异 / 同</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>本文 (Wronski 2019)</td>
+<td>手抖 + 核回归 + 统计鲁棒性足以替代去马赛克，在手机上实时运行</td>
+<td>超分上限由采样比锁定 (约 1.5–2×);小幅高频运动是盲区</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Hasinoff 2016 (HDR+)</td>
+<td>同色通道时域维纳合并大幅提高 SNR 和动态范围</td>
+<td>合并后仍是单帧去马赛克，分辨率没有提升</td>
+<td>同:同一套金字塔块匹配，同样的「失败时安全」思路;异:它只降噪，本文把分辨率也提上去了</td>
+</tr>
+<tr>
+<td>Bhat 2021 DBSR (arXiv 2101.10997)</td>
+<td>学一个光流 + 注意力融合网络，端到端从 RAW 连拍做 4× 超分</td>
+<td>用合成连拍 (随机仿射) 训练，在 BurstSR 真实数据上需要处理跨设备配准</td>
+<td>同:都从 Bayer RAW 出发，跳过显式去马赛克;异:它追求 4×,靠学到的先验补足超出采样比的部分，本文只取物理可恢复的部分</td>
+</tr>
+<tr>
+<td>Lecouat 2021 Lucas-Kanade Reloaded (arXiv 2104.06191)</td>
+<td>把 Lucas-Kanade 配准和 HR 重建写成可微的交替优化，学习其中的先验</td>
+<td>显式建模前向成像 (位移 + 下采样 + CFA),比纯黑盒网络更可解释</td>
+<td>同:都用 LK 做亚像素配准，都基于物理前向模型;异:它用学习的先验正则化逆问题，本文用手调的核回归</td>
+</tr>
+<tr>
+<td><a class="wiki-link" data-slug="la-sr-2026" href="../la-sr-2026/index.html">la-sr-2026</a></td>
+<td>单张图里远景是「真 LR」,在 CLIP 语言空间做无配对超分</td>
+<td>只看感知指标 (CLIPIQA/MUSIQ),没有保真度约束</td>
+<td>同:都想要「真实退化下的真细节」;异:LA-SR 靠语义先验生成细节，本文只合成物理上采到的信号，路线相反</td>
+</tr>
+</tbody>
+</table>
+<p><strong>分歧的可能成因</strong>:关键在于<strong>超出采样比之后的那部分细节谁来补</strong>。本文的立场是「镜头没给的就不要」,所以评测只做到 1.5–2×,并且可以说「不编造」;DBSR、LK-Reloaded 用合成数据学先验来追求 4×,真实数据上的增益很大程度取决于训练退化与真实 PSF/噪声是否匹配;LA-SR 这类单图生成方法则完全依赖先验。评测协议 (合成 PSNR、真实用户研究、无参考感知指标) 各不相同，是这几种结论难以直接对比的另一个原因。</p>
+<p><strong>相关工作 (Related work)</strong></p>
+<ul>
+<li><a class="wiki-link" data-slug="la-sr-2026" href="../la-sr-2026/index.html">la-sr-2026</a> — 单图、无配对、语言空间的真实超分，可以看作「先验补细节」的另一端。</li>
+<li><a class="wiki-link" data-slug="diffusion-sr-2026" href="../../surveys/diffusion-sr-2026/index.html">diffusion-sr-2026</a> — 扩散超分的调研，生成式补高频的现状。</li>
+<li><a class="wiki-link" data-slug="op4ksr-2026" href="../op4ksr-2026/index.html">op4ksr-2026</a> — 一步式 4K 生成超分，与本文「只取物理细节」的路线形成对照。</li>
+</ul>
+<h2 id="sec-6">6. 研究启发 (Transferable takeaways)</h2>
+<p>这一节扣住专项「手机照片 → 相机画质:细节与质感迁移」:目标是把 iPhone 照片 (优先从 Bayer RAW 出发) 的整体细节和质感转成某台目标相机的效果。已有的思路是:颜色用物理方法对齐，生成模型只补高频纹理，真实细节优先靠 Bayer RAW 连拍 + 传统多帧合成/超分获得，不编造内容。</p>
+<div class="summary-grid">
+  <div class="card"><h3 id="sec-6-1">1. 「真实细节层」的现成配方</h3><p>本文正好是这条思路中「真实细节优先」的那一层:手抖提供亚像素偏移，核回归把混叠还原成真实高频，直接从 Bayer 出完整 RGB,跳过 ISP 去马赛克 (伪彩、拉链纹、摩尔纹的主要来源)。复现可以直接读 DNG 连拍，输出线性 RGB 或 LinearRaw DNG。iPhone 主摄采样比与 Pixel 3 同档 (论文 §7.1 给 iPhone X 为 1.5–1.8),合理预期是 1×(只替代去马赛克)到 1.5× 有真实增益，2× 以上不要指望。</p></div>
+  <div class="card"><h3 id="sec-6-2">2. 累计鲁棒性 / 分母图可以当生成模型的「许可证」</h3><p>每个输出像素的 <code>den</code>(Σ w·R̂) 和累计鲁棒性掩码记录了「这里有多少帧真实样本支撑」。高值区域的细节是采样得到的，生成模型不应改动;低值区域 (运动、遮挡、树叶) 只有单帧质量，才是生成模型被允许补高频的地方。这样「只补高频、不编造」就变成了可执行的逐像素门控，而不是只停留在口号上。复现里 <code>den</code> 已经可以通过 debug 输出拿到 (<code>super_resolution.py:L208-L211</code>)。</p></div>
+  <div class="card"><h3 id="sec-6-3">3. 颜色对齐的切入点在合并之后、白平衡之前</h3><p>合并输出的是<strong>相机原生色彩空间的线性 RGB</strong>,还没做白平衡、CCM 和色调映射 (复现在 <code>raw2rgb.postprocess</code> 里才做这些)。「物理方法对齐颜色」(iPhone 传感器光谱 → 目标相机光谱的矩阵或 LUT) 应该插在这里，而不是在 sRGB JPEG 上做。这一层也是线性的，方便与生成模型解耦。</p></div>
+  <div class="card"><h3 id="sec-6-4">4. 远处树叶:预期是「伪影或退化」二选一</h3><p>论文 Fig. 23 右明确说明:小幅高频的树叶摆动被正确对齐后，会与混叠混淆，合成出特征性伪影;大幅摆动则被鲁棒性拒绝，退回单帧质量 (还会被 5×5 最小值腐蚀扩大)。所以树叶区域<strong>不能指望靠多帧拿到真细节</strong>。可行的组合是:(a) 收紧这类区域的 s / M_th,或者加论文没实现的高频方差损失检测 (补充 §S.3),宁可拒绝也不出伪影;(b) 被拒绝的区域交给第 2 条的门控，由生成模型补「叶子质感」而不是「叶子内容」。</p></div>
+  <div class="card"><h3 id="sec-6-5">5. iPhone 落地的三个前置风险</h3><p>(i) <strong>必须是真 Bayer RAW</strong>:Apple ProRAW 是已经多帧合成、去马赛克后的线性 DNG,CFA 结构没了，本方法的主要收益随之消失，需要用能导出未去马赛克 Bayer DNG 的采集方式;(ii) <strong>OIS 会吃掉部分手抖</strong>:论文的亚像素覆盖分析基于 Pixel 3 的手持数据，iPhone 开 OIS 后残余位移的分布需要先用 Fig. 5 式的直方图实测;(iii) <strong>噪声标定</strong>:复现在噪声修正开启时要求 DNG 的 NoiseProfile (α,β) 和对应的 Monte Carlo LUT,iPhone 上要自己标定，否则暗光鲁棒性会误判。</p></div>
+  <div class="card"><h3 id="sec-6-6">6. 反直觉点:混叠是信息，不是缺陷</h3><p>直觉上会想先抗混叠再合成，本文恰恰反过来:镜头比传感器锐 (采样比小于 2) 才有超分可言，单帧的摩尔纹正是多帧可以解开的高频。同理，「手机 → 相机」的差距里有一部分不在像素数，而在 MTF、噪声和色彩科学。前两者本文已经能用物理方法吃掉一部分，剩下的才轮到生成模型。</p></div>
+</div>
+</main>
+<footer class="site-footer">Paper Reading · 由 markdown 静态生成 · <a href="https://github.com/megake98/megake98.github.io">GitHub</a></footer>
+</body>
+</html>

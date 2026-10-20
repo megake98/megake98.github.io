@@ -53,6 +53,33 @@
   </div>
   <h2>提到此概念的论文 / 教程</h2>
   <div class="post-grid">
+<article class="post-card post-card--paper">
+  <div class="post-card__meta">
+    <span class="post-card__badge">论文</span>
+    <span class="post-card__date"><span class="post-card__added">2026-10-20</span><span class="post-card__extra">约 30 分钟</span></span>
+  </div>
+  <h3 class="post-card__title"><a class="post-card__title-link" href="../papers/zoom-to-learn-2019/index.html">Zoom to Learn, Learn to Zoom：从 Bayer RAW 直接超分，用光学变焦拍真值</a></h3>
+  <p class="post-card__tldr">CVPR 2019 的「真实数据超分」奠基作之一。论文主张：数字变焦（计算变焦）应该直接吃 12–14 bit 的 Bayer RAW，而不是吃被 ISP 降噪、压到 8 bit 的 RGB。难点是 RAW 没有高分辨率真值，于是作者用一支 24–240mm 变焦镜头对同一场景拍 7 档焦距，长焦 RGB 当短焦 RAW 的真值，攒出 500 组序列的 SR-RAW 数据集。不同焦距拍出来的图必然有 40–80 像素的错位（视差、景深、清晰度差），像素损失会糊，所以作者在 Contextual Loss 上加了空间坐标项，提出 CoBi 损失。 结果：4X 下 PSNR 26.88 / LPIPS 0.190，比最好的 RGB 基线高 3.75 dB；受控实验里同一网络吃真 RAW 比吃 8-bit RGB 高 4.54 dB，比吃合成 RAW 高 2.90 dB。代码只开源了推理、数据对齐和 CoBi 损失本体，训练脚本没放出来。从代码看，CoBi 的「空间项」实际退化成了「同位置特征加 0.1 分」，和论文 Eq. 2 写的「按距离惩罚」并不一样。</p>
+  <div class="post-card__tags"><a class="tag-chip" href="../concepts/raw-image.html">raw-image</a> <a class="tag-chip" href="../concepts/learned-isp.html">learned-isp</a> <a class="tag-chip" href="../concepts/image-super-resolution.html">image-super-resolution</a> <span class="tag-chip tag-chip--more">+6</span></div>
+</article>
+<article class="post-card post-card--paper">
+  <div class="post-card__meta">
+    <span class="post-card__badge">论文</span>
+    <span class="post-card__date"><span class="post-card__added">2026-10-20</span><span class="post-card__extra">约 25 分钟</span></span>
+  </div>
+  <h3 class="post-card__title"><a class="post-card__title-link" href="../papers/realsr-2019/index.html">RealSR：拧变焦环拍出真·低/高清配对，再用拉普拉斯金字塔核预测网络做真实世界超分</a></h3>
+  <p class="post-card__tldr">合成退化 (bicubic / 多种模糊+下采样) 训出的超分模型到了真实照片上几乎不比 bicubic 强。RealSR 的解法很朴素：三脚架固定单反，同一场景用 105mm 拍 HR、用 50/35/28mm 拍 LR，靠薄透镜公式给出初始缩放比，再用「仿射 + 亮度 α,β」的鲁棒 IRLS 逐级配准到像素级，得到 595 对真实退化配对 (Canon 5D3 + Nikon D810)。模型侧提出 LP-KPN：对 Y 通道做三层拉普拉斯金字塔、每层预测逐像素 5×5 核，等效 4k×4k 感受野。同样网络，换 RealSR 训练在 ×2 上涨约 1 dB；LP-KPN 以 5.7M 参数略胜 RCAN (32.7M)。代码里训练损失其实是三层金字塔各一个 L2 (1:1:1)，与论文写的「重建图上的 L2」不同。</p>
+  <div class="post-card__tags"><a class="tag-chip" href="../concepts/image-super-resolution.html">image-super-resolution</a> <a class="tag-chip" href="../concepts/real-isr.html">real-isr</a> <a class="tag-chip" href="../concepts/phone-to-dslr.html">phone-to-dslr</a> <span class="tag-chip tag-chip--more">+5</span></div>
+</article>
+<article class="post-card post-card--survey">
+  <div class="post-card__meta">
+    <span class="post-card__badge">调研</span>
+    <span class="post-card__date"><span class="post-card__added">2026-10-20</span><span class="post-card__extra">约 40 分钟</span></span>
+  </div>
+  <h3 class="post-card__title"><a class="post-card__title-link" href="../surveys/phone2camera-2026/index.html">手机照片 → 相机画质：细节与质感迁移调研（2017→2026）</a></h3>
+  <p class="post-card__tldr">专项「把 iPhone 照片（优先 Bayer RAW）在细节与质感上变成某台目标相机的效果」的入口调研。按五组覆盖本站刚精读的 12 篇：A 手机→单反画质（DPED / WESPE / PyNET / LiteISPNet / ISPW / DiffRAW / ISPDiffuser），B 用更好的光学拍真值（Zoom-to-Learn / RealSR），C RAW 域造数据（Unprocessing），D 跨相机颜色（C5），E 多帧（Handheld MFSR）。逐篇给出核心贡献、方法、带数字的结果和代码位置，再用一张矩阵按输入域、监督、对齐、颜色/纹理是否分离、骨干、数据集、代码对比，写出一致与矛盾。代码交叉验证汇总各页发现，其中有三条会直接影响复用：ISPDiffuser 发布版颜色一致性损失恒为 0、Canny 纹理损失无梯度、评测取 best-of-10；C5 的 apply_cst 原地覆盖导致 3×3 算错；ZRR 和 ISPW 都不提供单反 RAW。最后对照「物理颜色 + 多帧真实细节 + 强度可控的高频生成 + 目标相机 ISP 出图」这条管线，列出每一步的证据和缺口。</p>
+  <div class="post-card__tags"><a class="tag-chip" href="../concepts/learned-isp.html">learned-isp</a> <a class="tag-chip" href="../concepts/raw-image.html">raw-image</a> <a class="tag-chip" href="../concepts/phone-to-dslr.html">phone-to-dslr</a> <span class="tag-chip tag-chip--more">+9</span></div>
+</article>
 <article class="post-card post-card--survey">
   <div class="post-card__meta">
     <span class="post-card__badge">调研</span>
@@ -79,6 +106,15 @@
   <h3 class="post-card__title"><a class="post-card__title-link" href="../papers/omgsr-2025/index.html">OMGSR：一步超分的关键不是蒸馏，是把低清图喂到「中间时刻」——SNR 算出最佳注入点 + GAN 训练</a></h3>
   <p class="post-card__tldr">OMGSR 把一步真实世界超分（Real-ISR）的成败归结为一个「潜空间鸿沟」：以往方法把低清图 latent 注入到扩散调度器的 t=999（纯噪声）或 t=1（干净图），但低清图 latent 既不是噪声也不是干净图——它最接近预训练扩散在某个中间时刻 t\* 的带噪 latent。 作者用信噪比 (SNR) 把这个「最佳中间时刻」算出来（SD2.1-base 上 t\*=273），再用 LRR 损失（LoRA 微调 VAE 编码器）把低清 latent 进一步拉向 t\* 的带噪 latent，然后在 t\* 处做一步去噪。整套是 GAN 训练（生成器=扩散模型本身，判别器=DINOv3-ConvNeXt + 多级头），不是师生蒸馏。这就是 op4ksr-2026 4K 超分的直接前身。</p>
   <div class="post-card__tags"><a class="tag-chip" href="../concepts/image-super-resolution.html">image-super-resolution</a> <a class="tag-chip" href="../concepts/real-isr.html">real-isr</a> <a class="tag-chip" href="../concepts/one-step-generation.html">one-step-generation</a> <span class="tag-chip tag-chip--more">+7</span></div>
+</article>
+<article class="post-card post-card--paper">
+  <div class="post-card__meta">
+    <span class="post-card__badge">论文</span>
+    <span class="post-card__date"><span class="post-card__added">2024-03-24</span><span class="post-card__extra">约 30 分钟</span></span>
+  </div>
+  <h3 class="post-card__title"><a class="post-card__title-link" href="../papers/diffraw-2024/index.html">DiffRAW：用扩散模型把手机 RAW 变成单反观感——RAW 管结构、确定性 ISP 输出锁颜色和位置、扩散只补细节</a></h3>
+  <p class="post-card__tldr">DiffRAW（AAAI 2024，清华深研院 + 华为）第一次把扩散模型用到「手机 RAW → 单反 sRGB」的学习式 ISP 上，分工是：手机 RAW 当条件，负责轮廓和纹理结构；一张确定性 sRGB（训练时是单反图的合成退化版，测试时是 LiteISPNet 的输出）当「颜色-位置保持条件」，锁住颜色和像素位置；扩散模型负责补出单反级的高频细节。 为了少走几步，它还设计了 DTDM：前向过程边加噪边从 y 往 x 退化，于是推理可以直接从「加噪后的 LiteISPNet 输出」出发，100 步以内做完。ZRR 上 LPIPS 0.187→0.145、FID 17.04→15.10，无参考指标与单反真值持平，但 PSNR/SSIM 反而比 LiteISPNet 低一点。没有官方代码。</p>
+  <div class="post-card__tags"><a class="tag-chip" href="../concepts/learned-isp.html">learned-isp</a> <a class="tag-chip" href="../concepts/raw-image.html">raw-image</a> <a class="tag-chip" href="../concepts/phone-to-dslr.html">phone-to-dslr</a> <span class="tag-chip tag-chip--more">+6</span></div>
 </article>
 </div>
 

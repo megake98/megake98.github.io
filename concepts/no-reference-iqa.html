@@ -56,6 +56,15 @@
 <article class="post-card post-card--paper">
   <div class="post-card__meta">
     <span class="post-card__badge">论文</span>
+    <span class="post-card__date"><span class="post-card__added">2026-10-20</span><span class="post-card__extra">约 30 分钟</span></span>
+  </div>
+  <h3 class="post-card__title"><a class="post-card__title-link" href="../papers/wespe-2017/index.html">WESPE：不要配对，只要两堆照片——用「颜色 / 纹理」双判别器 + 循环内容损失把手机照往单反画质推</a></h3>
+  <p class="post-card__tldr">DPED 证明了「手机照 → 单反照」可学，但要靠三脚架拍出像素对齐的配对数据。WESPE 去掉配对：只要一堆源相机照片 + 一堆任意高质量照片（甚至是网上爬的 DIV2K），用 CycleGAN 式的逆映射 F 把内容损失放在输入域（x 与 F(G(x)) 的 VGG 距离），再用两个判别器分别只看「模糊后的颜色」和「灰度纹理」。在 DPED 上 SSIM 接近全监督（iPhone 0.90 vs 0.92），但 PSNR 低 2–4 dB；无参考指标与 Flickr 虚拟评分上反而超过全监督。没有官方代码，本文交叉阅读的是非官方 TensorFlow 实现，其中发现生成器对抗损失疑似写错、颜色判别器去掉了模糊等偏差。</p>
+  <div class="post-card__tags"><a class="tag-chip" href="../concepts/phone-to-dslr.html">phone-to-dslr</a> <a class="tag-chip" href="../concepts/image-enhancement.html">image-enhancement</a> <a class="tag-chip" href="../concepts/gan.html">gan</a> <span class="tag-chip tag-chip--more">+3</span></div>
+</article>
+<article class="post-card post-card--paper">
+  <div class="post-card__meta">
+    <span class="post-card__badge">论文</span>
     <span class="post-card__date"><span class="post-card__added">2026-07-03</span><span class="post-card__extra">约 20 分钟</span></span>
   </div>
   <h3 class="post-card__title"><a class="post-card__title-link" href="../papers/la-sr-2026/index.html">LA-SR: 一张照片里的「远处即 LR、近处即 HR」——把无配对超分搬进 CLIP 语言空间</a></h3>

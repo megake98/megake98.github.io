@@ -1,0 +1,605 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <script>(function(){try{var t=localStorage.getItem('theme');if(!t)t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
+  <title>Unprocessing：把网上的 sRGB 照片逐步「逆 ISP」回 RAW，造出逼真的去噪训练对</title>
+  <link rel="stylesheet" href="../../assets/style.css">
+  <script>
+    window.MathJax = { tex: { inlineMath: [['$','$'],['\\(','\\)']] } };
+  </script>
+  <script async src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-mml-chtml.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/highlight.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/highlightjs-line-numbers.js@2.9.0/dist/highlightjs-line-numbers.min.js"></script>
+  <script>document.addEventListener('DOMContentLoaded', () => { hljs.highlightAll(); hljs.initLineNumbersOnLoad(); });</script>
+  <script defer src="../../assets/lightbox.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const links = document.querySelectorAll('.toc a');
+      if (!links.length) return;
+      const map = new Map();
+      links.forEach(a => {
+        const el = document.getElementById(a.getAttribute('href').slice(1));
+        if (el) map.set(el, a);
+      });
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(e => {
+          const a = map.get(e.target);
+          if (!a) return;
+          if (e.isIntersecting) {
+            links.forEach(l => l.classList.remove('active'));
+            a.classList.add('active');
+            const toc = document.querySelector('.toc');
+            if (toc) toc.scrollTo({ top: a.offsetTop - toc.clientHeight / 2, behavior: 'smooth' });
+          }
+        });
+      }, { rootMargin: '-20% 0px -70% 0px' });
+      map.forEach((_, el) => observer.observe(el));
+    });
+    // reading progress bar
+    document.addEventListener('DOMContentLoaded', () => {
+      const bar = document.querySelector('.read-progress');
+      if (!bar) return;
+      const update = () => {
+        const h = document.documentElement;
+        const max = h.scrollHeight - h.clientHeight;
+        bar.style.transform = 'scaleX(' + (max > 0 ? h.scrollTop / max : 0) + ')';
+      };
+      update();
+      window.addEventListener('scroll', update, { passive: true });
+    });
+  </script>
+</head>
+<body>
+<div class="read-progress" aria-hidden="true"></div>
+<!-- NAV-START -->
+<nav class="site-nav" aria-label="主导航">
+  <a class="site-nav__brand" href="../../index.html" aria-label="返回主页">
+    <span class="site-nav__brand-mark" aria-hidden="true">P</span>
+    <span class="site-nav__brand-text">Paper Reading</span>
+  </a>
+  <div class="site-nav__links">
+    <a class="site-nav__link active" href="../../papers.html">论文</a>
+    <a class="site-nav__link" href="../../tutorials.html">教程</a>
+    <a class="site-nav__link" href="../../surveys.html">调研</a>
+    <a class="site-nav__link" href="../../graph.html">图谱</a>
+    <button type="button" class="site-nav__search-btn" id="search-open" aria-label="搜索" aria-expanded="false" aria-controls="search-modal">
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/>
+      </svg>
+      <span class="site-nav__search-label">搜索</span>
+      <kbd class="site-nav__kbd">⌘K</kbd>
+    </button>
+    <button type="button" class="site-nav__theme-btn" id="theme-toggle" aria-label="切换深浅色主题">
+      <svg class="theme-icon theme-icon--moon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
+      <svg class="theme-icon theme-icon--sun" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+    </button>
+  </div>
+</nav>
+<div class="search-modal" id="search-modal" hidden data-pagefind-path="../../pagefind/">
+  <div class="search-modal__backdrop" data-search-close></div>
+  <div class="search-modal__panel" role="dialog" aria-modal="true" aria-label="全文搜索">
+    <button type="button" class="search-modal__close" data-search-close aria-label="关闭">✕</button>
+    <div id="search"></div>
+  </div>
+</div>
+<link href="../../pagefind/pagefind-ui.css" rel="stylesheet">
+<script defer src="../../pagefind/pagefind-ui.js"></script>
+<script defer src="../../assets/search.js"></script>
+<script defer src="../../assets/theme.js"></script>
+<!-- NAV-END -->
+<nav class="toc" aria-label="目录">
+  <div class="toc-title">目录 / TOC</div>
+  <ul>
+    <li class="h2"><a href="#sec-1">1. 出发点：深度去噪输给 BM3D，问题出在训练数据</a></li>
+    <li class="h2"><a href="#sec-2">2. 方法：逆 ISP 造数据 + 在 sRGB 空间算损失</a></li>
+    <li class="h3"><a href="#sec-2-1">2.1 噪声模型：泊松-高斯近似成异方差高斯</a></li>
+    <li class="h3"><a href="#sec-2-2">2.2 逆 ISP 五步：每一步怎么反过来</a></li>
+    <li class="h3"><a href="#sec-2-3">2.3 损失：在处理后的 sRGB 空间算 L₁</a></li>
+    <li class="h3"><a href="#sec-2-4">2.4 网络：4+4 通道输入的残差 U-Net</a></li>
+    <li class="h2"><a href="#sec-3">3. 结论：数据比网络重要</a></li>
+    <li class="h2"><a href="#sec-4">4. 实现细节与「论文 vs 代码」核对</a></li>
+    <li class="h2"><a href="#sec-5">5. 批判性总结</a></li>
+    <li class="h3"><a href="#sec-5-1">Strengths</a></li>
+    <li class="h3"><a href="#sec-5-2">Limitations / open questions</a></li>
+    <li class="h3"><a href="#sec-5-3">When to use / not use</a></li>
+    <li class="h3"><a href="#sec-5-4">延伸阅读：与相似工作的交叉验证</a></li>
+    <li class="h2"><a href="#sec-6">6. 研究启发：对「iPhone Bayer RAW → 目标相机画质」能借什么</a></li>
+    <li class="h3"><a href="#sec-6-1">1. 反向造配对：用目标相机的 JPEG 合成「iPhone 风格 RAW」</a></li>
+    <li class="h3"><a href="#sec-6-2">2. 噪声对齐的公式就在 Eq 1–3 里</a></li>
+    <li class="h3"><a href="#sec-6-3">3. 损失要在「目标观看空间」里算</a></li>
+    <li class="h3"><a href="#sec-6-4">4. 局限一：iPhone 的成片不能被逆回去</a></li>
+    <li class="h3"><a href="#sec-6-5">5. 局限二：质感和细节恰好是这套方法没建模的部分</a></li>
+    <li class="h3"><a href="#sec-6-6">6. 反直觉点：数据错配不能靠堆参数补</a></li>
+  </ul>
+</nav>
+<main data-pagefind-body>
+<p class="post-kicker">论文</p>
+<h1>Unprocessing：把网上的 sRGB 照片逐步「逆 ISP」回 RAW，造出逼真的去噪训练对</h1>
+<aside class="post-meta">
+  <div class="post-meta__row"><span class="post-meta__date">加入 <strong>2026-10-20</strong></span> · <span class="post-meta__paper-date">论文日期: 2026-10-20</span></div>
+  <div class="post-meta__row"><span class="post-meta__authors">Tim Brooks, Ben Mildenhall, Tianfan Xue, Jiawen Chen, Dillon Sharlet, Jonathan T. Barron (Google Research · UC Berkeley)</span> · <span class="post-meta__venue">CVPR 2019</span></div>
+  <div class="post-meta__row post-meta__links"><a class="post-meta__link" href="https://arxiv.org/abs/1811.11127">arXiv:1811.11127</a> · <a class="post-meta__link" href="http://timothybrooks.com/tech/unprocessing">项目页</a> · <a class="post-meta__link" href="https://github.com/timothybrooks/unprocessing">unprocessing</a> · <a class="post-meta__link" href="https://github.com/google-research/google-research/tree/master/unprocessing">unprocessing</a></div>
+  <div class="post-meta__row post-meta__concepts"><a class="concept-chip" href="../../concepts/raw-image.html">raw-image</a> <a class="concept-chip" href="../../concepts/denoising.html">denoising</a> <a class="concept-chip" href="../../concepts/data-synthesis.html">data-synthesis</a> <a class="concept-chip" href="../../concepts/learned-isp.html">learned-isp</a> <a class="concept-chip" href="../../concepts/phone-to-dslr.html">phone-to-dslr</a> <a class="concept-chip" href="../../concepts/image-enhancement.html">image-enhancement</a> <a class="concept-chip" href="../../concepts/noise-modeling.html">noise-modeling</a> <a class="concept-chip" href="../../concepts/inverse-isp.html">inverse-isp</a></div>
+</aside>
+<figure>
+  <img class="zoomable" src="figures/fig1-teaser.png" alt="Darmstadt 上的去噪对比：噪声输入、真值、N3Net、本文">
+  <figcaption><b>图 1。</b>Darmstadt Noise Dataset 中的一张真实噪声图：(a) 噪声输入 PSNR 18.76，(b) 真值，(c) 当时最好的 N3Net 32.42，(d) 本文 35.35。四张都从 Bayer RAW 转到 sRGB 显示，下方三个小块是最近邻放大。注意 (c) 左下小块里的低频彩色斑块（chroma artifact），(d) 几乎没有；论文 §5 也把增益部分归因于这一点。</figcaption>
+</figure>
+<blockquote>
+<p><strong>代码来源说明</strong>：官方实现最初放在 <code>google-research/google-research</code> 单体仓库的 <code>unprocessing/</code> 目录（README 里的命令行写的是 <code>/google-research$ python -m unprocessing.train</code>），后来一作在 <code>timothybrooks/unprocessing</code> 单独放了一份。我把两份逐文件 diff 过：差异只有版权年份和 <code>import tensorflow.compat.v1 as tf</code> 这类 TF2 兼容改动，算法完全一样。下文引用的是 <code>timothybrooks/unprocessing</code>（commit <code>9928956</code>）的行号，<code>repo/</code> 即这份克隆。</p>
+</blockquote>
+<blockquote>
+<p><strong>专项定位</strong>：这篇放在「手机照片 → 相机画质：细节与质感迁移」专项里读。它本身是 RAW 去噪论文，对专项有用的地方在两件事：一是<strong>逐步逆 ISP、把 sRGB 变回 RAW 来批量造配对数据</strong>；二是<strong>按 ISO 联合采样参数的泊松-高斯噪声模型</strong>。§6 专门讨论这两点能怎么挪到「iPhone Bayer RAW → 目标相机效果」上，以及挪过去会在哪里失效。</p>
+</blockquote>
+<h2 id="sec-1">1. 出发点：深度去噪输给 BM3D，问题出在训练数据</h2>
+<p>2017 年的两个真实噪声基准（RENOIR、Darmstadt DND）让人很难堪：在真实相机 RAW 上，用合成数据训练的深度去噪网络经常打不过 BM3D 这类手工方法。作者的诊断是<strong>合成训练数据不像真 RAW</strong>，而且不像的地方不只是噪声。</p>
+<ul>
+<li><strong>噪声模型不对</strong>：大量工作默认噪声是加性、白、高斯（AWGN），真实传感器噪声却是信号相关的：越亮的地方方差越大（shot noise），另有一个和信号无关的底噪（read noise）。</li>
+<li><strong>ISP 被忽略了</strong>（本文的主要切入点）：即使噪声模型对了，训练图像本身也是 sRGB，已经过 tone mapping、gamma、色彩矩阵、白平衡、数字增益。真 RAW 是线性的、偏暗的、偏绿的（白平衡前 R/B 通道被压低），直方图挤在暗部（图 5c）。直接把 sRGB 当 RAW 用，网络看到的强度分布、通道间相关性都和测试时不一样。</li>
+<li><strong>真实配对数据太贵</strong>：SIDD、SID 这类工作用同一台相机拍长短曝光对来训练，但需要三脚架、静态场景、对齐和光照校正；换一个传感器就得重拍。水面、树叶、动物这类有微小运动的场景根本拍不了。</li>
+</ul>
+<p>所以论文的思路是：传感器物理和 ISP 各步骤都是已知的，只要拿到目标相机的几个基本参数（CCM、白平衡增益范围、噪声参数分布），就能把<strong>任意一张网上的照片</strong>变成「看起来像这台相机拍的 RAW」的训练对。</p>
+<div class="term-grid">
+  <div class="card"><h4>ISP</h4><p>Image Signal Processor，相机把传感器原始读数变成好看 JPEG 的整条处理流水线。</p></div>
+  <div class="card"><h4>Bayer / RGGB 马赛克</h4><p>每个像素只装一种颜色滤镜，2×2 一组按 红-绿-绿-蓝 排列，所以 RAW 每个位置只有一个颜色值。</p></div>
+  <div class="card"><h4>Demosaic（去马赛克）</h4><p>从马赛克插值出每个像素的完整 RGB；本文和 DND 都用最朴素的双线性插值。</p></div>
+  <div class="card"><h4>Shot noise</h4><p>光子到达的随机性，泊松分布，方差正比于信号强度：越亮噪声绝对值越大。</p></div>
+  <div class="card"><h4>Read noise</h4><p>读出电路的误差，近似零均值高斯、方差固定，与信号无关，暗部主要是它。</p></div>
+  <div class="card"><h4>CCM</h4><p>Color Correction Matrix，3×3 矩阵，把「相机自己的 RGB」转到标准 sRGB 原色。</p></div>
+  <div class="card"><h4>白平衡 / 数字增益</h4><p>给 R、B 通道各乘一个增益让白色变白；再给全图乘一个亮度增益（自动曝光决定）。</p></div>
+  <div class="card"><h4>Tone mapping / Gamma</h4><p>先用 S 形曲线压对比度，再用 x^(1/2.2) 把线性光强压成更符合人眼的编码值。</p></div>
+  <div class="card"><h4>DND</h4><p>Darmstadt Noise Dataset：4 台消费相机 50 张真实高 ISO 图，真值不公开，只能在线提交评测，很难过拟合。</p></div>
+  <div class="card"><h4>VST</h4><p>Variance Stabilizing Transform（如 Anscombe），把信号相关噪声变成近似等方差高斯，让 AWGN 去噪器能用。</p></div>
+</div>
+<h2 id="sec-2">2. 方法：逆 ISP 造数据 + 在 sRGB 空间算损失</h2>
+<figure>
+  <img class="zoomable" src="figures/fig2-pipeline.png" alt="数据管线与训练流程">
+  <figcaption><b>图 2。</b>上半部分是训练流程：sRGB 训练图 → Unprocess → 干净 RAW；一路加 shot/read 噪声送进网络（同时把噪声水平作为额外输入），另一路直接作为真值；网络输出和真值都经过 Raw Process 变成 sRGB 再算 L₁。下半部分把两条子流水线拆开：粉色 Unprocess（逆色调映射 → gamma 解压 → sRGB→相机 RGB → 逆白平衡与数字增益 → 抽马赛克），绿色 Raw Process（白平衡 + 去马赛克 → 相机 RGB→sRGB → gamma 压缩）。注意绿色那一路<b>没有</b>重新做 tone mapping 和数字增益，§4 会讲这个不对称。</figcaption>
+</figure>
+<p>整套方法可以用一句话概括：<strong>训练时让数据「从 RAW 侧进入，从 sRGB 侧出来」，和测试时真实相机的数据路径一致</strong>。下面按论文 §3 的顺序过一遍每个步骤和它的逆。</p>
+<h3 id="sec-2-1">2.1 噪声模型：泊松-高斯近似成异方差高斯</h3>
+<div class="math block">
+\[y \sim \mathcal{N}\big(\mu = x,\ \sigma^2 = \lambda_{read} + \lambda_{shot}\, x\big)\]
+</div>
+<p class="math-translation">—— 翻译: 观测值 y 以真实亮度 x 为中心抖动，抖动的方差分两份，一份是固定的底噪 λ_read，另一份随亮度线性增长 λ_shot·x。shot noise 本来是泊松分布，这里用均值、方差都匹配的高斯来近似。</p>
+<div class="math block">
+\[\lambda_{read} = g_d^2\, \sigma_r^2, \qquad \lambda_{shot} = g_d\, g_a\]
+</div>
+<p class="math-translation">—— 翻译: 两个参数都由增益决定：数字增益 g_d 把读出噪声按平方放大，模拟增益 g_a 与数字增益相乘决定 shot 部分的斜率。ISO 调高就是把这些增益调大，所以 λ_shot 和 λ_read 会一起变大，两者强相关。</p>
+<p><strong>类比</strong>：拿一个漏斗接雨（光子）。雨点落进来的数量本身是随机的，接得越多，绝对波动越大（shot）；称重用的秤自己有误差，和接了多少雨无关（read）。把读数放大 g 倍（ISO 提高），两种误差也跟着被放大。</p>
+<p><strong>数值例子</strong>：取一个中等 ISO，λ_shot = 0.004、λ_read = e^{2.18·ln 0.004 + 1.2} ≈ 1.9×10⁻⁵。在暗部 x = 0.01 时，σ² ≈ 1.9×10⁻⁵ + 4×10⁻⁵，σ ≈ 0.0077，相对噪声 77%；在亮部 x = 0.5 时，σ ≈ 0.045，相对噪声只有 9%。这就是为什么暗部去噪最难，也是为什么 AWGN（全图同一个 σ）会在暗部欠去噪、亮部过平滑。</p>
+<p>参数怎么取？DND 的元数据里每张图都有标定好的 (λ_shot, λ_read)。作者把它们画在 log-log 坐标上（图 3），发现几乎落在一条直线上，于是拟合出一个联合采样分布：</p>
+<div class="math block">
+\[\log\lambda_{shot} \sim \mathcal{U}\big(\log 0.0001,\ \log 0.012\big), \qquad \log\lambda_{read}\mid\log\lambda_{shot} \sim \mathcal{N}\big(2.18\log\lambda_{shot} + 1.2,\ 0.26^2\big)\]
+</div>
+<p class="math-translation">—— 翻译: 先在对数尺度上均匀地选一个 ISO 档位（λ_shot），再按那条拟合直线算出对应的 read noise，加一点高斯抖动（σ=0.26）模拟不同机身、不同图之间的散布。这样采出来的噪声对，落在真实相机能出现的区域里，不会出现「shot 很大但 read 极小」这种物理上不存在的组合。</p>
+<figure>
+  <img class="zoomable" src="figures/fig3-noise-params.png" alt="DND 的 shot/read 噪声参数分布">
+  <figcaption><b>图 3。</b>DND 中各图的 (log λ_shot, log λ_read)，圆圈大小表示有多少张图共享这一对参数。红色带是 Eq 3 的采样分布。斜率 2.18 接近 2：读出噪声方差 ∝ g_d²，shot 斜率 ∝ g_d，所以当主要靠数字增益提 ISO 时，log λ_read ≈ 2·log λ_shot + 常数，这条线和 Eq 2 的物理预期是吻合的。</figcaption>
+</figure>
+<p>代码和公式一一对应，log-log 直线的系数 2.18、1.20、0.26 直接写死在里面：</p>
+<p class="code-source">repo/unprocess.py:L150-L167 — Eq 3 的噪声参数联合采样 + Eq 1 的异方差高斯加噪</p>
+<pre><code class="language-python">def random_noise_levels():
+  &quot;&quot;&quot;Generates random noise levels from a log-log linear distribution.&quot;&quot;&quot;
+  log_min_shot_noise = tf.log(0.0001)
+  log_max_shot_noise = tf.log(0.012)
+  log_shot_noise = tf.random_uniform((), log_min_shot_noise, log_max_shot_noise)
+  shot_noise = tf.exp(log_shot_noise)
+
+  line = lambda x: 2.18 * x + 1.20
+  log_read_noise = line(log_shot_noise) + tf.random_normal((), stddev=0.26)
+  read_noise = tf.exp(log_read_noise)
+  return shot_noise, read_noise
+
+
+def add_noise(image, shot_noise=0.01, read_noise=0.0005):
+  &quot;&quot;&quot;Adds random shot (proportional to image) and read (independent) noise.&quot;&quot;&quot;
+  variance = image * shot_noise + read_noise
+  noise = tf.random_normal(tf.shape(image), stddev=tf.sqrt(variance))
+  return image + noise
+</code></pre>
+<p><code>add_noise</code> 里方差用的是<strong>干净图</strong> <code>image</code>，这才是物理上正确的 σ²(x)。但网络推理时拿不到干净图，所以喂给网络的噪声水平图用的是<strong>噪声图</strong>近似（见 2.4 的 <code>dataset.py:L67</code>）。</p>
+<h3 id="sec-2-2">2.2 逆 ISP 五步：每一步怎么反过来</h3>
+<p>正向 ISP 的顺序是：马赛克 RAW →（白平衡 + 数字增益）→ 去马赛克 → CCM → gamma → tone mapping → sRGB。Unprocess 严格倒着走。</p>
+<p><strong>(a) 逆 tone mapping</strong>。真实相机的色调曲线是专有的，还可能是局部的（edge-aware），没法逆。作者假设它是一条全局的 smoothstep：</p>
+<div class="math block">
+\[\mathrm{smoothstep}(x) = 3x^2 - 2x^3, \qquad \mathrm{smoothstep}^{-1}(y) = \tfrac{1}{2} - \sin\!\Big(\tfrac{\sin^{-1}(1-2y)}{3}\Big)\]
+</div>
+<p class="math-translation">—— 翻译: smoothstep 是一条在 [0,1] 上的 S 形曲线，压暗部和高光、拉中间调；它的反函数是一个三次方程的解析根，可以写成 sin/arcsin 的闭式。逆过来就是把中间调的对比度还回去。</p>
+<p>代码 <code>repo/unprocess.py:L72-L75</code> 是这个闭式的直接翻译：<code>0.5 - tf.sin(tf.asin(1.0 - 2.0 * image) / 3.0)</code>。</p>
+<p><strong>(b) 逆 gamma</strong>：Γ⁻¹(y) = max(y, ε)^{2.2}，ε = 10⁻⁸ 防止 0 附近梯度爆炸（<code>repo/unprocess.py:L78-L81</code>）。</p>
+<p><strong>(c) 逆 CCM</strong>：DND 有 4 台相机，各有一个固定的 XYZ→Camera 矩阵。为了让模型对这 4 台都适用，每张训练图随机取这 4 个矩阵的一个<strong>凸组合</strong>，乘上标准的 sRGB→XYZ 矩阵，得到 sRGB→Camera 矩阵：</p>
+<p class="code-source">repo/unprocess.py:L44-L69 — 随机 CCM（4 台相机矩阵的凸组合 + 行归一化）与随机白平衡/亮度增益</p>
+<pre><code class="language-python">  num_ccms = len(xyz2cams)
+  xyz2cams = tf.constant(xyz2cams)
+  weights = tf.random_uniform((num_ccms, 1, 1), 1e-8, 1e8)
+  weights_sum = tf.reduce_sum(weights, axis=0)
+  xyz2cam = tf.reduce_sum(xyz2cams * weights, axis=0) / weights_sum
+
+  # Multiplies with RGB -&gt; XYZ to get RGB -&gt; Camera CCM.
+  rgb2xyz = tf.to_float([[0.4124564, 0.3575761, 0.1804375],
+                         [0.2126729, 0.7151522, 0.0721750],
+                         [0.0193339, 0.1191920, 0.9503041]])
+  rgb2cam = tf.matmul(xyz2cam, rgb2xyz)
+
+  # Normalizes each row.
+  rgb2cam = rgb2cam / tf.reduce_sum(rgb2cam, axis=-1, keepdims=True)
+  return rgb2cam
+
+
+def random_gains():
+  &quot;&quot;&quot;Generates random gains for brightening and white balance.&quot;&quot;&quot;
+  # RGB gain represents brightening.
+  rgb_gain = 1.0 / tf.random_normal((), mean=0.8, stddev=0.1)
+
+  # Red and blue gains represent white balance.
+  red_gain = tf.random_uniform((), 1.9, 2.4)
+  blue_gain = tf.random_uniform((), 1.5, 1.9)
+  return rgb_gain, red_gain, blue_gain
+</code></pre>
+<p>论文没写的一个细节在第 57 行：<strong>每一行归一化到和为 1</strong>。这样 rgb2cam 把 (1,1,1) 映射到 (1,1,1)，也就是说 CCM 只负责「色彩混合」，不改变白点；白点的偏移完全交给下一步的白平衡增益。这和 DNG 规范里把 ColorMatrix 与 AsShotNeutral 分开存储是同一个思路。另外 <code>xyz2cams</code> 存的是 XYZ→Camera 方向的矩阵，和 DNG <code>ColorMatrix</code> 标签的方向约定相同，所以换相机时可以直接填 DNG 里读出的矩阵。</p>
+<p><strong>(d) 逆白平衡 + 数字增益（带高光保护）</strong>。数字增益 g 的分布来自一个巧妙的统计论证：假设真实 RAW 与合成 RAW 的亮度都服从指数分布 p(x;λ)=λe^{-λx}，λ 的极大似然估计就是样本均值的倒数，所以两组数据的样本均值之比就是要乘的缩放。作者在 DND 上算出这个比值是 1.25，于是逆增益 1/g ~ N(0.8, 0.1)。白平衡增益直接从 DND 元数据的经验范围均匀采样：红 [1.9, 2.4]、蓝 [1.5, 1.9]。</p>
+<p>问题在于逆增益几乎总小于 1，直接除下去，原本过曝的白色会变成 0.4 左右的灰，合成数据里就<strong>几乎没有饱和像素</strong>，网络学不会处理高光。于是作者设计了一个在高光处平滑过渡到恒等映射的函数：</p>
+<div class="math block">
+\[\alpha(x) = \Big(\frac{\max(x - t,\, 0)}{1 - t}\Big)^2, \qquad f(x, g) = \max\!\Big(\frac{x}{g},\ (1 - \alpha(x))\frac{x}{g} + \alpha(x)\, x\Big),\quad t = 0.9\]
+</div>
+<p class="math-translation">—— 翻译: 亮度低于 0.9 时 α=0，就是普通的除以增益；高于 0.9 后 α 按二次方从 0 涨到 1，输出从「除以增益」平滑地滑到「保持原值」，所以纯白 x=1 仍然映射成 1（依然饱和）。外层 max 保证 g≤1（反而要提亮）时不会被这个混合压暗。</p>
+<figure>
+  <img class="zoomable" src="figures/fig4-highlight-gain.png" alt="高光保护的逆增益函数 f(x,g)">
+  <figcaption><b>图 4。</b>不同增益 g 下的 f(x, g)。g&gt;1 的曲线在 x&lt;0.9 时是斜率 1/g 的直线，过了 0.9 突然往上拐，到 x=1 时都回到 1。这个拐点就是把「过曝白」保留成「RAW 里的饱和值」。</figcaption>
+</figure>
+<p class="code-source">repo/unprocess.py:L92-L102 — Eq 5–6 的高光保护逆增益</p>
+<pre><code class="language-python">def safe_invert_gains(image, rgb_gain, red_gain, blue_gain):
+  &quot;&quot;&quot;Inverts gains while safely handling saturated pixels.&quot;&quot;&quot;
+  gains = tf.stack([1.0 / red_gain, 1.0, 1.0 / blue_gain]) / rgb_gain
+  gains = gains[tf.newaxis, tf.newaxis, :]
+
+  # Prevents dimming of saturated pixels by smoothly masking gains near white.
+  gray = tf.reduce_mean(image, axis=-1, keepdims=True)
+  inflection = 0.9
+  mask = (tf.maximum(gray - inflection, 0.0) / (1.0 - inflection)) ** 2.0
+  safe_gains = tf.maximum(mask + (1.0 - mask) * gains, gains)
+  return image * safe_gains
+</code></pre>
+<p>和 Eq 6 对照：代码把 f 写成了「乘一个安全增益」的形式，(1−α)·(1/g) + α·1 正是 Eq 6 第二项除以 x。区别在于 <strong>α 用的是三通道均值 <code>gray</code>，而不是每个通道自己的 x</strong>（第 98 行）。效果是三个通道共用同一个 mask，近白像素的 R/G/B 一起回到饱和，不会出现只有某一通道饱和导致的色偏。这是论文公式里没有写出来的选择，§4 会再提。</p>
+<p><strong>(e) 抽马赛克</strong>：每个 2×2 块只留 R、Gr、Gb、B 各一个值，打包成半分辨率 4 通道张量（<code>repo/unprocess.py:L105-L115</code>）。</p>
+<p>完整的逆 ISP 只有十几行，顺序和图 2 粉色框完全一致：</p>
+<p class="code-source">repo/unprocess.py:L118-L147 — unprocess() 主函数：采样元数据 → 五步逆 ISP → 返回 RAW 和元数据</p>
+<pre><code class="language-python">def unprocess(image):
+  &quot;&quot;&quot;Unprocesses an image from sRGB to realistic raw data.&quot;&quot;&quot;
+  with tf.name_scope(None, 'unprocess'):
+    image.shape.assert_is_compatible_with([None, None, 3])
+
+    # Randomly creates image metadata.
+    rgb2cam = random_ccm()
+    cam2rgb = tf.matrix_inverse(rgb2cam)
+    rgb_gain, red_gain, blue_gain = random_gains()
+
+    # Approximately inverts global tone mapping.
+    image = inverse_smoothstep(image)
+    # Inverts gamma compression.
+    image = gamma_expansion(image)
+    # Inverts color correction.
+    image = apply_ccm(image, rgb2cam)
+    # Approximately inverts white balance and brightening.
+    image = safe_invert_gains(image, rgb_gain, red_gain, blue_gain)
+    # Clips saturated pixels.
+    image = tf.clip_by_value(image, 0.0, 1.0)
+    # Applies a Bayer mosaic.
+    image = mosaic(image)
+
+    metadata = {
+        'cam2rgb': cam2rgb,
+        'rgb_gain': rgb_gain,
+        'red_gain': red_gain,
+        'blue_gain': blue_gain,
+    }
+    return image, metadata
+</code></pre>
+<p>注意它<strong>返回了元数据</strong>。这些随机采样出来的 CCM 和增益一路传到损失函数，保证网络输出被「同一台虚拟相机」重新处理。这是把「数据合成」和「损失定义」耦合起来的关键。</p>
+<figure>
+  <img class="zoomable" src="figures/fig5-histograms.png" alt="sRGB、Unprocessed、真实 Raw 的通道直方图">
+  <figcaption><b>图 5。</b>各颜色通道直方图：(a) MIR Flickr 的 sRGB 原图，分布平坦；(b) 解处理后，挤到暗部、呈指数衰减；(c) DND 的真实 RAW。(b) 和 (c) 很接近，这是「造出来的 RAW 像真 RAW」的直接证据。也能看出 (b) 的绿色通道比 (c) 略重尾，说明 CCM/白平衡的分布仍有偏差。</figcaption>
+</figure>
+<h3 id="sec-2-3">2.3 损失：在处理后的 sRGB 空间算 L₁</h3>
+<div class="math block">
+\[\mathcal{L} = \big\| \mathrm{P}\big(f_\theta(\tilde{y}, \hat{\sigma}^2);\ m\big) - \mathrm{P}(x;\ m) \big\|_1, \qquad \mathrm{P} = \Gamma \circ \mathrm{CCM}_{m} \circ \mathrm{Demosaic} \circ \mathrm{WB}_{m}\]
+</div>
+<p class="math-translation">—— 翻译: x 是干净伪 RAW，ỹ 是加噪后的输入，σ̂² 是噪声方差图，m 是这张图采样出来的相机元数据。网络 f_θ 在 RAW 域去噪，但误差在「同一套元数据 m 处理成 sRGB 之后」才计算。这样 gamma 会放大暗部误差、CCM 会把通道间误差混合，网络被迫在人眼最敏感的地方（暗部、彩色噪声）更用力。</p>
+<p>为什么这很重要？RAW 空间里暗部的一个小误差 0.002，经过 gamma 2.2 后在 sRGB 里会被放大到 0.04 左右（x≈0.001 处 gamma 曲线斜率约 20）；而 CCM 的非对角项会把 R/B 的独立噪声混成低频彩色斑块。在 RAW 空间算损失，网络不知道这些误差之后会被放大。</p>
+<p class="code-source">repo/estimator.py:L82-L94 — 网络输出与真值用同一套采样元数据过正向 ISP，再算 L1</p>
+<pre><code class="language-python">    def process_images(images):
+      &quot;&quot;&quot;Closure for processing images with fixed metadata.&quot;&quot;&quot;
+      return process.process(images, features['red_gain'],
+                             features['blue_gain'], features['cam2rgb'])
+
+    denoised_img = inference_fn(features['noisy_img'], features['variance'])
+
+    noisy_img = process_images(features['noisy_img'])
+    denoised_img = process_images(denoised_img)
+    truth_img = process_images(labels)
+
+    if mode in [tf.estimator.ModeKeys.TRAIN, tf.estimator.ModeKeys.EVAL]:
+      loss = tf.losses.absolute_difference(truth_img, denoised_img)
+</code></pre>
+<p>正向的 <code>process()</code>（<code>repo/process.py:L97-L111</code>）只做四步：白平衡 → clip → 双线性去马赛克 → CCM → clip → gamma。它<strong>不重新应用 smoothstep，也不重新乘回 <code>rgb_gain</code></strong>（<code>apply_gains</code> 只乘 R/B 增益，<code>repo/process.py:L29-L35</code>）。论文 §4.2 说这是为了和 DND 基准的简化管线一致。</p>
+<h3 id="sec-2-4">2.4 网络：4+4 通道输入的残差 U-Net</h3>
+<p>训练样本的组装在 <code>dataset.py</code> 里，方差图用噪声图计算，和推理时可用的信息保持一致：</p>
+<p class="code-source">repo/dataset.py:L59-L75 — 一个训练样本：unprocess → 采噪声参数 → 加噪 → 用噪声图估方差</p>
+<pre><code class="language-python">def create_example(image):
+  &quot;&quot;&quot;Creates training example of inputs and labels from `image`.&quot;&quot;&quot;
+  image.shape.assert_is_compatible_with([None, None, 3])
+  image, metadata = unprocess.unprocess(image)
+  shot_noise, read_noise = unprocess.random_noise_levels()
+  noisy_img = unprocess.add_noise(image, shot_noise, read_noise)
+  # Approximation of variance is calculated using noisy image (rather than clean
+  # image), since that is what will be avaiable during evaluation.
+  variance = shot_noise * noisy_img + read_noise
+
+  inputs = {
+      'noisy_img': noisy_img,
+      'variance': variance,
+  }
+  inputs.update(metadata)
+  labels = image
+  return inputs, labels
+</code></pre>
+<p>网络本身很普通：4 通道 RGGB + 4 通道方差图拼接成 8 通道，5 级 U-Net（32→512 通道），每级 3 个 3×3 卷积，最后预测残差加回输入。</p>
+<p class="code-source">repo/network.py:L80-L98 — 噪声图拼接作为条件 + 编码器-解码器 + 残差输出</p>
+<pre><code class="language-python">  features = tf.concat([noisy_img, variance], axis=-1)
+  skip_connections = []
+
+  with tf.name_scope(None, 'encoder'):
+    for num_channels in (32, 64, 128, 256):
+      features = conv_block(features, num_channels)
+      skip_connections.append(features)
+      features = downsample_2x(features)
+    features = conv_block(features, 512)
+
+  with tf.name_scope(None, 'decoder'):
+    for num_channels in (256, 128, 64, 32):
+      features = upsample_2x(features)
+      with tf.name_scope(None, 'skip_connection'):
+        features = tf.concat([features, skip_connections.pop()], axis=-1)
+      features = conv_block(features, num_channels)
+
+  residual = conv(features, 4, None)
+  return tf.identity(noisy_img + residual, 'denoised_img')
+</code></pre>
+<p>把方差图作为输入（noise-aware / non-blind）意味着同一个网络可以服务所有 ISO：推理时从 RAW 元数据读出 shot/read 参数，现场算出方差图即可。</p>
+<h2 id="sec-3">3. 结论：数据比网络重要</h2>
+<figure>
+  <img class="zoomable" src="figures/tab1-darmstadt.png" alt="Darmstadt 基准结果与消融">
+  <figcaption><b>表 1。</b>DND 在线基准（按 sRGB PSNR 排序），括号内是把 PSNR 换成 RMSE、SSIM 换成 DSSIM 后，最好模型相对该行的误差降低比例。下半部分是对「Our Model (sRGB)」的消融。</figcaption>
+</figure>
+<p><strong>主结果（DND，真实噪声，50 张图 × 20 块）</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>方法</th>
+<th>Raw PSNR</th>
+<th>Raw SSIM</th>
+<th>sRGB PSNR</th>
+<th>sRGB SSIM</th>
+<th>耗时 (512²)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>BM3D + VST</td>
+<td>47.15</td>
+<td>0.9737</td>
+<td>37.86</td>
+<td>0.9296</td>
+<td>6,900 ms</td>
+</tr>
+<tr>
+<td>DnCNN</td>
+<td>47.37</td>
+<td>0.9760</td>
+<td>38.08</td>
+<td>0.9357</td>
+<td>60 ms</td>
+</tr>
+<tr>
+<td>CBDNet</td>
+<td>–</td>
+<td>–</td>
+<td>38.06</td>
+<td>0.9421</td>
+<td>400 ms</td>
+</tr>
+<tr>
+<td>N3Net（此前最好）</td>
+<td>47.56</td>
+<td>0.9767</td>
+<td>38.32</td>
+<td>0.9384</td>
+<td>210 ms</td>
+</tr>
+<tr>
+<td><strong>本文 (Raw loss)</strong></td>
+<td><strong>48.89</strong></td>
+<td><strong>0.9824</strong></td>
+<td>40.17</td>
+<td>0.9623</td>
+<td>22 ms</td>
+</tr>
+<tr>
+<td><strong>本文 (sRGB loss)</strong></td>
+<td>48.88</td>
+<td>0.9821</td>
+<td><strong>40.35</strong></td>
+<td><strong>0.9641</strong></td>
+<td>22 ms</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>相对 N3Net，raw PSNR +1.33 dB、sRGB PSNR +2.03 dB；按论文的换算，两个 raw 指标误差降低 14% / 25%，两个 sRGB 指标相对 N3Net 和 CBDNet 降低 21% / 38%。</li>
+<li>用哪个空间的损失，就在哪个空间的指标上略好：Raw 模型 raw PSNR 高 0.01，sRGB 模型 sRGB PSNR 高 0.18。sRGB 损失在 raw 指标上几乎没有代价。</li>
+<li>22ms（1080Ti，512×512）比 N3Net 快约 9×，比 CBDNet 快约 18×。</li>
+<li>泛化：在 DND 四台相机之外的 HDR+ 数据集（手机连拍）上只给了定性图（图 7 与补充材料），没有数值。</li>
+</ul>
+<p><strong>消融决策表</strong>（全部在「Our Model (sRGB)」上做，基线 raw 48.88 / sRGB 40.35）：</p>
+<table>
+<thead>
+<tr>
+<th>组件</th>
+<th>起点</th>
+<th>消融方向</th>
+<th>结果 (raw / sRGB PSNR)</th>
+<th>为什么</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>噪声模型</td>
+<td>泊松-高斯 + 噪声图输入</td>
+<td>AWGN + 不给噪声图</td>
+<td>46.48 / 38.65（降幅最大）</td>
+<td>真实噪声信号相关，AWGN 在暗部系统性低估方差；这也是 2017 年深度方法输给 BM3D 的主因</td>
+</tr>
+<tr>
+<td>整个 Unprocess</td>
+<td>五步逆 ISP</td>
+<td>直接把 sRGB 当 RAW</td>
+<td>48.28 / 39.02</td>
+<td>输入强度分布（图 5a vs 5c）和通道相关性都不对，sRGB 指标掉 1.33 dB</td>
+</tr>
+<tr>
+<td>模型容量</td>
+<td>基础宽度</td>
+<td>不 Unprocess，但通道 ×4</td>
+<td>48.49 / 39.35，耗时 177ms</td>
+<td>8 倍算力只追回 0.33 dB：数据分布不对，靠堆参数补不回来</td>
+</tr>
+<tr>
+<td>CCM + 白平衡 + 增益</td>
+<td>有</td>
+<td>去掉</td>
+<td>48.55 / 39.70</td>
+<td>颜色/亮度分布错配，主要影响 sRGB（彩色噪声被 CCM 放大）</td>
+</tr>
+<tr>
+<td>噪声图条件</td>
+<td>输入方差图</td>
+<td>Noise-blind</td>
+<td>48.51 / 39.81</td>
+<td>单网络要覆盖 100 倍的 λ_shot 范围，不告诉它当前 ISO 就只能折中</td>
+</tr>
+<tr>
+<td>残差输出</td>
+<td>预测残差</td>
+<td>直接预测图像</td>
+<td>48.80 / 40.19</td>
+<td>唯一的架构消融，影响最小</td>
+</tr>
+<tr>
+<td>Tone mapping + gamma 逆</td>
+<td>有</td>
+<td>去掉</td>
+<td>48.83 / 40.23</td>
+<td>影响也小：网络在 RAW 域工作，而损失空间又会重新加 gamma，部分抵消了这一步缺失</td>
+</tr>
+</tbody>
+</table>
+<p>一句话总结：<strong>噪声模型 &gt; 逆 ISP &gt; 噪声条件 &gt; 网络结构</strong>，而且「不做逆 ISP、把网络放大 4 倍」仍比「做逆 ISP 的小网络」差 1 dB。</p>
+<h2 id="sec-4">4. 实现细节与「论文 vs 代码」核对</h2>
+<p>逐项核对下来，代码和论文有不少细节不一致。大部分是论文没写清，有两处会影响复现：</p>
+<ol>
+<li><strong>激活函数</strong>：论文 §4.3 写 PReLU；代码 <code>conv()</code> 默认 <code>activation=tf.nn.leaky_relu</code>（<code>repo/network.py:L29-L32</code>）。</li>
+<li><strong>下采样</strong>：论文写 box downsampling；代码是 <code>tf.layers.max_pooling2d</code>（<code>repo/network.py:L44-L47</code>）。</li>
+<li><strong>噪声图是方差而不是标准差</strong>：论文 §4.3 说给网络「per-pixel estimate of the standard deviation」；代码拼接的是 <code>variance = shot_noise * noisy_img + read_noise</code>，没有开根号（<code>repo/dataset.py:L67</code>、<code>repo/network.py:L80</code>）。</li>
+<li><strong>训练超参不一致</strong>：论文 128×128 裁剪、lr 1e-4；<code>train.py</code> 默认 <code>image_size=256</code>、<code>learning_rate=2e-5</code>（<code>repo/train.py:L50-L67</code>）。按论文复现时要显式传参。</li>
+<li><strong>2× 高斯下采样预处理不在代码里</strong>：论文 §4.4 说所有 MIR Flickr 图先用 σ=1 高斯核降采样 2×，以去掉 JPEG、去马赛克伪影；代码 <code>read_jpg</code> 直接解码后 /255（<code>repo/dataset.py:L31-L36</code>），README 只说「you may wish to downsample」。这一步对「伪 RAW 是否带着 sRGB 的锐化/压缩痕迹」影响很大。</li>
+<li><strong>高光 mask 按灰度而非逐通道</strong>：Eq 5 的 α(x) 在代码里是 α(mean_c x_c)（<code>repo/unprocess.py:L98-L101</code>），三通道共用。</li>
+<li><strong>CCM 行归一化</strong>：<code>repo/unprocess.py:L57</code> 让 rgb2cam 保持白点不变，论文没提。没有这一步，白平衡增益和 CCM 会互相串扰。</li>
+<li><strong>凸组合权重不是 Dirichlet</strong>：权重从 U(1e-8, 1e8) 独立采样再归一化（<code>repo/unprocess.py:L46-L48</code>），等价于 U(0,1) 权重归一化，组合会偏向四个矩阵的平均，很少采到接近某一台相机的端点。</li>
+<li><strong>正向 / 逆向不对称</strong>：<code>unprocess</code> 逆了 smoothstep 和 <code>rgb_gain</code>，<code>process</code> 却不重新施加（<code>repo/process.py:L29-L35, L97-L111</code>）。所以损失空间不是 Flickr 原图那种 sRGB，而是「DND 风格的偏暗、无色调曲线 sRGB」。这是刻意对齐基准的设计，但换到别的目标管线时必须改。</li>
+<li><strong>加噪后不裁剪、不量化</strong>：<code>add_noise</code> 的输出可能为负、可能大于 1，也没有 10/12/14-bit 量化（<code>repo/unprocess.py:L163-L167</code>）；真实 RAW 有黑电平裁剪和量化。论文也没讨论。</li>
+<li><strong>评测脚本与训练图不一致</strong>：<code>dnd_denoise.py</code> 推理时往图里喂 <code>stddev/shot_noise:0</code> 和 <code>stddev/read_noise:0</code> 两个张量（<code>repo/dnd_denoise.py:L187-L198</code>），但仓库里 <code>network.py</code> / <code>dataset.py</code> 构建的图只有 <code>noisy_img</code> 和 <code>variance</code>，没有 <code>stddev/</code> 作用域。说明作者发布的预训练 checkpoint 是用另一版（内部）图构建的，<strong>用本仓库代码自己训出来的模型不能直接跑 <code>dnd_denoise.py</code></strong>，需要改成直接喂方差图。</li>
+<li><strong>Bayer 方向处理</strong>：DND 有 RGGB/GRBG/GBRG 三种排列，评测时用左右/上下翻转统一成 RGGB 再去噪、去噪后翻回（<code>repo/dnd_denoise.py:L134-L173</code>）；训练只合成 RGGB。这是用翻转换 Bayer 相位的标准技巧，换到 iPhone 也适用。</li>
+</ol>
+<h2 id="sec-5">5. 批判性总结</h2>
+<h3 id="sec-5-1">Strengths</h3>
+<ul>
+<li><strong>把一个经验问题拆成可检验的物理模块</strong>：每一步逆 ISP 都有对应的消融数字，读者能看到哪一步值多少 dB。</li>
+<li><strong>参数来自目标数据集元数据，而不是拍脑袋</strong>：噪声 log-log 直线、增益 1.25 的指数分布 MLE、白平衡范围都从 DND 元数据统计得到，方法本身就是「对着目标相机做校准」。</li>
+<li><strong>损失空间与评测/观看空间对齐</strong>：sRGB loss 几乎不牺牲 raw 指标，却明显改善彩色噪声。</li>
+<li><strong>工程上极简</strong>：逆 ISP 只有 160 行 TF，可以单独拷走用（README 也这么建议），后续不少 RAW 去噪、连拍超分工作（例如 Bhat 等的 Deep Burst Super-Resolution 的合成数据）直接复用了这份代码。</li>
+</ul>
+<h3 id="sec-5-2">Limitations / open questions</h3>
+<ul>
+<li><strong>只针对 DND 四台相机拟合</strong>。所有分布（CCM、增益、噪声）都是 DND 的，HDR+ 上只有定性结果。换传感器要重新统计，论文没给如何从少量真实 RAW 估这些分布的流程。</li>
+<li><strong>全局 smoothstep 是很强的假设</strong>。现代手机（包括 iPhone 的 Smart HDR / Deep Fusion）做的是局部、内容自适应、多帧融合的色调映射和锐化，没法用一条全局曲线逆回去。消融里「去掉 tone mapping/gamma 逆」只掉 0.12 dB，正好说明这一步在 DND 上不重要；但在色调处理很重的手机图上，它可能是误差最大的环节。</li>
+<li><strong>逆 ISP 完全是逐点的（加一个马赛克采样）</strong>：没有光学 PSF、镜头像差、OLPF、去马赛克插值、锐化、降噪、JPEG 压缩这些<strong>空间</strong>操作的逆。伪 RAW 的纹理统计直接继承自 sRGB 原图，作者只靠 2× 降采样来稀释。对去噪来说问题不大，对「质感/细节」类任务就是核心缺口。</li>
+<li><strong>噪声模型只有两项</strong>。没有行噪声/条带、固定模式噪声、量化、黑电平裁剪、热像素。中低 ISO 够用，极暗光下不够（后来 ELD 等工作正是从这里切入）。</li>
+<li><strong>高斯近似泊松</strong>在光子数很少时偏差大，且加噪后不裁剪导致训练分布里出现负值，和真 RAW（黑电平处截断）不一致。</li>
+<li><strong>基准规模小</strong>：DND 只有 50 张图，噪声水平是低到中等，结论能否外推到手机高 ISO 不清楚。</li>
+</ul>
+<h3 id="sec-5-3">When to use / not use</h3>
+<ul>
+<li><strong>适合</strong>：手上只有目标传感器的元数据（CCM、白平衡统计、噪声标定），没有成对真值，要训一个 RAW 域的去噪/恢复网络；或者需要大规模、多样化的场景内容（网上照片）来补真实配对数据的不足。</li>
+<li><strong>不适合</strong>：目标是复现某台设备的「风格/质感」本身（色调、锐度、颗粒），因为这些恰好是本文用简单假设抹掉的部分；或者极暗光、噪声结构复杂的场景。</li>
+</ul>
+<h3 id="sec-5-4">延伸阅读：与相似工作的交叉验证</h3>
+<table>
+<thead>
+<tr>
+<th>工作</th>
+<th>核心结论</th>
+<th>关键观察</th>
+<th>与本文的异 / 同</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>本文</td>
+<td>合成数据只要把噪声 + ISP 都建模对，就能超过真实/AWGN 训练的方法</td>
+<td>噪声模型贡献最大，逆 ISP 次之；放大网络补不回数据错配</td>
+<td>—</td>
+</tr>
+<tr>
+<td>CycleISP（Zamir et al., CVPR 2020）</td>
+<td>逆 ISP 不必手写，可以学一个 RGB→RAW 网络和一个 RAW→RGB 网络</td>
+<td>用真实 RAW–sRGB 对训练两个方向的网络，再在 RAW 域加噪造数据</td>
+<td>同：都在 RAW 域合成噪声后造训练对；异：本文的逆 ISP 是参数化、可解释、只需元数据，CycleISP 要求有该相机的 RAW–sRGB 对，但能学到局部色调这类本文假设不了的东西</td>
+</tr>
+<tr>
+<td>ELD（Wei et al., CVPR 2020，极暗光 RAW 去噪的物理噪声模型）</td>
+<td>两项泊松-高斯在极暗光下不够，需要加入行噪声、量化噪声和长尾的读出噪声</td>
+<td>按 ISO 标定每台相机的多项噪声参数，合成数据训练的网络可以比肩真实配对训练</td>
+<td>同：都是「按相机 ISO 标定噪声参数 → 合成」；异：本文只有两项、目标是 DND 的中低噪声，ELD 针对极暗光，说明噪声模型需要多复杂取决于工作区间</td>
+</tr>
+<tr>
+<td><a class="wiki-link" data-slug="pynet-2020" href="../pynet-2020/index.html">pynet-2020</a>（Zurich RAW-to-RGB）</td>
+<td>手机 RAW → 单反画质可以用真实配对数据端到端学出来</td>
+<td>华为 P20 RAW 与佳能 5D 同时拍摄、对齐后训练一个完整的学习式 ISP</td>
+<td>同：都在 RAW 起点上做事；异：本文把 ISP 当已知的固定物理流程去逆，PyNet 把 ISP 当成要学习的黑盒，目标正是本文刻意抹掉的「目标相机风格」</td>
+</tr>
+<tr>
+<td><a class="wiki-link" data-slug="zoom-to-learn-2019" href="../zoom-to-learn-2019/index.html">zoom-to-learn-2019</a></td>
+<td>真实配对的 RAW → 光学变焦数据可以训练 RAW 超分</td>
+<td>配对数据存在不可避免的错位，需要对错位鲁棒的损失</td>
+<td>同：都认为 RAW 起点比 sRGB 好；异：它为真实配对付出对齐的代价，本文用合成规避了对齐问题，但代价是合成数据的纹理不真实</td>
+</tr>
+</tbody>
+</table>
+<p><strong>分歧的成因</strong>：几篇工作在「合成 vs 真实配对」上结论不同，主要看<strong>目标是什么</strong>。目标是去掉噪声这类物理可建模的退化时，物理合成（本文、ELD）够用而且可扩展；目标涉及 ISP 的风格、局部色调、光学质感时（CycleISP、PyNet、Zoom-to-learn），手写的逆模型表达不了，就必须引入真实配对数据或学习式的逆 ISP。噪声模型的复杂度则由<strong>工作区间</strong>决定：中低 ISO 两项就够（本文），极暗光需要更多项（ELD）。</p>
+<p><strong>相关工作</strong>：<a class="wiki-link" data-slug="handheld-mfsr-2019" href="../handheld-mfsr-2019/index.html">handheld-mfsr-2019</a>（同为 Google 组，用手持连拍在 RAW 域合并多帧，是「多帧提供真实信息」那一路的代表）。</p>
+<h2 id="sec-6">6. 研究启发：对「iPhone Bayer RAW → 目标相机画质」能借什么</h2>
+<div class="summary-grid">
+  <div class="card"><h3 id="sec-6-1">1. 反向造配对：用目标相机的 JPEG 合成「iPhone 风格 RAW」</h3><p>专项最缺的是严格配对的「iPhone RAW ↔ 目标相机成片」。本文给了一个模板：把<b>目标相机的成片</b>当作 sRGB 训练图，用<b>iPhone 的参数</b>（DNG 里的 ColorMatrix/ForwardMatrix、AsShotNeutral 的分布、NoiseProfile 或自己标定的 shot/read）去逆处理，得到「iPhone 传感器上大概会是什么样」的伪 RAW，再加 iPhone 的噪声作为输入，原 JPEG 作为输出。这样拿到的是像素级对齐的训练对，没有真实双机配对的错位问题。按 README 的说法，只要改 <code>random_ccm()</code>、<code>random_gains()</code>、<code>random_noise_levels()</code> 三个函数就能换到新相机。</p></div>
+  <div class="card"><h3 id="sec-6-2">2. 噪声对齐的公式就在 Eq 1–3 里</h3><p>「按目标相机噪声模型对齐噪声」可以写成：先对 iPhone RAW 去噪（本文的网络本身就是这个工具，按 iPhone 的 λ 训），再按目标相机在等效 ISO 下的 (λ_shot, λ_read) 用 Eq 1 重新加噪。两台机器各标一条 log λ_read–log λ_shot 直线（图 3 的做法），就得到一个 ISO→噪声的映射。还有一个检查点：拟合斜率接近 2 说明该档位主要靠数字增益提 ISO，明显偏离 2 说明模拟增益占主导。这个物理量可以直接拿来比较两台传感器。</p></div>
+  <div class="card"><h3 id="sec-6-3">3. 损失要在「目标观看空间」里算</h3><p>本文最便宜的收益是把损失挪到处理后的 sRGB 空间。对专项来说，等价做法是：网络在 RAW/线性域补高频，但损失在<b>目标相机的近似正向 ISP</b>（色卡/DNG 矩阵对齐后的颜色 + 目标色调曲线）之后计算，这样网络知道哪些误差最后会被 gamma、CCM 放大。颜色由物理矩阵固定，生成模型只负责纹理残差，这和专项「颜色走物理、模型只补高频」的分工一致。</p></div>
+  <div class="card"><h3 id="sec-6-4">4. 局限一：iPhone 的成片不能被逆回去</h3><p>反过来用 unprocess 去逆 <b>iPhone 的 HEIC/JPEG</b> 基本行不通：Smart HDR / Deep Fusion 是多帧、局部、语义相关的处理，全局 smoothstep 假设失效。这也是专项要从 Bayer RAW 起步的理由之一。另外 ProRAW 是 Apple 多帧融合、去马赛克后的线性 DNG，它的噪声已经不服从元数据参数的泊松-高斯模型；需要噪声模型成立的话，应该用第三方 App 拿到的单帧 Bayer RAW。</p></div>
+  <div class="card"><h3 id="sec-6-5">5. 局限二：质感和细节恰好是这套方法没建模的部分</h3><p>Unprocess 的每一步都是逐点的，没有镜头 PSF、像素尺寸、OLPF、去马赛克算法、锐化、颗粒这类<b>空间</b>特性，伪 RAW 的纹理直接继承自目标相机 JPEG。所以思路 1 造出来的输入「太干净、太锐」，不像 iPhone 小传感器 + 手机镜头的真实细节。要补上就得在逆过程中显式加入 iPhone 的 PSF 和下采样（可用刃边法测 MTF），这正好对应专项里「生成模型补高频」那一块需要的退化模型。</p></div>
+  <div class="card"><h3 id="sec-6-6">6. 反直觉点：数据错配不能靠堆参数补</h3><p>不做逆 ISP、网络放大 4 倍（177ms）仍比做逆 ISP 的小网络（22ms）低 1 dB sRGB PSNR。放到专项里的意思是：如果训练对的颜色、噪声、亮度分布没有先用物理方法对齐，换更大的生成模型也只是在拟合错配。先把颜色和噪声这些能物理对齐的部分对齐，再让模型去学剩下的纹理差异。</p></div>
+</div>
+</main>
+<footer class="site-footer">Paper Reading · 由 markdown 静态生成 · <a href="https://github.com/megake98/megake98.github.io">GitHub</a></footer>
+</body>
+</html>
