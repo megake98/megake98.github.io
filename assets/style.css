@@ -40,10 +40,14 @@
   --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
           "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
   --mono: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace;
-  /* Prose measure + wide bleed for figures/code. Coupled breakpoints below:
-     TOC shows ≥ 1300px (measure + 2×270), bleed kicks in ≥ 1520px. */
-  --measure: 760px;
+  /* Detail-page prose measure / size / leading. Defaults here; the reader
+     settings panel (assets/reader.js) overrides them via data-rw / data-rf /
+     data-rl / data-rc on <html> (§1 Reader settings). Wide bleed for
+     figures/code only applies to the narrow (data-rw="s") column. */
+  --measure: 960px;
   --wide: 960px;
+  --prose-size: 1.12rem;
+  --prose-leading: 1.85;
   --listing-width: 880px;
   --nav-height: 56px;
 }
@@ -106,8 +110,33 @@ main {
 main[data-pagefind-body] {
   max-width: var(--measure);
   padding: 2.75rem 1.25rem 4rem;
-  font-size: 1.04rem;
-  line-height: 1.85;
+  font-size: var(--prose-size);
+  line-height: var(--prose-leading);
+}
+
+/* ===== §1 Reader settings (assets/reader.js) ===== */
+:root[data-rw="s"] { --measure: 760px; }
+:root[data-rw="l"] { --measure: 1200px; }
+:root[data-rw="full"] { --measure: 100vw; }
+:root[data-rf="0"] { --prose-size: 0.96rem; }
+:root[data-rf="1"] { --prose-size: 1.04rem; }
+:root[data-rf="3"] { --prose-size: 1.24rem; }
+:root[data-rf="4"] { --prose-size: 1.38rem; }
+:root[data-rl="tight"] { --prose-leading: 1.7; }
+:root[data-rl="loose"] { --prose-leading: 2.05; }
+/* Softer contrast: dimmer ink on a less bright page (both themes). */
+:root[data-theme="light"][data-rc="soft"] {
+  --bg: #efebe3;
+  --bg-card: #f6f2ea;
+  --text: #3a3530;
+  --text-secondary: #6b645c;
+  --code-bg: #e8e3da;
+}
+:root[data-theme="dark"][data-rc="soft"] {
+  --bg: #1c1b19;
+  --bg-card: #23211f;
+  --text: #c8c2b8;
+  --text-secondary: #9a9389;
 }
 
 a { color: var(--accent); text-decoration: none; transition: color 0.15s var(--ease); }
@@ -712,22 +741,80 @@ footer, .site-footer {
 .toc a:hover { color: var(--text); }
 .toc a.active { color: var(--accent); border-left: 2px solid var(--accent); margin-left: -1.5px; }
 
-/* Hide when the fixed TOC would overlap the prose column (measure + 2×270). */
-@media (max-width: 1300px) { .toc { display: none; } }
+/* Below 1100px there is no room for a 236px TOC beside a readable column. */
+@media (max-width: 1100px) { .toc { display: none; } }
 
-/* Wide bleed: figures / code / tables hang out to the right of the prose
-   column on big screens (left edge stays aligned, so the fixed TOC is safe). */
+/* With the TOC visible, the prose column centres when it fits, otherwise it
+   is pushed right of the TOC and shrinks to the remaining width — so any
+   reader-selected measure works without overlapping the TOC. */
+@media (min-width: 1101px) {
+  body:has(.toc) main[data-pagefind-body] {
+    margin-left: max(calc(1rem + 236px + 2rem), calc((100vw - var(--measure)) / 2));
+    margin-right: auto;
+    max-width: min(var(--measure), calc(100vw - 1rem - 236px - 2rem - 1.5rem));
+  }
+}
+
+/* Wide bleed (narrow column only): figures / code / tables hang out to the
+   right of the 760px prose column on big screens. */
 @media (min-width: 1300px) {
-  main[data-pagefind-body] > figure,
-  main[data-pagefind-body] > pre,
-  main[data-pagefind-body] > .code-source,
-  main[data-pagefind-body] > table,
-  main[data-pagefind-body] > .summary-grid,
-  main[data-pagefind-body] > .term-grid {
+  :root[data-rw="s"] main[data-pagefind-body] > :is(figure, pre, .code-source, table, .summary-grid, .term-grid) {
     width: var(--wide);
     max-width: none;
   }
 }
+
+/* ===== §3 Reader settings panel (assets/reader.js) ===== */
+.site-nav__reader-btn { font-family: var(--serif); font-weight: 600; letter-spacing: 0.02em; }
+.site-nav__reader-btn[hidden] { display: none; }
+.reader-panel {
+  position: absolute;
+  top: calc(var(--nav-height) - 0.25rem);
+  right: 1rem;
+  width: min(22rem, calc(100vw - 2rem));
+  padding: 0.9rem 1rem 0.8rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  box-shadow: var(--shadow-2);
+  font-size: 0.85rem;
+  z-index: 300;
+}
+.reader-panel__row { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.6rem; }
+.reader-panel__label { flex: 0 0 2.6rem; color: var(--text-secondary); }
+.reader-panel__seg {
+  flex: 1;
+  display: flex;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  overflow: hidden;
+}
+.reader-panel__seg button {
+  flex: 1;
+  padding: 0.3rem 0.2rem;
+  background: none;
+  border: 0;
+  border-left: 1px solid var(--border);
+  color: var(--text-secondary);
+  font: inherit;
+  cursor: pointer;
+}
+.reader-panel__seg button:first-child { border-left: 0; }
+.reader-panel__seg button:hover { color: var(--text); background: var(--bg-sunken); }
+.reader-panel__seg button[aria-pressed="true"] { color: var(--accent); background: var(--accent-soft); font-weight: 600; }
+.reader-panel__reset {
+  display: block;
+  margin: 0.2rem 0 0 auto;
+  background: none;
+  border: 0;
+  color: var(--text-tertiary);
+  font: inherit;
+  font-size: 0.8rem;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+.reader-panel__reset:hover { color: var(--accent); }
 
 /* ===== §3 Post meta block (flat header under the h1) ===== */
 .post-meta {
