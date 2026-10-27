@@ -67,6 +67,15 @@
 <article class="post-card post-card--paper">
   <div class="post-card__meta">
     <span class="post-card__badge">论文</span>
+    <span class="post-card__date"><span class="post-card__added">2026-03-21</span><span class="post-card__extra">约 50 分钟</span></span>
+  </div>
+  <h3 class="post-card__title"><a class="post-card__title-link" href="../papers/merit-2026/index.html">MERIT：一个模型做任意两台相机之间的 RAW→RAW 转换，附五机型配对数据集 MDRAW</a></h3>
+  <p class="post-card__tldr">MERIT（CVPR 2026）把 StarGAN v2 改成吃 4 通道打包 RAW 的多域转换器：一个生成器配一个按目标相机输出风格码的编码器，覆盖任意两台相机之间的 RAW→RAW。另外加了两样东西：一项按亮度分箱、对齐平坦区噪声方差的损失（SANM），以及解码器里受风格码调制的多空洞大核门控（MS-LKA）。论文在 Afifi 的 S9/iPhone X 数据集上报 35.29 / 31.90 dB，比次优方法高 5.56 / 3.45 dB；在自采的五机型 MDRAW 上，20 个方向平均 28.42 dB，只比 Xie et al. 高 0.19 dB。 对照代码后发现几处与论文不符：风格编码器和判别器都是原版 StarGAN v2 的 CNN，不是图里的 Transformer 和分块投票；生成器多了一组论文没提的逐相机 4 通道增益；评测时的参考图按 GT 的通道均值从测试集里挑，最佳 checkpoint 也按测试集 MAE 选；发布版默认参数会把噪声 profile 配错相机；MDRAW 的配对 patch 只做了平移对齐。本页把 MDRAW 的每条事实对照论文、代码和压缩包核实了一遍，并给出用它做 iPhone→尼康 Z5 实验时的划分、对齐、评测建议。</p>
+  <div class="post-card__tags"><a class="tag-chip" href="../concepts/raw-image.html">raw-image</a> <a class="tag-chip" href="../concepts/phone-to-dslr.html">phone-to-dslr</a> <a class="tag-chip" href="../concepts/learned-isp.html">learned-isp</a> <span class="tag-chip tag-chip--more">+7</span></div>
+</article>
+<article class="post-card post-card--paper">
+  <div class="post-card__meta">
+    <span class="post-card__badge">论文</span>
     <span class="post-card__date"><span class="post-card__added">2026-10-20</span><span class="post-card__extra">约 30 分钟</span></span>
   </div>
   <h3 class="post-card__title"><a class="post-card__title-link" href="../papers/diffraw-2024/index.html">DiffRAW：用扩散模型把手机 RAW 变成单反观感——RAW 管结构、确定性 ISP 输出锁颜色和位置、扩散只补细节</a></h3>

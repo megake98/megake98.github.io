@@ -50,9 +50,18 @@
 <header class="page-hero">
   <h1 class="page-hero__title">Paper Reading</h1>
   <p class="page-hero__intro">把一篇论文读成一页批注，把一个领域讲成一篇教程，把一组工作对比成一份调研。</p>
-  <p class="page-hero__stats"><a href="papers.html"><strong>75</strong> 篇论文</a> · <a href="tutorials.html"><strong>20</strong> 篇教程</a> · <a href="surveys.html"><strong>6</strong> 篇调研</a> · <a href="graph.html"><strong>359</strong> 个概念</a></p>
+  <p class="page-hero__stats"><a href="papers.html"><strong>79</strong> 篇论文</a> · <a href="tutorials.html"><strong>20</strong> 篇教程</a> · <a href="surveys.html"><strong>6</strong> 篇调研</a> · <a href="graph.html"><strong>363</strong> 个概念</a></p>
 </header>
 <div class="post-grid">
+<article class="post-card post-card--tutorial">
+  <div class="post-card__meta">
+    <span class="post-card__badge">教程</span>
+    <span class="post-card__date"><span class="post-card__added">2026-06-01</span><span class="post-card__extra">10k+ 字</span><span class="post-card__extra">约 70 分钟</span></span>
+  </div>
+  <h3 class="post-card__title"><a class="post-card__title-link" href="tutorials/vlm-industrial-2024/index.html">VLM 在工业检测领域: 看清细节 · 数据制作 · 泛化能力</a></h3>
+  <p class="post-card__tldr">把 VLM-based 工业缺陷检测 (Industrial Anomaly Detection) 这条线拆透。8 节螺旋结构覆盖 SOTA 演进 (2023-2026): vanilla CLIP 基线失败 → WinCLIP 多尺度窗口 → AnomalyCLIP object-agnostic prompt + DPAM 注意力修正 → AnomalyGPT LVLM + 合成数据 + 轻量 decoder + PEFT。三大主题各有专章:数据制作 (CutPaste → Perlin → Poisson 融合 → IMDD-1M 1M 图文对)、看清细节 (多尺度 + DPAM + 多层 decoder 三层栈)、泛化能力 (zero-shot → few-shot reference bank → cross-domain 17 数据集)。代码 verbatim 引自 zqhang/AnomalyCLIP、CASIA-IVA-Lab/AnomalyGPT、caoyunkang/WinClip、openvinotoolkit/anomalib 四个 repo。最后给出 timeline + decision tree 落地建议。</p>
+  <div class="post-card__tags"><a class="tag-chip" href="concepts/vlm.html">vlm</a> <a class="tag-chip" href="concepts/anomaly-detection.html">anomaly-detection</a> <a class="tag-chip" href="concepts/industrial.html">industrial</a> <span class="tag-chip tag-chip--more">+3</span></div>
+</article>
 <article class="post-card post-card--paper">
   <div class="post-card__meta">
     <span class="post-card__badge">论文</span>
@@ -124,15 +133,6 @@
   <h3 class="post-card__title"><a class="post-card__title-link" href="papers/rls-razor-2025/index.html">RL&#x27;s Razor: Why Online Reinforcement Learning Forgets Less</a></h3>
   <p class="post-card__tldr">MIT Improbable AI 的诊断式论文:RL 比 SFT 少遗忘,根因不是负样本,而是 on-policy 采样隐式逼向 KL-min 解;forward KL on new task 是唯一可靠预测变量 (R²=0.96)。</p>
   <div class="post-card__tags"><a class="tag-chip" href="concepts/rl.html">rl</a> <a class="tag-chip" href="concepts/llm.html">llm</a> <a class="tag-chip" href="concepts/alignment.html">alignment</a> <span class="tag-chip tag-chip--more">+1</span></div>
-</article>
-<article class="post-card post-card--tutorial">
-  <div class="post-card__meta">
-    <span class="post-card__badge">教程</span>
-    <span class="post-card__date"><span class="post-card__added">2026-06-01</span><span class="post-card__extra">12k 字</span><span class="post-card__extra">90–120 分钟</span></span>
-  </div>
-  <h3 class="post-card__title"><a class="post-card__title-link" href="tutorials/rlhf-evolution-2024/index.html">RLHF 的演变：PPO → DPO → GRPO + Diffusion 的 RL</a></h3>
-  <p class="post-card__tldr">从 &quot;policy 到底是什么&quot; 讲起,8 节螺旋结构 (直觉 → 最小 demo → 完整推导 → 真实 repo 代码引用 → 洞察)。覆盖 PPO/RLHF/DPO/GRPO 与 GRPO 后续 (DAPO/Dr.GRPO/GSPO),以及 Diffusion 侧的 DDPO/Diffusion-DPO。DPO 与 GRPO 两节代码深度对等,公式↔代码逐行对照。代码全部 verbatim 引自 huggingface/trl + 3 个对照 repo。</p>
-  <div class="post-card__tags"><a class="tag-chip" href="concepts/rl.html">rl</a> <a class="tag-chip" href="concepts/llm.html">llm</a> <a class="tag-chip" href="concepts/ppo.html">ppo</a> <span class="tag-chip tag-chip--more">+3</span></div>
 </article>
 </div>
 <nav class="pager" aria-label="分页">

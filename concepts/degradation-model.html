@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <script>(function(){try{var t=localStorage.getItem('theme');if(!t)t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.setAttribute('data-theme',t);var r=JSON.parse(localStorage.getItem('reader')||'{}');['rw','rf','rl','rc'].forEach(function(k){if(r[k])document.documentElement.setAttribute('data-'+k,r[k]);});}catch(e){}})();</script>
+  <title>degradation-model — paper-reading</title>
+  <link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+<!-- NAV-START -->
+<nav class="site-nav" aria-label="主导航">
+  <a class="site-nav__brand" href="../index.html" aria-label="返回主页">
+    <span class="site-nav__brand-mark" aria-hidden="true">P</span>
+    <span class="site-nav__brand-text">Paper Reading</span>
+  </a>
+  <div class="site-nav__links">
+    <a class="site-nav__link" href="../papers.html">论文</a>
+    <a class="site-nav__link" href="../tutorials.html">教程</a>
+    <a class="site-nav__link" href="../surveys.html">调研</a>
+    <a class="site-nav__link active" href="../graph.html">图谱</a>
+    <button type="button" class="site-nav__search-btn" id="search-open" aria-label="搜索" aria-expanded="false" aria-controls="search-modal">
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/>
+      </svg>
+      <span class="site-nav__search-label">搜索</span>
+      <kbd class="site-nav__kbd">⌘K</kbd>
+    </button>
+    <button type="button" class="site-nav__theme-btn site-nav__reader-btn" id="reader-toggle" aria-label="阅读设置" aria-expanded="false" aria-controls="reader-panel" hidden>Aa</button>
+    <button type="button" class="site-nav__theme-btn" id="theme-toggle" aria-label="切换深浅色主题">
+      <svg class="theme-icon theme-icon--moon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
+      <svg class="theme-icon theme-icon--sun" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+    </button>
+  </div>
+</nav>
+<div class="search-modal" id="search-modal" hidden data-pagefind-path="../pagefind/">
+  <div class="search-modal__backdrop" data-search-close></div>
+  <div class="search-modal__panel" role="dialog" aria-modal="true" aria-label="全文搜索">
+    <button type="button" class="search-modal__close" data-search-close aria-label="关闭">✕</button>
+    <div id="search"></div>
+  </div>
+</div>
+<link href="../pagefind/pagefind-ui.css" rel="stylesheet">
+<script defer src="../pagefind/pagefind-ui.js"></script>
+<script defer src="../assets/search.js"></script>
+<script defer src="../assets/theme.js"></script>
+<script defer src="../assets/reader.js"></script>
+<!-- NAV-END -->
+
+<main class="page page--concept">
+  <h1>degradation-model</h1>
+  
+  <div class="concept__body">
+
+  </div>
+  <h2>提到此概念的论文 / 教程</h2>
+  <div class="post-grid">
+<article class="post-card post-card--paper">
+  <div class="post-card__meta">
+    <span class="post-card__badge">论文</span>
+    <span class="post-card__date"><span class="post-card__added">2026-10-27</span><span class="post-card__extra">约 40 分钟</span></span>
+  </div>
+  <h3 class="post-card__title"><a class="post-card__title-link" href="../papers/raw-degradation-sr-2026/index.html">RAW 域退化模型：逐台手机标定 SR 核与噪声，再用逆处理数据训练真实手机超分</a></h3>
+  <p class="post-card__tldr">Samsung AI Center Toronto（Michael S. Brown 组）的 CVPR 2026 论文。手机数字变焦要在 RAW 上做超分，可是拿不到真值；常见做法是从一个大的随机退化池里采高斯模糊核和通用噪声来造数据。本文改成逐台设备标定：暗室里让手机拍显示器上的随机图案（每张 100 帧平均、格雷码定位、黑白两电平线性化），按 128×128 视场块联合优化 R/G/B 三个 4× SR 核，这个核把镜头 PSF、像素积分和下采样合在一起；噪声则用色卡连拍，按 7 档 ISO、4 个 Bayer 通道标定异方差高斯模型，再对 ISO 做二次拟合。用这些核和噪声把线性 RGB 逆处理成 LR RAW，训练只用 L1 的 RRDBNet。9 个手机摄像头里拿 7 个的标定结果训练，留出的 Pixel 6 Main 上 PSNR 32.41、相对 MTF50 1.19，Mi 11 Main 上 36.11、0.42，PSNR、SSIM、MTF50 都高于 Real-ESRGAN、BSRAW、RAWSR 的退化池。官方仓库目前只有一个空 README，标定好的核和噪声参数尚未发布。</p>
+  <div class="post-card__tags"><a class="tag-chip" href="../concepts/raw-image.html">raw-image</a> <a class="tag-chip" href="../concepts/image-super-resolution.html">image-super-resolution</a> <a class="tag-chip" href="../concepts/real-isr.html">real-isr</a> <span class="tag-chip tag-chip--more">+6</span></div>
+</article>
+</div>
+
+  <p class="back-link"><a href="../graph.html">← 返回图谱</a></p>
+</main>
+</body>
+</html>

@@ -50,9 +50,18 @@
 <header class="page-hero">
   <h1 class="page-hero__title">Paper Reading</h1>
   <p class="page-hero__intro">把一篇论文读成一页批注，把一个领域讲成一篇教程，把一组工作对比成一份调研。</p>
-  <p class="page-hero__stats"><a href="papers.html"><strong>75</strong> 篇论文</a> · <a href="tutorials.html"><strong>20</strong> 篇教程</a> · <a href="surveys.html"><strong>6</strong> 篇调研</a> · <a href="graph.html"><strong>359</strong> 个概念</a></p>
+  <p class="page-hero__stats"><a href="papers.html"><strong>79</strong> 篇论文</a> · <a href="tutorials.html"><strong>20</strong> 篇教程</a> · <a href="surveys.html"><strong>6</strong> 篇调研</a> · <a href="graph.html"><strong>363</strong> 个概念</a></p>
 </header>
 <div class="post-grid">
+<article class="post-card post-card--paper">
+  <div class="post-card__meta">
+    <span class="post-card__badge">论文</span>
+    <span class="post-card__date"><span class="post-card__added">2026-06-18</span><span class="post-card__extra">约 10 分钟</span></span>
+  </div>
+  <h3 class="post-card__title"><a class="post-card__title-link" href="papers/boogu-image-2026/index.html">Boogu-Image-0.1：用 1/10 数据做开源「统一生成+编辑」大模型（代码精读）</a></h3>
+  <p class="post-card__tldr">Boogu-Image-0.1 是一个 Apache-2.0 开源的「统一文生图 + 图像编辑」模型族（Base / Edit / Turbo，均 10B），主打照片级真实感和中英双语文字渲染，号称用比同类开源模型少约一个数量级的训练数据做到接近闭源（GPT-Image-2 / Nano-Banana-Pro）的水平。 架构是 Lumina-Image-2 谱系的 DiT（noise/context/ref 三套 refiner + 双流/单流 MMDiT 块），文本条件来自一个 Qwen3-VL 多模态大模型（既当指令编码器、又当 prompt 改写/推理器）；Turbo 变体用 Decoupled DMD 蒸馏到 4 步、无 CFG。 ⚠️ 正式技术报告尚未发布（仓库标注 &quot;Coming Soon&quot;），本文是基于 README + 推理代码的交叉精读，非官方报告解读。</p>
+  <div class="post-card__tags"><a class="tag-chip" href="concepts/unified-multimodal.html">unified-multimodal</a> <a class="tag-chip" href="concepts/text-to-image.html">text-to-image</a> <a class="tag-chip" href="concepts/image-editing.html">image-editing</a> <span class="tag-chip tag-chip--more">+7</span></div>
+</article>
 <article class="post-card post-card--tutorial">
   <div class="post-card__meta">
     <span class="post-card__badge">教程</span>
@@ -124,15 +133,6 @@
   <h3 class="post-card__title"><a class="post-card__title-link" href="tutorials/opd-diffusion-2026/index.html">OPD 在 Diffusion / Flow Matching 上的应用:三兄弟 + 分布匹配蒸馏 + 统一视角</a></h3>
   <p class="post-card__tldr">7 节螺旋系统讲透 On-Policy Distillation(OPD)如何从 LLM 的 GKD 搬到扩散/flow matching。地基是一个折叠:SDE 同协方差让 reverse-KL 解析坍缩成速度场 L2(ODE 极限退化成纯 L2)。在此之上讲&quot;三兄弟&quot;:Flow-OPD(留住 RL:PPO+task reward+MAR,能反超 teacher)、DiffusionOPD(砍掉 RL:closed-form 直接 loss,§3.3 论证 PPO 是纯方差)、D-OPSD(teacher=EMA 自己,reward-free 自蒸馏,少步模型边用边学);再讲近亲 DMD/SiD 分布匹配蒸馏(为提速),最后收敛到一个统一模板&quot;在 student 自采轨迹上匹配 teacher 的 per-state 目标&quot;+ 四个选择轴。代码 verbatim 引自 CostaliyA/Flow-OPD、DiffusionOPD、vvvvvjdy/D-OPSD、tianweiy/DMD2 真实训练脚本(均经 diff 验证)。</p>
   <div class="post-card__tags"><a class="tag-chip" href="concepts/on-policy-distillation.html">on-policy-distillation</a> <a class="tag-chip" href="concepts/diffusion.html">diffusion</a> <a class="tag-chip" href="concepts/flow-matching.html">flow-matching</a> <span class="tag-chip tag-chip--more">+4</span></div>
-</article>
-<article class="post-card post-card--tutorial">
-  <div class="post-card__meta">
-    <span class="post-card__badge">教程</span>
-    <span class="post-card__date"><span class="post-card__added">2026-06-06</span><span class="post-card__extra">18k 字</span><span class="post-card__extra">110–140 分钟</span></span>
-  </div>
-  <h3 class="post-card__title"><a class="post-card__title-link" href="tutorials/vlm-grounding-2025/index.html">VLM Grounding 全景(2025–2026):从「框是输出」到「框是思维」</a></h3>
-  <p class="post-card__tldr">9 节螺旋结构系统综述 2025–2026 视觉语言模型(VLM)的 grounding(视觉定位)浪潮:从「坐标如何变成 token」(三大编码流派)到「框作为输出」(检测/referring/Pointing/GUI/并行框解码)再到「框作为思维」(grounded reasoning)。覆盖 Kosmos-2/Shikra/Ferret/Grounding-DINO/Florence-2/PaliGemma/Qwen2.5-VL/Molmo/Rex-Omni/LocateAnything/Thinking-with-Visual-Primitives 等模型与技术报告,以及 RefCOCO/LVIS/ScreenSpot-Pro/PixMo-Points 等 18+ benchmark 的大盘点。代码 verbatim 引自 IDEA-Research/Rex-Omni 与 QwenLM/Qwen2.5-VL。两篇 anchor:Thinking with Visual Primitives 与 LocateAnything。文末附分类参考文献与技术报告全集。</p>
-  <div class="post-card__tags"><a class="tag-chip" href="concepts/grounding.html">grounding</a> <a class="tag-chip" href="concepts/vlm.html">vlm</a> <a class="tag-chip" href="concepts/detection.html">detection</a> <span class="tag-chip tag-chip--more">+6</span></div>
 </article>
 </div>
 <nav class="pager" aria-label="分页">

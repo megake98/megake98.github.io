@@ -50,9 +50,18 @@
 <header class="page-hero">
   <h1 class="page-hero__title">Paper Reading</h1>
   <p class="page-hero__intro">把一篇论文读成一页批注，把一个领域讲成一篇教程，把一组工作对比成一份调研。</p>
-  <p class="page-hero__stats"><a href="papers.html"><strong>75</strong> 篇论文</a> · <a href="tutorials.html"><strong>20</strong> 篇教程</a> · <a href="surveys.html"><strong>6</strong> 篇调研</a> · <a href="graph.html"><strong>359</strong> 个概念</a></p>
+  <p class="page-hero__stats"><a href="papers.html"><strong>79</strong> 篇论文</a> · <a href="tutorials.html"><strong>20</strong> 篇教程</a> · <a href="surveys.html"><strong>6</strong> 篇调研</a> · <a href="graph.html"><strong>363</strong> 个概念</a></p>
 </header>
 <div class="post-grid">
+<article class="post-card post-card--paper">
+  <div class="post-card__meta">
+    <span class="post-card__badge">论文</span>
+    <span class="post-card__date"><span class="post-card__added">2026-07-03</span><span class="post-card__extra">约 25 分钟</span></span>
+  </div>
+  <h3 class="post-card__title"><a class="post-card__title-link" href="papers/rdm-2026/index.html">RDM: 把「一步生成」拆成两根设计轴——十年前被判死刑的 MMD, 估计对了就是 SOTA</a></h3>
+  <p class="post-card__tldr">一步图像生成 = 让生成分布在冻结编码器的特征空间里对齐真实分布。作者把这条无教师路线命名为 RDM (Representation Distribution Matching), 指出所有实例只差两根轴:怎么比 (comparison) 和 在哪比 (representation)。逐轴消融翻掉三条隐含假设:(1) 十年前被嫌太弱的经典 MMD, 只要「批内精确排斥 + 对全量数据的 Nyström 冻结吸引」估计对, 就是又强又可扩的目标;(2) 生成批越大越好, 最优点在 2048 以上, 远超常规;(3) 任何单个编码器都能被刷穿 (分数掉到真实之下但图仍假), 所以要对一整排编码器做「受约束优化」。合成 iRDM:ImageNet 一步 SOTA SW_r14 1.30 (真实地板 1.0), 并把四步 FLUX.2 [klein] 后训练成一步模型, GenEval 0.826 反超四步版 0.794, 只花 90 H200 GPU-hours。</p>
+  <div class="post-card__tags"><a class="tag-chip" href="concepts/one-step-generation.html">one-step-generation</a> <a class="tag-chip" href="concepts/distribution-matching.html">distribution-matching</a> <a class="tag-chip" href="concepts/mmd.html">mmd</a> <span class="tag-chip tag-chip--more">+10</span></div>
+</article>
 <article class="post-card post-card--paper">
   <div class="post-card__meta">
     <span class="post-card__badge">论文</span>
@@ -124,15 +133,6 @@
   <h3 class="post-card__title"><a class="post-card__title-link" href="papers/mambo-g-2025/index.html">MAMBO-G:用幅度比 r_t 自适应阻尼 CFG——一个免训练、即插即用的扩散/视频采样加速器</a></h3>
   <p class="post-card__tldr">CFG 在采样初期(t→1)对&quot;通用方向&quot;施加了过大的更新,在高维大模型里尤其会 overshoot 出过饱和与结构崩坏。 MAMBO-G 用一个逐实例的幅度比 r_t = ‖Δv‖/‖v∅‖ 当探针:r_t 高就指数级压低 guidance scale,r_t 低才放开。 免训练、几乎零开销,已并入 Diffusers。SD3.5 提速 3×、Lumina 4×、14B 视频模型 Wan2.1 提速 2×。</p>
   <div class="post-card__tags"><a class="tag-chip" href="concepts/classifier-free-guidance.html">classifier-free-guidance</a> <a class="tag-chip" href="concepts/flow-matching.html">flow-matching</a> <a class="tag-chip" href="concepts/diffusion-sampling.html">diffusion-sampling</a> <span class="tag-chip tag-chip--more">+3</span></div>
-</article>
-<article class="post-card post-card--survey">
-  <div class="post-card__meta">
-    <span class="post-card__badge">调研</span>
-    <span class="post-card__date"><span class="post-card__added">2026-06-30</span><span class="post-card__extra">约 20 分钟</span></span>
-  </div>
-  <h3 class="post-card__title"><a class="post-card__title-link" href="surveys/diffusion-sr-2026/index.html">扩散超分调研：一步化浪潮与 SeedVR 之后的视频超分（2024→2026）</a></h3>
-  <p class="post-card__tldr">对 2024–2026 扩散超分（图像 + 视频）的研究调研，主线是「把多步随机采样压成一步确定性前向」。逐篇厘清每个工作的核心贡献 / 方法 / 关键结果 / 代码位置，再平行对比、找出一致与矛盾、并把每个有仓库的方法的核心主张与其代码逐一交叉验证。覆盖图像一步化（OSEDiff/OMGSR/OP4KSR/OFTSR/ODTSR/TEASR）与 SeedVR 之后的视频超分（SeedVR2/DOVE/DLoRAL/DUO-VSR/FlashVSR/InfVSR/Stream-DiffVSR/STCDiT）。所有 arxiv 号均联网核实；代码主张对照 OSEDiff/OMGSR/DLoRAL/SeedVR/FlashVSR/StableSR 真实函数验证。</p>
-  <div class="post-card__tags"><a class="tag-chip" href="concepts/diffusion.html">diffusion</a> <a class="tag-chip" href="concepts/image-super-resolution.html">image-super-resolution</a> <a class="tag-chip" href="concepts/video-super-resolution.html">video-super-resolution</a> <span class="tag-chip tag-chip--more">+7</span></div>
 </article>
 </div>
 <nav class="pager" aria-label="分页">

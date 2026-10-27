@@ -58,11 +58,38 @@
 <article class="post-card post-card--paper">
   <div class="post-card__meta">
     <span class="post-card__badge">论文</span>
+    <span class="post-card__date"><span class="post-card__added">2026-10-27</span><span class="post-card__extra">约 40 分钟</span></span>
+  </div>
+  <h3 class="post-card__title"><a class="post-card__title-link" href="../papers/raw-degradation-sr-2026/index.html">RAW 域退化模型：逐台手机标定 SR 核与噪声，再用逆处理数据训练真实手机超分</a></h3>
+  <p class="post-card__tldr">Samsung AI Center Toronto（Michael S. Brown 组）的 CVPR 2026 论文。手机数字变焦要在 RAW 上做超分，可是拿不到真值；常见做法是从一个大的随机退化池里采高斯模糊核和通用噪声来造数据。本文改成逐台设备标定：暗室里让手机拍显示器上的随机图案（每张 100 帧平均、格雷码定位、黑白两电平线性化），按 128×128 视场块联合优化 R/G/B 三个 4× SR 核，这个核把镜头 PSF、像素积分和下采样合在一起；噪声则用色卡连拍，按 7 档 ISO、4 个 Bayer 通道标定异方差高斯模型，再对 ISO 做二次拟合。用这些核和噪声把线性 RGB 逆处理成 LR RAW，训练只用 L1 的 RRDBNet。9 个手机摄像头里拿 7 个的标定结果训练，留出的 Pixel 6 Main 上 PSNR 32.41、相对 MTF50 1.19，Mi 11 Main 上 36.11、0.42，PSNR、SSIM、MTF50 都高于 Real-ESRGAN、BSRAW、RAWSR 的退化池。官方仓库目前只有一个空 README，标定好的核和噪声参数尚未发布。</p>
+  <div class="post-card__tags"><a class="tag-chip" href="../concepts/raw-image.html">raw-image</a> <a class="tag-chip" href="../concepts/image-super-resolution.html">image-super-resolution</a> <a class="tag-chip" href="../concepts/real-isr.html">real-isr</a> <span class="tag-chip tag-chip--more">+6</span></div>
+</article>
+<article class="post-card post-card--paper">
+  <div class="post-card__meta">
+    <span class="post-card__badge">论文</span>
     <span class="post-card__date"><span class="post-card__added">2026-10-20</span><span class="post-card__extra">约 30 分钟</span></span>
   </div>
   <h3 class="post-card__title"><a class="post-card__title-link" href="../papers/unprocessing-2018/index.html">Unprocessing：把网上的 sRGB 照片逐步「逆 ISP」回 RAW，造出逼真的去噪训练对</a></h3>
   <p class="post-card__tldr">Google Research 的 CVPR 2019 工作。真实 RAW 去噪数据难采，合成数据又不像真 RAW，于是作者把一张普通 sRGB 照片按相机 ISP 的反向顺序逐步「解处理」：逆 smoothstep 色调曲线 → 逆 gamma → 乘 sRGB→相机 RGB 的 CCM → 带高光保护地除掉白平衡与数字增益 → 抽成 RGGB 马赛克。在这份伪 RAW 上加按 ISO 联合采样的泊松-高斯（shot/read）噪声得到输入，再把网络输出和真值都过一遍简化正向 ISP 后算 L1。一个 22ms 的普通 U-Net 在 Darmstadt 真实噪声基准上 raw PSNR 48.89 / sRGB PSNR 40.35，相对此前最好的方法误差降低 14%–38%、快 9–18 倍。</p>
   <div class="post-card__tags"><a class="tag-chip" href="../concepts/raw-image.html">raw-image</a> <a class="tag-chip" href="../concepts/denoising.html">denoising</a> <a class="tag-chip" href="../concepts/data-synthesis.html">data-synthesis</a> <span class="tag-chip tag-chip--more">+5</span></div>
+</article>
+<article class="post-card post-card--paper">
+  <div class="post-card__meta">
+    <span class="post-card__badge">论文</span>
+    <span class="post-card__date"><span class="post-card__added">2026-03-21</span><span class="post-card__extra">约 50 分钟</span></span>
+  </div>
+  <h3 class="post-card__title"><a class="post-card__title-link" href="../papers/merit-2026/index.html">MERIT：一个模型做任意两台相机之间的 RAW→RAW 转换，附五机型配对数据集 MDRAW</a></h3>
+  <p class="post-card__tldr">MERIT（CVPR 2026）把 StarGAN v2 改成吃 4 通道打包 RAW 的多域转换器：一个生成器配一个按目标相机输出风格码的编码器，覆盖任意两台相机之间的 RAW→RAW。另外加了两样东西：一项按亮度分箱、对齐平坦区噪声方差的损失（SANM），以及解码器里受风格码调制的多空洞大核门控（MS-LKA）。论文在 Afifi 的 S9/iPhone X 数据集上报 35.29 / 31.90 dB，比次优方法高 5.56 / 3.45 dB；在自采的五机型 MDRAW 上，20 个方向平均 28.42 dB，只比 Xie et al. 高 0.19 dB。 对照代码后发现几处与论文不符：风格编码器和判别器都是原版 StarGAN v2 的 CNN，不是图里的 Transformer 和分块投票；生成器多了一组论文没提的逐相机 4 通道增益；评测时的参考图按 GT 的通道均值从测试集里挑，最佳 checkpoint 也按测试集 MAE 选；发布版默认参数会把噪声 profile 配错相机；MDRAW 的配对 patch 只做了平移对齐。本页把 MDRAW 的每条事实对照论文、代码和压缩包核实了一遍，并给出用它做 iPhone→尼康 Z5 实验时的划分、对齐、评测建议。</p>
+  <div class="post-card__tags"><a class="tag-chip" href="../concepts/raw-image.html">raw-image</a> <a class="tag-chip" href="../concepts/phone-to-dslr.html">phone-to-dslr</a> <a class="tag-chip" href="../concepts/learned-isp.html">learned-isp</a> <span class="tag-chip tag-chip--more">+7</span></div>
+</article>
+<article class="post-card post-card--paper">
+  <div class="post-card__meta">
+    <span class="post-card__badge">论文</span>
+    <span class="post-card__date"><span class="post-card__added">2024-11-20</span><span class="post-card__extra">约 40 分钟</span></span>
+  </div>
+  <h3 class="post-card__title"><a class="post-card__title-link" href="../papers/raw-diffusion-2024/index.html">RAW-Diffusion：用 RGB 引导的扩散模型把 sRGB 逆回指定相机的 RAW，几十张图就能训一台新机</a></h3>
+  <p class="post-card__tldr">Sony AI 的 WACV 2025 工作。目标是给某一台相机批量造 RAW：拿同一台相机的 (RAW, sRGB) 对训练一个条件扩散模型，输入 sRGB，输出 4 通道打包的 RGGB RAW。RGB 先经一个 4 块的 EDSR 抽特征，再以 SPADE 式的逐像素 γ/β 调制注入 U-Net 的瓶颈和解码器；网络直接预测 x₀（预测噪声会崩到 5.55 dB），末层接 tanh，损失为 MSE + L1 + 对数 L1。四个单反数据集上 PSNR 全部第一（FiveK Nikon 30.05、NOD Nikon 44.93）；只用 25 张训练图时 PSNR 和全量持平；DDIM 6 步与 1000 步无差别。用 100 张 NOD 图训出的模型把 BDD100K 转成伪 RAW，Faster R-CNN 夜间检测 AP 从 18.2 提到 26.5。 代码核对发现几处论文没写的事：损失乘了 P2 权重 1−ᾱ_t；RGB 是 rawpy 默认参数从同一张 RAW 渲出来的，不是机内 JPEG；归一化时把黑电平以下的值截成 0。模型没有任何噪声建模或噪声控制，生成结果更接近「给定 RGB 的条件均值」。</p>
+  <div class="post-card__tags"><a class="tag-chip" href="../concepts/learned-isp.html">learned-isp</a> <a class="tag-chip" href="../concepts/raw-image.html">raw-image</a> <a class="tag-chip" href="../concepts/phone-to-dslr.html">phone-to-dslr</a> <span class="tag-chip tag-chip--more">+5</span></div>
 </article>
 </div>
 

@@ -58,10 +58,10 @@
 <article class="post-card post-card--survey">
   <div class="post-card__meta">
     <span class="post-card__badge">调研</span>
-    <span class="post-card__date"><span class="post-card__added">2026-10-20</span><span class="post-card__extra">约 40 分钟</span></span>
+    <span class="post-card__date"><span class="post-card__added">2026-10-20</span><span class="post-card__extra">约 65 分钟</span></span>
   </div>
   <h3 class="post-card__title"><a class="post-card__title-link" href="../surveys/phone2camera-2026/index.html">手机照片 → 相机画质：细节与质感迁移调研（2017→2026）</a></h3>
-  <p class="post-card__tldr">专项「把 iPhone 照片（优先 Bayer RAW）在细节与质感上变成某台目标相机的效果」的入口调研。按五组覆盖本站刚精读的 12 篇：A 手机→单反画质（DPED / WESPE / PyNET / LiteISPNet / ISPW / DiffRAW / ISPDiffuser），B 用更好的光学拍真值（Zoom-to-Learn / RealSR），C RAW 域造数据（Unprocessing），D 跨相机颜色（C5），E 多帧（Handheld MFSR）。逐篇给出核心贡献、方法、带数字的结果和代码位置，再用一张矩阵按输入域、监督、对齐、颜色/纹理是否分离、骨干、数据集、代码对比，写出一致与矛盾。代码交叉验证汇总各页发现，其中有三条会直接影响复用：ISPDiffuser 发布版颜色一致性损失恒为 0、Canny 纹理损失无梯度、评测取 best-of-10；C5 的 apply_cst 原地覆盖导致 3×3 算错；ZRR 和 ISPW 都不提供单反 RAW。最后对照「物理颜色 + 多帧真实细节 + 强度可控的高频生成 + 目标相机 ISP 出图」这条管线，列出每一步的证据和缺口。</p>
+  <p class="post-card__tldr">专项「把 iPhone 照片（优先 Bayer RAW）在细节与质感上变成某台目标相机的效果」的入口调研。按六组覆盖本站精读的 16 篇：A 手机→单反画质（DPED / WESPE / PyNET / LiteISPNet / ISPW / DiffRAW / ISPDiffuser），B 用更好的光学拍真值（Zoom-to-Learn / RealSR），C RAW 域造数据（Unprocessing），D 跨相机颜色（C5），E 多帧（Handheld MFSR），F RAW 合成与跨相机 RAW 数据（RAW-Diffusion / RawGen / RAW-Degradation / MERIT + MDRAW）。逐篇给出核心贡献、方法、带数字的结果和代码位置，再用一张矩阵按输入域、监督、对齐、颜色/纹理是否分离、骨干、数据集、代码对比，写出一致与矛盾。代码交叉验证汇总各页发现，会直接影响复用的有：ISPDiffuser 发布版颜色一致性损失恒为 0、Canny 纹理损失无梯度、评测取 best-of-10；C5 的 apply_cst 原地覆盖导致 3×3 算错；ZRR 和 ISPW 都不提供单反 RAW；RawGen 发布版不加噪声，同一 XYZ 造出的伪 iPhone / 伪目标相机 RAW 只差一个 3×3；MERIT 的评测参考图按 GT 挑、默认噪声 profile 错配，在真实配对的 MDRAW 上与最强基线打平。F 组四篇共同指向一个结论：质感真值只能来自真实目标相机 RAW，输入端应由它反向合成（颜色矩阵 + 实测 iPhone SR 核 + 马赛克 + 实测噪声）。最后对照「物理颜色 + 多帧真实细节 + 强度可控的高频生成 + 目标相机 ISP 出图」这条管线，列出每一步的证据和缺口。</p>
   <div class="post-card__tags"><a class="tag-chip" href="../concepts/learned-isp.html">learned-isp</a> <a class="tag-chip" href="../concepts/raw-image.html">raw-image</a> <a class="tag-chip" href="../concepts/phone-to-dslr.html">phone-to-dslr</a> <span class="tag-chip tag-chip--more">+9</span></div>
 </article>
 <article class="post-card post-card--paper">
@@ -292,11 +292,29 @@
 <article class="post-card post-card--paper">
   <div class="post-card__meta">
     <span class="post-card__badge">论文</span>
+    <span class="post-card__date"><span class="post-card__added">2026-03-31</span><span class="post-card__extra">约 40 分钟</span></span>
+  </div>
+  <h3 class="post-card__title"><a class="post-card__title-link" href="../papers/rawgen-2026/index.html">RawGen：多对一数据教 FLUX.1-Kontext 把 sRGB 或文字逆成 CIE XYZ，再用一张 DNG 的色彩矩阵落到任意相机 RAW</a></h3>
+  <p class="post-card__tldr">RawGen（三星 AI Center 多伦多 + 延世大学，ECCV 2026）把一张 sRGB 照片（I2R）或一句文字（T2R）变成相机 RAW，分两段：先用 LoRA 微调的 FLUX.1-Kontext 在潜空间里把 sRGB 潜变量去噪成 CIE XYZ 潜变量，再由重训过的 VAE 解码器输出 XYZ 图；之后用目标相机一张 DNG 里的 ColorMatrix/ForwardMatrix 按色温插值，确定性地映射到该相机的 RAW。训练数据是「多对一」的：同一张 DNG 渲染出 5 张白平衡、色调曲线、对比度各不相同的 sRGB，全部对齐到同一个 XYZ 锚点。FiveK 五位修图师风格上 PSNR 23.20–24.35 dB，比 CIE XYZ Net 高 3.3–5.3 dB；同骨干但只用一对一数据训练时与 CIE XYZ Net 基本持平，所以收益来自数据构造。 代码和两份权重都已发布，但发布版没有实现论文里的异方差噪声，输出固定 1024²，镜头 PSF 和暗角也都没有建模。对「iPhone RAW → 目标相机质感」来说，用它给两台相机造出的伪 RAW 之间只差一个 3×3 颜色变换，没有质感差异可学。</p>
+  <div class="post-card__tags"><a class="tag-chip" href="../concepts/learned-isp.html">learned-isp</a> <a class="tag-chip" href="../concepts/raw-image.html">raw-image</a> <a class="tag-chip" href="../concepts/phone-to-dslr.html">phone-to-dslr</a> <span class="tag-chip tag-chip--more">+5</span></div>
+</article>
+<article class="post-card post-card--paper">
+  <div class="post-card__meta">
+    <span class="post-card__badge">论文</span>
     <span class="post-card__date"><span class="post-card__added">2026-06-30</span><span class="post-card__extra">约 15 分钟</span></span>
   </div>
   <h3 class="post-card__title"><a class="post-card__title-link" href="../papers/omgsr-2025/index.html">OMGSR：一步超分的关键不是蒸馏，是把低清图喂到「中间时刻」——SNR 算出最佳注入点 + GAN 训练</a></h3>
   <p class="post-card__tldr">OMGSR 把一步真实世界超分（Real-ISR）的成败归结为一个「潜空间鸿沟」：以往方法把低清图 latent 注入到扩散调度器的 t=999（纯噪声）或 t=1（干净图），但低清图 latent 既不是噪声也不是干净图——它最接近预训练扩散在某个中间时刻 t\* 的带噪 latent。 作者用信噪比 (SNR) 把这个「最佳中间时刻」算出来（SD2.1-base 上 t\*=273），再用 LRR 损失（LoRA 微调 VAE 编码器）把低清 latent 进一步拉向 t\* 的带噪 latent，然后在 t\* 处做一步去噪。整套是 GAN 训练（生成器=扩散模型本身，判别器=DINOv3-ConvNeXt + 多级头），不是师生蒸馏。这就是 op4ksr-2026 4K 超分的直接前身。</p>
   <div class="post-card__tags"><a class="tag-chip" href="../concepts/image-super-resolution.html">image-super-resolution</a> <a class="tag-chip" href="../concepts/real-isr.html">real-isr</a> <a class="tag-chip" href="../concepts/one-step-generation.html">one-step-generation</a> <span class="tag-chip tag-chip--more">+7</span></div>
+</article>
+<article class="post-card post-card--paper">
+  <div class="post-card__meta">
+    <span class="post-card__badge">论文</span>
+    <span class="post-card__date"><span class="post-card__added">2024-11-20</span><span class="post-card__extra">约 40 分钟</span></span>
+  </div>
+  <h3 class="post-card__title"><a class="post-card__title-link" href="../papers/raw-diffusion-2024/index.html">RAW-Diffusion：用 RGB 引导的扩散模型把 sRGB 逆回指定相机的 RAW，几十张图就能训一台新机</a></h3>
+  <p class="post-card__tldr">Sony AI 的 WACV 2025 工作。目标是给某一台相机批量造 RAW：拿同一台相机的 (RAW, sRGB) 对训练一个条件扩散模型，输入 sRGB，输出 4 通道打包的 RGGB RAW。RGB 先经一个 4 块的 EDSR 抽特征，再以 SPADE 式的逐像素 γ/β 调制注入 U-Net 的瓶颈和解码器；网络直接预测 x₀（预测噪声会崩到 5.55 dB），末层接 tanh，损失为 MSE + L1 + 对数 L1。四个单反数据集上 PSNR 全部第一（FiveK Nikon 30.05、NOD Nikon 44.93）；只用 25 张训练图时 PSNR 和全量持平；DDIM 6 步与 1000 步无差别。用 100 张 NOD 图训出的模型把 BDD100K 转成伪 RAW，Faster R-CNN 夜间检测 AP 从 18.2 提到 26.5。 代码核对发现几处论文没写的事：损失乘了 P2 权重 1−ᾱ_t；RGB 是 rawpy 默认参数从同一张 RAW 渲出来的，不是机内 JPEG；归一化时把黑电平以下的值截成 0。模型没有任何噪声建模或噪声控制，生成结果更接近「给定 RGB 的条件均值」。</p>
+  <div class="post-card__tags"><a class="tag-chip" href="../concepts/learned-isp.html">learned-isp</a> <a class="tag-chip" href="../concepts/raw-image.html">raw-image</a> <a class="tag-chip" href="../concepts/phone-to-dslr.html">phone-to-dslr</a> <span class="tag-chip tag-chip--more">+5</span></div>
 </article>
 <article class="post-card post-card--paper">
   <div class="post-card__meta">

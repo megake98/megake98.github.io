@@ -1,0 +1,836 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <script>(function(){try{var t=localStorage.getItem('theme');if(!t)t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.setAttribute('data-theme',t);var r=JSON.parse(localStorage.getItem('reader')||'{}');['rw','rf','rl','rc'].forEach(function(k){if(r[k])document.documentElement.setAttribute('data-'+k,r[k]);});}catch(e){}})();</script>
+  <title>MERIT：一个模型做任意两台相机之间的 RAW→RAW 转换，附五机型配对数据集 MDRAW</title>
+  <link rel="stylesheet" href="../../assets/style.css">
+  <script>
+    window.MathJax = { tex: { inlineMath: [['$','$'],['\\(','\\)']] } };
+  </script>
+  <script async src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-mml-chtml.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/highlight.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/highlightjs-line-numbers.js@2.9.0/dist/highlightjs-line-numbers.min.js"></script>
+  <script>document.addEventListener('DOMContentLoaded', () => { hljs.highlightAll(); hljs.initLineNumbersOnLoad(); });</script>
+  <script defer src="../../assets/lightbox.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const links = document.querySelectorAll('.toc a');
+      if (!links.length) return;
+      const map = new Map();
+      links.forEach(a => {
+        const el = document.getElementById(a.getAttribute('href').slice(1));
+        if (el) map.set(el, a);
+      });
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(e => {
+          const a = map.get(e.target);
+          if (!a) return;
+          if (e.isIntersecting) {
+            links.forEach(l => l.classList.remove('active'));
+            a.classList.add('active');
+            const toc = document.querySelector('.toc');
+            if (toc) toc.scrollTo({ top: a.offsetTop - toc.clientHeight / 2, behavior: 'smooth' });
+          }
+        });
+      }, { rootMargin: '-20% 0px -70% 0px' });
+      map.forEach((_, el) => observer.observe(el));
+    });
+    // reading progress bar
+    document.addEventListener('DOMContentLoaded', () => {
+      const bar = document.querySelector('.read-progress');
+      if (!bar) return;
+      const update = () => {
+        const h = document.documentElement;
+        const max = h.scrollHeight - h.clientHeight;
+        bar.style.transform = 'scaleX(' + (max > 0 ? h.scrollTop / max : 0) + ')';
+      };
+      update();
+      window.addEventListener('scroll', update, { passive: true });
+    });
+  </script>
+</head>
+<body>
+<div class="read-progress" aria-hidden="true"></div>
+<!-- NAV-START -->
+<nav class="site-nav" aria-label="主导航">
+  <a class="site-nav__brand" href="../../index.html" aria-label="返回主页">
+    <span class="site-nav__brand-mark" aria-hidden="true">P</span>
+    <span class="site-nav__brand-text">Paper Reading</span>
+  </a>
+  <div class="site-nav__links">
+    <a class="site-nav__link active" href="../../papers.html">论文</a>
+    <a class="site-nav__link" href="../../tutorials.html">教程</a>
+    <a class="site-nav__link" href="../../surveys.html">调研</a>
+    <a class="site-nav__link" href="../../graph.html">图谱</a>
+    <button type="button" class="site-nav__search-btn" id="search-open" aria-label="搜索" aria-expanded="false" aria-controls="search-modal">
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/>
+      </svg>
+      <span class="site-nav__search-label">搜索</span>
+      <kbd class="site-nav__kbd">⌘K</kbd>
+    </button>
+    <button type="button" class="site-nav__theme-btn site-nav__reader-btn" id="reader-toggle" aria-label="阅读设置" aria-expanded="false" aria-controls="reader-panel" hidden>Aa</button>
+    <button type="button" class="site-nav__theme-btn" id="theme-toggle" aria-label="切换深浅色主题">
+      <svg class="theme-icon theme-icon--moon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
+      <svg class="theme-icon theme-icon--sun" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+    </button>
+  </div>
+</nav>
+<div class="search-modal" id="search-modal" hidden data-pagefind-path="../../pagefind/">
+  <div class="search-modal__backdrop" data-search-close></div>
+  <div class="search-modal__panel" role="dialog" aria-modal="true" aria-label="全文搜索">
+    <button type="button" class="search-modal__close" data-search-close aria-label="关闭">✕</button>
+    <div id="search"></div>
+  </div>
+</div>
+<link href="../../pagefind/pagefind-ui.css" rel="stylesheet">
+<script defer src="../../pagefind/pagefind-ui.js"></script>
+<script defer src="../../assets/search.js"></script>
+<script defer src="../../assets/theme.js"></script>
+<script defer src="../../assets/reader.js"></script>
+<!-- NAV-END -->
+<nav class="toc" aria-label="目录">
+  <div class="toc-title">目录 / TOC</div>
+  <ul>
+    <li class="h2"><a href="#sec-1">1. 出发点 (Motivation)</a></li>
+    <li class="h2"><a href="#sec-2">2. 方法 (Method)</a></li>
+    <li class="h3"><a href="#sec-2-1">2.1 框架：把 StarGAN v2 改成吃 4 通道 RAW</a></li>
+    <li class="h3"><a href="#sec-2-2">2.2 SANM：对齐「平坦区噪声方差—亮度」曲线</a></li>
+    <li class="h3"><a href="#sec-2-3">2.3 MS-LKA：风格码调制的多空洞深度卷积门控</a></li>
+    <li class="h3"><a href="#sec-2-4">2.4 总损失：论文 Eq. 9 与代码实际优化的目标</a></li>
+    <li class="h3"><a href="#sec-2-5">2.5 MDRAW：设备、数量、配对流程（论文 × 代码 × 压缩包核实）</a></li>
+    <li class="h3"><a href="#sec-2-6">2.6 消融决策表</a></li>
+    <li class="h2"><a href="#sec-3">3. 结论 (Key findings)</a></li>
+    <li class="h2"><a href="#sec-4">4. 实现细节 (Implementation notes)</a></li>
+    <li class="h2"><a href="#sec-5">5. 批判性总结 (Critical assessment)</a></li>
+    <li class="h3"><a href="#sec-5-1">Strengths</a></li>
+    <li class="h3"><a href="#sec-5-2">Limitations / open questions</a></li>
+    <li class="h3"><a href="#sec-5-3">When to use / not use</a></li>
+    <li class="h3"><a href="#sec-5-4">延伸阅读 (Further reading)</a></li>
+    <li class="h2"><a href="#sec-6">6. 研究启发：用 MDRAW 做「iPhone → 尼康 Z5」</a></li>
+    <li class="h3"><a href="#sec-6-1">6.1 实验设计：划分、对齐、评测</a></li>
+    <li class="h3"><a href="#sec-6-2">6.2 把 MERIT 当基线：复现步骤与必须改的地方</a></li>
+    <li class="h3"><a href="#sec-6-3">6.3 SANM 对「细节质感」意味着什么</a></li>
+    <li class="h3"><a href="#sec-6-4">6.4 MDRAW 的局限（做实验前要心里有数）</a></li>
+    <li class="h3"><a href="#sec-6-5">6.5 可迁移的套路</a></li>
+    <li class="h3"><a href="#sec-6-6">1. 「相机 = 条件」比「每对相机一个模型」更省</a></li>
+    <li class="h3"><a href="#sec-6-7">2. 噪声曲线是一个现成的质感指标</a></li>
+    <li class="h3"><a href="#sec-6-8">3. 颜色要有一个显式通路</a></li>
+    <li class="h3"><a href="#sec-6-9">4. 先查基准的 GT 是怎么来的</a></li>
+    <li class="h3"><a href="#sec-6-10">5. 反直觉点：参考图的选择可以撑起一大块分数</a></li>
+    <li class="h3"><a href="#sec-6-11">6. 反直觉点：训练迭代少，不等于训练快</a></li>
+  </ul>
+</nav>
+<main data-pagefind-body>
+<h1>MERIT: Multi-domain Efficient RAW Image Translation</h1>
+<aside class="post-meta">
+  <div class="post-meta__row"><span class="post-meta__date">加入 <strong>2026-03-21</strong></span> · <span class="post-meta__paper-date">论文日期: 2026-03-21</span></div>
+  <div class="post-meta__row"><span class="post-meta__authors">Wenjun Huang, Shenghao Fu, Yian Jin, Yang Ni, Ziteng Cui, Hanning Chen, Yirui He, Yezi Liu, Sanggeon Yun, SungHeon Jeong, Ryozo Masukawa, William Youngwoo Chung, Mohsen Imani</span> · <span class="post-meta__venue">CVPR 2026</span></div>
+  <div class="post-meta__row post-meta__links"><a class="post-meta__link" href="https://arxiv.org/abs/2603.20836">arXiv:2603.20836</a> · <a class="post-meta__link" href="https://github.com/WJ-Huang/MERIT-Multi-domain-Efficient-RAW-Image-Translation">MERIT-Multi-domain-Efficient-RAW-Image-Translation</a></div>
+  <div class="post-meta__row post-meta__concepts"><a class="concept-chip" href="../../concepts/raw-image.html">raw-image</a> <a class="concept-chip" href="../../concepts/phone-to-dslr.html">phone-to-dslr</a> <a class="concept-chip" href="../../concepts/learned-isp.html">learned-isp</a> <a class="concept-chip" href="../../concepts/gan.html">gan</a> <a class="concept-chip" href="../../concepts/data-synthesis.html">data-synthesis</a> <a class="concept-chip" href="../../concepts/color-constancy.html">color-constancy</a> <a class="concept-chip" href="../../concepts/misaligned-supervision.html">misaligned-supervision</a> <a class="concept-chip" href="../../concepts/raw-to-raw.html">raw-to-raw</a> <a class="concept-chip" href="../../concepts/multi-domain-translation.html">multi-domain-translation</a> <a class="concept-chip" href="../../concepts/noise-modeling.html">noise-modeling</a></div>
+</aside>
+
+<figure>
+  <img class="zoomable" src="figures/fig1-teaser.png" alt="RAW2RAW 的三种范式与参数量、训练迭代随相机数的变化">
+  <figcaption>
+    <strong>Fig. 1</strong>：(a) 同一场景在不同传感器上的 RAW 差别很大。(b) 不做转换，就得给每台相机各训一个下游模型。(c) 一对一 RAW2RAW 转换能共用下游模型，但每一对相机都要单独训一个转换器。(d) MERIT 用一个模型覆盖所有相机。(e) 参数量、训练迭代数随相机数的变化，红线是 MERIT。注意 (e) 右图画的是迭代数：按 Table 5 的训练时间换算，5 个域时 MERIT 比 Xie et al. 少用 39% 的墙钟时间，3 个域时反而多用 5%（§3）。（论文 Fig. 1）
+  </figcaption>
+</figure>
+<p><strong>读前说明</strong>：本页属于专项「手机照片 → 相机画质：细节与质感迁移」（入口 <a class="wiki-link" data-slug="phone2camera-2026" href="../../surveys/phone2camera-2026/index.html">phone2camera-2026</a>）。专项的目标是把 iPhone 照片（优先 Bayer RAW）在细节和质感上变成目标相机的效果：颜色用 DNG 矩阵做物理对齐，生成模型只补高频纹理，最后交给目标相机的 ISP 出图。MERIT 本身做的是 RAW 域的风格转换，不提升画质。它对专项有三点用处：一是 <strong>MDRAW</strong> 数据集，它同时包含 iPhone 的 Bayer RAW 和尼康 Z5、佳能 T6 两台可换镜头相机的 RAW，并且有同场景配对；二是 SANM 这种「噪声方差—亮度曲线」的对齐方式，可以直接拿来当噪声质感的评测指标；三是「一个生成器 + 目标相机风格码」的多域条件生成框架。读者打算先用 MDRAW 做实验，所以 §2.5 把 MDRAW 的每条事实都对照论文、代码和发布的压缩包核实过一遍，§6 给出 iPhone→尼康 Z5 实验的具体方案。</p>
+<div class="summary-grid">
+  <div class="card"><h3>任务</h3><p>多域 RAW→RAW：任意源相机的 4 通道打包 RAW，转成任意目标相机的 RAW。训练只用无配对数据，测试用同场景配对 patch 算 MAE / PSNR / SSIM / KL。</p></div>
+  <div class="card"><h3>方法</h3><p>StarGAN v2 骨架：生成器 G、带逐域输出头的风格编码器 E、逐域判别器 D。在此之上加噪声损失 SANM、解码器里的 MS-LKA 门控、循环 SSIM 损失。代码里还有一个论文没写的逐相机 4 通道增益。</p></div>
+  <div class="card"><h3>数据 MDRAW</h3><p>五台设备：S23 Ultra、华为 P30、iPhone 13 Pro（表格里写的是 13 Pro Max）、尼康 Z5、佳能 T6。无配对 519 张，配对 57 组共 285 张。配对 patch 由 LoFTR + RANSAC 选点，裁成 256×256 打包 RGGB，只做平移对齐。</p></div>
+  <div class="card"><h3>代码现实</h3><p>官方仓库可以跑通完整管线，但有四处会直接影响你的实验：评测参考图用 GT 挑、checkpoint 按测试集选、默认噪声 profile 配错相机、配对 patch 不做几何校正。四处都在 §4 给了行号和改法。</p></div>
+</div>
+<h2 id="sec-1">1. 出发点 (Motivation)</h2>
+<p>同一个场景，换一台相机拍出来的 RAW 就不一样。论文用理想成像模型说明原因：</p>
+<div class="math block">
+\[I_c(x) = \int_{\omega} R_c(\lambda)\, S(x,\lambda)\, L(\lambda)\, d\lambda\]
+</div>
+<p class="math-translation">—— 翻译: 像素 x 在颜色通道 c 上的读数，等于场景反射光谱 S 乘上光源光谱 L，再用这台相机通道 c 的光谱灵敏度 R_c 加权，然后对可见光波段 ω 积分。换相机时 S 和 L 不变，变的是 R_c，所以同一束光在两台相机里会被「记成」不同的三个数。</p>
+<p>除了光谱灵敏度，实际的差别还包括噪声（像素大小、读出电路、ISO 增益）、位深和黑/白电平、CFA 排列，以及镜头带来的锐度和暗角。后果是：在某台相机的 RAW 上训好的下游模型（RAW 检测、RAW 超分、RAW 去噪），换一台相机就会掉点。</p>
+<p>已有的 RAW2RAW 工作都是<strong>一对一</strong>的：Afifi &amp; Abuolaim 的半监督方法（<a href="https://arxiv.org/abs/2106.13883">arXiv:2106.13883</a>）需要一小批用色卡标定出来的配对锚点；Rawformer（<a href="https://arxiv.org/abs/2404.10700">arXiv:2404.10700</a>，ECCV 2024）和 Xie et al.（ACM MM 2024）去掉了配对，但仍然是一对相机一个模型。N 台相机就要 N(N−1)/2 个模型，Table 5 里 UVCGAN 的参数量从 3 个域的 186M 涨到 5 个域的 620M。</p>
+<p>MERIT 的切入点有三个：</p>
+<ol>
+<li><strong>多域</strong>：直接搬 StarGAN v2（<a href="https://arxiv.org/abs/1912.01865">arXiv:1912.01865</a>）的范式，一个生成器加一个「目标相机风格码」，参数量基本不随相机数增长。</li>
+<li><strong>噪声显式化</strong>：作者观察到域差异里相当一部分是相机自己的噪声模式，单靠对抗训练学不准，所以加了一项损失，直接对齐「平坦区噪声方差随亮度变化」的那条曲线。</li>
+<li><strong>数据</strong>：之前没有同时含多台相机无配对 RAW 和同场景配对 RAW 的公开数据集，于是自己采了 MDRAW。</li>
+</ol>
+<p>对本专项来说，第 3 点最重要。专项调研指出，已精读的 12 篇里没有一篇的监督目标是<strong>目标相机的 RAW</strong>：DPED、PyNET、ISPW 这些工作的目标都是单反的机内 JPEG。MDRAW 正好补上这一格：iPhone 和尼康 Z5 在同一场景下的 Bayer RAW 都有。它的问题在规模和对齐精度，§2.5 和 §6 会展开。</p>
+<div class="term-grid">
+  <div class="card"><h4>RAW2RAW</h4><p>把相机 A 的原始传感器数据，转成「看起来像相机 B 拍的」原始传感器数据，输出仍然是线性、未去马赛克的 RAW。</p></div>
+  <div class="card"><h4>打包 RGGB</h4><p>把 H×W 的拜耳马赛克按 2×2 拆成 R、Gr、Gb、B 四个半分辨率平面，叠成 4 通道张量。256×256 的打包块对应原图 512×512 的范围。</p></div>
+  <div class="card"><h4>域 / 风格码</h4><p>这里一个「域」就是一台相机。风格码 s 是一个 64 维向量，由风格编码器从一张该相机的参考图里提取，告诉生成器「往哪台相机转」。</p></div>
+  <div class="card"><h4>StarGAN v2</h4><p>CVPR 2020 的多域图像转换框架：一个生成器、一个风格编码器、一个判别器，靠 AdaIN 把风格码注入生成器。MERIT 的代码就是在它的官方实现上改的。</p></div>
+  <div class="card"><h4>AdaIN</h4><p>自适应实例归一化：先把特征图每个通道标准化，再用风格码算出的 γ、β 重新缩放和平移，相当于按目标风格「重新上色」。</p></div>
+  <div class="card"><h4>泊松-高斯噪声</h4><p>RAW 噪声的常用模型：方差 = α·亮度 + β。α 项来自光子散粒噪声，越亮越大；β 项来自读出电路，是一个固定的底噪。</p></div>
+  <div class="card"><h4>MAD</h4><p>中位数绝对偏差。σ ≈ MAD / 0.6745，是对离群点不敏感的标准差估计，常用于在图像里估计噪声。</p></div>
+  <div class="card"><h4>LoFTR</h4><p>CVPR 2021 的无检测器稠密特征匹配（<a href="https://arxiv.org/abs/2104.00680">arXiv:2104.00680</a>），用 Transformer 直接在两张图之间找对应点，对弱纹理区域比 SIFT 稳。</p></div>
+  <div class="card"><h4>RANSAC 单应</h4><p>反复随机抽 4 对匹配点拟合平面投影变换（单应矩阵），留下与之一致的「内点」。场景近似平面或很远时才成立。</p></div>
+  <div class="card"><h4>R1 正则 / EMA</h4><p>R1：惩罚判别器在真图上的梯度范数，稳定 GAN 训练。EMA：对生成器权重做滑动平均，评测时用平均后的副本。两者都继承自 StarGAN v2。</p></div>
+</div>
+<h2 id="sec-2">2. 方法 (Method)</h2>
+<figure>
+  <img class="zoomable" src="figures/fig2-framework.png" alt="MERIT 框架：生成器、Transformer 风格编码器、分块判别器、MS-LKA 模块">
+  <figcaption>
+    <strong>Fig. 2</strong>：MERIT 框架。(a) 整体：源相机 RAW 进生成器 G，风格编码器 E 从目标相机的参考 RAW 中提取风格码 s；判别器 D 读入「生成图 + 参考图 + 目标域编号」。(b) 图中画的风格编码器是 Transformer（Q/K/V）。(c) 生成器是 U 形结构，瓶颈处画了一个 Transformer。(d) 判别器把图切成小块分别判真假，再多数投票。(e) MS-LKA：三路空洞卷积（dilation 1/4/9）拼接后过 1×1 卷积，与 MLP(s) 逐元素相乘，再加回输入。<strong>与代码对照</strong>：(b) 实际是 StarGAN v2 的 CNN 编码器；(c) 的瓶颈是两个普通残差块，没有 Transformer；(d) 的判别器每个域只输出一个 logit，没有分块，也没有投票；D 也不读参考图。详见 §4。（论文 Fig. 2）
+  </figcaption>
+</figure>
+<h3 id="sec-2-1">2.1 框架：把 StarGAN v2 改成吃 4 通道 RAW</h3>
+<p>记源相机 a 的打包 RAW 为 <span class="math inline">\(I^a\)</span>，目标相机为 b。生成器读入 <span class="math inline">\(I^a\)</span> 和目标风格码，输出目标相机的 RAW：</p>
+<div class="math block">
+\[\hat I^b = G\big(I^a, s_b\big), \qquad s_b = E_b\big(I^b_{ref}\big)\]
+</div>
+<p class="math-translation">—— 翻译: 先从目标相机 b 的任意一张参考图里提取风格码 s_b（编码器共享主干，每台相机有一个自己的输出头 E_b），再让生成器以 s_b 为条件，把源图翻译成「相机 b 会拍出来的样子」。</p>
+<p>训练时同时优化以下几项（论文 Eq. 4–8）：</p>
+<div class="math block">
+\[\mathcal{L}^{G}_{adv} = \mathbb{E}\big[\log D_b(\hat I^b)\big], \qquad \mathcal{L}_{sty} = \mathbb{E}\,\big\| s_b - E_b(\hat I^b)\big\|_1\]
+</div>
+<p class="math-translation">—— 翻译: 对抗项要求判别器在「相机 b」这一路输出上认为生成图是真的；风格重建项要求从生成图里再提一次风格码，结果要和输入的风格码一致，防止生成器无视风格码。</p>
+<div class="math block">
+\[\mathcal{L}_{cyc} = \mathbb{E}\,\big\| I^a - G(\hat I^b, s_a)\big\|_1, \qquad \mathcal{L}_{cyc\text{-}SSIM} = \mathbb{E}\big[1-\mathrm{SSIM}\big(I^a, G(\hat I^b, s_a)\big)\big]\]
+</div>
+<p class="math-translation">—— 翻译: 把翻译结果再用源相机自己的风格码 s_a 翻回去，应该回到原图。L1 管亮度数值，SSIM 管局部结构。这一对约束保证「只换相机、不换内容」。</p>
+<p><strong>类比</strong>：G 像一个通用口译员，风格码 s 相当于告诉他「用哪个地方的口音说」。编码器 E 的作用是听一段某地人的录音（参考图），总结出这个口音的特征。循环一致相当于把翻译稿再翻回原文，用来检查有没有漏词或加词。</p>
+<p>代码里的三个网络基本是原版 StarGAN v2：生成器是 4 次下采样（256→16）、2 个瓶颈残差块、4 次上采样，解码器用 AdaIN 注入风格码，并加了 U-Net 式的加性跳连（<code>repo/core/model.py:L192-L247</code>）。风格编码器是 6 级下采样残差块，后面接每个域一个 <code>Linear(512, 64)</code> 输出头（<code>L249-L280</code>）。判别器结构与编码器相同，最后一层卷积输出 <code>num_domains</code> 个 logit，取目标域那一个（<code>L283-L307</code>）。</p>
+<p>论文没提的是生成器两端的一组<strong>逐相机通道增益</strong>：</p>
+<p class="code-source">repo/core/model.py:L20-L36 — 每台相机 4 个可学习增益（softplus 保正，初值 1），G 入口除以源相机增益、出口乘以目标相机增益</p>
+<pre><code class="language-python">class ChannelGainPerDomain(nn.Module):
+    def __init__(self, num_domains: int, init_gain=1.0, eps=1e-6):
+        super().__init__()
+        self.num_domains = num_domains
+        self.eps = eps
+        raw_init = torch.log(torch.expm1(torch.tensor(init_gain, dtype=torch.float32)))
+        self.raw_weight = nn.Parameter(raw_init.expand(num_domains, 4).clone())  # [D,4]
+
+    def _get_gain(self, d_idx: torch.Tensor):
+        g = F.softplus(self.raw_weight[d_idx]) + self.eps # [B,4]
+        return g.view(-1, 4, 1, 1)
+
+    def forward(self, x, domain):
+        return x * self._get_gain(domain)
+
+    def inverse(self, x, domain):
+        return x / self._get_gain(domain)
+</code></pre>
+<p><code>Generator.forward</code> 在进入卷积前调用 <code>chan_gain.inverse(x, y_org)</code>，在输出处调用 <code>chan_gain(x, c_t)</code>（<code>model.py:L227-L228</code>、<code>L244-L245</code>）。效果相当于给每台相机学一组固定的 R/Gr/Gb/B 对角增益：网络先把源图「除掉」源相机的平均通道比例，最后再乘上目标相机的。它和白平衡增益的形式一样，但<strong>每台相机只有一组</strong>，不随场景光源变化，也表达不了 3×3 矩阵里的通道交叉项。对专项来说，这正是物理颜色映射（DNG 矩阵 + 场景白点）应该接进来的位置。</p>
+<p><strong>参数量核对</strong>：照 <code>model.py</code> 的层定义逐层解析计数（img_size=256、style_dim=64），5 个域时 G = 37.81M（其中原版 StarGAN v2 生成器 33.89M，MS-LKA 门控 3.92M），E = 21.02M，D = 20.85M。G+E = 58.73–58.82M（2–5 个域），和论文 Table 5 的 58.7M 对得上，说明论文的参数量<strong>只算了 G 和 E，没算判别器</strong>。多一个域只多一个 64 维输出头（约 3.3 万参数）和 4 个增益，这一点代码支持「参数量几乎不随域数增长」的说法。</p>
+<h3 id="sec-2-2">2.2 SANM：对齐「平坦区噪声方差—亮度」曲线</h3>
+<p>RAW 处在线性光域，噪声可以用泊松-高斯模型描述（论文 Eq. 2，引自 Foi et al. 2008）：</p>
+<div class="math block">
+\[\mathrm{Var}(x) = \alpha\, z + \beta\]
+</div>
+<p class="math-translation">—— 翻译: 观测值 x 的方差，等于真实亮度 z 乘以斜率 α（散粒噪声，越亮越大），再加一个常数 β（读出噪声）。每台相机、每个 ISO 都有自己的 (α, β)，画出来就是一条「方差随亮度上升」的直线。</p>
+<p>SANM 不去拟合 α、β，而是直接比较这条曲线的经验版本。做法是：把图切成不重叠的小块，用 Sobel 梯度只留下最平的那些块（平坦块里的起伏基本都是噪声），每块算均值 <span class="math inline">\(\mu_i\)</span> 和 MAD 方差 <span class="math inline">\(\sigma_i^2\)</span>，按 <span class="math inline">\(\mu_i\)</span> 落进 100 个等宽亮度箱，箱内取方差平均，得到每个通道一条「噪声直方图」<span class="math inline">\(H \in \mathbb{R}^{C\times B}\)</span>。目标相机的 <span class="math inline">\(H_{real}\)</span> 事先用它的真实图算好，存成查找表。损失为（论文 Eq. 3）：</p>
+<div class="math block">
+\[\mathcal{L}_{noise} = \frac{1}{BC}\sum_{c=1}^{C}\sum_{b=1}^{B} \big| H_{fake}[c,b] - H_{real}[c,b] \big| \cdot \mathbb{1}_{valid}[c,b]\]
+</div>
+<p class="math-translation">—— 翻译: 对 4 个通道、100 个亮度箱逐个比较「生成图在这个亮度上的平均噪声方差」和「目标相机在这个亮度上的平均噪声方差」，取绝对差再平均。生成图在某个箱里没有平坦块时，这个箱不计入。</p>
+<figure>
+  <img class="zoomable" src="figures/fig3-sanm-patches.png" alt="SANM 的平坦块选择：RAW、Sobel 梯度图、被选中的低纹理块">
+  <figcaption>
+    <strong>Fig. 3</strong>：SANM 的选块过程。(a) 输入 RAW；(b) Sobel 梯度幅值；(c) 红色是被选中的低纹理块，只在这些块上估计噪声。文字边缘和窗框都被排除，所以这项损失在设计上就不看纹理区域。（论文 Fig. 3）
+  </figcaption>
+</figure>
+<p><strong>类比</strong>：想判断两台收音机的底噪是否一样，要在没有节目的频段听，因为节目（纹理）会盖住底噪。SANM 先找出画面里「没节目」的平坦区，再按亮度分档比较底噪的大小。</p>
+<p><strong>数值例子</strong>（假设数值）：生成图里有一块平坦块，均值 0.045，落进第 5 个箱 [0.04, 0.05)；它的 MAD 标准差为 0.004，方差 1.6×10⁻⁵。目标相机在这个箱上的 profile 是 6×10⁻⁶，这一块就贡献 |1.6×10⁻⁵ − 6×10⁻⁶| = 10⁻⁵ 的误差，梯度会推动生成器把这一亮度上的平坦区压得更干净。</p>
+<p class="code-source">repo/core/solver.py:L759-L795 — NoiseHistogramLoss.forward：16×16 块、每图每通道按梯度分位数保留 30% 平坦块、按亮度分箱、只在生成图有样本的箱上比较</p>
+<pre><code class="language-python">    def forward(self, x):
+        B, C, H, W = x.shape
+        Ct, Nb = self.target_profiles.shape
+        if Ct == 1 and C &gt; 1:
+            tgt = self.target_profiles.expand(C, Nb)
+        elif Ct != C:
+            tgt = self.target_profiles.mean(dim=0, keepdim=True).expand(C, Nb)
+        else:
+            tgt = self.target_profiles
+        patches = self._unfold(x.float())
+        means = patches.mean(dim=-1)
+        vars_ = self._patch_var(patches)
+        g = self._sobel_mag(x.float())
+        gmean = self._unfold(g).mean(dim=-1)
+        if self.keep_ratio &lt; 1.0:
+            q = torch.quantile(gmean, self.keep_ratio, dim=-1, keepdim=True)
+            mask = gmean &lt;= q
+        else:
+            mask = torch.ones_like(gmean, dtype=torch.bool)
+        means = torch.where(mask, means, torch.full_like(means, -1.0))
+        vars_ = torch.where(mask, vars_, torch.zeros_like(vars_))
+        sum_vars = x.new_zeros(B, C, Nb)
+        counts = x.new_zeros(B, C, Nb)
+        idx = torch.bucketize(means, self.bin_edges, right=True) - 1
+        for b in range(B):
+            for c in range(C):
+                valid = (idx[b, c] &gt;= 0) &amp; (idx[b, c] &lt; Nb) &amp; mask[b, c]
+                if valid.any():
+                    ii = idx[b, c, valid].long()
+                    sum_vars[b, c].index_add_(0, ii, vars_[b, c, valid])
+                    counts[b, c].index_add_(0, ii, torch.ones(ii.numel(), device=x.device, dtype=sum_vars.dtype))
+        hist = sum_vars / (counts + self.eps)
+        bin_mask = counts &gt; 0
+        diff = (hist - tgt.unsqueeze(0)).abs() * bin_mask
+        per_sc = diff.sum(dim=-1) / bin_mask.sum(dim=-1).clamp_min(1.0)
+        loss = per_sc.mean()
+        return loss
+</code></pre>
+<p>对照 Eq. 3，代码有几处细节值得注意：</p>
+<ul>
+<li><strong>梯度只流到每块里的两个像素。</strong> 方差用的是 MAD（<code>solver.py:L750-L755</code>，<code>median</code> 再对 <code>|x − median|</code> 取 <code>median</code>）。<code>torch.median</code> 的反向传播只把梯度给被选中的那个元素，所以每个 16×16 平坦块里，只有「中位数像素」和「MAD 对应的像素」拿得到梯度。分箱（<code>bucketize</code>）和平坦块掩码（<code>quantile</code>）本身不可导。这项损失能推动的只是选中像素的噪声幅度，信号很稀疏。</li>
+<li><strong>数值量级很小。</strong> 我从 MDRAW 压缩包开头取了 5 个佳能测试 patch（§2.5），按代码同样的 16×16 块和 MAD 估计 G 通道最平的 30% 块：块均值 0.04–0.10，方差中位数在 1.7×10⁻⁶ 到 1.9×10⁻⁵ 之间。所以 <span class="math inline">\(\mathcal{L}_{noise}\)</span> 的取值在 10⁻⁶–10⁻⁵ 量级，而同一个总损失里 λ=10 的循环 L1 项是在 [−1,1] 尺度上算的。这只是对损失大小的观察。损失小不等于梯度小（见上一条），这一项实际起了多大作用，需要用多种子消融来回答（§5）。</li>
+<li><strong>数据很暗，用到的箱很少。</strong> 这 5 个 patch 的通道均值在 0.013–0.087 之间。100 个等宽箱里，真正有样本的大多是前 10 个左右，高亮度段的 profile 基本靠插值。</li>
+<li><strong>归一化与 Eq. 3 略有不同。</strong> 代码先对每张图、每个通道在「有效箱」上求平均，再对图和通道求平均（<code>L792-L794</code>）；Eq. 3 是除以总箱数 B·C。</li>
+<li><strong>一台相机只有一条曲线。</strong> <code>2_build_noise_profile.py</code> 把一个目录下所有 npy 合在一起统计（<code>L75-L116</code>），空箱用线性插值补齐，再做一次 [1,2,1] 平滑（<code>L53-L73</code>）。它不区分 ISO，得到的是这台相机在整个无配对集上各种 ISO 混合后的平均曲线。</li>
+<li><strong>选块阈值前后不一致。</strong> 建 profile 时用的是全数据集统一的梯度分位数阈值（<code>2_build_noise_profile.py:L32-L51</code>），训练时则对每张图各取 30%（<code>solver.py:L773-L775</code>）。纹理很多的图也会被强行选出 30% 的「平坦块」。</li>
+</ul>
+<h3 id="sec-2-3">2.3 MS-LKA：风格码调制的多空洞深度卷积门控</h3>
+<p>论文的写法是：输入特征 <span class="math inline">\(F_{in}\)</span> 走三路不同空洞率的大核深度卷积，得到 <span class="math inline">\(F_1, F_2, F_3\)</span>，拼接后用 1×1 卷积融合；风格码 s 经过一个小 FFN 得到通道权重 <span class="math inline">\(A_s\)</span>，然后逐元素相乘：</p>
+<div class="math block">
+\[F_{concat} = \mathrm{Conv}_{1\times1}\big([F_1; F_2; F_3]\big), \qquad F_{out} = A_s \odot F_{concat}, \qquad A_s = \mathrm{FFN}(s)\]
+</div>
+<p class="math-translation">—— 翻译: 先在三种视野大小上看一遍特征，合并成一张多尺度特征图；再由「目标相机是谁」决定每个通道放大多少。Fig. 2(e) 还画了一条残差：结果最后加回输入。</p>
+<p>代码实现的是另一个式子（<code>repo/core/model.py:L72-L81</code>，三路卷积核 7×7，dilation 为 1/4/9，见 <code>L152</code>）：</p>
+<div class="math block">
+\[x_{out} = x \odot \Big(1 + \sigma\big(\mathrm{Conv}_{1\times1}[\mathrm{DW}^{7\times7}_{d=1}(x);\ \mathrm{DW}^{7\times7}_{d=4}(x);\ \mathrm{DW}^{7\times7}_{d=9}(x)]\big) \odot \sigma\big(\mathrm{MLP}(s)\big)\Big)\]
+</div>
+<p class="math-translation">—— 翻译: 多尺度卷积的结果不直接作为输出特征，而是过 sigmoid 变成一张 0–1 的「空间门」；风格码同样过 sigmoid 变成「通道门」；两门相乘后用来放大原特征 x，最多放大到 2 倍。也就是说，它决定的是「原特征在哪里、哪些通道要加强」，并不产生新的特征。</p>
+<p class="code-source">repo/core/model.py:L72-L81 — SpatialKernelGateCond.forward：空间门 × 风格通道门，作用为 x·(1+att)</p>
+<pre><code class="language-python">    def forward(self, x, s):
+        if self.multi:
+            h = torch.cat([b(x) for b in self.branches], dim=1)
+            att_sp = torch.sigmoid(self.fuse(h))          # [B,C,H,W]
+        else:
+            att_sp = torch.sigmoid(self.dw(x))            # [B,C,H,W]
+
+        att_ch = torch.sigmoid(self.style_fc(s)).view(s.size(0), -1, 1, 1)  # [B,C,1,1]
+        att = att_sp * att_ch
+        return x * (1.0 + self.att_scale * att)
+</code></pre>
+<p>7×7 核配 dilation 9，在该层分辨率上的感受野是 55×55。这个门被插在<strong>每一个</strong>解码块（2 个瓶颈块 + 4 个上采样块）第二个卷积之后（<code>model.py:L182-L183</code>），一共新增 3.92M 参数，占生成器的 10%。作者在 <code>L67-L68</code> 把风格 MLP 的最后一层零初始化，本意是让通道门一开始恒为 0.5。但 <code>Solver.__init__</code> 随后对所有非 EMA 网络调用了 <code>he_init</code>（<code>solver.py:L94-L97</code>），把这层重新按 Kaiming 初始化，零初始化实际不生效。</p>
+<p><strong>类比</strong>：AdaIN 相当于整体调一遍色，MS-LKA 则像在不同大小的窗口里看了一圈之后，决定「这里的边缘该加强一点」。加强哪些通道由目标相机决定。</p>
+<h3 id="sec-2-4">2.4 总损失：论文 Eq. 9 与代码实际优化的目标</h3>
+<p>论文给出的总目标是：</p>
+<div class="math block">
+\[\mathcal{L}_{total} = \lambda_1 \mathcal{L}_{noise} + \lambda_2 \mathcal{L}^{D}_{adv} + \lambda_3 \mathcal{L}^{G}_{adv} + \lambda_4 \mathcal{L}_{cyc\text{-}L1} + \lambda_5 \mathcal{L}_{cyc\text{-}SSIM}\]
+</div>
+<p class="math-translation">—— 翻译: 噪声对齐、对抗、循环 L1、循环 SSIM 四类约束加权求和。正文给的权重是 λ_cyc = 10、λ_noise = 1、λ_cyc^SSIM = 0.1，但同一段又列出了 Eq. 9 里没有的 λ_reg、λ_sty、λ_ds、λ_id。</p>
+<p>代码里生成器实际优化的是：</p>
+<div class="math block">
+\[\mathcal{L}_{G} = \mathcal{L}_{adv} + \mathcal{L}_{sty} - \lambda_{ds}(t)\,\mathcal{L}_{ds} + 10\,\mathcal{L}_{cyc} + 1\cdot\mathcal{L}_{noise} + 1\cdot\mathcal{L}_{id} + 0.1\,\mathcal{L}_{cyc\text{-}SSIM} + 0.05\,\mathcal{L}_{id\text{-}SSIM}\]
+</div>
+<p class="math-translation">—— 翻译: 比 Eq. 9 多了三样：风格重建 L_sty；「多样性敏感」项 L_ds，前面是减号，奖励两张不同参考图产生不同输出，权重从 5 在 10 万步内线性降到 0；恒等项 L_id 和 L_id-SSIM，要求「目标相机 = 源相机」时输出等于输入。判别器另有 R1 正则（λ_reg = 1）。</p>
+<p class="code-source">repo/core/solver.py:L656-L667 — 生成器总损失的实际组成（λ 默认值见 main.py:L114-L129）</p>
+<pre><code class="language-python">    loss_noise = x_real.new_zeros([])
+    if (noise_loss_fn is not None) and (getattr(args, 'lambda_noise', 0.0) &gt; 0):
+        loss_noise = noise_loss_fn(x_fake, y_trg)
+
+    loss = (loss_adv
+            + args.lambda_sty * loss_sty
+            - args.lambda_ds * loss_ds
+            + args.lambda_cyc * loss_cyc
+            + getattr(args, 'lambda_noise', 0.0) * loss_noise
+            + lambda_id * loss_id
+            + getattr(args, 'lambda_cyc_ssim', 0.0) * loss_cyc_ssim
+            + getattr(args, 'lambda_id_ssim', 0.0) * loss_id_ssim)
+</code></pre>
+<p>多样性项来自 StarGAN v2，那里的目标是「同一张脸可以换多种发型」。放在 RAW 转换里就有点别扭：同一台相机对同一场景的响应应该是确定的，不需要多样性。好在它在 10 万步（<code>ds_iter</code>，<code>main.py:L128</code>）后衰减为 0（<code>solver.py:L283-L285</code>），后一半训练不受影响。</p>
+<h3 id="sec-2-5">2.5 MDRAW：设备、数量、配对流程（论文 × 代码 × 压缩包核实）</h3>
+<figure>
+  <img class="zoomable" src="figures/fig5-mdraw-samples.png" alt="MDRAW 五台设备的 RAW 样例与同场景对齐样例">
+  <figcaption>
+    <strong>Fig. 5</strong>：MDRAW 样例。(a) 五台设备在不同场景下的 RAW（伪彩显示，偏绿是因为没做白平衡）。表头写的是「iPhone 13 Pro Max」，而正文写的是「iPhone 13 Pro」。(b) 同一场景五台设备的配对 patch，用于评测。仔细看 (b) 第一行的字母，各列的位置和大小并不完全一致，这与代码只做平移对齐相符（见下文）。（论文 Fig. 5）
+  </figcaption>
+</figure>
+<p>这一节逐条核对。「论文」指 arXiv v1（含补充材料，与 CVF 页面上的补充 PDF 内容相同）；「代码」指官方仓库 HEAD <code>bfe5c6e</code>；「压缩包」指 README 链接的 Google Drive 文件。我只用 HTTP Range 取了前 8 MB 查看目录，没有下载整个数据集。</p>
+<table>
+<thead>
+<tr>
+<th>项目</th>
+<th>论文说法</th>
+<th>代码 / 实物核实</th>
+<th>对实验的影响</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>iPhone 机型</td>
+<td>正文 §3 和补充 §6.2 写 <strong>iPhone 13 Pro</strong>；Table 1、Fig. 5/6 的标签和补充 §9 正文写 <strong>iPhone 13 Pro Max</strong>（传感器 Sony IMX703）</td>
+<td>代码只有目录名 <code>iphone</code>，无机型信息</td>
+<td>13 Pro 与 13 Pro Max 的相机硬件完全相同（<a href="https://9to5mac.com/2021/09/14/iphone-13-pro-pro-max-camera-features/">9to5Mac</a>、<a href="https://petapixel.com/2021/10/06/iphone-13-pro-and-13-pro-max-review-improvements-all-around/">PetaPixel</a>），主摄 12MP、26mm 等效、1.9 µm 像素。这处不一致对传感器没有影响；IMX703 这个型号我没有独立核实</td>
+</tr>
+<tr>
+<td>其他设备</td>
+<td>S23 Ultra（ISOCELL HP2）、华为 P30（Sony IMX650 Exmor RS）、尼康 Z5（Sony IMX128）、佳能 EOS Rebel T6（DIGIC 4+）</td>
+<td>佳能 T6 的「DIGIC 4+」是<strong>图像处理器</strong>，不是传感器；T6 的传感器是 18MP APS-C CMOS，5184×3456（<a href="https://www.cla.canon.com/en/p/eos-rebel-t6">Canon</a>、<a href="https://www.dpreview.com/products/canon/slrs/canon_eos1300d/">DPReview</a>）。华为 P30 主摄是 40MP <strong>RYYB</strong> 滤色阵列（<a href="https://www.androidauthority.com/huawei-p30-cameras-explained-968285/">Android Authority</a>），代码仍把它当 RGGB 打包</td>
+<td>尼康 Z5 是 24.3MP 全画幅，6016×4016、5.9 µm 像素（<a href="https://www.bhphotovideo.com/c/product/1578204-REG/nikon_z_5_mirrorless_digital.html">B&amp;H</a>、<a href="https://photographylife.com/reviews/nikon-z5">Photography Life</a>）。Table 1 写的 IMX128 未核实。论文没有给尼康、佳能用的是哪支镜头</td>
+</tr>
+<tr>
+<td>无配对张数</td>
+<td>S23U 81、P30 119、iPhone 98、Z5 114、T6 107，共 519（Table 1）</td>
+<td><code>1_unpaired_split.py:L20-L36</code> 把每张 2000×1500 的打包图切成 7×5 = 35 块 256²，边缘余下的 208 和 220 像素丢弃</td>
+<td>iPhone 约 3,430 块，尼康约 3,990 块，规模很小</td>
+</tr>
+<tr>
+<td>配对组数</td>
+<td>285 张 / 57 组（引言），即每组 5 台设备各一张；「在受控条件下采集」</td>
+<td>代码靠<strong>同名文件</strong>把不同相机的同一场景对上（<code>0_paired_process.py:L468</code>），尼康和佳能整图旋转 180°（<code>L259-L265</code>）。压缩包里的场景编号是纯数字（10、14、16、24、38……）</td>
+<td>论文没有说明三脚架、拍摄位置、焦距、ISO、曝光、是否同时触发。「受控条件」具体指什么无从得知</td>
+</tr>
+<tr>
+<td>RAW 是否 Bayer</td>
+<td>「All RAW files are stored in DNG format」</td>
+<td>读的是 <code>rawpy</code> 的 <code>raw_image_visible</code>；无配对脚本遇到非 2D 数据直接跳过（<code>0_unpaired_process.py:L256-L258</code>），配对脚本的 <code>pack_rggb</code> 遇到非 2D 抛错（<code>0_paired_process.py:L95-L96</code>）。iPhone 的黑电平 528、白电平 4095（12 bit）写死在代码里，没有从文件读取（<code>L246</code>）</td>
+<td>进入训练和测试的 iPhone 数据一定是 <strong>Bayer 马赛克</strong>，不是去马赛克后的线性 DNG。但黑/白电平和 CFA 排列都是写死的，换成你自己的 DNG 时必须重新读元数据核对</td>
+</tr>
+<tr>
+<td>分辨率归一化</td>
+<td>「center-crop and downsampling to a fixed resolution」</td>
+<td>打包后按「覆盖」缩放，再中心裁到 2000×1500（相当于 4000×3000 拜耳），只做 <code>INTER_AREA</code> 下采样（<code>L115-L144</code>）</td>
+<td>尼康 Z5 打包后是 3008×2008，缩放约 0.747 倍；iPhone 2016×1512 只缩到约 0.992。<strong>尼康域的噪声和细节都是降采样之后的</strong>，不是原生像素</td>
+</tr>
+<tr>
+<td>配对流程</td>
+<td>LoFTR 稠密匹配 → RANSAC 单应验证 → 空间 NMS → 同步裁 256×256 RGGB，「在匹配点处几何对齐」</td>
+<td>kornia LoFTR（<code>outdoor</code> 权重，置信度 ≥ 0.2，<code>L18-L27</code>）在伪 RGB 的灰度图上匹配；伪 RGB 是线性值直接 ×255 转 uint8，没有 gamma，也没有白平衡（<code>L357-L361</code>）。<code>cv2.findHomography</code>（重投影阈值 4 px，3000 次迭代）<strong>只用来挑内点</strong>，求出的单应矩阵直接丢掉（<code>L175-L181</code>）。NMS 中心距 ≥ 204 px。裁块以每个内点为中心，<strong>只做平移</strong></td>
+<td>两台设备之间的尺度差（视场不同）、旋转、视差都没有校正。暗部在 uint8 里只剩十几个灰阶，匹配点会偏向亮区和强边缘</td>
+</tr>
+<tr>
+<td>图块大小</td>
+<td>256×256 RGGB</td>
+<td>打包域 256×256，即拜耳域 512×512；存成 float32 <code>(4,256,256)</code>、取值 [0,1] 的 npy</td>
+<td>10 个相机对目录各自独立匹配，同一场景在不同相机对里得到的 patch 位置和数量都不同</td>
+</tr>
+<tr>
+<td>训练/测试划分</td>
+<td>「trained on unpaired images and evaluated on paired image sets」</td>
+<td>训练集 = 全部无配对；测试集 = 全部配对 patch（<code>main.py:L163-L166</code>）；没有验证集，训练时每 5000 步在测试集上评一次，按 MAE 保存最佳模型（<code>solver.py:L361-L370</code>），评测默认加载这个最佳模型（<code>main.py:L155</code>）</td>
+<td>划分方式是「无配对采集 vs 配对采集」，不是按场景随机切。无配对图与配对场景有没有重叠，论文没说</td>
+</tr>
+<tr>
+<td>发布形式</td>
+<td>README 给一个 Google Drive 链接</td>
+<td>单个文件 <code>odb-full-v1-processed.tar-001.zst</code>，34,906,333,929 字节（Drive 显示 33G）。前 8 MB 解出的 tar 目录以 <code>processed/test/samsung_canon/canon/38_p0000_p000.npy</code> 等开头，文件都是 1,048,704 字节的 float32 <code>(4,256,256)</code></td>
+<td>至少包含预处理好的测试 patch。是否同时包含原始 DNG、sRGB 和无配对集，只看开头无法确认；文件名里的 <code>-001</code> 像是分卷压缩的第一卷，但 README 只给了这一个链接</td>
+</tr>
+<tr>
+<td>许可</td>
+<td>—</td>
+<td>仓库没有 LICENSE 文件；核心源码文件头是 StarGAN v2 的 CC BY-NC 4.0</td>
+<td>只能做非商业用途</td>
+</tr>
+</tbody>
+</table>
+<p>配对裁块的核心代码如下。两张图的裁剪框各自以匹配点为中心，只有在越界时才一起平移同样的 dx、dy：</p>
+<p class="code-source">repo/preprocess/0_paired_process.py:L198-L211 — 以匹配点为中心同步裁 256×256，只做平移，不用单应矩阵 warp</p>
+<pre><code class="language-python">def crop_pair_shift_sync(arr1, cx1, cy1, arr2, cx2, cy2, size=PATCH_RGGB):
+    H1, W1 = arr1.shape[:2]; H2, W2 = arr2.shape[:2]; s = int(size)
+    if W1 &lt; s or H1 &lt; s or W2 &lt; s or H2 &lt; s:
+        raise RuntimeError(&quot;Image smaller than patch size; check TARGET size.&quot;)
+    x01 = int(round(cx1)) - s // 2; y01 = int(round(cy1)) - s // 2
+    x02 = int(round(cx2)) - s // 2; y02 = int(round(cy2)) - s // 2
+    dx_lo = max(-x01, -x02); dx_hi = min(W1 - s - x01, W2 - s - x02)
+    dx = 0 if dx_lo &lt;= 0 &lt;= dx_hi else (dx_lo if abs(dx_lo) &lt; abs(dx_hi) else dx_hi)
+    dy_lo = max(-y01, -y02); dy_hi = min(H1 - s - y01, H2 - s - y02)
+    dy = 0 if dy_lo &lt;= 0 &lt;= dy_hi else (dy_lo if abs(dy_lo) &lt; abs(dy_hi) else dy_hi)
+    def clamp(v, lo, hi): return lo if v &lt; lo else (hi if v &gt; hi else v)
+    x1 = clamp(x01 + int(dx), 0, W1 - s); y1 = clamp(y01 + int(dy), 0, H1 - s)
+    x2 = clamp(x02 + int(dx), 0, W2 - s); y2 = clamp(y02 + int(dy), 0, H2 - s)
+    return arr1[y1:y1+s, x1:x1+s, :].copy(), arr2[y2:y2+s, x2:x2+s, :].copy()
+</code></pre>
+<p>只有在两台设备的成像尺度完全一致、场景是平面或足够远时，「中心点对齐」才等于「整块对齐」。iPhone 主摄是 26mm 等效；尼康和佳能用了什么焦距，论文没给。离中心越远，尺度差造成的错位越大：假设两边尺度差 5%，256 宽的块边缘就会差约 6 个打包像素，也就是 12 个拜耳像素。这个数只是示意，实际尺度差未知。</p>
+<p>每台相机的元数据都是写死的：</p>
+<p class="code-source">repo/preprocess/0_paired_process.py:L244-L265 — 黑/白电平、CFA 位置顺序、方向矫正全部硬编码（无配对脚本 L195-L216 相同）</p>
+<pre><code class="language-python">meta_data_huawei  = {'white_level': 4095,  'black_level': 256,  'cfa_pattern': np.array([3, 1, 2, 0])}
+meta_data_nikon   = {'white_level': 16383, 'black_level': 1008, 'cfa_pattern': np.array([0, 1, 2, 3])}
+meta_data_iphone  = {'white_level': 4095,  'black_level': 528,  'cfa_pattern': np.array([3, 1, 2, 0])}
+meta_data_samsung = {'white_level': 1023,  'black_level': 64,   'cfa_pattern': np.array([2, 0, 3, 1])}
+meta_data_canon   = {'white_level': 14274, 'black_level': 2046, 'cfa_pattern': np.array([2, 0, 3, 1])}
+
+camera_meta = {
+    'huawei/':  meta_data_huawei,
+    'nikon/':   meta_data_nikon,
+    'iphone/':  meta_data_iphone,
+    'samsung/': meta_data_samsung,
+    'canon/':   meta_data_canon
+}
+
+# 与你之前设定一致 / keep consistent with your previous orientation settings
+ORIENT_PER_CAMERA = {
+    'huawei/':  'none',
+    'nikon/':   'rot180',
+    'iphone/':  'none',
+    'samsung/': 'none',
+    'canon/':   'rot180'
+}
+</code></pre>
+<p><code>cfa_pattern</code> 在这里是「位置顺序」，不是 rawpy 的颜色编码：当它是 {0,1,2,3} 的排列时，<code>_cfa_to_pos_order</code> 原样返回（<code>L77-L83</code>），第 k 个元素表示「第 k 个输出通道（R、Gr、Gb、B）取 2×2 块里的哪个位置」。按这个解释，代码假设 iPhone 是 BGGR、尼康是 RGGB、三星和佳能是 GBRG。用你自己的 DNG 之前，先用 <code>rawpy</code> 的 <code>raw_pattern</code> 和 <code>color_desc</code> 核对一遍，再用 DNG 里的 BlackLevel / WhiteLevel 替换这些常数。</p>
+<h3 id="sec-2-6">2.6 消融决策表</h3>
+<table>
+<thead>
+<tr>
+<th>组件</th>
+<th>起点</th>
+<th>消融方向</th>
+<th>最终选择</th>
+<th>为什么</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>噪声建模</td>
+<td>只靠对抗损失隐式学</td>
+<td>+ SANM（Tab. 4）</td>
+<td>加，λ_noise = 1</td>
+<td>平均 PSNR 32.37 → 32.71 dB，MAE 0.0221 → 0.0210；λ 从 0.25 到 5 呈倒 U 形（32.81 / 33.27 / 33.60 / 33.24 / 32.36，Tab. 8），作者解释为权重过大时会牺牲内容保真</td>
+</tr>
+<tr>
+<td>上下文建模</td>
+<td>StarGAN v2 的 AdaIN 残差块</td>
+<td>+ MS-LKA</td>
+<td>加在全部 6 个解码块</td>
+<td>33.20 dB（+0.49），作者归因于长程依赖有助于「传感器相关的颜色和色调过渡」；代价是 +3.9M 参数</td>
+</tr>
+<tr>
+<td>循环一致</td>
+<td>只用 L1</td>
+<td>+ (1 − SSIM)</td>
+<td>λ = 0.1</td>
+<td>33.60 dB（+0.40）。作者称只用 L1 时保不住纹理和细粒度传感器细节；λ 在 0.02–0.2 之间结果是 32.21 / 33.18 / 32.54 / 33.60 / 33.18，起伏不单调</td>
+</tr>
+<tr>
+<td>多域 vs 一对一</td>
+<td>每对相机一个模型</td>
+<td>一个模型 + 风格码</td>
+<td>多域</td>
+<td>参数量固定在 58.7M（G+E），UVCGAN 则是 186M → 620M；5 个域时训练迭代 180K，Xie et al. 为 901K</td>
+</tr>
+<tr>
+<td>评测参考图</td>
+<td>随机抽一张目标域图</td>
+<td>按 4 通道均值选最相近的一张</td>
+<td>亮度匹配</td>
+<td>论文承认风格码会带上亮度信息；代码实际用 GT 的均值从测试集里选（§4 第 2 条）</td>
+</tr>
+</tbody>
+</table>
+<p>所有消融都只在两域的 Afifi 数据集上做，MDRAW 上没有组件消融，也没有报告多次运行的方差。</p>
+<h2 id="sec-3">3. 结论 (Key findings)</h2>
+<figure>
+  <img class="zoomable" src="figures/tab2-raw2raw.png" alt="Table 2：RAW-to-RAW mapping 数据集上的定量结果">
+  <figcaption>
+    <strong>Table 2</strong>：Afifi 的 RAW-to-RAW mapping 数据集（Samsung S9 ↔ iPhone X，各 196 张无配对，115 对测试）。MERIT 在 S9→iPhone X 上 35.29 dB / 0.91 / 0.015，在 iPhone X→S9 上 31.90 dB / 0.85 / 0.021。Rawformer 标了 *，表示作者在相同设置下重训过，因为原论文用的是 Menon 去马赛克后的图。（论文 Table 2）
+  </figcaption>
+</figure>
+<ul>
+<li><strong>头条的 +5.56 dB 来自 S9→iPhone X</strong>：MERIT 35.29 dB，次优的 Xie et al. 29.73 dB。反方向 31.90 dB，比次优的 Rawformer（28.45）高 3.45 dB。这个方向上 MERIT 的 SSIM 是 0.85，低于 Xie（0.89）和半监督的 Afifi（0.90）。这就是论文说的「6 项指标里赢了 5 项」。非学习的全局 3×3 校准在 iPhone→S9 上只有 17.03 dB、MAE 0.160。</li>
+<li><strong>这个基准测的只是颜色映射。</strong> Afifi 的测试 GT 是这样生成的：每个场景放一块色卡，用色卡拟合一个多项式映射，再把<strong>源相机的图</strong>整张映射到目标相机空间（Afifi &amp; Abuolaim §2.1，原文明确说「neither to map image noise characteristics nor quality」）。所以 GT 是像素对齐的，但它带的是<strong>源相机</strong>的噪声和纹理。在这个基准上，任何「让噪声更像目标相机」的改动，理论上都会让结果离 GT 更远。SANM 的 +0.34 dB 不能解读为「噪声更真实」。</li>
+<li><strong>完整模型的平均 PSNR 是 33.60 dB，不是 33.20 dB。</strong> Table 4 的四档依次是 32.37（基线）→ 32.71（+SANM）→ 33.20（+MS-LKA）→ 33.60（再加循环 SSIM）。33.20 是不含循环 SSIM 的版本；33.60 正好是 Table 2 中 35.29 和 31.90 的平均。</li>
+</ul>
+<figure>
+  <img class="zoomable" src="figures/tab4-ablation.png" alt="Table 4：RAW-to-RAW mapping 数据集上的组件消融">
+  <figcaption>
+    <strong>Table 4</strong>：组件消融，只在 Afifi 数据集上做。每一档平均 PSNR 提升 0.34 / 0.49 / 0.40 dB。所有档位里 S9→iPhone X 都比反方向好 2.8–3.4 dB，作者称之为「域相关的难度差异」。（论文 Table 4）
+  </figcaption>
+</figure>
+<figure>
+  <img class="zoomable" src="figures/tab3-mdraw-cross.png" alt="Table 3：MDRAW 上 20 个方向的跨域结果">
+  <figcaption>
+    <strong>Table 3</strong>：MDRAW 五个域之间的 20 个方向，每格三行依次是 UVCGAN、Xie et al.、MERIT，每行为 MAE / PSNR / SSIM / KL。<strong>行列方向要注意</strong>：表头斜线标的是「行 = Source，列 = Target」，补充材料对 Table 6/7 的文字描述也按这个方向读；但三张表的图注都写成了「源域（列）→ 目标域（行）」。本页按表头和正文读。（论文 Table 3）
+  </figcaption>
+</figure>
+<ul>
+<li><strong>MDRAW 上三种方法几乎持平。</strong> 我把 Table 3 的 20 格逐格录入后求平均：MERIT 28.43 dB / SSIM 0.745 / MAE 0.0360 / KL 2.31；Xie et al. 28.23 / 0.729 / 0.0372 / <strong>2.28</strong>；UVCGAN 28.10 / 0.727 / 0.0382 / 2.48。这和 Table 5 中 5 个域那一行的数值一致。如果每格拿 MERIT 和两个基线中较好的那个比，PSNR 差值平均是 <strong>−0.02 dB</strong>，最差 −1.08 dB（iPhone→Canon：MERIT 27.09，Xie 28.17），最好 +0.50 dB。论文说的「PSNR 14/20 最高」把并列也算进去了，严格领先的是 11 格。MERIT 比较稳定的优势在 SSIM：20 格都不低于两个基线（其中 6 格并列），领先幅度只有 0–0.02。</li>
+<li><strong>专项关心的两格</strong>（按「行 = 源」读）：
+<ul>
+<li>iPhone → 尼康：UVCGAN 0.044 / 26.67 / 0.69 / 2.79，Xie 0.039 / <strong>27.68</strong> / 0.71 / 2.58，MERIT 0.038 / <strong>27.68</strong> / 0.72 / 2.50。PSNR 打平，MAE 好 0.001。顺带一提，这一格的加粗标反了：0.039 加了粗，0.038 却只加了下划线。</li>
+<li>尼康 → iPhone：UVCGAN 0.044 / 26.54 / 0.71 / 3.15，Xie 0.043 / 26.32 / 0.71 / 2.65，MERIT 0.043 / 26.61 / 0.73 / 3.16。</li>
+<li>如果按图注的方向读，这两格要对调。4 个域时（Table 6），iPhone→尼康为 27.52 dB，尼康→iPhone 为 26.51 dB。</li>
+<li>论文没有给 MDRAW 上「不做任何转换」的恒等基线，也没有给 3×3 校准基线，所以无法判断 27.68 dB 里有多少是方法本身的功劳。</li>
+</ul>
+</li>
+<li><strong>可扩展性</strong>：MERIT 的参数量固定在 58.7M（G+E，见 §2.1）。按 Table 5 的「迭代 / 分钟」换算每次迭代的耗时：5 个域时 MERIT 0.70 s、Xie 0.23 s、UVCGAN 0.53 s。所以「训练迭代少 80%」（180K vs 901K）折成墙钟时间，只比 Xie 少 39%（2,100 vs 3,428 分钟），比 UVCGAN 少 68%。3 个域时 MERIT 用了 1,400 分钟，<strong>多于</strong> Xie 的 1,338 分钟。</li>
+</ul>
+<figure>
+  <img class="zoomable" src="figures/tab5-scaling.png" alt="Table 5：域数增加时的参数量、训练成本与平均指标">
+  <figcaption>
+    <strong>Table 5</strong>：3/4/5 个域时的参数量、训练迭代（K）/ 训练时间（分钟）和平均指标。5 个域的平均值与 Table 3 的 20 格均值一致。3 个域和 4 个域的平均值却和 Table 7/6 的格均值对不上：Table 7 的 6 格平均是 29.47 dB，这里写 29.60；Table 6 的 12 格平均是 28.82 dB，这里写 29.08。（论文 Table 5）
+  </figcaption>
+</figure>
+<ul>
+<li><strong>表格本身的小问题</strong>：Table 7 中「Samsung→iPhone」和「iPhone→Huawei」两格数字完全相同（0.036 / 29.02 / 0.76 / 1.63），像是复制错了；Table 8 有一个 SSIM 写成了 0.08668；Fig. 2 图注把 MS-LKA 写成了「MS-KLA」。</li>
+</ul>
+<h2 id="sec-4">4. 实现细节 (Implementation notes)</h2>
+<p>仓库是官方实现（<code>WJ-Huang/MERIT-Multi-domain-Efficient-RAW-Image-Translation</code>，作者账号对应一作 Wenjun Huang），HEAD <code>bfe5c6e</code>（2026-07-08）。约 3,100 行 Python，环境要求 Python 3.10.16 + PyTorch 1.13.1+cu117。没有发布预训练权重。<code>core/</code> 下的四个文件头都保留了 StarGAN v2（NAVER，CC BY-NC 4.0）的版权声明。</p>
+<ol>
+<li><strong>默认参数会把噪声 profile 配错相机</strong>（论文没有，代码问题）。</li>
+</ol>
+<p class="code-source">repo/core/solver.py:L221-L234 — 按目标域编号 d 去取 self.noise_losses[d]，而列表顺序来自命令行参数</p>
+<pre><code class="language-python">    def _noise_loss_batch(self, x_fake, y_trg):
+        if (self.noise_losses is None) or (self.args.lambda_noise &lt;= 0):
+            return x_fake.new_zeros([])
+        x_lin = x_fake.mul(0.5).add(0.5).clamp(0, 1)
+        if len(self.noise_losses) == 1:
+            return self.noise_losses[0](x_lin)
+        tot = x_fake.new_zeros([])
+        used = 0
+        for d in y_trg.unique():
+            m = (y_trg == d)
+            if m.any():
+                tot = tot + self.noise_losses[d.item()](x_lin[m])
+                used += 1
+        return tot / max(used, 1)
+</code></pre>
+<p>域编号是按目录名字母序分配的（<code>data_loader.py:L51-L52</code>、<code>solver.py:L398-L402</code>）：canon = 0、huawei = 1、iphone = 2、nikon = 3、samsung = 4。而 <code>--noise_profile_paths</code> 的默认顺序是 iphone、samsung、huawei、nikon、canon（<code>main.py:L171-L172</code>）。照默认参数在 MDRAW 上训练时，佳能会拿到 iPhone 的 profile，华为拿到三星的，iPhone 拿到华为的，三星拿到佳能的，只有尼康是对的。两域的 Afifi 数据集（iphone、samsung）恰好排在默认列表的前两位，所以 Table 4 的消融如果是用默认参数跑的，不受影响。改法：按字母序传参，或者在 <code>Solver.__init__</code> 里按文件名和 <code>class_to_idx</code> 建一个映射。</p>
+<ol start="2">
+<li><strong>评测参考图是用 GT 挑出来的，最佳模型也是按测试集选的</strong>（与论文不符）。论文写的是「对每个输入，从<strong>训练集</strong>中选亮度最相近的目标域图当参考」。代码的实际做法是：</li>
+</ol>
+<p class="code-source">repo/core/solver.py:L463-L479 — 用目标 GT 的 4 通道均值，在目标域「测试」池里找最近的参考图（只排除同名文件）</p>
+<pre><code class="language-python">            # ---------- forward: src -&gt; tgt (ref from TEST tgt by brightness) ----------
+            do_forward = True
+            refs_t = []
+            for b in range(B):
+                tvec = self._channel_means(x_tgt[b])                       # [-1,1] → 均值[0,1]
+                ref  = self._select_ref_by_cmeans(tgt, tvec, base_names[b])  # 可能 None
+                if ref is None:
+                    if B &gt; 1:
+                        ref = x_tgt[(b + 1) % B].detach()                  # 批内错位 fallback
+                    else:
+                        do_forward = False
+                        break
+                refs_t.append(ref)
+            if do_forward:
+                x_ref_t = torch.stack(refs_t, dim=0).to(self.device)       # [B,4,H,W]
+                s_t = self.style_encoder_ema(x_ref_t, y_tgt)
+                x_fake = self.generator_ema(x_src, s_t, y_org=y_src, c_t=y_tgt)
+</code></pre>
+<p>参考池来自测试目录（<code>L393-L395</code>）。目标相机的参考池里包含它在所有相机对目录下的测试 patch，只排除与当前 GT 同名的文件（<code>L201-L209</code>）。同一场景其他编号的 patch，以及其他相机对目录里覆盖了同一区域的 patch，都还在池子里。4 通道均值同时编码了曝光和白平衡，最接近的那一块很可能就来自同一场景、同一次曝光，于是 GT 的亮度和颜色就经由风格码传给了生成器。批内 fallback 甚至会直接拿同批另一张 GT 当参考（<code>L470-L471</code>）。另外，训练时每 5000 步在测试集上评一次，按 MAE 保留最佳 checkpoint（<code>solver.py:L361-L370</code>），评测默认加载它（<code>main.py:L155</code>）。这两点都会让 MERIT 的数字偏乐观；UVCGAN 这类不需要参考图的基线拿不到这份信息。</p>
+<ol start="3">
+<li>
+<p><strong>网络结构与 Fig. 2 不符。</strong> 风格编码器是 CNN（<code>model.py:L249-L280</code>），不是 Fig. 2(b) 的 Transformer；判别器每个域只输出一个标量 logit（<code>L283-L307</code>），没有 Fig. 2(d) 的分块和多数投票；判别器只读生成图和域编号（<code>solver.py:L598</code>、<code>L605</code>），不读论文所说的参考图；生成器瓶颈是两个 <code>ResBlk</code>（<code>model.py:L219-L224</code>），没有 Fig. 2(c) 的 Transformer。MS-LKA 的公式差异见 §2.3。</p>
+</li>
+<li>
+<p><strong>未披露的逐相机通道增益</strong>（<code>model.py:L20-L36</code>，§2.1）。它让「每台相机的平均通道比例」有了一个专门的去处，对 MAE / PSNR 应该有直接帮助，但消融里没有单独测过它。</p>
+</li>
+<li>
+<p><strong>超参与数据增广和论文不一致。</strong> Adam 的 β₁：代码默认 0.0（<code>main.py:L144</code>），论文写 0.9；代码还有 weight_decay = 1e-4（<code>L148</code>），论文没提；λ_id_ssim = 0.05（<code>L127</code>）论文没提。数据增广：论文说只做水平翻转，代码在翻转之前还有一个概率 0.5 的 <code>RandomResizedCrop</code>（scale 0.8–1.0），之后再 <code>Resize</code> 回 256（<code>data_loader.py:L198-L209</code>）。对 RAW 做双线性重采样会改变噪声的方差和空间相关性，和 SANM 想对齐的东西直接冲突。在打包 RGGB 上做水平翻转，也会让 R 与 Gr 的相对位置左右互换，属于常见的拜耳相位小问题。</p>
+</li>
+<li>
+<p><strong>迭代数。</strong> 代码默认 <code>total_iters = 200000</code>（<code>main.py:L134</code>），与正文一致；Table 5 却写 MERIT 用了 120K / 165K / 180K。一种可能是表里报的是「按测试集 MAE 选出的最佳 checkpoint 所在步数」，这只是我的推测。</p>
+</li>
+<li>
+<p><strong>README 的步骤跑不通，需要补。</strong> <code>2_build_noise_profile.py</code> 有两个必填参数 <code>--img_dir</code> 和 <code>--out</code>（<code>L120-L121</code>），README 却不带参数直接运行。<code>environment.yml</code> 里的环境名是 <code>raw2raw</code>，README 写的是 <code>conda activate merit</code>。<code>main.py</code> 顶层就 <code>import wandb</code>，不用也得装。<code>--best_model</code> 用的是 <code>type=bool</code>（<code>main.py:L155</code>），传 <code>False</code> 字符串仍然是 True，只有传空字符串才是 False。两个 <code>0_*_process.py</code> 期望的目录结构是 <code>./MDRAW/{paired,unpaired}/&lt;cam&gt;/raw/*.dng</code>（<code>0_paired_process.py:L231-L232</code>、<code>L269-L281</code>）。</p>
+</li>
+<li>
+<p><strong>评测指标的平均方式。</strong> 每个方向分别打印；「Avg all」是对所有 patch 的微平均（<code>solver.py:L561-L573</code>），patch 多的相机对权重更大。PSNR 是逐 patch 算出后再平均，峰值取 1.0（<code>L405-L407</code>）。KL 是每个通道 256 箱直方图的对称 KL，取通道平均（<code>L409-L427</code>）。</p>
+</li>
+</ol>
+<p><strong>论文 vs 代码对照小结</strong></p>
+<table>
+<thead>
+<tr>
+<th>论文</th>
+<th>代码</th>
+<th>影响</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Transformer 风格编码器</td>
+<td>StarGAN v2 CNN + 逐域线性头</td>
+<td>结构描述不可复现</td>
+</tr>
+<tr>
+<td>分块判别器 + 多数投票，输入含参考图</td>
+<td>单 logit / 域，不读参考图</td>
+<td>同上</td>
+</tr>
+<tr>
+<td>生成器瓶颈有 Transformer</td>
+<td>两个残差块</td>
+<td>同上</td>
+</tr>
+<tr>
+<td>F_out = A_s ⊙ F_concat</td>
+<td>x ⊙ (1 + σ(空间) ⊙ σ(风格))</td>
+<td>MS-LKA 是门控，不是特征替换</td>
+</tr>
+<tr>
+<td>Eq. 9 五项</td>
+<td>另有 L_sty、−L_ds、L_id、L_id-SSIM、R1</td>
+<td>消融的「基线」到底包含什么不清楚</td>
+</tr>
+<tr>
+<td>—</td>
+<td>逐相机 4 通道增益</td>
+<td>未消融的颜色通路</td>
+</tr>
+<tr>
+<td>参考图：训练集中亮度最近</td>
+<td>测试集中与 <strong>GT</strong> 均值最近</td>
+<td>评测泄漏</td>
+</tr>
+<tr>
+<td>—</td>
+<td>按测试集 MAE 选 checkpoint</td>
+<td>评测泄漏</td>
+</tr>
+<tr>
+<td>β₁ = 0.9；只做翻转增广</td>
+<td>β₁ = 0.0；外加随机缩放裁剪</td>
+<td>复现差异</td>
+</tr>
+<tr>
+<td>—</td>
+<td>默认噪声 profile 顺序与域编号不匹配</td>
+<td>MDRAW 上 4/5 的域噪声目标错位</td>
+</tr>
+<tr>
+<td>配对 patch「几何对齐」</td>
+<td>只平移，单应矩阵被丢弃</td>
+<td>测试 GT 存在尺度和视差错位</td>
+</tr>
+</tbody>
+</table>
+<h2 id="sec-5">5. 批判性总结 (Critical assessment)</h2>
+<h3 id="sec-5-1">Strengths</h3>
+<ul>
+<li><strong>问题设定贴近工程。</strong> 多台相机的 RAW 统一到一个模型里，参数量不随相机数增长。这一点在代码里可以逐层核实（§2.1）：每多一台相机，只多一个 64 维输出头和 4 个增益。</li>
+<li><strong>公开了一个少见的数据集。</strong> 同时有三台手机的 Bayer RAW 和两台可换镜头相机的 RAW，有同场景配对，还附带完整的预处理代码。专项此前精读的工作里，没有一个公开集能提供「iPhone RAW ↔ 无反 RAW」的同场景对。</li>
+<li><strong>SANM 把「噪声像不像」变成了一个可以计算的物理统计量</strong>：方差随亮度变化的曲线。不论它作为损失效果如何，拿来当评测指标都很实用。</li>
+<li><strong>代码完整。</strong> 从读 DNG、配对、切块、建噪声 profile 到训练和评测都有，体量小，容易改。</li>
+</ul>
+<h3 id="sec-5-2">Limitations / open questions</h3>
+<ul>
+<li><strong>头条数字出自一个只测颜色的基准。</strong> Afifi 数据集的 GT 是源图经色卡多项式映射得到的，带的是源相机的噪声和纹理（§3）。+5.56 dB 说明 MERIT 的颜色映射做得好，说明不了它在噪声和质感上做得好。在这个基准上，SANM 的增益和它的设计目标甚至是矛盾的。</li>
+<li><strong>评测协议有两处泄漏</strong>：用 GT 均值挑参考图，以及按测试集选 checkpoint（§4 第 2 条）。论文没有说明基线是否用了同样的选择方式。</li>
+<li><strong>在真实的跨相机基准上优势很小。</strong> MDRAW 上平均只比 Xie 高 0.19 dB，逐格对比较好的基线平均 −0.02 dB。论文没有恒等基线和 3×3 校准基线，也没有多种子方差。Table 8 里相邻 λ 之间就有 0.6–1 dB 的起伏（λ_SSIM = 0.08 时 32.54，0.1 时 33.60），和 Table 4 里每个组件 0.3–0.5 dB 的增益是同一量级。各组件的增益有多少来自组件本身、有多少来自训练随机性，现有证据回答不了。</li>
+<li><strong>配对只做了平移对齐。</strong> 视差、视场差、旋转都没有校正，LoFTR 又是在没有 gamma 的 uint8 暗图上匹配的。在这样的 GT 上算 PSNR，测到的是颜色、曝光、噪声和错位的混合。专项调研里「跨相机配对的 PSNR 主要在测错位和色差」这一条，在 MDRAW 上同样成立：三种方法都挤在 28 dB 附近。</li>
+<li><strong>噪声模型偏粗。</strong> 只对齐了方差—亮度这一阶统计，一台相机一条曲线、不分 ISO；而且尼康、佳能的数据经过 0.75 / 0.87 倍的面积下采样，噪声已经被平均掉了一部分。梯度只经过 MAD 选中的少数像素（§2.2）。</li>
+<li><strong>论文和代码在结构描述上多处不一致</strong>（§4 的对照表），逐相机增益没有披露；Table 1 把佳能的图像处理器写成了传感器；Table 3/6/7 的图注把行列方向写反；iPhone 机型前后写法不一。</li>
+<li><strong>颜色完全交给网络。</strong> 颜色只能靠 AdaIN 和每台相机一组对角增益来学，没有 3×3 交叉项，也没有用到 DNG 里现成的色彩矩阵。这和 <a class="wiki-link" data-slug="c5-2020" href="../c5-2020/index.html">c5-2020</a> 走的物理路线正好相反。</li>
+</ul>
+<h3 id="sec-5-3">When to use / not use</h3>
+<ul>
+<li><strong>用</strong>：需要把多台相机的 RAW 统一到某一台相机的域，以便复用 RAW 下游模型（检测、分割、去噪）；需要一个「无配对 RAW→RAW」基线；需要一套现成的多相机 RAW 数据和预处理脚本。</li>
+<li><strong>不用</strong>：需要像素级的颜色准确度，这时应走 DNG 矩阵加色卡；需要提升细节或分辨率，MERIT 只在 256² 的块上做风格转换，不会增加信息；需要按 ISO 精确复现目标相机的噪声。</li>
+</ul>
+<h3 id="sec-5-4">延伸阅读 (Further reading)</h3>
+<p><strong>交叉验证比较</strong>：围绕「跨相机差异里，颜色和噪声分别该交给谁」以及「跨设备配对怎么对齐」两个问题，对照如下：</p>
+<table>
+<thead>
+<tr>
+<th>工作</th>
+<th>核心结论</th>
+<th>关键观察</th>
+<th>与本文的异 / 同</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>本文 MERIT</td>
+<td>多域无配对 RAW→RAW，颜色和噪声都交给网络学，噪声额外用 SANM 约束</td>
+<td>Afifi 基准 +5.56 dB；MDRAW 平均 28.42 dB，和基线基本持平</td>
+<td>—</td>
+</tr>
+<tr>
+<td><a class="wiki-link" data-slug="c5-2020" href="../c5-2020/index.html">c5-2020</a></td>
+<td>跨相机 AWB：用同一台相机的一组无标注图现场生成该相机的 CCC 参数；数据增广走 DNG 矩阵 → XYZ → 目标相机</td>
+<td>附加图换成别的相机，误差从 2.24° 升到 2.97°；XYZ 中转优于 RAW 对 RAW 直接映射（3.04° vs 3.30°）</td>
+<td>同：都用「目标相机的一组样本」来刻画相机，C5 是附加图，MERIT 是风格参考图。异：C5 只学光源，颜色映射交给物理矩阵，而且光源随场景变化；MERIT 的逐相机增益是固定的，颜色交叉项靠 AdaIN 隐式学，没用到 DNG 元数据</td>
+</tr>
+<tr>
+<td><a class="wiki-link" data-slug="unprocessing-2018" href="../unprocessing-2018/index.html">unprocessing-2018</a></td>
+<td>用泊松-高斯噪声合成 RAW 去噪训练数据，shot/read 参数按 log 线性关系联合采样（对应不同 ISO）</td>
+<td>数据分布对了的小网络胜过分布错了的大网络</td>
+<td>同：同一个异方差噪声模型。异：Unprocessing 用它<strong>生成</strong>噪声，参数随 ISO 变化；MERIT 用它当<strong>约束</strong>，每台相机只有一条不分 ISO 的平均曲线</td>
+</tr>
+<tr>
+<td><a class="wiki-link" data-slug="wespe-2017" href="../wespe-2017/index.html">wespe-2017</a></td>
+<td>无配对的手机 → 单反（sRGB），用两个判别器分别看模糊后的颜色和灰度纹理</td>
+<td>SSIM 接近全监督，PSNR 低 2–4 dB</td>
+<td>同：无配对加循环一致。异：WESPE 在判别器层面就把颜色和纹理拆开；MERIT 只有一个判别器，颜色和纹理混在一起，噪声靠 SANM 另行约束</td>
+</tr>
+<tr>
+<td><a class="wiki-link" data-slug="zoom-to-learn-2019" href="../zoom-to-learn-2019/index.html">zoom-to-learn-2019</a> / <a class="wiki-link" data-slug="ispw-2022" href="../ispw-2022/index.html">ispw-2022</a></td>
+<td>跨设备 / 跨焦距配对必然错位：ZRR 用仿射 ECC 预对齐，再用 CoBi 损失容错；ISPW 用光流对齐加一致性掩码</td>
+<td>ISPW 中对齐带来 +4.06 dB</td>
+<td>同：都承认跨设备做不到像素对齐。异：MDRAW 只做平移对齐，评测时直接算 PSNR，没有掩码，也没有容错指标</td>
+</tr>
+</tbody>
+</table>
+<p><strong>分歧的可能成因</strong>：MERIT 的目标是让下游视觉模型可以复用，只要「统计上像目标相机」就够了，所以颜色和噪声都可以交给网络和分布级约束。C5 和本专项要的是物理上准确的颜色，必须用 DNG 矩阵和场景白点。ZRR 和 ISPW 要监督的是像素级细节，所以必须认真处理对齐。目标函数不同，对「颜色怎么建模、对齐要做到多细」的要求自然不同。</p>
+<p><strong>相关工作</strong></p>
+<ul>
+<li>Afifi &amp; Abuolaim, <em>Semi-Supervised Raw-to-Raw Mapping</em>（<a href="https://arxiv.org/abs/2106.13883">arXiv:2106.13883</a>）：Table 2 所用数据集的出处，§2.1 写明了测试 GT 的构造方式</li>
+<li>Rawformer（<a href="https://arxiv.org/abs/2404.10700">arXiv:2404.10700</a>，ECCV 2024）：无配对一对一 RAW→RAW，Table 2 的主要基线</li>
+<li>StarGAN v2（<a href="https://arxiv.org/abs/1912.01865">arXiv:1912.01865</a>，CVPR 2020）：MERIT 代码的直接来源</li>
+<li><a class="wiki-link" data-slug="raw-diffusion-2024" href="../raw-diffusion-2024/index.html">raw-diffusion-2024</a>、<a class="wiki-link" data-slug="rawgen-2026" href="../rawgen-2026/index.html">rawgen-2026</a>：用生成模型合成目标相机 RAW 的另一条路线，可以和 MERIT 的 GAN 式转换对照着读</li>
+<li><a class="wiki-link" data-slug="phone2camera-2026" href="../../surveys/phone2camera-2026/index.html">phone2camera-2026</a>：专项入口调研</li>
+</ul>
+<h2 id="sec-6">6. 研究启发：用 MDRAW 做「iPhone → 尼康 Z5」</h2>
+<h3 id="sec-6-1">6.1 实验设计：划分、对齐、评测</h3>
+<p><strong>划分。</strong> MDRAW 官方协议是「全部无配对用于训练，全部配对用于测试」。如果你只是复现 MERIT，就沿用这个协议。如果要用配对数据做有监督或半监督训练，就必须<strong>按场景切</strong>，不能按 patch 切：</p>
+<ul>
+<li>以文件名里的场景编号（<code>&lt;stem&gt;_pXXXX_p000.npy</code> 中的 <code>&lt;stem&gt;</code>）为单位分组。57 组太少，固定一次划分的方差会很大，建议做 5 折交叉验证（每折约 11–12 个场景），或者至少固定一个「约 40 训练 / 7 验证 / 10 测试」的场景列表并公开。</li>
+<li>同一个场景会出现在 10 个相机对目录里。如果训练时用到了其他相机对（比如华为↔尼康）的配对数据，测试场景也要从这些目录里一并剔除。</li>
+<li>论文没有说明无配对图和配对场景是否重叠。用缩略图的感知哈希比对一遍，有重叠的就从无配对训练集里去掉。</li>
+<li>checkpoint 只能用验证折来选，不要像官方代码那样在测试集上选（§4 第 2 条）。</li>
+</ul>
+<p><strong>对齐。</strong> 官方的 patch 对只是「中心点对齐」。用来测颜色勉强可以；用来监督或评测细节，就必须重做。建议顺序是先颜色、再几何、最后留余量：</p>
+<ol>
+<li><strong>先把颜色和曝光对上，再做匹配。</strong> 用两台机器 DNG 里的 ColorMatrix / ForwardMatrix 经 XYZ 把 iPhone 映射到尼康的相机 RGB（做法见 <a class="wiki-link" data-slug="c5-2020" href="../c5-2020/index.html">c5-2020</a> §6），再用 EXIF 的曝光时间 × ISO × 光圈算出全局增益，或者直接在匹配区域上用最小二乘拟合一个全局增益，然后套上 gamma 再匹配。这和 LiteISPNet「先用零位移的颜色映射把颜色拉近，再求光流」是同一个思路。线性 uint8 暗图上的 LoFTR 匹配点会偏向亮区。</li>
+<li><strong>几何上至少要用单应矩阵 warp 整块，而不是平移裁剪。</strong> 能拿到 DNG 时，在原生分辨率上重做匹配，按 EXIF 焦距和像素尺寸先粗配尺度，再估单应，最后用光流（PWC / RAFT）做局部细化，并加前后向一致性掩码，参考 ISPW。只有 npy 时，可以在每对 256² patch 上重新估计单应并 warp，再把边缘裁掉一圈。</li>
+<li><strong>给每对样本打对齐质量分</strong>，比如掩码覆盖率、梯度域 NCC，丢掉最差的一部分，并报告丢弃比例。</li>
+<li><strong>训练损失要容忍错位。</strong> 细节相关的损失用 CoBi（<a class="wiki-link" data-slug="zoom-to-learn-2019" href="../zoom-to-learn-2019/index.html">zoom-to-learn-2019</a>）或者在模糊后再比颜色（DPED / WESPE 的做法）。</li>
+</ol>
+<p><strong>评测。</strong> 颜色、噪声、细节分开报，不要只给一个 RAW 域 PSNR：</p>
+<ul>
+<li><strong>复现口径</strong>：按 MERIT 的方式在线性 RAW 上算 MAE / PSNR / SSIM / KL，只报 iPhone→尼康这一个方向。论文的参考值是 27.68 dB / 0.72 / 0.038 / 2.50（5 域模型，Table 3）。同时报「修正参考图选择」后的数字（见 6.2）。</li>
+<li><strong>上限与下限</strong>：至少要有两个参照。一是<strong>恒等基线</strong>，即 iPhone RAW 只做黑白电平归一化。二是<strong>颜色 oracle</strong>：对每个 patch，用最小二乘把输入拟合到 GT 的 4×4 线性变换后再算 PSNR。它衡量的是「颜色完美时还剩多少误差」，剩下的就是噪声、细节和错位。物理颜色基线（DNG 矩阵 + 白点）应该落在这两者之间。</li>
+<li><strong>颜色</strong>：在平坦块上算均值颜色的角误差，或者把输出和 GT 用<strong>同一条</strong>尼康风格的渲染管线（同一个矩阵、同一条色调曲线）转到 sRGB 后算 ΔE。</li>
+<li><strong>噪声质感</strong>：直接复用 <code>NoiseHistogramLoss</code>（<code>solver.py:L759-L795</code>）当指标，比较输出和<strong>同亮度、同 ISO</strong> 的真实尼康平坦区方差曲线。profile 要按 ISO 分档重建。</li>
+<li><strong>细节</strong>：在纹理区比较径向功率谱（高频能量比）、梯度幅值分布，以及经过同一 ISP 渲染后的 LPIPS / DISTS。另用尼康的无配对 tile 算 KID，衡量分布层面的相似度。</li>
+</ul>
+<h3 id="sec-6-2">6.2 把 MERIT 当基线：复现步骤与必须改的地方</h3>
+<ol>
+<li>环境：<code>conda env create -f environment.yml</code>，环境名是 <code>raw2raw</code>，不是 README 里的 <code>merit</code>。还需要 <code>wandb</code>、<code>kornia</code>、<code>rawpy</code>。</li>
+<li>数据：Drive 上只有一个 33G 的 <code>odb-full-v1-processed.tar-001.zst</code>。解压后先确认有没有 <code>processed/unpaired/&lt;cam&gt;/*.npy</code>、<code>processed/test/&lt;a&gt;_&lt;b&gt;/&lt;a|b&gt;/*.npy</code> 和原始 DNG。如果只有 DNG，就按 <code>./MDRAW/{paired,unpaired}/&lt;cam&gt;/raw/</code> 的结构放好，依次运行 <code>0_*</code>、<code>1_*</code> 两组脚本。</li>
+<li>噪声 profile：每台相机各运行一次，并且必须带上必填参数，例如 <code>python preprocess/2_build_noise_profile.py --img_dir results/MDRAW/processed/unpaired/nikon --out preprocess/noise_profiles/nikon_profile.pt</code>。</li>
+<li><strong>按字母序传 <code>--noise_profile_paths</code></strong>（canon, huawei, iphone, nikon, samsung），否则只有尼康能拿到正确的 profile（§4 第 1 条）。</li>
+<li>只做 iPhone↔尼康时：新建一个只包含 <code>iphone/</code>、<code>nikon/</code> 的训练目录，同时作为 <code>--train_img_dir</code> 和 <code>--sample_dir</code>（<code>main.py:L53-L54</code> 会检查子目录数），加上 <code>--num_domains 2</code>，profile 顺序为 iphone、nikon。测试目录里只放 <code>nikon_iphone/</code>。其他相机对目录即使留着，也会因为域不在训练集里被跳过（<code>solver.py:L443-L445</code>），但它们仍然会进入参考图池。</li>
+<li><strong>修评测协议</strong>：(a) 训练期间让 <code>--val_img_dir</code> 指向验证折，测试折只在最后评一次；(b) 把 <code>solver.py:L467</code> 的 <code>x_tgt[b]</code> 改成 <code>x_src[b]</code>，即按输入亮度选参考，并把参考池换成训练目录（<code>L394</code>）；或者干脆用 K 张训练参考图的平均风格码。两种口径都报，差值就是泄漏的量级。</li>
+<li>训练默认 20 万步、batch 8、β₁ = 0。论文中 5 个域在单张 H200 上跑了约 35 小时（Table 5，2,100 分钟），两个域会快一些，但我没有实测。</li>
+<li>输出接回尼康 ISP：生成器输出在 [−1, 1]，先 <code>denorm</code> 到 [0,1]，再乘 (16383 − 1008)、加 1008，恢复成尼康的原始码值（<code>0_paired_process.py:L245</code> 的常数）。然后旋转 180° 撤销预处理里的方向矫正（<code>L261</code>），按 RGGB 解包回拜耳马赛克，最后写回尼康的 DNG 容器，交给目标 ISP 出图。注意这时的画面对应的是预处理后的几何：约 0.75 倍降采样、中心裁成 4:3 的 2000×1500 打包图，而且模型是在 256² 的块上逐块处理的，不是尼康原生的 6016×4016 画幅。</li>
+</ol>
+<p>建议同时跑三个变体，把颜色和质感的贡献拆开看：MERIT 原版；<strong>物理颜色 + MERIT</strong>，即输入先用 DNG 矩阵映射到尼康的颜色，生成器只需要学残差；<strong>只做物理颜色</strong>。如果第二种和第三种在颜色指标上相同、只在噪声和细节指标上有差别，就说明 MERIT 这类网络在你的管线里只负责质感。这正是专项设想的分工。</p>
+<h3 id="sec-6-3">6.3 SANM 对「细节质感」意味着什么</h3>
+<ul>
+<li><strong>它管的是颗粒，不是细节。</strong> SANM 对齐的是「平坦区噪声方差—亮度」这一条曲线，也就是颗粒有多强、亮部和暗部的颗粒差多少。它主动排除了纹理区（Fig. 3），所以对锐度、镜头 MTF、微对比度、纹理形态都不施加任何约束。iPhone（1.9 µm 像素）到尼康 Z5（5.9 µm 像素）在细节上的差别，主要来自光学系统和采样方式，这一块 SANM 不管。</li>
+<li><strong>作为指标，比作为损失更有价值。</strong> 拿它当评测：生成结果的方差曲线如果明显低于真实尼康，说明「过平滑、塑料感」；如果明显高于，说明「噪声搬错了」。这比 PSNR 更能反映质感。作为损失，它的梯度很稀疏（§2.2），而且 MERIT 自己的消融也没能证明它有效（§3）。</li>
+<li><strong>要按 ISO 分档。</strong> 真实的噪声曲线随 ISO 变化（(α, β) 随增益增大，见 <a class="wiki-link" data-slug="unprocessing-2018" href="../unprocessing-2018/index.html">unprocessing-2018</a> 的联合采样）。MERIT 一台相机只有一条混合曲线。用于你的实验时，应按 ISO 档位分别建尼康的 profile，生成时以目标 ISO 为条件。</li>
+<li><strong>小心 MDRAW 的下采样。</strong> MDRAW 里的「尼康噪声」是经过约 0.75 倍面积平均后的结果，比原生像素干净。如果你最后要在尼康原生分辨率上出图，profile 必须用原生分辨率的裁块重建。</li>
+<li><strong>空间结构也要管。</strong> RAW 噪声大体是白噪声，但如果生成器用卷积「画」噪声，很容易画出空间相关的斑块。只看方差发现不了这个问题，所以除了方差曲线，还应该比较平坦区噪声的功率谱或自相关。</li>
+</ul>
+<h3 id="sec-6-4">6.4 MDRAW 的局限（做实验前要心里有数）</h3>
+<ul>
+<li><strong>规模小</strong>：57 组配对场景，iPhone 98 张、尼康 114 张无配对图。iPhone↔尼康这一对能切出多少个 patch 取决于匹配结果，论文没有给出。实验结论最好用场景级的交叉验证加置信区间来报。</li>
+<li><strong>视差和视场</strong>：两台设备不可能在同一位置成像，近景必然有视差；单应只对平面或远景成立；官方 patch 只做了平移对齐（§2.5）。</li>
+<li><strong>机型与元数据</strong>：iPhone 的写法在 13 Pro 和 13 Pro Max 之间摇摆（不影响传感器）；尼康和佳能用的镜头、焦距、光圈都没有记录；ISO 和曝光论文里没有，代码也没有用；黑白电平、CFA 都是写死的。</li>
+<li><strong>域的定义</strong>：数据集里的「尼康域」其实是「尼康 Z5 + 某支未知镜头 + 0.75 倍降采样 + 中心裁成 4:3」。在这个域上学到的质感，不能直接当成尼康 Z5 的原生质感。</li>
+<li><strong>发布形态</strong>：压缩包是「processed」版本，DNG 和 sRGB 是否在内需要下载后确认；没有许可证文件，代码按 CC BY-NC 4.0 处理。</li>
+</ul>
+<h3 id="sec-6-5">6.5 可迁移的套路</h3>
+<div class="summary-grid">
+  <div class="card"><h3 id="sec-6-6">1. 「相机 = 条件」比「每对相机一个模型」更省</h3><p>多域条件生成让参数量与相机数基本无关。迁移到专项：把「目标相机」做成生成器的条件，一个模型就能覆盖尼康、佳能、富士等多个目标，再用 C5 式的「几张无标注目标相机照片」来提取条件，就能扩展到训练时没见过的相机。</p></div>
+  <div class="card"><h3 id="sec-6-7">2. 噪声曲线是一个现成的质感指标</h3><p>平坦块 + MAD + 亮度分箱，几十行代码就能得到一条「颗粒强度—亮度」曲线。按 ISO 分档后，它可以同时用于造数据（按曲线加噪声）、当损失和做评测，比 PSNR 更贴近「质感」。</p></div>
+  <div class="card"><h3 id="sec-6-8">3. 颜色要有一个显式通路</h3><p>MERIT 偷偷加的逐相机对角增益说明，即使是端到端网络，也需要给颜色留一个低自由度的显式通道。专项的做法更彻底：把这个通道换成 DNG 矩阵 + 场景白点，网络就只剩纹理要学。</p></div>
+  <div class="card"><h3 id="sec-6-9">4. 先查基准的 GT 是怎么来的</h3><p>同样叫「RAW-to-RAW 配对」，Afifi 的 GT 是源图做颜色映射得到的，只能测颜色；MDRAW 的 GT 是真实拍摄、只做了平移对齐，测到的是颜色、噪声、错位的混合。同一个方法在两个基准上 +5.56 dB 和 +0.19 dB 的落差，主要来自 GT 的构造方式，而不是方法本身。</p></div>
+  <div class="card"><h3 id="sec-6-10">5. 反直觉点：参考图的选择可以撑起一大块分数</h3><p>风格码同时编码了亮度和颜色，评测时用 GT 均值挑参考图，就等于把目标曝光和白平衡告诉了生成器。凡是需要参考图的条件生成方法，评测都要固定参考图的选择规则，并且这条规则不能用到 GT。</p></div>
+  <div class="card"><h3 id="sec-6-11">6. 反直觉点：训练迭代少，不等于训练快</h3><p>MERIT 每次迭代要跑多次生成器、编码器（风格重建、多样性、循环、恒等），单步耗时是 Xie et al. 的 3 倍。「迭代少 80%」折成墙钟时间只省 39%，3 个域时甚至更慢。比较训练成本时要用墙钟时间或 FLOPs。</p></div>
+</div>
+</main>
+<footer class="site-footer">Paper Reading · 由 markdown 静态生成 · <a href="https://github.com/megake98/megake98.github.io">GitHub</a></footer>
+</body>
+</html>

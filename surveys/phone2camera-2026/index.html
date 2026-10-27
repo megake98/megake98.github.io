@@ -101,7 +101,8 @@
     <li class="h3"><a href="#sec-2-3">2.3 C 组：RAW 域与造数据</a></li>
     <li class="h3"><a href="#sec-2-4">2.4 D 组：跨相机颜色</a></li>
     <li class="h3"><a href="#sec-2-5">2.5 E 组：多帧</a></li>
-    <li class="h3"><a href="#sec-2-6">2.6 相邻工作（未单独精读）</a></li>
+    <li class="h3"><a href="#sec-2-6">2.6 F 组：RAW 合成与跨相机 RAW 数据（2024–26）</a></li>
+    <li class="h3"><a href="#sec-2-7">2.7 相邻工作（未单独精读）</a></li>
     <li class="h2"><a href="#sec-3">3. 平行对比</a></li>
     <li class="h2"><a href="#sec-4">4. 一致与矛盾</a></li>
     <li class="h2"><a href="#sec-5">5. 代码交叉验证</a></li>
@@ -113,7 +114,7 @@
 <h1>手机照片 → 相机画质：细节与质感迁移调研（2017→2026）</h1>
 <aside class="post-meta">
   <div class="post-meta__row"><span class="post-meta__date">加入 <strong>2026-10-20</strong></span> · <span class="post-meta__paper-date">调研日期: 2026-10-20</span></div>
-  <div class="post-meta__row post-meta__links"><a class="post-meta__link" href="https://github.com/aiff22/DPED">DPED</a> · <a class="post-meta__link" href="https://github.com/JuheonYi/WESPE-TensorFlow">WESPE-TensorFlow</a> · <a class="post-meta__link" href="https://github.com/aiff22/PyNET">PyNET</a> · <a class="post-meta__link" href="https://github.com/aiff22/PyNET-PyTorch">PyNET-PyTorch</a> · <a class="post-meta__link" href="https://github.com/cszhilu1998/RAW-to-sRGB">RAW-to-sRGB</a> · <a class="post-meta__link" href="https://github.com/4rdhendu/TransformPhone2DSLR">TransformPhone2DSLR</a> · <a class="post-meta__link" href="https://github.com/RenYangSCU/ISPDiffuser">ISPDiffuser</a> · <a class="post-meta__link" href="https://github.com/ceciliavision/zoom-learn-zoom">zoom-learn-zoom</a> · <a class="post-meta__link" href="https://github.com/csjcai/RealSR">RealSR</a> · <a class="post-meta__link" href="https://github.com/timothybrooks/unprocessing">unprocessing</a> · <a class="post-meta__link" href="https://github.com/mahmoudnafifi/C5">C5</a> · <a class="post-meta__link" href="https://github.com/Jamy-L/Handheld-Multi-Frame-Super-Resolution">Handheld-Multi-Frame-Super-Resolution</a></div>
+  <div class="post-meta__row post-meta__links"><a class="post-meta__link" href="https://github.com/aiff22/DPED">DPED</a> · <a class="post-meta__link" href="https://github.com/JuheonYi/WESPE-TensorFlow">WESPE-TensorFlow</a> · <a class="post-meta__link" href="https://github.com/aiff22/PyNET">PyNET</a> · <a class="post-meta__link" href="https://github.com/aiff22/PyNET-PyTorch">PyNET-PyTorch</a> · <a class="post-meta__link" href="https://github.com/cszhilu1998/RAW-to-sRGB">RAW-to-sRGB</a> · <a class="post-meta__link" href="https://github.com/4rdhendu/TransformPhone2DSLR">TransformPhone2DSLR</a> · <a class="post-meta__link" href="https://github.com/RenYangSCU/ISPDiffuser">ISPDiffuser</a> · <a class="post-meta__link" href="https://github.com/ceciliavision/zoom-learn-zoom">zoom-learn-zoom</a> · <a class="post-meta__link" href="https://github.com/csjcai/RealSR">RealSR</a> · <a class="post-meta__link" href="https://github.com/timothybrooks/unprocessing">unprocessing</a> · <a class="post-meta__link" href="https://github.com/mahmoudnafifi/C5">C5</a> · <a class="post-meta__link" href="https://github.com/Jamy-L/Handheld-Multi-Frame-Super-Resolution">Handheld-Multi-Frame-Super-Resolution</a> · <a class="post-meta__link" href="https://github.com/SonyResearch/RAW-Diffusion">RAW-Diffusion</a> · <a class="post-meta__link" href="https://github.com/DY112/RawGen">RawGen</a> · <a class="post-meta__link" href="https://github.com/WJ-Huang/MERIT-Multi-domain-Efficient-RAW-Image-Translation">MERIT-Multi-domain-Efficient-RAW-Image-Translation</a></div>
   <div class="post-meta__row post-meta__concepts"><a class="concept-chip" href="../../concepts/learned-isp.html">learned-isp</a> <a class="concept-chip" href="../../concepts/raw-image.html">raw-image</a> <a class="concept-chip" href="../../concepts/phone-to-dslr.html">phone-to-dslr</a> <a class="concept-chip" href="../../concepts/image-enhancement.html">image-enhancement</a> <a class="concept-chip" href="../../concepts/image-super-resolution.html">image-super-resolution</a> <a class="concept-chip" href="../../concepts/burst-photography.html">burst-photography</a> <a class="concept-chip" href="../../concepts/color-constancy.html">color-constancy</a> <a class="concept-chip" href="../../concepts/diffusion.html">diffusion</a> <a class="concept-chip" href="../../concepts/gan.html">gan</a> <a class="concept-chip" href="../../concepts/denoising.html">denoising</a> <a class="concept-chip" href="../../concepts/real-isr.html">real-isr</a> <a class="concept-chip" href="../../concepts/data-synthesis.html">data-synthesis</a></div>
 </aside>
 
@@ -126,7 +127,7 @@
 <li><strong>最后交给目标相机的 ISP</strong>（Lightroom 的相机配置文件）出图。</li>
 </ol>
 <p>本页按这条管线去读已有工作：每篇都问它在哪一步提供了证据、哪一步留下了缺口。</p>
-<p><strong>范围与分组</strong>：12 篇在本站刚做完精读的论文，分五组。</p>
+<p><strong>范围与分组</strong>：16 篇在本站做完精读的论文，分六组。</p>
 <table>
 <thead>
 <tr>
@@ -161,10 +162,16 @@
 <td>多帧</td>
 <td><a class="wiki-link" data-slug="handheld-mfsr-2019" href="../../papers/handheld-mfsr-2019/index.html">handheld-mfsr-2019</a></td>
 </tr>
+<tr>
+<td>F</td>
+<td>RAW 合成与跨相机 RAW 数据（2024–26）</td>
+<td><a class="wiki-link" data-slug="raw-diffusion-2024" href="../../papers/raw-diffusion-2024/index.html">raw-diffusion-2024</a>、<a class="wiki-link" data-slug="rawgen-2026" href="../../papers/rawgen-2026/index.html">rawgen-2026</a>、<a class="wiki-link" data-slug="raw-degradation-sr-2026" href="../../papers/raw-degradation-sr-2026/index.html">raw-degradation-sr-2026</a>、<a class="wiki-link" data-slug="merit-2026" href="../../papers/merit-2026/index.html">merit-2026</a></td>
+</tr>
 </tbody>
 </table>
-<p>时间跨度是 2017–2025 的主干工作，加上 2023–2026 的一批相邻工作（§2.6，没有单独精读）。通用的扩散超分（一步化、视频超分）见 <a class="wiki-link" data-slug="diffusion-sr-2026" href="../diffusion-sr-2026/index.html">diffusion-sr-2026</a>，本页不重复。</p>
-<p><strong>证据来源</strong>：12 篇的数字、论文与代码的出入都来自对应精读页（每页都对照了 PDF 和仓库）。ISPDiffuser 与 C5 的三处关键代码问题由主 agent 再次打开代码核对过。§2.6 的 arXiv 号已经核实过。凡是不在这两类来源里的工作，本页一律不引用。</p>
+<p>F 组单独成组，没有并进 C 组。C 组的 Unprocessing 是 2019 年的手写逐点逆 ISP；F 组四篇是第二轮精读加进来的，都在回答同一个问题：<strong>目标相机的 RAW 训练数据从哪来</strong>。RAW-Diffusion 和 RawGen 用学习式逆 ISP 从 sRGB 造某台相机的 RAW；RAW-Degradation 把 Unprocessing 缺的空间退化（SR 核 + 噪声）逐设备实测出来；MERIT 做跨相机 RAW→RAW，并发布了含 iPhone 与尼康 Z5 同场景 RAW 的 MDRAW 数据集。四篇都落在 §6 第 (1)、(5) 步。</p>
+<p>时间跨度是 2017–2026 的主干工作，加上 2023–2026 的一批相邻工作（§2.7，没有单独精读）。通用的扩散超分（一步化、视频超分）见 <a class="wiki-link" data-slug="diffusion-sr-2026" href="../diffusion-sr-2026/index.html">diffusion-sr-2026</a>，本页不重复。</p>
+<p><strong>证据来源</strong>：16 篇的数字、论文与代码的出入都来自对应精读页（每页都对照了 PDF 和仓库）。ISPDiffuser 与 C5 的三处关键代码问题，以及 F 组里 RawGen 不加噪声、RAW-Diffusion 的 P2 权重与 rawpy 渲染、MERIT 的参考图选择与噪声 profile 顺序，在精读之外又单独打开代码复核过。§2.7 的 arXiv 号和会议信息已经核实过。凡是不在这两类来源里的工作，本页一律不引用。</p>
 <h2 id="sec-2">2. 逐篇精要</h2>
 <p>每篇先给四行头（核心贡献 / 方法 / 关键结果 / 代码），再用一段话讲清楚怎么做的，最后附一张方法图。</p>
 <h3 id="sec-2-1">2.1 A 组：手机 → 单反画质</h3>
@@ -316,8 +323,57 @@
   <img class="zoomable" src="figures/handheld-mfsr-2019-arch.png" alt="Handheld MFSR 流程：Bayer 连拍、局部对齐、核估计、鲁棒性、逐通道累加">
   <figcaption><strong>图12</strong> — Handheld MFSR 总流程：(a) Bayer RAW 连拍，(d) 逐帧局部对齐，(b→c) 由局部梯度估核形状，(e→f) 由局部统计算鲁棒性掩码，(g) R/G/B 平面分别累加加权样本，(h) 归一化得到完整 RGB —— 跳过去马赛克，把手抖造成的亚像素位移变成真实高频；(e→f) 的鲁棒性和 (g) 的累计权重正好告诉下游「哪里是测到的、哪里只能补」（论文 Fig. 2）</figcaption>
 </figure>
-<h3 id="sec-2-6">2.6 相邻工作（未单独精读）</h3>
-<p>下面这些工作引用数还很低，所以没有单独精读，但它们都落在本专项管线的某一步上。arXiv 号均已核实，内容以摘要层面的定位为准。</p>
+<h3 id="sec-2-6">2.6 F 组：RAW 合成与跨相机 RAW 数据（2024–26）</h3>
+<p><strong>RAW-Diffusion (WACV 2025, arXiv:2411.13150)</strong> — ✅ 本站精读 <a class="wiki-link" data-slug="raw-diffusion-2024" href="../../papers/raw-diffusion-2024/index.html">raw-diffusion-2024</a></p>
+<ul>
+<li>核心贡献：把「sRGB → 某台相机 RAW」的逆 ISP 做成 RGB 引导的条件扩散，每台相机训一个模型，几十对样本就够用。</li>
+<li>方法：RGB 经 4 个残差块的 EDSR 抽特征，以 SPADE 式逐像素 γ/β 调制 U-Net 的瓶颈和解码器（编码器只看加噪 RAW）。直接预测 x₀，末层 tanh，损失为 MSE + L1 + 对数 L1。</li>
+<li>关键结果：四个单反数据集上 PSNR 都是第一（FiveK Nikon 30.05，只比 ISPLess⁺ 高 0.22 dB，在种子方差之内；NOD Nikon 44.93，+2.36 dB），比手写逆 ISP（UPI）高 2.4–7.8 dB。25 张训练图与全量持平。DDIM 6 步与 1000 步持平，2 步仍有 44.19 dB。把 BDD100K 转成伪 RAW 后，Faster R-CNN 夜间 AP 从 18.2 提到 26.5，但直接混入 RGB 就已经到 24.5。</li>
+<li>代码：官方 <a href="https://github.com/SonyResearch/RAW-Diffusion">SonyResearch/RAW-Diffusion</a>（commit <code>5fbf662</code>），无预训练权重。损失多乘了论文没写的 P2 权重，训练 RGB 是 rawpy 默认渲染（§5）。</li>
+</ul>
+<p>怎么做的：预处理时，RGB 由 <code>rawpy.postprocess()</code> 按默认参数从<strong>同一张 RAW</strong> 渲出，再做 2× 面积下采样，与 RGGB 打包 RAW 像素对齐。所以它学到的是 LibRaw 那条全局、无锐化、无降噪 ISP 的逆，而不是机内 JPEG 的逆，训练和推理时的 RGB 分布并不相同。几个 RAW 专用的选择都有消融支撑：RGB 拼在输入端比逐层 SPADE 低 1.0–1.5 dB，去掉 tanh 掉 2.2–5.2 dB；ε 预测只有 5.55 dB，但精读页指出这可能是 ε 目标与 tanh、logL1 冲突造成的代码问题。最值得注意的是它的「生成」性质：x₀ 预测加像素损失，再加一个偏向高噪声步的 P2 权重，而 RGB 又几乎唯一决定答案，结果 DDIM 2 步和 1000 步只差 0.8 dB。模型实质上是一个带迭代修正的条件回归器，输出接近「给定 RGB 的条件均值」。它没有 ISO 或噪声输入，黑电平以下的读出噪声在归一化时还被截成了 0。对本专项而言，它是比 Unprocessing 更准的颜色 / 色调逆映射，但不产生目标相机的噪声和质感，输出的纹理来自输入照片。</p>
+<figure>
+  <img class="zoomable" src="figures/raw-diffusion-2024-arch.png" alt="RAW-Diffusion 架构：RGB 引导模块、编码器、瓶颈、解码器">
+  <figcaption><strong>图13</strong> — RAW-Diffusion 架构：左上的 RGB 引导模块（去掉上采样头的 EDSR）产出一张引导特征图，粉色箭头把它送进瓶颈和解码器里每一个 RGB-Guided ResBlock；编码器只接收加噪 RAW，右侧直接输出干净 RAW —— 逐层逐像素的调制把 RGB 的空间结构压到每一层特征上，这是它 PSNR 领先的原因，也意味着输出纹理由输入照片决定：换成 iPhone 成片，iPhone 的锐化和降噪痕迹会原样留在「伪目标相机 RAW」里（论文 Fig. 2）</figcaption>
+</figure>
+<p><strong>RawGen (ECCV 2026, arXiv:2604.00093)</strong> — ✅ 本站精读 <a class="wiki-link" data-slug="rawgen-2026" href="../../papers/rawgen-2026/index.html">rawgen-2026</a></p>
+<ul>
+<li>核心贡献：用「多对一」训练数据逆 ISP：同一张 DNG 渲染出多种修图风格的 sRGB，全部对齐到同一个 CIE XYZ 锚点，让模型学会去掉未知的修图。落到具体相机这一步交给目标相机一张 DNG 里的色彩矩阵，换相机不用重训。</li>
+<li>方法：FLUX.1-Kontext 冻结，只训 rank-64 LoRA，以 sRGB 潜变量为上下文，用整流流去噪出 XYZ 潜变量；VAE 解码器全量重训，直接输出 XYZ。XYZ → 目标相机 RAW 是一个确定性映射：ForwardMatrix / ColorMatrix 按色温插值，再乘光源增益。另有文字 → RAW（T2R）入口。</li>
+<li>关键结果：FiveK 五位修图师风格上 PSNR 23.20–24.35 dB（在 gamma 编码的 XYZ 空间算），比 CIE XYZ Net 高 3.31–5.25 dB。同一骨干只用一对一数据训练时与 CIE XYZ Net 打平（Expert A 19.57 vs 19.60），所以收益全部来自数据构造。下游：光源估计 3.14°（Graphics2RAW 4.21°，真实数据 3.02°）；RAW 去噪 ISO 1600 下 50.63 dB，高于真实数据训练的 49.80。</li>
+<li>代码：官方 <a href="https://github.com/DY112/RawGen">DY112/RawGen</a>（commit <code>39f959b</code>），LoRA 与解码器权重已发布，受 FLUX.1 [dev] 非商用许可约束，需要 ≥40 GB CUDA 显存。发布版不加噪声，输出固定 1024²（§5）。</li>
+</ul>
+<p>怎么做的：锚点由软件 ISP 跑到「白平衡 → 去马赛克 → 转 XYZ」为止，做了暗角校正、没做降噪，再从原片缩到 1024²。变体在同一条 ISP 上随机化 R/B 增益（×0.7–1.3）、逐通道色调曲线和对比度，全部是全局、逐像素的操作。Kontext 原本靠文字指令描述编辑，这里文字通道是空串，上下文 token 与目标 token 共用同一套位置编码，「去修图、转 XYZ」的知识全在 LoRA 里。这个设计把可学习的部分限定在「去掉未知修图」，把「落到哪台相机」做成可解释的物理映射，换相机只需一张带双光源 ColorMatrix + ForwardMatrix 的 DNG。代价同样清楚：训练变体没有局部色调映射、锐化、降噪和 JPEG，所以逆不掉手机成片里的局部处理；输出没有传感器噪声、PSF 和暗角，CFA 是在平滑 RGB 上的理想抽样。对本专项最关键的一点是：同一张 XYZ 分别映射到 iPhone 和 Z5，两份 RAW 满足 I<sub>Z5</sub> = I<sub>iP</sub> · D<sub>iP</sub><sup>−1</sup> F<sub>iP</sub><sup>T</sup> F<sub>Z5</sub><sup>−T</sup> D<sub>Z5</sub>，只差一个 3×3 线性变换，纹理、噪声、锐度完全相同。用它造的「质感配对」没有任何质感监督信号。</p>
+<figure>
+  <img class="zoomable" src="figures/rawgen-2026-arch.png" alt="RawGen 框架：去噪器微调、解码器微调与推理">
+  <figcaption><strong>图14</strong> — RawGen 框架：(A) 同一张 RAW 一路经随机参数 ISP 得到多张 sRGB，一路转 CIE XYZ 得到锚点，DiT 只训 LoRA，以 sRGB 潜变量为上下文预测回到 XYZ 潜变量的速度；(B) 单独微调 VAE 解码器，让它输出 XYZ；(C) 推理时 I2R / T2R 共用 DiT 和解码器，最后的「To camera raw」不可训练 —— 学习只负责「去掉修图」，换相机只换矩阵。也正因为最后一步只是颜色矩阵，用它给两台相机造的 RAW 之间不存在质感差异（论文 Fig. 2）</figcaption>
+</figure>
+<p><strong>RAW-Degradation / RAW-Domain Degradation Models for Realistic Smartphone Super-Resolution (CVPR 2026, arXiv:2603.12493)</strong> — ✅ 本站精读 <a class="wiki-link" data-slug="raw-degradation-sr-2026" href="../../papers/raw-degradation-sr-2026/index.html">raw-degradation-sr-2026</a></p>
+<ul>
+<li>核心贡献：把超分训练数据的退化从「随机退化池」换成逐设备实测。一个 SR 核同时装下镜头 PSF、像素积分和下采样，按视场位置、按 R/G/B 通道分别标定；噪声按 ISO、按 Bayer 通道标定。</li>
+<li>方法：暗室里让手机拍显示器上的两电平随机图案（每张 100 帧平均，格雷码定位，白场 / 黑场线性化），按 128×128 视场块联合优化三个 21×21 的 4× 核和单应，损失在马赛克 RAW 域算 ℓ1，不加先验。噪声用色卡连拍拟合异方差高斯，7 档 ISO 之间做二次拟合。用这些核和噪声把线性 RGB 逆处理成 LR RAW，训练一个只用 ℓ1 的 RRDBNet。</li>
+<li>关键结果：单设备 MTF50 提升最多 2.00（S24U Tele 2；KernelGAN 1.62、MANet 0.29），PSNR 却只比最好基线高 0.05–0.12 dB。跨设备（9 个摄像头里 7 个进训练池，留出 2 个）：Pixel 6 Main 32.41 dB / rMTF50 1.19（Real-ESRGAN 31.75 / 0.38），Mi 11 Main 36.11 / 0.42（RAWSR 35.71 / 0.14）。</li>
+<li>代码：<a href="https://github.com/SamsungLabs/raw_sr_degrdation_models">SamsungLabs/raw_sr_degrdation_models</a> 只有一个空 README（唯一 commit <code>ca6369c</code>），承诺的核与噪声参数尚未发布。</li>
+</ul>
+<p>怎么做的：显示器到传感器的距离调到 M = 4N，天然得到 4× 配对。随机图案每个通道只取 0 和最大值，显示器的非线性就只剩两个点需要知道，一张白场、一张黑场同时解决线性化和暗角。每块的观测量约是未知数的 250 倍，所以不加非负、归一、稀疏先验也能解，代价是个别块会出现条纹伪影。合成分四步：按黑白电平映射到传感器量程 → 标定核卷积并 ↓4 → 按 CFA 马赛克 → 除掉白平衡增益后按 HG 模型加噪。它和 Unprocessing 正好互补：Unprocessing 有 CCM 和色调的逆、没有空间退化；本文有实测空间核和逐设备噪声、没有 CCM 逆。网络只用 ℓ1，MTF 的提升不是 GAN 画出来的。需要打折扣的地方有三处：没有消融，核与噪声各贡献多少不知道；没有和真实配对训练比；留出设备 Pixel 6 Main 与训练池里的 Pixel 9 Pro Main 规格相同（1/1.31&quot;、1.2 µm、50MP），规格差别更大的 Mi 11 上，领先缩到 PSNR +0.40 dB、MTF50 +0.08。另外标定和定量评测共用同一台显示器。</p>
+<figure>
+  <img class="zoomable" src="figures/raw-degradation-sr-2026-arch.png" alt="RAW 域退化建模总流程与 Pixel 6 Main 实拍 4× 超分对比">
+  <figcaption><strong>图15</strong> — RAW-Degradation 总流程：上半部分对若干手机做「超分退化建模」，左边是各 ISO 下噪声方差随强度变化的直线族，右边是按视场排列的彩色 SR 核（三个通道重心错开，就是横向色差），再用它们把 HR 图合成为 LR RAW、训练 SR 模型；下半部分是留出设备 Pixel 6 Main 实拍 RAW 的 4× 对比 —— 空间退化不再从高斯池里随机采，而是当作可测量的物理量逐设备标定，这正是 Unprocessing 式「伪 iPhone RAW」缺的那一半（论文 Fig. 1）</figcaption>
+</figure>
+<p><strong>MERIT (CVPR 2026, arXiv:2603.20836)</strong> — ✅ 本站精读 <a class="wiki-link" data-slug="merit-2026" href="../../papers/merit-2026/index.html">merit-2026</a></p>
+<ul>
+<li>核心贡献：一个模型做任意两台相机之间的无配对 RAW→RAW 转换（StarGAN v2 式「生成器 + 目标相机风格码」），并发布 MDRAW：五台设备（S23 Ultra、华为 P30、iPhone 13 Pro、尼康 Z5、佳能 T6）的 Bayer RAW，无配对 519 张，另有 57 组同场景配对（每组 5 台各 1 张）。</li>
+<li>方法：4 通道打包 RAW 进生成器，风格编码器从目标相机的参考图里提取 64 维风格码。在 StarGAN v2 之上加三样：SANM（在平坦块上用 MAD 估方差、按亮度分箱，对齐目标相机的「噪声方差—亮度」曲线）、解码器里由风格码调制的多空洞大核门控 MS-LKA、循环 SSIM 损失。</li>
+<li>关键结果：Afifi 的 S9 / iPhone X 数据集上 35.29 / 31.90 dB，比次优高 5.56 / 3.45 dB，平均 33.60 dB（消融四档：32.37 → +SANM 32.71 → +MS-LKA 33.20 → +循环 SSIM 33.60）。MDRAW 20 个方向平均 28.42 dB，只比 Xie et al. 高 0.19 dB；iPhone→尼康 27.68 dB，与 Xie et al. 的 27.68 打平。</li>
+<li>代码：官方 <a href="https://github.com/WJ-Huang/MERIT-Multi-domain-Efficient-RAW-Image-Translation">WJ-Huang/MERIT-Multi-domain-Efficient-RAW-Image-Translation</a>（HEAD <code>bfe5c6e</code>），无权重。评测参考图按 GT 挑选，默认噪声 profile 错配相机（§5）。</li>
+</ul>
+<p>怎么做的：对本专项来说，MERIT 的价值主要不在方法，而在 MDRAW 和 SANM 这把尺子。方法上，颜色完全交给网络：AdaIN，加上代码里一组论文没有披露的逐相机 4 通道对角增益。这组增益不随光源变化，也没有 3×3 的交叉项，和 C5 的物理路线相反。SANM 只对齐平坦区的方差—亮度一条曲线，每台相机一条、不分 ISO，梯度只经过 MAD 选中的少数像素。头条的 +5.56 dB 出自 Afifi 数据集，那里的 GT 是源图经色卡多项式映射得到的，带的是源相机的噪声和纹理，只能测颜色；到了真实拍摄的 MDRAW 上，三种方法都挤在 28 dB 附近。MDRAW 本身也有边界：配对 patch 由 LoFTR + RANSAC 选点，但求出的单应被丢掉，只做平移裁剪；尼康域在预处理里经过约 0.75 倍的面积下采样；镜头、焦距、ISO 都没有记录；黑白电平和 CFA 写死在代码里。它是目前唯一公开的「iPhone Bayer RAW ↔ 无反 RAW」同场景配对，但规模和对齐精度只够做小规模实验。</p>
+<figure>
+  <img class="zoomable" src="figures/merit-2026-arch.png" alt="MERIT 框架：生成器、风格编码器、判别器与 MS-LKA">
+  <figcaption><strong>图16</strong> — MERIT 框架：(a) 源相机 RAW 进生成器 G，风格编码器 E 从目标相机的参考 RAW 中提取风格码，判别器按目标域判真假，顶部红色双箭头是生成图与参考图之间的噪声建模（SANM）；(b)–(e) 依次是风格编码器、U 形生成器、分块投票判别器和 MS-LKA —— 「相机 = 条件」让一个模型覆盖所有相机对；但 (b)(c)(d) 画的 Transformer 和分块投票在代码里都不存在（实为 StarGAN v2 的 CNN），图中也没画代码里那组承担颜色的逐相机通道增益（论文 Fig. 2）</figcaption>
+</figure>
+<h3 id="sec-2-7">2.7 相邻工作（未单独精读）</h3>
+<p>下面这些工作没有单独精读，但它们都落在本专项管线的某一步上。arXiv 号和会议信息均已核实，内容以摘要层面的定位为准。</p>
 <ul>
 <li><strong>RDDM</strong>（<a href="https://arxiv.org/abs/2508.19154">arXiv:2508.19154</a>）：直接在 RAW 域做扩散修复，用 RAW 域 VAE 加多拜耳排列的 LoRA。生成发生在线性 RAW 里，正是本专项「RAW→RAW、再交给目标 ISP」需要的形态。</li>
 <li><strong>LDM-ISP</strong>（<a href="https://arxiv.org/abs/2312.01027">arXiv:2312.01027</a>，ICRA 2025）：冻结 Stable Diffusion，用小波驯化模块把大模型先验接到学习式 ISP 上。代表「冻结大先验、只训适配」这一路。</li>
@@ -325,10 +381,13 @@
 <li><strong>DarkDiff</strong>（<a href="https://arxiv.org/abs/2505.23743">arXiv:2505.23743</a>）：把预训练扩散模型「改任务」成相机 ISP 的一步，做暗光 RAW 增强。暗光正是单帧手机 RAW 信息最不够的工作区间。</li>
 <li><strong>BurstGP</strong>（<a href="https://arxiv.org/abs/2604.23508">arXiv:2604.23508</a>）：RAW 连拍超分加扩散生成的修正量，用 λ 控制修正强度。这是目前与「多帧给真实细节 + 强度可控的生成补高频」最接近的公开工作。</li>
 <li><strong>Efficient Burst Super-Resolution with One-step Diffusion</strong>（<a href="https://arxiv.org/abs/2507.13607">arXiv:2507.13607</a>，NTIRE 2025）：连拍超分接一步扩散，把生成补高频的代价压到一次前向。</li>
-<li><strong>Rawformer</strong>（<a href="https://arxiv.org/abs/2404.10700">arXiv:2404.10700</a>，ECCV 2024）：无配对的 RAW→RAW 跨相机转换，在 RAW 域延续了 WESPE 的「无配对」思路。</li>
+<li><strong>Rawformer</strong>（<a href="https://arxiv.org/abs/2404.10700">arXiv:2404.10700</a>，ECCV 2024）：无配对的一对一 RAW→RAW 跨相机转换，在 RAW 域延续了 WESPE 的「无配对」思路，也是 <a class="wiki-link" data-slug="merit-2026" href="../../papers/merit-2026/index.html">merit-2026</a> 在 Afifi 数据集上的主要基线。</li>
 <li><strong>Beyond Calibration / NPM</strong>（<a href="https://arxiv.org/abs/2506.08650">arXiv:2506.08650</a>）：物理信息约束的 RAW→RAW 跨设备映射，介于纯物理颜色矩阵和纯学习之间。</li>
-<li><strong>RAW-Diffusion</strong>（<a href="https://arxiv.org/abs/2411.13150">arXiv:2411.13150</a>，WACV 2025）：RGB→RAW 生成，是 Unprocessing 手写逆 ISP 的学习式替代，可用来造「目标相机 RAW」训练数据。</li>
-<li><strong>RAW-Flow</strong>（<a href="https://arxiv.org/abs/2601.20364">arXiv:2601.20364</a>）：RGB→RAW 重建，在潜空间用确定性 flow matching 学 RGB 与 RAW 之间的传输。与上一条同属「学习式逆 ISP」，可用来造 RAW 训练数据。</li>
+<li><strong>cmKAN / Color Matching Using Hypernetwork-Based Kolmogorov-Arnold Networks</strong>（<a href="https://arxiv.org/abs/2503.11781">arXiv:2503.11781</a>，ICCV 2025，代码 <a href="https://github.com/gosha20777/cmKAN">gosha20777/cmKAN</a>）：超网络生成空间变化的权重图，去控制 KAN 的非线性样条，做源 → 目标颜色分布的匹配，有监督、无监督都支持。同时发布一个两台相机拍摄的配对数据集，覆盖 raw-to-raw、raw-to-sRGB、sRGB-to-sRGB 三种颜色匹配任务。它是专项物理颜色管线（DNG 矩阵 + 色卡）最直接的学习式对照，它的双相机配对数据也是 MDRAW 之外又一个跨相机 RAW 数据来源。</li>
+<li><strong>RAW-Flow</strong>（<a href="https://arxiv.org/abs/2601.20364">arXiv:2601.20364</a>）：RGB→RAW 重建，在潜空间用确定性 flow matching 学 RGB 与 RAW 之间的传输。与 <a class="wiki-link" data-slug="raw-diffusion-2024" href="../../papers/raw-diffusion-2024/index.html">raw-diffusion-2024</a>、<a class="wiki-link" data-slug="rawgen-2026" href="../../papers/rawgen-2026/index.html">rawgen-2026</a> 同属「学习式逆 ISP」，可用来造 RAW 训练数据。</li>
+<li><strong>Learned Lightweight Smartphone ISP with Unpaired Data</strong>（<a href="https://arxiv.org/abs/2505.10420">arXiv:2505.10420</a>，CVPRW 2025，代码 <a href="https://github.com/AndreiiArhire/Learned-Lightweight-Smartphone-ISP-with-Unpaired-Data">AndreiiArhire/Learned-Lightweight-Smartphone-ISP-with-Unpaired-Data</a>）：不要求 RAW 与 GT 内容对应，用多个读取预训练网络特征图的判别器做对抗训练，在保住内容结构的同时，从目标 RGB 图集学颜色和纹理；骨干是适合手机的轻量网络，在 ZRR 和 Fujifilm UltraISP 上验证。相当于 WESPE 思路在 RAW 输入 ISP 上的延续。</li>
+<li><strong>NTIRE 2026 Challenge on Learned Smartphone ISP with Unpaired Data</strong>（CVPRW 2026，<a href="https://openaccess.thecvf.com/content/CVPR2026W/NTIRE/papers/Perevozchikov_NTIRE_2026_Challenge_on_Learned_Smartphone_ISP_with_Unpaired_Data_CVPRW_2026_paper.pdf">挑战报告</a>）：以 UP-ISP 数据集（Pixel 6）为基准的无配对学习式手机 ISP 赛道。说明「不拍配对、只给目标风格图集」已经成为一个公开的评测任务。</li>
+<li><strong>Modular Neural Image Signal Processing</strong>（Afifi、Brown 等，<a href="https://arxiv.org/abs/2512.08564">arXiv:2512.08564</a>，预印本）：全学习、但中间各阶段都可单独控制的模块化神经 ISP，整条管线约 0.5M–3.9M 参数，支持换风格的可重复后期渲染。<a class="wiki-link" data-slug="rawgen-2026" href="../../papers/rawgen-2026/index.html">rawgen-2026</a> 的 Fig. 6 用一个在真实 S24 RAW 上训练的 Modular Neural ISP 去渲染它生成的 RAW。对专项最后一步「交给目标相机 ISP」，如果 Lightroom 的相机配置文件不可用，这是一个阶段可控的学习式替代。</li>
 <li><strong>VAR 先验做 RAW→sRGB</strong>（<a href="https://arxiv.org/abs/2609.18302">arXiv:2609.18302</a>，ECCV 2026 Workshop）：在 ZRR 上发现<strong>颜色迁移是主要瓶颈</strong>，理想仿射颜色校正可以多拿 3.8 dB。这条和 ISPW「PSNR 增益主要来自颜色」的结论相互印证（见 §4）。</li>
 </ul>
 <h2 id="sec-3">3. 平行对比</h2>
@@ -505,14 +564,66 @@
 <td>非官方（IPOL）</td>
 <td>+3.2/3.7 dB vs 单帧 DeepJoint</td>
 </tr>
+<tr>
+<td>RAW-Diffusion</td>
+<td>F</td>
+<td>sRGB（rawpy 默认渲染）</td>
+<td>同机 RAW</td>
+<td>配对（由同一张 RAW 渲染）</td>
+<td>不需要（天然对齐）</td>
+<td>不分离：颜色、色调、纹理都由 RGB 逐层调制</td>
+<td>扩散 U-Net（x₀ 预测）+ EDSR 引导</td>
+<td>FiveK（D700 / 5D）、NOD（RX100 VII / D750）</td>
+<td>官方（P2 权重未写进论文）</td>
+<td>NOD Nikon 44.93 dB；25 张 ≈ 全量</td>
+</tr>
+<tr>
+<td>RawGen</td>
+<td>F</td>
+<td>sRGB / 文字</td>
+<td>CIE XYZ 锚点 → 任意相机 RAW</td>
+<td>多对一合成配对</td>
+<td>不需要（同源渲染）</td>
+<td>颜色走 DNG 矩阵；无噪声、无 PSF</td>
+<td>FLUX.1-Kontext + LoRA</td>
+<td>FiveK + RAISE</td>
+<td>官方（不加噪声）</td>
+<td>比 CIE XYZ Net +3.3–5.3 dB</td>
+</tr>
+<tr>
+<td>RAW-Degradation</td>
+<td>F</td>
+<td>合成 LR Bayer RAW</td>
+<td>4× 线性 RGB</td>
+<td>合成配对（实测核 + 实测噪声）</td>
+<td>不需要（天然对齐）</td>
+<td>只建模空间与噪声；颜色只逆 WB 增益</td>
+<td>CNN（RRDBNet，仅 ℓ1）</td>
+<td>DIV2K / FiveK 合成；9 个手机摄像头标定</td>
+<td>无（空 README）</td>
+<td>留出 Pixel 6：32.41 dB / rMTF50 1.19</td>
+</tr>
+<tr>
+<td>MERIT</td>
+<td>F</td>
+<td>Bayer RAW（打包）</td>
+<td>目标相机 RAW</td>
+<td>无配对训练（配对仅测试）</td>
+<td>测试 patch 仅平移对齐</td>
+<td>不分离：AdaIN + 逐相机对角增益管颜色，SANM 管噪声</td>
+<td>GAN（StarGAN v2 式多域）</td>
+<td>Afifi（S9 / iPhone X）、MDRAW（5 机）</td>
+<td>官方（评测泄漏）</td>
+<td>Afifi +5.56 dB；MDRAW iPhone→尼康 27.68 = Xie</td>
+</tr>
 </tbody>
 </table>
-<p>—— 真正有区分度的是三列：<strong>输入域</strong>（sRGB 起步的 DPED、WESPE、RealSR，信息已经被 ISP 抹掉一部分）、<strong>颜色/纹理分离的层次</strong>（从损失层、尺度层，到 ISPW、DiffRAW、ISPDiffuser 的显式条件，再到 C5、Unprocessing 的纯物理），以及<strong>监督目标</strong>。12 篇里没有一篇的监督目标是<strong>目标相机的 RAW</strong>：A 组全部以单反 JPEG/sRGB 为目标，B 组是同一台机器的长焦 JPEG。这一列是本专项白地的直接来源（§6）。头条数字的 PSNR 跨行不可比：各家的 GT 口径不同，原始 GT、对齐到 RAW、对齐到输出可以差 2–3 dB。</p>
+<p>—— 真正有区分度的是三列：<strong>输入域</strong>（sRGB 起步的 DPED、WESPE、RealSR，信息已经被 ISP 抹掉一部分）、<strong>颜色/纹理分离的层次</strong>（从损失层、尺度层，到 ISPW、DiffRAW、ISPDiffuser 的显式条件，再到 C5、Unprocessing 的纯物理，以及 RawGen「学去修图、物理落相机」的混合），以及<strong>监督目标</strong>。A–E 组 12 篇里没有一篇的监督目标是<strong>目标相机的 RAW</strong>：A 组全部以单反 JPEG/sRGB 为目标，B 组是同一台机器的长焦 JPEG。F 组改变了这一列，但方式各不相同：RAW-Diffusion 的目标是同一台相机的真 RAW，输入却是由这张 RAW 渲染出来的 sRGB，没有跨设备；RawGen 的目标 RAW 是 XYZ 经矩阵算出来的；MERIT 第一次以真实的另一台相机 RAW 为目标，但只用无配对数据训练，MDRAW 的 57 组配对只用来测试。16 篇里仍然没有一篇「用真实目标相机 RAW 做像素级监督」，这一列是本专项白地的直接来源（§6）。头条数字的 PSNR 跨行不可比：各家的 GT 口径不同，原始 GT、对齐到 RAW、对齐到输出可以差 2–3 dB；F 组的 PSNR 更是分别算在线性 RAW、gamma 编码的 XYZ 和显示器配对上。</p>
 <h2 id="sec-4">4. 一致与矛盾</h2>
 <p><strong>一致（多份独立工作收敛）：</strong></p>
 <ul>
 <li>
-<p><strong>颜色和纹理必须分开处理。这是 12 篇里最强的共识。</strong> 证据来自六种不同机制，彼此独立：</p>
+<p><strong>颜色和纹理必须分开处理。这是 A–E 组 12 篇里最强的共识，F 组又添了两例。</strong> 证据来自六种不同机制，彼此独立：</p>
 <ul>
 <li>DPED 的消融：去掉颜色项，GAN 就会把颜色带偏。</li>
 <li>ISPW：加颜色条件就 +2.82 dB。PSNR 涨 1.43 dB、SSIM 只涨 0.006，说明增益主要来自颜色。</li>
@@ -521,10 +632,14 @@
 <li>Zoom-to-Learn：把 WB 从网络里拿出来，按 EXIF 施加。</li>
 <li>VAR 先验工作：理想仿射颜色校正可以多拿 3.8 dB。</li>
 </ul>
+<p>F 组的两例：RawGen 把「落到哪台相机」整个交给 DNG 矩阵，学习只负责去掉修图；MERIT 号称端到端，代码里却给每台相机加了一组论文没写的 4 通道对角增益，说明即使是端到端网络，颜色也需要一条低自由度的显式通路。</p>
 <p>它们还指向同一个更强的结论：<strong>学出来的颜色跨设备会失败</strong>。PyNET 换到 BlackBerry 后曝光和颜色都偏，ISPW 的 ZRR / ISPW 交叉测试颜色失败，C5 的附加图换成别的相机误差就从 2.24° 升到 2.97°。这些都支持专项「颜色走物理」的选择。</p>
 </li>
 <li>
-<p><strong>配对数据的对齐比网络容量重要。</strong> LiteISPNet：对齐 +0.27 dB，RCAB 4→20 只多 0.03 dB。ISPW：对齐 +4.06 dB，掩码再 +0.62 dB。RealSR：换真实数据 +1 dB，换大网络 +0.28 dB。Unprocessing：数据分布对了的小网络，比分布错的 4 倍大网络高 1 dB。四篇方向一致，数量级也一致。</p>
+<p><strong>配对数据的对齐和构造比网络容量重要。</strong> LiteISPNet：对齐 +0.27 dB，RCAB 4→20 只多 0.03 dB。ISPW：对齐 +4.06 dB，掩码再 +0.62 dB。RealSR：换真实数据 +1 dB，换大网络 +0.28 dB。Unprocessing：数据分布对了的小网络，比分布错的 4 倍大网络高 1 dB。四篇方向一致，数量级也一致。F 组再添三例：RawGen 的 120 亿参数骨干只用一对一数据时与小网络 CIE XYZ Net 打平，3.1–5.8 dB 的提升全部来自多对一数据；RAW-Degradation 每台手机只有几十组实测核（精读页按视场块数估算），MANet 基线每台设备估约 40 万个核再随机取 400 个，S24U Tele 2 上 MTF50 是 2.00 对 0.29；RAW-Diffusion 25 张训练图与全量持平，NAFNet 引导骨干参数翻三倍也没有提升。</p>
+</li>
+<li>
+<p><strong>质感的真值只能来自真实目标相机的 RAW。F 组四篇从四个方向得出同一结论。</strong> RawGen：同一 XYZ 造出的伪 iPhone RAW 和伪 Z5 RAW 只差一个 3×3，对细节和质感没有监督信号。RAW-Diffusion：输出接近给定 RGB 的条件均值，没有噪声建模，纹理来自输入照片，换到手机成片还会带入源 ISP 的锐化和涂抹。RAW-Degradation：合成数据要对超分有用，空间核必须逐设备实测，随机高斯池几乎没用；而它的 HR 端本身是单反 RAW 经 Lightroom 降噪的结果，说明它合成的是<strong>输入端</strong>的退化，从来不负责「目标质感」。MERIT：在只测颜色的 Afifi 基准上 +5.56 dB，在真实拍摄的 MDRAW 上与基线打平，颜色可以学，真实跨机质感差异连测都很难测准。再加上 Zoom-to-Learn 的「合成 RAW 比真 RAW 低 2.90 dB」，结论是：生成式 / 学习式逆 ISP 只能当颜色和内容的扩充工具，目标端必须是真实目标相机 RAW，输入端可以由它反向合成（§6 第 (5) 步）。</p>
 </li>
 <li>
 <p><strong>RAW 起步优于 sRGB 起步，真实数据优于粗糙的合成数据。</strong> Zoom-to-Learn 的受控实验是这里最硬的数字（真 RAW 比 JPEG 高 4.54 dB）。Unprocessing 里直接把 sRGB 当 RAW 用掉 1.33 dB，RealSR 里 MD 相对 BD 几乎不涨。</p>
@@ -537,19 +652,22 @@
 <ul>
 <li><strong>GT 应该对齐到哪里，两篇结论相反。</strong> LiteISPNet 的 Table 3 里，「GT 对齐到网络输出 ŷ」是 23.33，<strong>低于</strong> SIFT 基线 23.49，因为输出会漂。ISPW 里「GT → 预测」是 25.24，<strong>高于</strong>「GT → RAW」的 25.09。可能的原因：LiteISPNet 是大感受野的小波 U-Net，输出带像素偏移；ISPW 的 F 全程不下采样，又由 ĉ 在 RAW 坐标系里逐像素钉住颜色。另外 ISPW 的「对齐到 RAW」是在半分辨率上求光流再上采样，本身带插值误差。所以「哪个方向更好」取决于架构和实现，不能当成通用规律。</li>
 <li><strong>3×3 颜色矩阵够不够用：ISPW 与 C5 / 专项思路看起来矛盾。</strong> ISPW 的 3×3 线性映射只有 21.89 dB，比「模糊 GT 当条件」（23.43）还差 1.5 dB，非线性的分 bin 仿射是 24.41。C5 却显示 XYZ 中转的 3×3 优于直接映射，专项也计划用 3×3 起步。两边并不冲突，差别在<strong>作用空间</strong>：ISPW 映射的目标是 Canon 机内 sRGB，已经含色调曲线和厂商调色，本来就不是线性关系；C5 和专项的 3×3 作用在两台传感器的<strong>线性 RAW</strong> 之间，近似线性成立，剩下的误差来自同色异谱。对专项的含义是：3×3 只该用在线性域；目标端如果是 JPEG，就必须带上目标的色调曲线，或者干脆像专项计划的那样把色调交给目标相机的 ISP。</li>
-<li><strong>合成 RAW 够不够用：Zoom-to-Learn 和 Unprocessing 结论相反。</strong> Zoom-to-Learn 说合成 RAW 比真 RAW 低 2.90 dB；Unprocessing 说足够真实的合成 RAW 在去噪上超过真实数据训练的方法。分歧主要来自两点。其一是合成器的保真度：Zoom-to-Learn 只在 gamma 域加 i.i.d. 高斯，没有逆 CCM，也没有 shot noise。其二是任务：去噪只需要建模噪声，超分和去马赛克还要建模串扰、AA 滤镜、填充因子这些空间结构，恰好是逐点合成器做不到的。准确的说法是：粗糙的合成不够，逐点的精细合成够用来对齐颜色和噪声，但够不够对齐质感，没有工作回答过。</li>
+<li><strong>合成 RAW 够不够用：Zoom-to-Learn 和 Unprocessing 结论相反。</strong> Zoom-to-Learn 说合成 RAW 比真 RAW 低 2.90 dB；Unprocessing 说足够真实的合成 RAW 在去噪上超过真实数据训练的方法。分歧主要来自两点。其一是合成器的保真度：Zoom-to-Learn 只在 gamma 域加 i.i.d. 高斯，没有逆 CCM，也没有 shot noise。其二是任务：去噪只需要建模噪声，超分和去马赛克还要建模串扰、AA 滤镜、填充因子这些空间结构，恰好是逐点合成器做不到的。准确的说法是：粗糙的合成不够，逐点的精细合成够用来对齐颜色和噪声。F 组把这个问题往前推了一步，但没有终结：RAW-Degradation 把空间退化实测出来以后，合成的超分数据重新有了竞争力，可它只和其他合成方法比，没和 SR-RAW 这类真实配对比；RawGen 的合成去噪数据（ISO 1600 下 50.63 dB）甚至超过了真实数据训练（49.80），但论文没报真实训练集的规模，分不清是「合成更好」还是「合成更多」，而且去噪恰好是只需逐像素统计的任务。「精细合成 vs 真实配对」在质感上谁更好，仍然没有工作回答过。</li>
 <li><strong>扩散 ISP 之间的排名取决于协议。</strong> ZRR 原始 GT 上，DiffRAW 的 LPIPS 是 0.145，<strong>好于</strong> ISPDiffuser 的 0.157。ISPDiffuser 的发布代码按 GT PSNR 做 best-of-10，而它对 FourierISP 只领先 0.12–0.27 dB，这个挑选足以改变排名。DiffRAW 没有代码，无法用同一协议复测。同一个基线在不同论文里的数字也不同：LiteISPNet 自报 23.76，ISPW 表中是 23.81；PyNET 原始 GT 21.19，对齐后 22.73。这些数字只能在同一张表内比较。</li>
 <li><strong>无参考指标给出的结论与全参考相反。</strong> WESPE 的 PSNR 比全监督低 2–4 dB，FFS / CORNIA 却更好。DiffRAW 的 ILNIQE 比单反真值本身还好。无参考指标奖励的是锐利、高饱和、高熵，这些特征生成模型和噪声放大都能刷出来。对「像某台相机」这个目标，它们不是有效度量。</li>
+<li><strong>PSNR 看不见锐度，MTF 又奖励过冲。</strong> RAW-Degradation 的单设备实验里，本文与最好基线的 PSNR 只差 0.05–0.12 dB，连 bicubic 核都只差 0.11 dB，但 MTF50 是 2.00 对 0.16；反过来，KernelGAN 在 Pixel 9 Pro Main 上有明显振铃，MTF50 仍有 1.64。同一组输出，PSNR 说「几乎一样」，MTF 说「差一个数量级」，而 MTF 本身分不清「真的锐」和「过冲的锐」。对专项来说，两者都只能当分项指标，细节要用「MTF 曲线贴近目标相机」来评，不是越高越好（§6 第 (7) 步）。</li>
+<li><strong>MERIT 在两个基准上的领先差一个数量级。</strong> Afifi 数据集上比次优高 5.56 / 3.45 dB，MDRAW 上 20 个方向平均只高 0.19 dB，逐格与较好基线比平均 −0.02 dB，iPhone→尼康 27.68 对 27.68 打平。差别主要来自 GT 怎么造：Afifi 的 GT 是源图经色卡多项式映射到目标相机空间，像素对齐，但带着源相机的噪声和纹理，只测颜色；MDRAW 的 GT 是真实拍摄、只做平移对齐，测的是颜色、噪声和错位的混合。评测协议还偏向 MERIT：参考图按 GT 的通道均值从测试集挑，checkpoint 按测试集 MAE 选（§5），不需要参考图的 UVCGAN 拿不到这份信息。所以 +5.56 dB 只能说明颜色映射做得好，说明不了噪声和质感。</li>
+<li><strong>RAW-Diffusion 自称 RGB→RAW 最优，RawGen 的表里它五列都输给 CIE XYZ Net。</strong> RAW-Diffusion 在自己的四个数据集上比最强基线（ISPLess⁺ / InvISP⁺ / RISPNet）高 0.22–2.36 dB；RawGen 的 Tab. 1 里它在五种修图风格上只有 17.49–20.66 dB，逐列低于 CIE XYZ Net 的 18.64–21.04。两者不冲突：RawGen 把它改成一对一的 sRGB → XYZ 回归器重训，再拿 FiveK 专家手修的图测，测的是对未知修图的鲁棒性，不是它原本「逐相机、渲染方式与训练一致」的设定。这说明 RAW-Diffusion 的少样本结论只在训练与推理用同一种渲染时成立，用来逆 iPhone 成片时要先让训练渲染覆盖手机 ISP 的风格。</li>
 </ul>
 <h2 id="sec-5">5. 代码交叉验证</h2>
-<p>每条都标明出处页。✅ 表示核心主张与代码一致，⚠️ 表示论文与代码有出入或代码缺失。前三条由主 agent 亲自重新打开代码核对，其余汇总自各精读页的 §4。</p>
-<p><strong>会直接影响复用的四条（重点）：</strong></p>
+<p>每条都标明出处页。✅ 表示核心主张与代码一致，⚠️ 表示论文与代码有出入或代码缺失。前三条，以及 F 组里标「二次复核」的几处，在精读之外又单独打开代码核对过，其余汇总自各精读页的 §4。</p>
+<p><strong>会直接影响复用的五条（重点）：</strong></p>
 <ul>
 <li>⚠️ <strong>ISPDiffuser：颜色一致性损失恒为 0</strong>（官方仓库 commit <code>b46b332</code>）。<code>models/basic_model.py:L33</code> 计算 <code>gt_hist</code> 时，输入写的是 <code>raw</code>，不是 <code>gt</code>，和预测 <code>hist</code> 是同一个表达式，<code>hist_loss = l2(pred_hist, gt_hist)</code> 因此恒为 0。论文表 4 声称 L_ccl 带来 +0.32 dB，用公开代码无法复现。</li>
 <li>⚠️ <strong>ISPDiffuser：Canny 纹理损失无梯度。</strong> <code>utils/get_canny.py:L74</code> 的 <code>forward</code> 带 <code>@torch.no_grad()</code>，<code>pred_canny</code> 不在计算图里，<code>0.01 * texture_loss</code> 只出现在日志里，不参与训练。代码返回的还是 NMS 之后的 <code>thin_edges</code>，论文写的是 NMS 之前，为的是可微。</li>
 <li>⚠️ <strong>ISPDiffuser：评测取 best-of-10。</strong> <code>models/ISPDiffuser.py</code>（<code>sample_validation_patches</code>）对每张图采样 10 次，保留与 <strong>GT PSNR 最高</strong>的一张，这是部署时拿不到的 oracle 选择。DDIM eta=0，10 次之间的差别只来自初始噪声。§4 的排名矛盾，部分可以归到这里。</li>
 <li>⚠️ <strong>C5：<code>apply_cst</code> 没有正确应用 3×3。</strong> <code>src/aug_ops.py:L514-L529</code> 里 <code>result = im</code> 并没有复制数组，三个通道逐个原地覆盖：算第 1、2 通道时读到的 <code>im[:,:,0]</code>（以及 <code>im[:,:,1]</code>）已经被前面的循环改写，结果不等于 M·x。精读页手算过一个典型 <code>xyz2raw</code> 矩阵：输入 (0.3, 0.5, 0.2)，正确结果是 (0.269, 0.504, 0.255)，代码给出 (0.269, 0.516, 0.260)。复用来做 iPhone → 目标相机的 3×3 时，改成 <code>im @ cst.T</code>；不改的话，这个误差在色卡细化阶段会被误当成要拟合的残差。</li>
-<li>⚠️ <strong>ZRR（PyNET）与 ISPW 都不提供单反 RAW。</strong> PyNET 的训练目标读自 <code>train/canon/*.jpg</code>（<code>load_dataset.py:L73</code>），是 Canon 机内 JPEG。ISPW 论文对每组的描述是「手机 RAW + 3 张单反 sRGB」（EV −1/0/+1），全文没有提到单反 RAW，下载链接还是 404。所以<strong>做 RAW→RAW 必须自采配对数据</strong>：用这两个数据集只能学到「手机 RAW → 目标机内 JPEG 风格」，颜色、色调曲线和纹理混在一起，分不开。</li>
+<li>⚠️ <strong>ZRR（PyNET）与 ISPW 都不提供单反 RAW。</strong> PyNET 的训练目标读自 <code>train/canon/*.jpg</code>（<code>load_dataset.py:L73</code>），是 Canon 机内 JPEG。ISPW 论文对每组的描述是「手机 RAW + 3 张单反 sRGB」（EV −1/0/+1），全文没有提到单反 RAW，下载链接还是 404。用这两个数据集只能学到「手机 RAW → 目标机内 JPEG 风格」，颜色、色调曲线和纹理混在一起，分不开。公开数据里带目标相机 RAW 的只有 MDRAW（<a class="wiki-link" data-slug="merit-2026" href="../../papers/merit-2026/index.html">merit-2026</a>，57 组配对，只做了平移对齐），所以<strong>做 RAW→RAW 仍然要自采配对数据</strong>，MDRAW 只够做第一轮小规模实验。</li>
 </ul>
 <p><strong>其余各页的关键发现：</strong></p>
 <ul>
@@ -566,23 +684,50 @@
 <li>⚠️ <strong>C5 的另几处</strong>：FFT 卷积没有补零，实际是循环卷积（<code>c5.py:L157-L160</code>），和论文说的「non-wrapped」不符。推理输出只是一个 von Kries 对角增益，不含 CCM（<code>test.py:L127-L134</code>）。π 取 22/7。</li>
 <li>⚠️ <strong>Handheld MFSR</strong>（<a class="wiki-link" data-slug="handheld-mfsr-2019" href="../../papers/handheld-mfsr-2019/index.html">handheld-mfsr-2019</a>，非官方复现）：鲁棒性参数 s1/s2 的取值与补充材料对调（<code>config.py:L84-L85</code>），复现的语义（运动处更严格）才和论文正文一致。复现自加了 GAT 方差稳定变换，D_th 的量纲因此相差约 100 倍。补充材料 §S.3 里的「高频方差损失」检测器在复现中找不到。</li>
 </ul>
+<p><strong>F 组（RAW 合成与跨相机 RAW）：</strong></p>
+<ul>
+<li>⚠️ <strong>RawGen</strong>（<a class="wiki-link" data-slug="rawgen-2026" href="../../papers/rawgen-2026/index.html">rawgen-2026</a>，commit <code>39f959b</code>）：<strong>发布代码不加噪声，输出的是干净 RAW</strong>。推理路径里唯一的随机数是扩散初始噪声（<code>rawgen_inference/flux_kontext.py:L91</code>，二次复核），<code>_dng_helpers/pipeline_utils.py:L196</code> 解析了 DNG 的 NoiseProfile 却没有任何地方用到。论文附录 B 的异方差噪声、Fig. 6/7 的加噪 RAW 和 Tab. 3 的去噪实验都要读者自己补。相机映射 <code>xyz_to_raw.py:L66-L91</code> 只是「F⁻ᵀ 回到白平衡后的相机 RGB → 乘 G 归一的光源增益」，所以同一 XYZ 映射到两台相机，结果只差一个 3×3。另外 9 台 NUS 相机输出的是 gamma 过的预览 PNG，不是线性 RAW（<code>io.py:L32-L38</code>）；推理用 <code>cv2.resize</code> 把输入直接拉成 1024²（<code>image_to_raw.py:L95</code>），4:3 的手机照片会被压扁。✅ 色温插值在代码里是对的（<code>xyz_to_raw.py:L39-L52</code>），还按 CalibrationIlluminant 标签判断冷暖端；论文 Eq. 8 的权重反而写反了。</li>
+<li>⚠️ <strong>RAW-Diffusion</strong>（<a class="wiki-link" data-slug="raw-diffusion-2024" href="../../papers/raw-diffusion-2024/index.html">raw-diffusion-2024</a>，commit <code>5fbf662</code>）：三项损失都乘了论文没写的 P2 权重（<code>rawdiffusion/gaussian_diffusion.py:L861-L892</code>，系数在 <code>L171-L175</code>，二次复核），代入后等于 1−ᾱ_t，低噪声时间步几乎拿不到梯度，进一步把输出推向条件均值。训练 RGB 是 <code>raw_file.postprocess()</code> 的默认参数渲染（<code>datasets/fivek_process.py:L94-L96</code>，二次复核），不是机内 JPEG；NOD 即使标注写 <code>.JPG</code> 也读 NEF/ARW 重渲。<code>np.clip(raw_data, 0, 1)</code> 把黑电平以下的读出噪声截成 0（<code>raw_image_dataset.py:L67-L83</code>）。<code>sample.py</code> 少走最高一步，<code>ddim2</code> 实际只在 t=0 评估一次；翻转和 <code>rot90</code> 直接作用在打包 RGGB 上，打乱 Bayer 相位。✅ SPADE 结构、编码器不接 RGB、三项损失 1:1:1 都与论文一致。</li>
+<li>⚠️ <strong>RAW-Degradation</strong>（<a class="wiki-link" data-slug="raw-degradation-sr-2026" href="../../papers/raw-degradation-sr-2026/index.html">raw-degradation-sr-2026</a>）：<strong>没有代码</strong>。官方仓库只有一个 27 字节、只写了标题的 README（唯一 commit <code>ca6369c</code>，二次复核），核和噪声参数都没发布，只能核对论文自洽性。几处会影响解读：留出设备 Pixel 6 Main 与训练池的 Pixel 9 Pro Main 规格相同（Table S1），跨设备泛化的证据因此偏弱；优势主要在 MTF，单设备 PSNR 只领先 0.05–0.12 dB；补充 Table S2 在 Bayer 域和 BSRAW 比，Pixel 6 上的差距从主表的 3.62 dB 缩到 0.39 dB；Fig. 3 的噪声 β² 全为负，说明拟合时没减黑电平，将来复用参数时要先确认坐标系；引言和贡献列表写 8 台，§4 正文和 Table S1 是 9 个摄像头。</li>
+<li>⚠️ <strong>MERIT</strong>（<a class="wiki-link" data-slug="merit-2026" href="../../papers/merit-2026/index.html">merit-2026</a>，HEAD <code>bfe5c6e</code>）：评测参考图用目标 <strong>GT</strong> 的 4 通道均值，在<strong>测试集</strong>里找最近的一张（<code>core/solver.py:L463-L479</code>，参考池建自测试目录 <code>L393-L395</code>，二次复核），最佳 checkpoint 也按测试集 MAE 选（<code>solver.py:L361-L370</code>）。默认 <code>--noise_profile_paths</code> 的顺序是 iphone、samsung、huawei、nikon、canon（<code>main.py:L171-L172</code>），而域编号按目录名字母序分配，<code>_noise_loss_batch</code> 按域编号取 profile（<code>solver.py:L221-L234</code>，二次复核），照默认参数在 MDRAW 上训练时只有尼康拿到自己的 profile。配对 patch 的单应矩阵求出后被丢弃，只做平移裁剪（<code>preprocess/0_paired_process.py:L175-L181, L198-L211</code>）。网络结构与 Fig. 2 不符：风格编码器和判别器都是 StarGAN v2 的 CNN，没有 Transformer 和分块投票；生成器两端还有一组论文没提的逐相机 4 通道增益（<code>core/model.py:L20-L36</code>）。✅ 参数量 G+E = 58.7M、多一个域只多一个输出头和 4 个增益，与「参数量几乎不随域数增长」一致。</li>
+</ul>
 <h2 id="sec-6">6. 启发与白地</h2>
 <p>把专项管线逐步对照上面的证据：</p>
-<p><strong>(1) 采集：iPhone Bayer RAW 连拍 + 目标相机 RAW 配对。</strong> 公开数据里<strong>没有</strong>「手机 RAW ↔ 目标相机 RAW」的配对：ZRR 和 ISPW 只有单反 sRGB，SR-RAW 和 RealSR 是同一台机器内部的配对。所以自采是唯一出路。可以直接照搬的规范：定制支架加三脚架、静态场景、只变换目标侧（DPED、PyNET、ISPW）；用 EXIF 焦距比给配准初值（RealSR）；配准环里只放全局光度项（RealSR）；前后向一致性掩码剔除遮挡（ISPW）。需要补上的有三点：目标相机<strong>同时存 RAW 和 JPEG</strong>；每个场景拍一张色卡帧；按镜头的最佳光圈拍，不要一律缩到 f/20（Zoom-to-Learn 的衍射教训）。iPhone 侧必须拿到<strong>真 Bayer DNG</strong>：ProRAW 已经多帧合成、去马赛克，CFA 结构没了，MFSR 的主要收益和 Unprocessing 的噪声模型都会失效。多摄 iPhone 的每个模组都是不同的传感器，需要各自的矩阵和白点轨迹。</p>
+<p><strong>(1) 采集：iPhone Bayer RAW 连拍 + 目标相机 RAW 配对。</strong> 公开的「手机 RAW ↔ 目标相机 RAW」配对，目前只有 MDRAW 一份，而且规模很小：iPhone 13 Pro、尼康 Z5、佳能 T6 等五台设备的同场景配对 57 组（每组 5 台各 1 张），另有 iPhone 98 张、尼康 114 张无配对 RAW。它的限制也要心里有数：配对 patch 只做了平移对齐，尼康域经约 0.75 倍面积下采样，镜头、焦距、ISO 都没有记录，发布的是处理后的 npy。ZRR 和 ISPW 只有单反 sRGB，SR-RAW 和 RealSR 是同一台机器内部的配对。所以 MDRAW 可以用来跑第一轮实验，规模化仍然要自采。</p>
+<p><strong>MDRAW 的用法</strong>（<a class="wiki-link" data-slug="merit-2026" href="../../papers/merit-2026/index.html">merit-2026</a> §6）：(a) <strong>按场景切分</strong>，以文件名里的场景编号为单位做 5 折交叉验证；同一场景出现在 10 个相机对目录里，测试场景要从所有目录里一并剔除；checkpoint 只用验证折选，参考图不能用 GT 挑。(b) <strong>先物理颜色对齐，再做几何</strong>：用两台机器 DNG 的 ColorMatrix / ForwardMatrix 经 XYZ 把 iPhone 映射到尼康相机 RGB，配上全局曝光增益，套 gamma 后再匹配；几何上用单应 warp 整块，再用光流细化，加前后向一致性掩码，不沿用官方的平移裁剪。这和 LiteISPNet「先零位移调色、再求光流」是同一个思路。(c) <strong>训练损失容忍错位</strong>：细节项用 CoBi 一类的上下文损失，颜色在模糊后比较。</p>
+<p>自采时可以直接照搬的规范：定制支架加三脚架、静态场景、只变换目标侧（DPED、PyNET、ISPW）；用 EXIF 焦距比给配准初值（RealSR）；配准环里只放全局光度项（RealSR）；前后向一致性掩码剔除遮挡（ISPW）。需要补上的有三点：目标相机<strong>同时存 RAW 和 JPEG</strong>；每个场景拍一张色卡帧；按镜头的最佳光圈拍，不要一律缩到 f/20（Zoom-to-Learn 的衍射教训）。iPhone 侧必须拿到<strong>真 Bayer DNG</strong>：ProRAW 已经多帧合成、去马赛克，CFA 结构没了，MFSR 的主要收益和 Unprocessing 的噪声模型都会失效。采集工具还要支持 <strong>RAW 连拍</strong>：RAW-Degradation 发现逐次触发快门时 OIS 会带来随机位移，100 帧平均和多帧合成都依赖连拍。多摄 iPhone 的每个模组都是不同的传感器，需要各自的矩阵、白点轨迹、SR 核和噪声标定。</p>
 <p><strong>(2) 真实细节：传统多帧合成。</strong> 证据充分：Handheld MFSR 的 1×–1.5× 有真实增益，失败时退回单帧而不出伪影。有两个风险要先实测：OIS 会吃掉一部分手抖，所以残余位移的分布要先用直方图测一遍；NoiseProfile 要自己标定，否则暗光下鲁棒性会误判。远处摆动的树叶预期是「伪影或退化」二选一，不能指望多帧给出真细节。</p>
 <p><strong>(3) 颜色：物理对齐。</strong> 证据充分，接口也清楚。插入点在 MFSR 合并之后、白平衡之前的线性相机 RGB 上。3×3 由两边的 ColorMatrix / ForwardMatrix 经 XYZ 求出，按 1/CCT 插值（C5 附录 D）。白点不走矩阵，从目标相机自己的光源轨迹里取（C5）。色卡<strong>按光源分别</strong>拟合，窄带光源的同色异谱残差可能需要 root-polynomial 或 3D LUT。复用 C5 的 <code>apply_cst</code> 前先修 bug（§5）。§4 的 ISPW 对 C5 矛盾说明，3×3 只能用在线性域，这和「最后交给目标 ISP」的安排正好吻合。</p>
 <p><strong>(4) 高频生成：只动亮度高频，强度可控。</strong> 结构上的依据有三个：ISPDiffuser 的灰度扩散（但不要留 RAW 跳连那种旁路，最稳妥的做法是让生成模型的输入和输出都只有 Y 或高频子带，色度根本不经过它）；DiffRAW 的「c 锁颜色、步数当旋钮」；WESPE 和 DPED 的「只看灰度的纹理判别器」。强度控制方面，BurstGP 的 λ 和 DiffRAW 的起步步数是现成形式。<strong>白地</strong>：没有工作把 MFSR 的累计权重 <code>den</code> 或鲁棒性掩码当作逐像素的生成许可，也就是「多帧测到的区域不准动，被拒绝的区域才允许补」。这是本专项最直接、也最便宜的一个新点。</p>
-<p><strong>(5) 训练数据从哪来。</strong> 有两条互补的路：</p>
+<p><strong>(5) 训练数据从哪来。</strong> F 组四篇把这一步的答案收窄了：<strong>质感真值只能用真实目标相机 RAW</strong>（§4 一致第 3 条）。用 <a class="wiki-link" data-slug="rawgen-2026" href="../../papers/rawgen-2026/index.html">rawgen-2026</a> 或 <a class="wiki-link" data-slug="raw-diffusion-2024" href="../../papers/raw-diffusion-2024/index.html">raw-diffusion-2024</a> 从 sRGB 同时造「伪 iPhone RAW」和「伪目标相机 RAW」这条路走不通，两边只差一个 3×3，纹理都来自源照片。剩下两条互补的路：</p>
 <ul>
-<li>自采配对：成本高，但质感是真的。Zoom-to-Learn 用 50 对微调就能把模型拉到新传感器，说明配对量不必很大。</li>
-<li>反向造数据：用 Unprocessing 或 C5 的 XYZ 链把<strong>目标相机 RAW</strong> 投影成「iPhone 颜色的 RAW」，再加 iPhone 噪声，得到像素级对齐的训练对。缺口在空间质感：必须显式加入 iPhone 的 PSF 和下采样，否则输入「太干净、太锐」。RAW-Diffusion 和 RAW-Flow 是学习式的替代方案。</li>
+<li>
+<p>自采配对：成本高，但质感是真的。Zoom-to-Learn 用 50 对微调就能把模型拉到新传感器，说明配对量不必很大；MDRAW 的 57 组可以先用来验证这一点。</p>
+</li>
+<li>
+<p><strong>从真实目标相机 RAW 反向合成输入端</strong>，得到像素级对齐的配对。具体管线是：</p>
+<ol>
+<li>真实目标相机线性 RAW → <strong>颜色转到 iPhone 相机空间</strong>。首选两边 DNG 矩阵经 XYZ 的物理映射（C5 附录 D；<a class="wiki-link" data-slug="rawgen-2026" href="../../papers/rawgen-2026/index.html">rawgen-2026</a> 的 <code>xyz_to_camera_raw</code> 是现成的 CPU 实现，不需要 FLUX 权重）。需要处理未知修图或渲染风格时，可以把 RAW-Diffusion / RawGen 当<strong>颜色色调逆 ISP</strong> 用，只取它们的颜色，不取纹理。</li>
+<li><strong>按视场位置用实测 iPhone 逐通道 SR 核卷积</strong>（<a class="wiki-link" data-slug="raw-degradation-sr-2026" href="../../papers/raw-degradation-sr-2026/index.html">raw-degradation-sr-2026</a> 的显示器标定法），逐通道错开的核会把 iPhone 的横向色差一起带进来。</li>
+<li><strong>下采样</strong> ↓s，s 按「目标相机像素 : iPhone 像素」选。s 接近 1 时，目标相机自己的 PSF 不能忽略，精读页建议用同一套显示器装置直接拟合相对核 K_rel（推断，未验证）。</li>
+<li>按 iPhone 的 CFA <strong>马赛克</strong>。</li>
+<li><strong>加实测 iPhone 噪声</strong>：异方差高斯，按 ISO、按 Bayer 通道标定，可以用 DNG 的 NoiseProfile 交叉检查。</li>
+</ol>
+<p>Unprocessing 有颜色逆、没有空间退化，RAW-Degradation 有空间退化、没有 CCM 逆，这条管线正好把两半拼起来。</p>
+</li>
 </ul>
-<p><strong>白地</strong>：还没有工作量化过「逐点精细合成 + 实测 PSF」能不能替代真实配对来学质感（§4 第三个矛盾）。</p>
-<p><strong>(6) RAW→RAW，然后交给目标相机 ISP。</strong> 12 篇里没有一篇输出目标相机的 RAW：A 组全部端到端直出 sRGB，颜色、色调和锐化都锁在网络里。相邻工作里 Rawformer（无配对）、NPM（物理信息）和 RDDM（RAW 域扩散）在往 RAW→RAW 走，但都不是「颜色物理、纹理生成」的拆法。专项的最后一步需要把结果写成带目标机型色彩矩阵的 DNG，再在 Lightroom 里套目标相机的配置文件。DNG 里的机型标识和矩阵怎么写，Lightroom 才会提供该机型的配置文件，目前没有文献依据，需要实测。<strong>白地</strong>：「线性 RAW 域只学纹理残差，最后用目标相机自己的 ISP 出图」这条路线没有公开工作。</p>
-<p><strong>(7) 评测是最大的空缺。</strong> 12 篇用的度量（PSNR/SSIM、LPIPS、MUSIQ/NIQE、Flickr 审美）没有一个衡量「像某台相机」：PSNR 测的是错位，无参考指标奖励噪声和饱和度（DiffRAW 的结果甚至「超过」单反真值）。建议用目标相机自己的统计量来评估，比如刃边法测 MTF、平场噪声功率谱、亮度高频子带的梯度分布、在目标相机数据上训练的判别器得分；再用一组色卡场景单独验证生成模型没有动颜色。生成式结果要分开报告单次采样的均值 ± 方差和 best-of-N，best-of-N 不能用 GT 挑选（ISPDiffuser 的教训）。</p>
-<p><strong>总结</strong>：哪些已经定了？颜色/纹理分离、对齐优先于容量、RAW 起步。哪些还在争？GT 对齐方向、合成数据够不够学质感、扩散 ISP 之间的排名。哪些是空白？目标相机 RAW 配对数据、多帧许可掩码门控生成、RAW→RAW 只学纹理再交目标 ISP，以及「像某台相机」的评测。</p>
+<p><strong>白地</strong>：RAW-Degradation 证明了「实测核 + 实测噪声」的精细合成比随机退化池好，但它只和合成方法比；「精细合成能否替代真实配对来学质感」仍然没人量化过（§4 第三个矛盾）。MDRAW 的 57 组真实配对正好可以当这个问题的小规模裁判：同一个模型分别用反向合成数据和真实配对训练，在 MDRAW 的留出场景上比颜色、噪声、细节三项指标。</p>
+<p><strong>(6) RAW→RAW，然后交给目标相机 ISP。</strong> A–E 组 12 篇里没有一篇输出目标相机的 RAW：A 组全部端到端直出 sRGB，颜色、色调和锐化都锁在网络里。F 组的 MERIT 是第一个精读过的 RAW→RAW 工作，但它把颜色和噪声都交给网络，颜色只有 AdaIN 加一组固定的逐相机对角增益。那组增益的位置正是物理颜色映射（DNG 矩阵 + 场景白点）应该接入的地方，精读页建议同时跑「MERIT 原版 / 物理颜色 + MERIT / 只做物理颜色」三个变体，把颜色和质感的贡献拆开。相邻工作里 Rawformer（无配对）、NPM（物理信息）、cmKAN（学习式颜色匹配）和 RDDM（RAW 域扩散）也在往 RAW→RAW 走，但都不是「颜色物理、纹理生成」的拆法。专项的最后一步需要把结果写成带目标机型色彩矩阵的 DNG，再在 Lightroom 里套目标相机的配置文件。DNG 里的机型标识和矩阵怎么写，Lightroom 才会提供该机型的配置文件，目前没有文献依据，需要实测。<strong>白地</strong>：「线性 RAW 域只学纹理残差，最后用目标相机自己的 ISP 出图」这条路线没有公开工作。</p>
+<p><strong>(7) 评测是最大的空缺。</strong> A–E 组用的度量（PSNR/SSIM、LPIPS、MUSIQ/NIQE、Flickr 审美）没有一个衡量「像某台相机」：PSNR 测的是错位，无参考指标奖励噪声和饱和度（DiffRAW 的结果甚至「超过」单反真值）。F 组补上了两把尺子，也暴露了两个坑：MERIT 的 SANM 把「噪声像不像」变成一条可计算的方差—亮度曲线；RAW-Degradation 的显示器 + 西门子星装置能测 MTF；但 RAW-Degradation 显示 PSNR 看不见锐度、MTF 又奖励过冲，MERIT 显示参考图一旦用 GT 挑，分数就会虚高。建议<strong>颜色、噪声、细节分开报</strong>，不给单一 RAW 域 PSNR：</p>
+<ul>
+<li><strong>颜色</strong>：平坦块均值颜色的角误差，或把输出和 GT 走<strong>同一条</strong>目标相机渲染管线后算 ΔE；另报两个参照，恒等基线（只做黑白电平归一化）当下限，逐 patch 最小二乘 4×4 拟合的「颜色 oracle」当上限，物理颜色基线应落在两者之间。</li>
+<li><strong>噪声</strong>：平坦区的方差—亮度曲线（SANM 的做法，当指标比当损失更有用），<strong>按 ISO 分档</strong>与同 ISO 的真实目标相机比；再加平坦区噪声功率谱，检查空间相关性。</li>
+<li><strong>细节</strong>：MTF 曲线和径向功率谱要<strong>贴近目标相机</strong>，不是越高越好，高出就是过锐；可以照搬 RAW-Degradation 的显示器装置，两台机器拍同一组西门子星，比较整条 MTF 曲线。再加亮度高频子带的梯度分布和在目标相机数据上训练的判别器得分。</li>
+</ul>
+<p>再用一组色卡场景单独验证生成模型没有动颜色。生成式结果要分开报告单次采样的均值 ± 方差和 best-of-N，best-of-N 不能用 GT 挑选（ISPDiffuser 的教训），条件生成的参考图也不能用 GT 挑（MERIT 的教训）。</p>
+<p><strong>总结</strong>：哪些已经定了？颜色/纹理分离、对齐和数据构造优先于容量、RAW 起步，以及 F 组新添的一条：质感真值只能来自真实目标相机 RAW，学习式逆 ISP 只管颜色。哪些还在争？GT 对齐方向、精细合成能否替代真实配对来学质感、扩散 ISP 之间的排名。哪些是空白？大规模、几何精确对齐的目标相机 RAW 配对数据（MDRAW 只有 57 组、只做了平移对齐）、多帧许可掩码门控生成、RAW→RAW 只学纹理再交目标 ISP，以及「像某台相机」的分项评测。</p>
 <h2 id="sec-7">7. 参考文献</h2>
-<p>12 篇主干的 arXiv 号、venue 都取自本站精读页（各页已对照 PDF 核实）；相邻工作的链接已核实。</p>
+<p>16 篇主干的 arXiv 号、venue 都取自本站精读页（各页已对照 PDF 核实），F 组的英文标题另在 arXiv 页面核对过；相邻工作的链接已核实。</p>
 <p><strong>A 组：手机 → 单反画质</strong></p>
 <ul>
 <li>DPED — <em>DSLR-Quality Photos on Mobile Devices with Deep Convolutional Networks</em> (ICCV 2017). <a href="https://arxiv.org/abs/1704.02470">arXiv:1704.02470</a> · <a class="wiki-link" data-slug="dped-2017" href="../../papers/dped-2017/index.html">dped-2017</a></li>
@@ -610,6 +755,13 @@
 <ul>
 <li>Handheld Multi-Frame Super-Resolution (ACM TOG 38(4) / SIGGRAPH 2019). <a href="https://arxiv.org/abs/1905.03277">arXiv:1905.03277</a> · <a class="wiki-link" data-slug="handheld-mfsr-2019" href="../../papers/handheld-mfsr-2019/index.html">handheld-mfsr-2019</a></li>
 </ul>
+<p><strong>F 组：RAW 合成与跨相机 RAW 数据</strong></p>
+<ul>
+<li>RAW-Diffusion — <em>RAW-Diffusion: RGB-Guided Diffusion Models for High-Fidelity RAW Image Generation</em> (WACV 2025). <a href="https://arxiv.org/abs/2411.13150">arXiv:2411.13150</a> · <a href="https://github.com/SonyResearch/RAW-Diffusion">code</a> · <a class="wiki-link" data-slug="raw-diffusion-2024" href="../../papers/raw-diffusion-2024/index.html">raw-diffusion-2024</a></li>
+<li>RawGen — <em>RawGen: Learning Camera Raw Image Generation</em> (ECCV 2026). <a href="https://arxiv.org/abs/2604.00093">arXiv:2604.00093</a> · <a href="https://github.com/DY112/RawGen">code</a> · <a class="wiki-link" data-slug="rawgen-2026" href="../../papers/rawgen-2026/index.html">rawgen-2026</a></li>
+<li>RAW-Degradation — <em>RAW-Domain Degradation Models for Realistic Smartphone Super-Resolution</em> (CVPR 2026). <a href="https://arxiv.org/abs/2603.12493">arXiv:2603.12493</a> · <a href="https://github.com/SamsungLabs/raw_sr_degrdation_models">repo（仅 README）</a> · <a class="wiki-link" data-slug="raw-degradation-sr-2026" href="../../papers/raw-degradation-sr-2026/index.html">raw-degradation-sr-2026</a></li>
+<li>MERIT — <em>MERIT: Multi-domain Efficient RAW Image Translation</em> (CVPR 2026)，含 MDRAW 数据集. <a href="https://arxiv.org/abs/2603.20836">arXiv:2603.20836</a> · <a href="https://github.com/WJ-Huang/MERIT-Multi-domain-Efficient-RAW-Image-Translation">code</a> · <a class="wiki-link" data-slug="merit-2026" href="../../papers/merit-2026/index.html">merit-2026</a></li>
+</ul>
 <p><strong>相邻工作</strong></p>
 <ul>
 <li>RDDM. <a href="https://arxiv.org/abs/2508.19154">arXiv:2508.19154</a></li>
@@ -620,8 +772,11 @@
 <li>Efficient Burst Super-Resolution with One-step Diffusion (NTIRE 2025). <a href="https://arxiv.org/abs/2507.13607">arXiv:2507.13607</a></li>
 <li>Rawformer (ECCV 2024). <a href="https://arxiv.org/abs/2404.10700">arXiv:2404.10700</a></li>
 <li>Beyond Calibration / NPM. <a href="https://arxiv.org/abs/2506.08650">arXiv:2506.08650</a></li>
-<li>RAW-Diffusion (WACV 2025). <a href="https://arxiv.org/abs/2411.13150">arXiv:2411.13150</a></li>
+<li>cmKAN — <em>Color Matching Using Hypernetwork-Based Kolmogorov-Arnold Networks</em> (ICCV 2025). <a href="https://arxiv.org/abs/2503.11781">arXiv:2503.11781</a> · <a href="https://github.com/gosha20777/cmKAN">code</a></li>
 <li>RAW-Flow. <a href="https://arxiv.org/abs/2601.20364">arXiv:2601.20364</a></li>
+<li><em>Learned Lightweight Smartphone ISP with Unpaired Data</em> (CVPR Workshops 2025). <a href="https://arxiv.org/abs/2505.10420">arXiv:2505.10420</a> · <a href="https://github.com/AndreiiArhire/Learned-Lightweight-Smartphone-ISP-with-Unpaired-Data">code</a></li>
+<li><em>NTIRE 2026 Challenge on Learned Smartphone ISP with Unpaired Data</em> (CVPR Workshops 2026，UP-ISP 数据集). <a href="https://openaccess.thecvf.com/content/CVPR2026W/NTIRE/papers/Perevozchikov_NTIRE_2026_Challenge_on_Learned_Smartphone_ISP_with_Unpaired_Data_CVPRW_2026_paper.pdf">报告 PDF</a></li>
+<li><em>Modular Neural Image Signal Processing</em> (Afifi, Wang, Zhang, Brown；预印本). <a href="https://arxiv.org/abs/2512.08564">arXiv:2512.08564</a></li>
 <li>VAR 先验做 RAW→sRGB (ECCV 2026 Workshop). <a href="https://arxiv.org/abs/2609.18302">arXiv:2609.18302</a></li>
 </ul>
 <p><strong>本站相关</strong>：通用扩散超分调研 <a class="wiki-link" data-slug="diffusion-sr-2026" href="../diffusion-sr-2026/index.html">diffusion-sr-2026</a>。</p>

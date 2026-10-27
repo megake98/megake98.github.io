@@ -50,9 +50,18 @@
 <header class="page-hero">
   <h1 class="page-hero__title">Paper Reading</h1>
   <p class="page-hero__intro">把一篇论文读成一页批注，把一个领域讲成一篇教程，把一组工作对比成一份调研。</p>
-  <p class="page-hero__stats"><a href="papers.html"><strong>75</strong> 篇论文</a> · <a href="tutorials.html"><strong>20</strong> 篇教程</a> · <a href="surveys.html"><strong>6</strong> 篇调研</a> · <a href="graph.html"><strong>359</strong> 个概念</a></p>
+  <p class="page-hero__stats"><a href="papers.html"><strong>79</strong> 篇论文</a> · <a href="tutorials.html"><strong>20</strong> 篇教程</a> · <a href="surveys.html"><strong>6</strong> 篇调研</a> · <a href="graph.html"><strong>363</strong> 个概念</a></p>
 </header>
 <div class="post-grid">
+<article class="post-card post-card--paper">
+  <div class="post-card__meta">
+    <span class="post-card__badge">论文</span>
+    <span class="post-card__date"><span class="post-card__added">2026-10-10</span><span class="post-card__extra">约 25 分钟</span></span>
+  </div>
+  <h3 class="post-card__title"><a class="post-card__title-link" href="papers/dsec-2026/index.html">DeepSeek Elastic Compute (DSec): 为大规模 Agentic RL 训练造的沙箱基础设施</a></h3>
+  <p class="post-card__tldr">DeepSeek 把 agentic RL 训练/评测所需的执行环境做成了一个生产级沙箱平台 DSec:一套 SDK 暴露 FnCall / 容器 / microVM / 全 VM 四种后端,用可组合的 EROFS 分层替代单体镜像,靠 3FS 做按需镜像加载,用 virtio-pmem + DAMON 气球回收把内存超卖压下来,用 SCHED_IDLE + core scheduling 保护延迟敏感任务,并与 RL 框架协同做抢占安全的暂停/恢复。单个 scale unit 约 160 节点,日均 300 万沙箱、峰值并发 38 万、创建速率 5000+/秒。</p>
+  <div class="post-card__tags"><a class="tag-chip" href="concepts/agentic-rl.html">agentic-rl</a> <a class="tag-chip" href="concepts/sandbox.html">sandbox</a> <a class="tag-chip" href="concepts/microvm.html">microvm</a> <span class="tag-chip tag-chip--more">+8</span></div>
+</article>
 <article class="post-card post-card--survey">
   <div class="post-card__meta">
     <span class="post-card__badge">调研</span>
@@ -124,15 +133,6 @@
   <h3 class="post-card__title"><a class="post-card__title-link" href="tutorials/typescript-6-classes-modules/index.html">TS·06 类与模块:封装、契约、与 import/export</a></h3>
   <p class="post-card__tldr">类的字段/构造器/访问修饰符(private/public/readonly)、implements 契约、extends 继承(含 class extends Error), 以及 ESM 模块的具名导出、import type/export type、barrel 与 declare module。用 pi 的 Agent、FileError、EventStream 讲。</p>
   <div class="post-card__tags"><a class="tag-chip" href="concepts/typescript.html">typescript</a> <a class="tag-chip" href="concepts/classes.html">classes</a> <a class="tag-chip" href="concepts/modules.html">modules</a></div>
-</article>
-<article class="post-card post-card--tutorial">
-  <div class="post-card__meta">
-    <span class="post-card__badge">教程</span>
-    <span class="post-card__date"><span class="post-card__added">2026-07-14</span><span class="post-card__extra">4-6k 字</span><span class="post-card__extra">20–25 分钟</span></span>
-  </div>
-  <h3 class="post-card__title"><a class="post-card__title-link" href="tutorials/typescript-5-generics/index.html">TS·05 泛型:参数化的类型、约束、与工具类型</a></h3>
-  <p class="post-card__tldr">泛型函数/接口/类、约束 extends、默认类型参数 = T,以及 pi 大量使用的工具类型 (Partial/Pick/Omit/Record/Extract/ReturnType)。用 pi 的 Tool、EventStream 讲透&quot;类型也能当参数&quot;。</p>
-  <div class="post-card__tags"><a class="tag-chip" href="concepts/typescript.html">typescript</a> <a class="tag-chip" href="concepts/generics.html">generics</a> <a class="tag-chip" href="concepts/utility-types.html">utility-types</a></div>
 </article>
 </div>
 <nav class="pager" aria-label="分页">

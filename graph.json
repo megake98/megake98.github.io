@@ -363,6 +363,15 @@
       "url": "papers/mambo-g-2025/index.html"
     },
     {
+      "id": "papers/merit-2026",
+      "type": "paper",
+      "slug": "merit-2026",
+      "title": "MERIT：一个模型做任意两台相机之间的 RAW→RAW 转换，附五机型配对数据集 MDRAW",
+      "date": "2026-03-21",
+      "tldr": "MERIT（CVPR 2026）把 StarGAN v2 改成吃 4 通道打包 RAW 的多域转换器：一个生成器配一个按目标相机输出风格码的编码器，覆盖任意两台相机之间的 RAW→RAW。另外加了两样东西：一项按亮度分箱、对齐平坦区噪声方差的损失（SANM），以及解码器里受风格码调制的多空洞大核门控（MS-LKA）。论文在 Afifi 的 S9/iPhone X 数据集上报 35.29 / 31.90 dB，比次优方法高 5.56 / 3.45 dB；在自采的五机型 MDRAW 上，20 个方向平均 28.42 dB，只比 Xie et al. 高 0.19 dB。\n对照代码后发现几处与论文不符：风格编码器和判别器都是原版 StarGAN v2 的 CNN，不是图里的 Transformer 和分块投票；生成器多了一组论文没提的逐相机 4 通道增益；评测时的参考图按 GT 的通道均值从测试集里挑，最佳 checkpoint 也按测试集 MAE 选；发布版默认参数会把噪声 profile 配错相机；MDRAW 的配对 patch 只做了平移对齐。本页把 MDRAW 的每条事实对照论文、代码和压缩包核实了一遍，并给出用它做 iPhone→尼康 Z5 实验时的划分、对齐、评测建议。\n",
+      "url": "papers/merit-2026/index.html"
+    },
+    {
       "id": "papers/mfd-2026",
       "type": "paper",
       "slug": "mfd-2026",
@@ -487,6 +496,33 @@
       "date": "2026-07-01",
       "tldr": "Qwen 团队的少步蒸馏技术报告:不再卷 distillation objective,而是系统性消融「数据组成 / 教师引导 / 任务混合」三个配方维度,把 Qwen-Image-2.0 蒸成 4-NFE 的统一生成-编辑模型。三个反直觉结论:(1) 文本中心数据反而蒸不出文本渲染,单类别(landscape/portrait)数据跨类泛化更好;(2) 直接用任务专精教师当唯一引导会让训练崩溃,需要 base 教师做锚 + 专精教师 step-wise 加权;(3) T2I:Edit = 5:5 平衡混合最优,而且编辑监督反过来还能涨 T2I。\n",
       "url": "papers/qwen-image-flash-2026/index.html"
+    },
+    {
+      "id": "papers/raw-degradation-sr-2026",
+      "type": "paper",
+      "slug": "raw-degradation-sr-2026",
+      "title": "RAW 域退化模型：逐台手机标定 SR 核与噪声，再用逆处理数据训练真实手机超分",
+      "date": "2026-10-27",
+      "tldr": "Samsung AI Center Toronto（Michael S. Brown 组）的 CVPR 2026 论文。手机数字变焦要在 RAW 上做超分，可是拿不到真值；常见做法是从一个大的随机退化池里采高斯模糊核和通用噪声来造数据。本文改成逐台设备标定：暗室里让手机拍显示器上的随机图案（每张 100 帧平均、格雷码定位、黑白两电平线性化），按 128×128 视场块联合优化 R/G/B 三个 4× SR 核，这个核把镜头 PSF、像素积分和下采样合在一起；噪声则用色卡连拍，按 7 档 ISO、4 个 Bayer 通道标定异方差高斯模型，再对 ISO 做二次拟合。用这些核和噪声把线性 RGB 逆处理成 LR RAW，训练只用 L1 的 RRDBNet。9 个手机摄像头里拿 7 个的标定结果训练，留出的 Pixel 6 Main 上 PSNR 32.41、相对 MTF50 1.19，Mi 11 Main 上 36.11、0.42，PSNR、SSIM、MTF50 都高于 Real-ESRGAN、BSRAW、RAWSR 的退化池。官方仓库目前只有一个空 README，标定好的核和噪声参数尚未发布。\n",
+      "url": "papers/raw-degradation-sr-2026/index.html"
+    },
+    {
+      "id": "papers/raw-diffusion-2024",
+      "type": "paper",
+      "slug": "raw-diffusion-2024",
+      "title": "RAW-Diffusion：用 RGB 引导的扩散模型把 sRGB 逆回指定相机的 RAW，几十张图就能训一台新机",
+      "date": "2024-11-20",
+      "tldr": "Sony AI 的 WACV 2025 工作。目标是给某一台相机批量造 RAW：拿同一台相机的 (RAW, sRGB) 对训练一个条件扩散模型，输入 sRGB，输出 4 通道打包的 RGGB RAW。RGB 先经一个 4 块的 EDSR 抽特征，再以 SPADE 式的逐像素 γ/β 调制注入 U-Net 的瓶颈和解码器；网络直接预测 x₀（预测噪声会崩到 5.55 dB），末层接 tanh，损失为 MSE + L1 + 对数 L1。四个单反数据集上 PSNR 全部第一（FiveK Nikon 30.05、NOD Nikon 44.93）；只用 25 张训练图时 PSNR 和全量持平；DDIM 6 步与 1000 步无差别。用 100 张 NOD 图训出的模型把 BDD100K 转成伪 RAW，Faster R-CNN 夜间检测 AP 从 18.2 提到 26.5。\n代码核对发现几处论文没写的事：损失乘了 P2 权重 1−ᾱ_t；RGB 是 rawpy 默认参数从同一张 RAW 渲出来的，不是机内 JPEG；归一化时把黑电平以下的值截成 0。模型没有任何噪声建模或噪声控制，生成结果更接近「给定 RGB 的条件均值」。\n",
+      "url": "papers/raw-diffusion-2024/index.html"
+    },
+    {
+      "id": "papers/rawgen-2026",
+      "type": "paper",
+      "slug": "rawgen-2026",
+      "title": "RawGen：多对一数据教 FLUX.1-Kontext 把 sRGB 或文字逆成 CIE XYZ，再用一张 DNG 的色彩矩阵落到任意相机 RAW",
+      "date": "2026-03-31",
+      "tldr": "RawGen（三星 AI Center 多伦多 + 延世大学，ECCV 2026）把一张 sRGB 照片（I2R）或一句文字（T2R）变成相机 RAW，分两段：先用 LoRA 微调的 FLUX.1-Kontext 在潜空间里把 sRGB 潜变量去噪成 CIE XYZ 潜变量，再由重训过的 VAE 解码器输出 XYZ 图；之后用目标相机一张 DNG 里的 ColorMatrix/ForwardMatrix 按色温插值，确定性地映射到该相机的 RAW。训练数据是「多对一」的：同一张 DNG 渲染出 5 张白平衡、色调曲线、对比度各不相同的 sRGB，全部对齐到同一个 XYZ 锚点。FiveK 五位修图师风格上 PSNR 23.20–24.35 dB，比 CIE XYZ Net 高 3.3–5.3 dB；同骨干但只用一对一数据训练时与 CIE XYZ Net 基本持平，所以收益来自数据构造。\n代码和两份权重都已发布，但发布版没有实现论文里的异方差噪声，输出固定 1024²，镜头 PSF 和暗角也都没有建模。对「iPhone RAW → 目标相机质感」来说，用它给两台相机造出的伪 RAW 之间只差一个 3×3 颜色变换，没有质感差异可学。\n",
+      "url": "papers/rawgen-2026/index.html"
     },
     {
       "id": "papers/rdm-2026",
@@ -1052,7 +1088,7 @@
       "slug": "phone2camera-2026",
       "title": "手机照片 → 相机画质：细节与质感迁移调研（2017→2026）",
       "date": "2026-10-20",
-      "tldr": "专项「把 iPhone 照片（优先 Bayer RAW）在细节与质感上变成某台目标相机的效果」的入口调研。按五组覆盖本站刚精读的 12 篇：A 手机→单反画质（DPED / WESPE / PyNET / LiteISPNet / ISPW / DiffRAW / ISPDiffuser），B 用更好的光学拍真值（Zoom-to-Learn / RealSR），C RAW 域造数据（Unprocessing），D 跨相机颜色（C5），E 多帧（Handheld MFSR）。逐篇给出核心贡献、方法、带数字的结果和代码位置，再用一张矩阵按输入域、监督、对齐、颜色/纹理是否分离、骨干、数据集、代码对比，写出一致与矛盾。代码交叉验证汇总各页发现，其中有三条会直接影响复用：ISPDiffuser 发布版颜色一致性损失恒为 0、Canny 纹理损失无梯度、评测取 best-of-10；C5 的 apply_cst 原地覆盖导致 3×3 算错；ZRR 和 ISPW 都不提供单反 RAW。最后对照「物理颜色 + 多帧真实细节 + 强度可控的高频生成 + 目标相机 ISP 出图」这条管线，列出每一步的证据和缺口。\n",
+      "tldr": "专项「把 iPhone 照片（优先 Bayer RAW）在细节与质感上变成某台目标相机的效果」的入口调研。按六组覆盖本站精读的 16 篇：A 手机→单反画质（DPED / WESPE / PyNET / LiteISPNet / ISPW / DiffRAW / ISPDiffuser），B 用更好的光学拍真值（Zoom-to-Learn / RealSR），C RAW 域造数据（Unprocessing），D 跨相机颜色（C5），E 多帧（Handheld MFSR），F RAW 合成与跨相机 RAW 数据（RAW-Diffusion / RawGen / RAW-Degradation / MERIT + MDRAW）。逐篇给出核心贡献、方法、带数字的结果和代码位置，再用一张矩阵按输入域、监督、对齐、颜色/纹理是否分离、骨干、数据集、代码对比，写出一致与矛盾。代码交叉验证汇总各页发现，会直接影响复用的有：ISPDiffuser 发布版颜色一致性损失恒为 0、Canny 纹理损失无梯度、评测取 best-of-10；C5 的 apply_cst 原地覆盖导致 3×3 算错；ZRR 和 ISPW 都不提供单反 RAW；RawGen 发布版不加噪声，同一 XYZ 造出的伪 iPhone / 伪目标相机 RAW 只差一个 3×3；MERIT 的评测参考图按 GT 挑、默认噪声 profile 错配，在真实配对的 MDRAW 上与最强基线打平。F 组四篇共同指向一个结论：质感真值只能来自真实目标相机 RAW，输入端应由它反向合成（颜色矩阵 + 实测 iPhone SR 核 + 马赛克 + 实测噪声）。最后对照「物理颜色 + 多帧真实细节 + 强度可控的高频生成 + 目标相机 ISP 出图」这条管线，列出每一步的证据和缺口。\n",
       "url": "surveys/phone2camera-2026/index.html"
     },
     {
@@ -2864,6 +2900,38 @@
       "name": "diffusers"
     },
     {
+      "id": "concepts/raw-to-raw",
+      "type": "concept",
+      "slug": "raw-to-raw",
+      "name": "raw-to-raw",
+      "has_file": false,
+      "url": "concepts/raw-to-raw.html"
+    },
+    {
+      "id": "concepts/multi-domain-translation",
+      "type": "concept",
+      "slug": "multi-domain-translation",
+      "name": "multi-domain-translation",
+      "has_file": false,
+      "url": "concepts/multi-domain-translation.html"
+    },
+    {
+      "id": "concepts/noise-modeling",
+      "type": "concept",
+      "slug": "noise-modeling",
+      "name": "noise-modeling",
+      "has_file": false,
+      "url": "concepts/noise-modeling.html"
+    },
+    {
+      "id": "repos/WJ-Huang/MERIT-Multi-domain-Efficient-RAW-Image-Translation",
+      "type": "repo",
+      "url": "https://github.com/WJ-Huang/MERIT-Multi-domain-Efficient-RAW-Image-Translation",
+      "host": "github.com",
+      "owner": "WJ-Huang",
+      "name": "MERIT-Multi-domain-Efficient-RAW-Image-Translation"
+    },
+    {
       "id": "concepts/one-step-generation",
       "type": "concept",
       "slug": "one-step-generation",
@@ -3286,6 +3354,54 @@
       "name": "teacher-student",
       "has_file": false,
       "url": "concepts/teacher-student.html"
+    },
+    {
+      "id": "concepts/degradation-model",
+      "type": "concept",
+      "slug": "degradation-model",
+      "name": "degradation-model",
+      "has_file": false,
+      "url": "concepts/degradation-model.html"
+    },
+    {
+      "id": "concepts/psf-calibration",
+      "type": "concept",
+      "slug": "psf-calibration",
+      "name": "psf-calibration",
+      "has_file": false,
+      "url": "concepts/psf-calibration.html"
+    },
+    {
+      "id": "repos/SamsungLabs/raw_sr_degrdation_models",
+      "type": "repo",
+      "url": "https://github.com/SamsungLabs/raw_sr_degrdation_models",
+      "host": "github.com",
+      "owner": "SamsungLabs",
+      "name": "raw_sr_degrdation_models"
+    },
+    {
+      "id": "concepts/inverse-isp",
+      "type": "concept",
+      "slug": "inverse-isp",
+      "name": "inverse-isp",
+      "has_file": false,
+      "url": "concepts/inverse-isp.html"
+    },
+    {
+      "id": "repos/SonyResearch/RAW-Diffusion",
+      "type": "repo",
+      "url": "https://github.com/SonyResearch/RAW-Diffusion",
+      "host": "github.com",
+      "owner": "SonyResearch",
+      "name": "RAW-Diffusion"
+    },
+    {
+      "id": "repos/DY112/RawGen",
+      "type": "repo",
+      "url": "https://github.com/DY112/RawGen",
+      "host": "github.com",
+      "owner": "DY112",
+      "name": "RawGen"
     },
     {
       "id": "concepts/distribution-matching",
@@ -3750,22 +3866,6 @@
       "name": "try-on",
       "has_file": false,
       "url": "concepts/try-on.html"
-    },
-    {
-      "id": "concepts/noise-modeling",
-      "type": "concept",
-      "slug": "noise-modeling",
-      "name": "noise-modeling",
-      "has_file": false,
-      "url": "concepts/noise-modeling.html"
-    },
-    {
-      "id": "concepts/inverse-isp",
-      "type": "concept",
-      "slug": "inverse-isp",
-      "name": "inverse-isp",
-      "has_file": false,
-      "url": "concepts/inverse-isp.html"
     },
     {
       "id": "repos/timothybrooks/unprocessing",
@@ -4942,12 +5042,12 @@
     },
     {
       "from": "papers/boogu-image-2026",
-      "to": "papers/qwen-image-2-2026",
+      "to": "papers/oftsr-2024",
       "kind": "cites"
     },
     {
       "from": "papers/boogu-image-2026",
-      "to": "papers/oftsr-2024",
+      "to": "papers/qwen-image-2-2026",
       "kind": "cites"
     },
     {
@@ -5062,12 +5162,12 @@
     },
     {
       "from": "papers/colt-2026",
-      "to": "papers/rls-razor-2025",
+      "to": "papers/dapo-2025",
       "kind": "cites"
     },
     {
       "from": "papers/colt-2026",
-      "to": "papers/dapo-2025",
+      "to": "papers/rls-razor-2025",
       "kind": "cites"
     },
     {
@@ -5127,12 +5227,12 @@
     },
     {
       "from": "papers/context-scaling-2026",
-      "to": "papers/d-opsd-2026",
+      "to": "papers/flow-opd-2026",
       "kind": "cites"
     },
     {
       "from": "papers/context-scaling-2026",
-      "to": "papers/flow-opd-2026",
+      "to": "papers/d-opsd-2026",
       "kind": "cites"
     },
     {
@@ -5372,12 +5472,12 @@
     },
     {
       "from": "papers/diffraw-2024",
-      "to": "tutorials/diffusion-sr-2021",
+      "to": "papers/oftsr-2024",
       "kind": "cites"
     },
     {
       "from": "papers/diffraw-2024",
-      "to": "papers/ispdiffuser-2025",
+      "to": "tutorials/diffusion-sr-2021",
       "kind": "cites"
     },
     {
@@ -5387,12 +5487,12 @@
     },
     {
       "from": "papers/diffraw-2024",
-      "to": "papers/liteispnet-2021",
+      "to": "papers/ispdiffuser-2025",
       "kind": "cites"
     },
     {
       "from": "papers/diffraw-2024",
-      "to": "papers/oftsr-2024",
+      "to": "papers/liteispnet-2021",
       "kind": "cites"
     },
     {
@@ -5432,7 +5532,7 @@
     },
     {
       "from": "papers/diffusion-opd-2026",
-      "to": "papers/d-opsd-2026",
+      "to": "papers/dapo-2025",
       "kind": "cites"
     },
     {
@@ -5442,7 +5542,7 @@
     },
     {
       "from": "papers/diffusion-opd-2026",
-      "to": "papers/dapo-2025",
+      "to": "papers/d-opsd-2026",
       "kind": "cites"
     },
     {
@@ -5497,17 +5597,17 @@
     },
     {
       "from": "papers/dped-2017",
+      "to": "papers/zoom-to-learn-2019",
+      "kind": "cites"
+    },
+    {
+      "from": "papers/dped-2017",
       "to": "papers/pynet-2020",
       "kind": "cites"
     },
     {
       "from": "papers/dped-2017",
       "to": "papers/wespe-2017",
-      "kind": "cites"
-    },
-    {
-      "from": "papers/dped-2017",
-      "to": "papers/zoom-to-learn-2019",
       "kind": "cites"
     },
     {
@@ -5622,7 +5722,7 @@
     },
     {
       "from": "papers/f-loss-2026",
-      "to": "papers/asymflow-2026",
+      "to": "papers/latent-to-pixel-2026",
       "kind": "cites"
     },
     {
@@ -5632,7 +5732,7 @@
     },
     {
       "from": "papers/f-loss-2026",
-      "to": "papers/latent-to-pixel-2026",
+      "to": "papers/asymflow-2026",
       "kind": "cites"
     },
     {
@@ -5677,7 +5777,7 @@
     },
     {
       "from": "papers/ferret-2023",
-      "to": "papers/lisa-2023",
+      "to": "tutorials/vlm-grounding-2025",
       "kind": "cites"
     },
     {
@@ -5687,7 +5787,7 @@
     },
     {
       "from": "papers/ferret-2023",
-      "to": "tutorials/vlm-grounding-2025",
+      "to": "papers/lisa-2023",
       "kind": "cites"
     },
     {
@@ -5732,17 +5832,17 @@
     },
     {
       "from": "papers/ferret-v2-2024",
-      "to": "papers/lisa-2023",
-      "kind": "cites"
-    },
-    {
-      "from": "papers/ferret-v2-2024",
       "to": "tutorials/vlm-grounding-2025",
       "kind": "cites"
     },
     {
       "from": "papers/ferret-v2-2024",
       "to": "papers/ferret-2023",
+      "kind": "cites"
+    },
+    {
+      "from": "papers/ferret-v2-2024",
+      "to": "papers/lisa-2023",
       "kind": "cites"
     },
     {
@@ -5827,17 +5927,17 @@
     },
     {
       "from": "papers/flowinone-2026",
-      "to": "papers/asymflow-2026",
-      "kind": "cites"
-    },
-    {
-      "from": "papers/flowinone-2026",
       "to": "papers/boogu-image-2026",
       "kind": "cites"
     },
     {
       "from": "papers/flowinone-2026",
       "to": "papers/jit-2025",
+      "kind": "cites"
+    },
+    {
+      "from": "papers/flowinone-2026",
+      "to": "papers/asymflow-2026",
       "kind": "cites"
     },
     {
@@ -5892,12 +5992,12 @@
     },
     {
       "from": "papers/ggt-100k-2026",
-      "to": "papers/qwen-image-2-2026",
+      "to": "papers/oftsr-2024",
       "kind": "cites"
     },
     {
       "from": "papers/ggt-100k-2026",
-      "to": "papers/oftsr-2024",
+      "to": "papers/qwen-image-2-2026",
       "kind": "cites"
     },
     {
@@ -5947,12 +6047,12 @@
     },
     {
       "from": "papers/handheld-mfsr-2019",
-      "to": "surveys/diffusion-sr-2026",
+      "to": "papers/la-sr-2026",
       "kind": "cites"
     },
     {
       "from": "papers/handheld-mfsr-2019",
-      "to": "papers/la-sr-2026",
+      "to": "surveys/diffusion-sr-2026",
       "kind": "cites"
     },
     {
@@ -6032,22 +6132,22 @@
     },
     {
       "from": "papers/i1-2026",
-      "to": "papers/boogu-image-2026",
-      "kind": "cites"
-    },
-    {
-      "from": "papers/i1-2026",
       "to": "papers/sefi-image-2026",
       "kind": "cites"
     },
     {
       "from": "papers/i1-2026",
-      "to": "papers/qwen-image-2-2026",
+      "to": "papers/flow-opd-2026",
       "kind": "cites"
     },
     {
       "from": "papers/i1-2026",
-      "to": "papers/flow-opd-2026",
+      "to": "papers/boogu-image-2026",
+      "kind": "cites"
+    },
+    {
+      "from": "papers/i1-2026",
+      "to": "papers/qwen-image-2-2026",
       "kind": "cites"
     },
     {
@@ -6107,17 +6207,17 @@
     },
     {
       "from": "papers/ideogram-4-2026",
-      "to": "papers/qwen-image-2-2026",
-      "kind": "cites"
-    },
-    {
-      "from": "papers/ideogram-4-2026",
       "to": "papers/flow-opd-2026",
       "kind": "cites"
     },
     {
       "from": "papers/ideogram-4-2026",
       "to": "papers/rep-forcing-2026",
+      "kind": "cites"
+    },
+    {
+      "from": "papers/ideogram-4-2026",
+      "to": "papers/qwen-image-2-2026",
       "kind": "cites"
     },
     {
@@ -6237,6 +6337,11 @@
     },
     {
       "from": "papers/ispw-2022",
+      "to": "papers/pynet-2020",
+      "kind": "cites"
+    },
+    {
+      "from": "papers/ispw-2022",
       "to": "papers/diffraw-2024",
       "kind": "cites"
     },
@@ -6247,7 +6352,7 @@
     },
     {
       "from": "papers/ispw-2022",
-      "to": "papers/pynet-2020",
+      "to": "papers/zoom-to-learn-2019",
       "kind": "cites"
     },
     {
@@ -6257,17 +6362,12 @@
     },
     {
       "from": "papers/ispw-2022",
-      "to": "papers/liteispnet-2021",
-      "kind": "cites"
-    },
-    {
-      "from": "papers/ispw-2022",
       "to": "papers/c5-2020",
       "kind": "cites"
     },
     {
       "from": "papers/ispw-2022",
-      "to": "papers/zoom-to-learn-2019",
+      "to": "papers/liteispnet-2021",
       "kind": "cites"
     },
     {
@@ -6322,22 +6422,22 @@
     },
     {
       "from": "papers/jit-2025",
-      "to": "papers/asymflow-2026",
-      "kind": "cites"
-    },
-    {
-      "from": "papers/jit-2025",
-      "to": "papers/f-loss-2026",
-      "kind": "cites"
-    },
-    {
-      "from": "papers/jit-2025",
       "to": "papers/pixrestore-2026",
       "kind": "cites"
     },
     {
       "from": "papers/jit-2025",
       "to": "papers/latent-to-pixel-2026",
+      "kind": "cites"
+    },
+    {
+      "from": "papers/jit-2025",
+      "to": "papers/asymflow-2026",
+      "kind": "cites"
+    },
+    {
+      "from": "papers/jit-2025",
+      "to": "papers/f-loss-2026",
       "kind": "cites"
     },
     {
@@ -6562,12 +6662,12 @@
     },
     {
       "from": "papers/la-sr-2026",
-      "to": "surveys/diffusion-sr-2026",
+      "to": "papers/oftsr-2024",
       "kind": "cites"
     },
     {
       "from": "papers/la-sr-2026",
-      "to": "papers/oftsr-2024",
+      "to": "surveys/diffusion-sr-2026",
       "kind": "cites"
     },
     {
@@ -6697,12 +6797,12 @@
     },
     {
       "from": "papers/lingbot-video-2026",
-      "to": "papers/deepseek-v4-2026",
+      "to": "papers/dapo-2025",
       "kind": "cites"
     },
     {
       "from": "papers/lingbot-video-2026",
-      "to": "papers/awm-2025",
+      "to": "papers/deepseek-v4-2026",
       "kind": "cites"
     },
     {
@@ -6712,7 +6812,7 @@
     },
     {
       "from": "papers/lingbot-video-2026",
-      "to": "papers/dapo-2025",
+      "to": "papers/awm-2025",
       "kind": "cites"
     },
     {
@@ -6762,7 +6862,7 @@
     },
     {
       "from": "papers/lisa-2023",
-      "to": "papers/locate-anything-2026",
+      "to": "tutorials/vlm-grounding-2025",
       "kind": "cites"
     },
     {
@@ -6772,7 +6872,7 @@
     },
     {
       "from": "papers/lisa-2023",
-      "to": "tutorials/vlm-grounding-2025",
+      "to": "papers/locate-anything-2026",
       "kind": "cites"
     },
     {
@@ -6827,17 +6927,17 @@
     },
     {
       "from": "papers/liteispnet-2021",
+      "to": "papers/zoom-to-learn-2019",
+      "kind": "cites"
+    },
+    {
+      "from": "papers/liteispnet-2021",
       "to": "papers/pynet-2020",
       "kind": "cites"
     },
     {
       "from": "papers/liteispnet-2021",
       "to": "surveys/diffusion-sr-2026",
-      "kind": "cites"
-    },
-    {
-      "from": "papers/liteispnet-2021",
-      "to": "papers/zoom-to-learn-2019",
       "kind": "cites"
     },
     {
@@ -6907,12 +7007,12 @@
     },
     {
       "from": "papers/llada-image-2026",
-      "to": "papers/context-scaling-2026",
+      "to": "papers/boogu-image-2026",
       "kind": "cites"
     },
     {
       "from": "papers/llada-image-2026",
-      "to": "papers/boogu-image-2026",
+      "to": "papers/context-scaling-2026",
       "kind": "cites"
     },
     {
@@ -7011,6 +7111,101 @@
       "kind": "implements"
     },
     {
+      "from": "papers/merit-2026",
+      "to": "concepts/raw-image",
+      "kind": "mentions"
+    },
+    {
+      "from": "papers/merit-2026",
+      "to": "concepts/phone-to-dslr",
+      "kind": "mentions"
+    },
+    {
+      "from": "papers/merit-2026",
+      "to": "concepts/learned-isp",
+      "kind": "mentions"
+    },
+    {
+      "from": "papers/merit-2026",
+      "to": "concepts/gan",
+      "kind": "mentions"
+    },
+    {
+      "from": "papers/merit-2026",
+      "to": "concepts/data-synthesis",
+      "kind": "mentions"
+    },
+    {
+      "from": "papers/merit-2026",
+      "to": "concepts/color-constancy",
+      "kind": "mentions"
+    },
+    {
+      "from": "papers/merit-2026",
+      "to": "concepts/misaligned-supervision",
+      "kind": "mentions"
+    },
+    {
+      "from": "papers/merit-2026",
+      "to": "concepts/raw-to-raw",
+      "kind": "mentions"
+    },
+    {
+      "from": "papers/merit-2026",
+      "to": "concepts/multi-domain-translation",
+      "kind": "mentions"
+    },
+    {
+      "from": "papers/merit-2026",
+      "to": "concepts/noise-modeling",
+      "kind": "mentions"
+    },
+    {
+      "from": "papers/merit-2026",
+      "to": "surveys/phone2camera-2026",
+      "kind": "cites"
+    },
+    {
+      "from": "papers/merit-2026",
+      "to": "papers/raw-diffusion-2024",
+      "kind": "cites"
+    },
+    {
+      "from": "papers/merit-2026",
+      "to": "papers/unprocessing-2018",
+      "kind": "cites"
+    },
+    {
+      "from": "papers/merit-2026",
+      "to": "papers/zoom-to-learn-2019",
+      "kind": "cites"
+    },
+    {
+      "from": "papers/merit-2026",
+      "to": "papers/rawgen-2026",
+      "kind": "cites"
+    },
+    {
+      "from": "papers/merit-2026",
+      "to": "papers/ispw-2022",
+      "kind": "cites"
+    },
+    {
+      "from": "papers/merit-2026",
+      "to": "papers/c5-2020",
+      "kind": "cites"
+    },
+    {
+      "from": "papers/merit-2026",
+      "to": "papers/wespe-2017",
+      "kind": "cites"
+    },
+    {
+      "from": "papers/merit-2026",
+      "to": "repos/WJ-Huang/MERIT-Multi-domain-Efficient-RAW-Image-Translation",
+      "kind": "implements"
+    },
+    {
       "from": "papers/mfd-2026",
       "to": "concepts/flow-matching",
       "kind": "mentions"
@@ -7067,12 +7262,12 @@
     },
     {
       "from": "papers/mfd-2026",
-      "to": "papers/d-opsd-2026",
+      "to": "papers/diffusion-opd-2026",
       "kind": "cites"
     },
     {
       "from": "papers/mfd-2026",
-      "to": "papers/diffusion-opd-2026",
+      "to": "papers/d-opsd-2026",
       "kind": "cites"
     },
     {
@@ -7122,12 +7317,7 @@
     },
     {
       "from": "papers/molmo-2024",
-      "to": "papers/locate-anything-2026",
-      "kind": "cites"
-    },
-    {
-      "from": "papers/molmo-2024",
-      "to": "papers/mrt-2026",
+      "to": "papers/thinking-visual-primitives-2026",
       "kind": "cites"
     },
     {
@@ -7137,7 +7327,12 @@
     },
     {
       "from": "papers/molmo-2024",
-      "to": "papers/thinking-visual-primitives-2026",
+      "to": "papers/mrt-2026",
+      "kind": "cites"
+    },
+    {
+      "from": "papers/molmo-2024",
+      "to": "papers/locate-anything-2026",
       "kind": "cites"
     },
     {
@@ -7187,12 +7382,12 @@
     },
     {
       "from": "papers/mrt-2026",
-      "to": "papers/diffusion-opd-2026",
+      "to": "papers/flow-opd-2026",
       "kind": "cites"
     },
     {
       "from": "papers/mrt-2026",
-      "to": "papers/flow-opd-2026",
+      "to": "papers/diffusion-opd-2026",
       "kind": "cites"
     },
     {
@@ -7407,12 +7602,12 @@
     },
     {
       "from": "papers/osprey-2023",
-      "to": "papers/lisa-2023",
+      "to": "papers/ferret-2023",
       "kind": "cites"
     },
     {
       "from": "papers/osprey-2023",
-      "to": "papers/ferret-2023",
+      "to": "papers/lisa-2023",
       "kind": "cites"
     },
     {
@@ -7477,12 +7672,12 @@
     },
     {
       "from": "papers/paint-anything-2026",
-      "to": "papers/bernini-2026",
+      "to": "papers/qwen-image-2-2026",
       "kind": "cites"
     },
     {
       "from": "papers/paint-anything-2026",
-      "to": "papers/qwen-image-2-2026",
+      "to": "papers/bernini-2026",
       "kind": "cites"
     },
     {
@@ -7602,17 +7797,12 @@
     },
     {
       "from": "papers/pixrestore-2026",
-      "to": "surveys/diffusion-sr-2026",
-      "kind": "cites"
-    },
-    {
-      "from": "papers/pixrestore-2026",
       "to": "papers/asymflow-2026",
       "kind": "cites"
     },
     {
       "from": "papers/pixrestore-2026",
-      "to": "papers/omgsr-2025",
+      "to": "surveys/diffusion-sr-2026",
       "kind": "cites"
     },
     {
@@ -7623,6 +7813,11 @@
     {
       "from": "papers/pixrestore-2026",
       "to": "papers/oftsr-2024",
+      "kind": "cites"
+    },
+    {
+      "from": "papers/pixrestore-2026",
+      "to": "papers/omgsr-2025",
       "kind": "cites"
     },
     {
@@ -7672,12 +7867,12 @@
     },
     {
       "from": "papers/pynet-2020",
-      "to": "papers/liteispnet-2021",
+      "to": "papers/dped-2017",
       "kind": "cites"
     },
     {
       "from": "papers/pynet-2020",
-      "to": "papers/dped-2017",
+      "to": "papers/liteispnet-2021",
       "kind": "cites"
     },
     {
@@ -7732,12 +7927,12 @@
     },
     {
       "from": "papers/q-ground-2024",
-      "to": "papers/locate-anything-2026",
+      "to": "papers/thinking-visual-primitives-2026",
       "kind": "cites"
     },
     {
       "from": "papers/q-ground-2024",
-      "to": "papers/thinking-visual-primitives-2026",
+      "to": "papers/locate-anything-2026",
       "kind": "cites"
     },
     {
@@ -7812,27 +8007,12 @@
     },
     {
       "from": "papers/qwen-image-flash-2026",
-      "to": "papers/self-flow-2026",
-      "kind": "cites"
-    },
-    {
-      "from": "papers/qwen-image-flash-2026",
-      "to": "papers/qwen-image-2-2026",
-      "kind": "cites"
-    },
-    {
-      "from": "papers/qwen-image-flash-2026",
-      "to": "papers/mambo-g-2025",
-      "kind": "cites"
-    },
-    {
-      "from": "papers/qwen-image-flash-2026",
       "to": "papers/flow-opd-2026",
       "kind": "cites"
     },
     {
       "from": "papers/qwen-image-flash-2026",
-      "to": "papers/diffusion-opd-2026",
+      "to": "papers/self-forcing-2025",
       "kind": "cites"
     },
     {
@@ -7842,8 +8022,273 @@
     },
     {
       "from": "papers/qwen-image-flash-2026",
-      "to": "papers/self-forcing-2025",
+      "to": "papers/qwen-image-2-2026",
       "kind": "cites"
+    },
+    {
+      "from": "papers/qwen-image-flash-2026",
+      "to": "papers/diffusion-opd-2026",
+      "kind": "cites"
+    },
+    {
+      "from": "papers/qwen-image-flash-2026",
+      "to": "papers/self-flow-2026",
+      "kind": "cites"
+    },
+    {
+      "from": "papers/qwen-image-flash-2026",
+      "to": "papers/mambo-g-2025",
+      "kind": "cites"
+    },
+    {
+      "from": "papers/raw-degradation-sr-2026",
+      "to": "concepts/raw-image",
+      "kind": "mentions"
+    },
+    {
+      "from": "papers/raw-degradation-sr-2026",
+      "to": "concepts/image-super-resolution",
+      "kind": "mentions"
+    },
+    {
+      "from": "papers/raw-degradation-sr-2026",
+      "to": "concepts/real-isr",
+      "kind": "mentions"
+    },
+    {
+      "from": "papers/raw-degradation-sr-2026",
+      "to": "concepts/data-synthesis",
+      "kind": "mentions"
+    },
+    {
+      "from": "papers/raw-degradation-sr-2026",
+      "to": "concepts/denoising",
+      "kind": "mentions"
+    },
+    {
+      "from": "papers/raw-degradation-sr-2026",
+      "to": "concepts/phone-to-dslr",
+      "kind": "mentions"
+    },
+    {
+      "from": "papers/raw-degradation-sr-2026",
+      "to": "concepts/noise-modeling",
+      "kind": "mentions"
+    },
+    {
+      "from": "papers/raw-degradation-sr-2026",
+      "to": "concepts/degradation-model",
+      "kind": "mentions"
+    },
+    {
+      "from": "papers/raw-degradation-sr-2026",
+      "to": "concepts/psf-calibration",
+      "kind": "mentions"
+    },
+    {
+      "from": "papers/raw-degradation-sr-2026",
+      "to": "papers/realsr-2019",
+      "kind": "cites"
+    },
+    {
+      "from": "papers/raw-degradation-sr-2026",
+      "to": "papers/pynet-2020",
+      "kind": "cites"
+    },
+    {
+      "from": "papers/raw-degradation-sr-2026",
+      "to": "surveys/phone2camera-2026",
+      "kind": "cites"
+    },
+    {
+      "from": "papers/raw-degradation-sr-2026",
+      "to": "papers/raw-diffusion-2024",
+      "kind": "cites"
+    },
+    {
+      "from": "papers/raw-degradation-sr-2026",
+      "to": "papers/unprocessing-2018",
+      "kind": "cites"
+    },
+    {
+      "from": "papers/raw-degradation-sr-2026",
+      "to": "papers/zoom-to-learn-2019",
+      "kind": "cites"
+    },
+    {
+      "from": "papers/raw-degradation-sr-2026",
+      "to": "papers/rawgen-2026",
+      "kind": "cites"
+    },
+    {
+      "from": "papers/raw-degradation-sr-2026",
+      "to": "papers/handheld-mfsr-2019",
+      "kind": "cites"
+    },
+    {
+      "from": "papers/raw-degradation-sr-2026",
+      "to": "papers/c5-2020",
+      "kind": "cites"
+    },
+    {
+      "from": "papers/raw-degradation-sr-2026",
+      "to": "repos/SamsungLabs/raw_sr_degrdation_models",
+      "kind": "implements"
+    },
+    {
+      "from": "papers/raw-diffusion-2024",
+      "to": "concepts/learned-isp",
+      "kind": "mentions"
+    },
+    {
+      "from": "papers/raw-diffusion-2024",
+      "to": "concepts/raw-image",
+      "kind": "mentions"
+    },
+    {
+      "from": "papers/raw-diffusion-2024",
+      "to": "concepts/phone-to-dslr",
+      "kind": "mentions"
+    },
+    {
+      "from": "papers/raw-diffusion-2024",
+      "to": "concepts/data-synthesis",
+      "kind": "mentions"
+    },
+    {
+      "from": "papers/raw-diffusion-2024",
+      "to": "concepts/diffusion",
+      "kind": "mentions"
+    },
+    {
+      "from": "papers/raw-diffusion-2024",
+      "to": "concepts/denoising",
+      "kind": "mentions"
+    },
+    {
+      "from": "papers/raw-diffusion-2024",
+      "to": "concepts/inverse-isp",
+      "kind": "mentions"
+    },
+    {
+      "from": "papers/raw-diffusion-2024",
+      "to": "concepts/noise-modeling",
+      "kind": "mentions"
+    },
+    {
+      "from": "papers/raw-diffusion-2024",
+      "to": "papers/pynet-2020",
+      "kind": "cites"
+    },
+    {
+      "from": "papers/raw-diffusion-2024",
+      "to": "papers/unprocessing-2018",
+      "kind": "cites"
+    },
+    {
+      "from": "papers/raw-diffusion-2024",
+      "to": "papers/diffraw-2024",
+      "kind": "cites"
+    },
+    {
+      "from": "papers/raw-diffusion-2024",
+      "to": "papers/zoom-to-learn-2019",
+      "kind": "cites"
+    },
+    {
+      "from": "papers/raw-diffusion-2024",
+      "to": "papers/c5-2020",
+      "kind": "cites"
+    },
+    {
+      "from": "papers/raw-diffusion-2024",
+      "to": "repos/SonyResearch/RAW-Diffusion",
+      "kind": "implements"
+    },
+    {
+      "from": "papers/rawgen-2026",
+      "to": "concepts/learned-isp",
+      "kind": "mentions"
+    },
+    {
+      "from": "papers/rawgen-2026",
+      "to": "concepts/raw-image",
+      "kind": "mentions"
+    },
+    {
+      "from": "papers/rawgen-2026",
+      "to": "concepts/phone-to-dslr",
+      "kind": "mentions"
+    },
+    {
+      "from": "papers/rawgen-2026",
+      "to": "concepts/data-synthesis",
+      "kind": "mentions"
+    },
+    {
+      "from": "papers/rawgen-2026",
+      "to": "concepts/diffusion",
+      "kind": "mentions"
+    },
+    {
+      "from": "papers/rawgen-2026",
+      "to": "concepts/color-constancy",
+      "kind": "mentions"
+    },
+    {
+      "from": "papers/rawgen-2026",
+      "to": "concepts/inverse-isp",
+      "kind": "mentions"
+    },
+    {
+      "from": "papers/rawgen-2026",
+      "to": "concepts/cie-xyz",
+      "kind": "mentions"
+    },
+    {
+      "from": "papers/rawgen-2026",
+      "to": "papers/pynet-2020",
+      "kind": "cites"
+    },
+    {
+      "from": "papers/rawgen-2026",
+      "to": "papers/raw-diffusion-2024",
+      "kind": "cites"
+    },
+    {
+      "from": "papers/rawgen-2026",
+      "to": "surveys/phone2camera-2026",
+      "kind": "cites"
+    },
+    {
+      "from": "papers/rawgen-2026",
+      "to": "papers/unprocessing-2018",
+      "kind": "cites"
+    },
+    {
+      "from": "papers/rawgen-2026",
+      "to": "papers/zoom-to-learn-2019",
+      "kind": "cites"
+    },
+    {
+      "from": "papers/rawgen-2026",
+      "to": "papers/ispdiffuser-2025",
+      "kind": "cites"
+    },
+    {
+      "from": "papers/rawgen-2026",
+      "to": "papers/c5-2020",
+      "kind": "cites"
+    },
+    {
+      "from": "papers/rawgen-2026",
+      "to": "papers/liteispnet-2021",
+      "kind": "cites"
+    },
+    {
+      "from": "papers/rawgen-2026",
+      "to": "repos/DY112/RawGen",
+      "kind": "implements"
     },
     {
       "from": "papers/rdm-2026",
@@ -7912,11 +8357,6 @@
     },
     {
       "from": "papers/rdm-2026",
-      "to": "papers/self-flow-2026",
-      "kind": "cites"
-    },
-    {
-      "from": "papers/rdm-2026",
       "to": "papers/flow-opd-2026",
       "kind": "cites"
     },
@@ -7927,12 +8367,17 @@
     },
     {
       "from": "papers/rdm-2026",
+      "to": "papers/qwen-image-flash-2026",
+      "kind": "cites"
+    },
+    {
+      "from": "papers/rdm-2026",
       "to": "papers/diffusion-opd-2026",
       "kind": "cites"
     },
     {
       "from": "papers/rdm-2026",
-      "to": "papers/qwen-image-flash-2026",
+      "to": "papers/self-flow-2026",
       "kind": "cites"
     },
     {
@@ -7982,12 +8427,7 @@
     },
     {
       "from": "papers/realsr-2019",
-      "to": "papers/dped-2017",
-      "kind": "cites"
-    },
-    {
-      "from": "papers/realsr-2019",
-      "to": "papers/handheld-mfsr-2019",
+      "to": "papers/op4ksr-2026",
       "kind": "cites"
     },
     {
@@ -8002,17 +8442,22 @@
     },
     {
       "from": "papers/realsr-2019",
+      "to": "papers/zoom-to-learn-2019",
+      "kind": "cites"
+    },
+    {
+      "from": "papers/realsr-2019",
+      "to": "papers/dped-2017",
+      "kind": "cites"
+    },
+    {
+      "from": "papers/realsr-2019",
       "to": "papers/omgsr-2025",
       "kind": "cites"
     },
     {
       "from": "papers/realsr-2019",
-      "to": "papers/op4ksr-2026",
-      "kind": "cites"
-    },
-    {
-      "from": "papers/realsr-2019",
-      "to": "papers/zoom-to-learn-2019",
+      "to": "papers/handheld-mfsr-2019",
       "kind": "cites"
     },
     {
@@ -8202,12 +8647,12 @@
     },
     {
       "from": "papers/scale-dit-2025",
-      "to": "surveys/native-8k-t2i-2026",
+      "to": "surveys/compensated-sparse-attention-2026",
       "kind": "cites"
     },
     {
       "from": "papers/scale-dit-2025",
-      "to": "surveys/compensated-sparse-attention-2026",
+      "to": "surveys/native-8k-t2i-2026",
       "kind": "cites"
     },
     {
@@ -8602,11 +9047,6 @@
     },
     {
       "from": "papers/thinking-visual-primitives-2026",
-      "to": "papers/locate-anything-2026",
-      "kind": "cites"
-    },
-    {
-      "from": "papers/thinking-visual-primitives-2026",
       "to": "papers/deepseek-v4-2026",
       "kind": "cites"
     },
@@ -8618,6 +9058,11 @@
     {
       "from": "papers/thinking-visual-primitives-2026",
       "to": "papers/mrt-2026",
+      "kind": "cites"
+    },
+    {
+      "from": "papers/thinking-visual-primitives-2026",
+      "to": "papers/locate-anything-2026",
       "kind": "cites"
     },
     {
@@ -8727,12 +9172,12 @@
     },
     {
       "from": "papers/unprocessing-2018",
-      "to": "papers/pynet-2020",
+      "to": "papers/zoom-to-learn-2019",
       "kind": "cites"
     },
     {
       "from": "papers/unprocessing-2018",
-      "to": "papers/zoom-to-learn-2019",
+      "to": "papers/pynet-2020",
       "kind": "cites"
     },
     {
@@ -8777,17 +9222,17 @@
     },
     {
       "from": "papers/wespe-2017",
+      "to": "papers/la-sr-2026",
+      "kind": "cites"
+    },
+    {
+      "from": "papers/wespe-2017",
       "to": "papers/pynet-2020",
       "kind": "cites"
     },
     {
       "from": "papers/wespe-2017",
       "to": "papers/dped-2017",
-      "kind": "cites"
-    },
-    {
-      "from": "papers/wespe-2017",
-      "to": "papers/la-sr-2026",
       "kind": "cites"
     },
     {
@@ -8862,12 +9307,7 @@
     },
     {
       "from": "papers/zoom-to-learn-2019",
-      "to": "papers/dped-2017",
-      "kind": "cites"
-    },
-    {
-      "from": "papers/zoom-to-learn-2019",
-      "to": "papers/handheld-mfsr-2019",
+      "to": "papers/realsr-2019",
       "kind": "cites"
     },
     {
@@ -8877,17 +9317,22 @@
     },
     {
       "from": "papers/zoom-to-learn-2019",
+      "to": "papers/unprocessing-2018",
+      "kind": "cites"
+    },
+    {
+      "from": "papers/zoom-to-learn-2019",
       "to": "surveys/diffusion-sr-2026",
       "kind": "cites"
     },
     {
       "from": "papers/zoom-to-learn-2019",
-      "to": "papers/realsr-2019",
+      "to": "papers/dped-2017",
       "kind": "cites"
     },
     {
       "from": "papers/zoom-to-learn-2019",
-      "to": "papers/unprocessing-2018",
+      "to": "papers/handheld-mfsr-2019",
       "kind": "cites"
     },
     {
@@ -8952,12 +9397,12 @@
     },
     {
       "from": "tutorials/compensated-attention-2025",
-      "to": "surveys/compensated-sparse-attention-2026",
+      "to": "papers/sparkdiffusion-2026",
       "kind": "covers"
     },
     {
       "from": "tutorials/compensated-attention-2025",
-      "to": "papers/sparkdiffusion-2026",
+      "to": "surveys/compensated-sparse-attention-2026",
       "kind": "covers"
     },
     {
@@ -9122,6 +9567,41 @@
     },
     {
       "from": "tutorials/hello-agents",
+      "to": "tutorials/hello-agents-16",
+      "kind": "covers"
+    },
+    {
+      "from": "tutorials/hello-agents",
+      "to": "tutorials/hello-agents-11",
+      "kind": "covers"
+    },
+    {
+      "from": "tutorials/hello-agents",
+      "to": "tutorials/hello-agents-15",
+      "kind": "covers"
+    },
+    {
+      "from": "tutorials/hello-agents",
+      "to": "tutorials/hello-agents-07",
+      "kind": "covers"
+    },
+    {
+      "from": "tutorials/hello-agents",
+      "to": "tutorials/hello-agents-10",
+      "kind": "covers"
+    },
+    {
+      "from": "tutorials/hello-agents",
+      "to": "tutorials/hello-agents-03",
+      "kind": "covers"
+    },
+    {
+      "from": "tutorials/hello-agents",
+      "to": "tutorials/hello-agents-14",
+      "kind": "covers"
+    },
+    {
+      "from": "tutorials/hello-agents",
       "to": "tutorials/hello-agents-04",
       "kind": "covers"
     },
@@ -9132,57 +9612,7 @@
     },
     {
       "from": "tutorials/hello-agents",
-      "to": "tutorials/hello-agents-16",
-      "kind": "covers"
-    },
-    {
-      "from": "tutorials/hello-agents",
-      "to": "tutorials/hello-agents-10",
-      "kind": "covers"
-    },
-    {
-      "from": "tutorials/hello-agents",
-      "to": "tutorials/hello-agents-14",
-      "kind": "covers"
-    },
-    {
-      "from": "tutorials/hello-agents",
-      "to": "tutorials/hello-agents-03",
-      "kind": "covers"
-    },
-    {
-      "from": "tutorials/hello-agents",
-      "to": "tutorials/hello-agents-06",
-      "kind": "covers"
-    },
-    {
-      "from": "tutorials/hello-agents",
-      "to": "tutorials/hello-agents-15",
-      "kind": "covers"
-    },
-    {
-      "from": "tutorials/hello-agents",
-      "to": "tutorials/hello-agents-01",
-      "kind": "covers"
-    },
-    {
-      "from": "tutorials/hello-agents",
-      "to": "tutorials/hello-agents-07",
-      "kind": "covers"
-    },
-    {
-      "from": "tutorials/hello-agents",
-      "to": "tutorials/hello-agents-08",
-      "kind": "covers"
-    },
-    {
-      "from": "tutorials/hello-agents",
       "to": "tutorials/hello-agents-09",
-      "kind": "covers"
-    },
-    {
-      "from": "tutorials/hello-agents",
-      "to": "tutorials/hello-agents-11",
       "kind": "covers"
     },
     {
@@ -9192,12 +9622,27 @@
     },
     {
       "from": "tutorials/hello-agents",
-      "to": "tutorials/hello-agents-02",
+      "to": "tutorials/hello-agents-01",
+      "kind": "covers"
+    },
+    {
+      "from": "tutorials/hello-agents",
+      "to": "tutorials/hello-agents-08",
+      "kind": "covers"
+    },
+    {
+      "from": "tutorials/hello-agents",
+      "to": "tutorials/hello-agents-06",
       "kind": "covers"
     },
     {
       "from": "tutorials/hello-agents",
       "to": "tutorials/hello-agents-12",
+      "kind": "covers"
+    },
+    {
+      "from": "tutorials/hello-agents",
+      "to": "tutorials/hello-agents-02",
       "kind": "covers"
     },
     {
@@ -9547,17 +9992,17 @@
     },
     {
       "from": "tutorials/opd-diffusion-2026",
-      "to": "papers/d-opsd-2026",
-      "kind": "covers"
-    },
-    {
-      "from": "tutorials/opd-diffusion-2026",
       "to": "papers/flow-opd-2026",
       "kind": "covers"
     },
     {
       "from": "tutorials/opd-diffusion-2026",
       "to": "papers/diffusion-opd-2026",
+      "kind": "covers"
+    },
+    {
+      "from": "tutorials/opd-diffusion-2026",
+      "to": "papers/d-opsd-2026",
       "kind": "covers"
     },
     {
@@ -9672,17 +10117,17 @@
     },
     {
       "from": "tutorials/step-distillation-2022",
+      "to": "tutorials/opd-diffusion-2026",
+      "kind": "covers"
+    },
+    {
+      "from": "tutorials/step-distillation-2022",
       "to": "papers/self-forcing-2025",
       "kind": "covers"
     },
     {
       "from": "tutorials/step-distillation-2022",
       "to": "papers/krea-2-2026",
-      "kind": "covers"
-    },
-    {
-      "from": "tutorials/step-distillation-2022",
-      "to": "tutorials/opd-diffusion-2026",
       "kind": "covers"
     },
     {
@@ -9952,12 +10397,12 @@
     },
     {
       "from": "tutorials/vlm-benchmarks-2024",
-      "to": "papers/molmo-2024",
+      "to": "papers/q-ground-2024",
       "kind": "covers"
     },
     {
       "from": "tutorials/vlm-benchmarks-2024",
-      "to": "papers/q-ground-2024",
+      "to": "papers/molmo-2024",
       "kind": "covers"
     },
     {
@@ -10022,12 +10467,12 @@
     },
     {
       "from": "tutorials/vlm-grounding-2025",
-      "to": "papers/locate-anything-2026",
+      "to": "papers/thinking-visual-primitives-2026",
       "kind": "covers"
     },
     {
       "from": "tutorials/vlm-grounding-2025",
-      "to": "papers/thinking-visual-primitives-2026",
+      "to": "papers/locate-anything-2026",
       "kind": "covers"
     },
     {
@@ -10137,17 +10582,17 @@
     },
     {
       "from": "surveys/compensated-sparse-attention-2026",
-      "to": "surveys/native-8k-t2i-2026",
-      "kind": "covers"
-    },
-    {
-      "from": "surveys/compensated-sparse-attention-2026",
       "to": "papers/sparkdiffusion-2026",
       "kind": "covers"
     },
     {
       "from": "surveys/compensated-sparse-attention-2026",
       "to": "papers/deepseek-v4-2026",
+      "kind": "covers"
+    },
+    {
+      "from": "surveys/compensated-sparse-attention-2026",
+      "to": "surveys/native-8k-t2i-2026",
       "kind": "covers"
     },
     {
@@ -10367,12 +10812,12 @@
     },
     {
       "from": "surveys/diffusion-sr-2026",
-      "to": "tutorials/diffusion-sr-2021",
+      "to": "papers/oftsr-2024",
       "kind": "covers"
     },
     {
       "from": "surveys/diffusion-sr-2026",
-      "to": "papers/oftsr-2024",
+      "to": "tutorials/diffusion-sr-2021",
       "kind": "covers"
     },
     {
@@ -10492,12 +10937,12 @@
     },
     {
       "from": "surveys/llm-sparse-attention-2026",
-      "to": "surveys/compensated-sparse-attention-2026",
+      "to": "papers/deepseek-v4-2026",
       "kind": "covers"
     },
     {
       "from": "surveys/llm-sparse-attention-2026",
-      "to": "papers/deepseek-v4-2026",
+      "to": "surveys/compensated-sparse-attention-2026",
       "kind": "covers"
     },
     {
@@ -10572,22 +11017,22 @@
     },
     {
       "from": "surveys/native-8k-t2i-2026",
-      "to": "papers/asymflow-2026",
-      "kind": "covers"
-    },
-    {
-      "from": "surveys/native-8k-t2i-2026",
       "to": "papers/op4ksr-2026",
       "kind": "covers"
     },
     {
       "from": "surveys/native-8k-t2i-2026",
-      "to": "papers/l2p-2026",
+      "to": "papers/latent-to-pixel-2026",
       "kind": "covers"
     },
     {
       "from": "surveys/native-8k-t2i-2026",
-      "to": "papers/latent-to-pixel-2026",
+      "to": "papers/asymflow-2026",
+      "kind": "covers"
+    },
+    {
+      "from": "surveys/native-8k-t2i-2026",
+      "to": "papers/l2p-2026",
       "kind": "covers"
     },
     {
@@ -10662,17 +11107,32 @@
     },
     {
       "from": "surveys/phone2camera-2026",
-      "to": "papers/ispw-2022",
+      "to": "papers/realsr-2019",
       "kind": "covers"
     },
     {
       "from": "surveys/phone2camera-2026",
-      "to": "papers/wespe-2017",
+      "to": "papers/pynet-2020",
       "kind": "covers"
     },
     {
       "from": "surveys/phone2camera-2026",
-      "to": "papers/dped-2017",
+      "to": "papers/raw-diffusion-2024",
+      "kind": "covers"
+    },
+    {
+      "from": "surveys/phone2camera-2026",
+      "to": "papers/merit-2026",
+      "kind": "covers"
+    },
+    {
+      "from": "surveys/phone2camera-2026",
+      "to": "papers/unprocessing-2018",
+      "kind": "covers"
+    },
+    {
+      "from": "surveys/phone2camera-2026",
+      "to": "surveys/diffusion-sr-2026",
       "kind": "covers"
     },
     {
@@ -10687,17 +11147,27 @@
     },
     {
       "from": "surveys/phone2camera-2026",
-      "to": "papers/pynet-2020",
+      "to": "papers/zoom-to-learn-2019",
       "kind": "covers"
     },
     {
       "from": "surveys/phone2camera-2026",
-      "to": "surveys/diffusion-sr-2026",
+      "to": "papers/dped-2017",
       "kind": "covers"
     },
     {
       "from": "surveys/phone2camera-2026",
-      "to": "papers/realsr-2019",
+      "to": "papers/rawgen-2026",
+      "kind": "covers"
+    },
+    {
+      "from": "surveys/phone2camera-2026",
+      "to": "papers/raw-degradation-sr-2026",
+      "kind": "covers"
+    },
+    {
+      "from": "surveys/phone2camera-2026",
+      "to": "papers/ispw-2022",
       "kind": "covers"
     },
     {
@@ -10707,22 +11177,17 @@
     },
     {
       "from": "surveys/phone2camera-2026",
-      "to": "papers/unprocessing-2018",
-      "kind": "covers"
-    },
-    {
-      "from": "surveys/phone2camera-2026",
-      "to": "papers/liteispnet-2021",
-      "kind": "covers"
-    },
-    {
-      "from": "surveys/phone2camera-2026",
       "to": "papers/c5-2020",
       "kind": "covers"
     },
     {
       "from": "surveys/phone2camera-2026",
-      "to": "papers/zoom-to-learn-2019",
+      "to": "papers/wespe-2017",
+      "kind": "covers"
+    },
+    {
+      "from": "surveys/phone2camera-2026",
+      "to": "papers/liteispnet-2021",
       "kind": "covers"
     },
     {
@@ -10783,6 +11248,21 @@
     {
       "from": "surveys/phone2camera-2026",
       "to": "repos/Jamy-L/Handheld-Multi-Frame-Super-Resolution",
+      "kind": "implements"
+    },
+    {
+      "from": "surveys/phone2camera-2026",
+      "to": "repos/SonyResearch/RAW-Diffusion",
+      "kind": "implements"
+    },
+    {
+      "from": "surveys/phone2camera-2026",
+      "to": "repos/DY112/RawGen",
+      "kind": "implements"
+    },
+    {
+      "from": "surveys/phone2camera-2026",
+      "to": "repos/WJ-Huang/MERIT-Multi-domain-Efficient-RAW-Image-Translation",
       "kind": "implements"
     }
   ]

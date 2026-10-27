@@ -49,9 +49,18 @@
 <main class="page page--listing">
 <header class="page-hero">
   <h1 class="page-hero__title">论文</h1>
-  <p class="page-hero__intro">共 75 篇论文精读。</p>
+  <p class="page-hero__intro">共 79 篇论文精读。</p>
 </header>
 <div class="post-grid">
+<article class="post-card post-card--paper">
+  <div class="post-card__meta">
+    <span class="post-card__badge">论文</span>
+    <span class="post-card__date"><span class="post-card__added">2026-10-27</span><span class="post-card__extra">约 40 分钟</span></span>
+  </div>
+  <h3 class="post-card__title"><a class="post-card__title-link" href="papers/raw-degradation-sr-2026/index.html">RAW 域退化模型：逐台手机标定 SR 核与噪声，再用逆处理数据训练真实手机超分</a></h3>
+  <p class="post-card__tldr">Samsung AI Center Toronto（Michael S. Brown 组）的 CVPR 2026 论文。手机数字变焦要在 RAW 上做超分，可是拿不到真值；常见做法是从一个大的随机退化池里采高斯模糊核和通用噪声来造数据。本文改成逐台设备标定：暗室里让手机拍显示器上的随机图案（每张 100 帧平均、格雷码定位、黑白两电平线性化），按 128×128 视场块联合优化 R/G/B 三个 4× SR 核，这个核把镜头 PSF、像素积分和下采样合在一起；噪声则用色卡连拍，按 7 档 ISO、4 个 Bayer 通道标定异方差高斯模型，再对 ISO 做二次拟合。用这些核和噪声把线性 RGB 逆处理成 LR RAW，训练只用 L1 的 RRDBNet。9 个手机摄像头里拿 7 个的标定结果训练，留出的 Pixel 6 Main 上 PSNR 32.41、相对 MTF50 1.19，Mi 11 Main 上 36.11、0.42，PSNR、SSIM、MTF50 都高于 Real-ESRGAN、BSRAW、RAWSR 的退化池。官方仓库目前只有一个空 README，标定好的核和噪声参数尚未发布。</p>
+  <div class="post-card__tags"><a class="tag-chip" href="concepts/raw-image.html">raw-image</a> <a class="tag-chip" href="concepts/image-super-resolution.html">image-super-resolution</a> <a class="tag-chip" href="concepts/real-isr.html">real-isr</a> <span class="tag-chip tag-chip--more">+6</span></div>
+</article>
 <article class="post-card post-card--paper">
   <div class="post-card__meta">
     <span class="post-card__badge">论文</span>
@@ -123,15 +132,6 @@
   <h3 class="post-card__title"><a class="post-card__title-link" href="papers/ispdiffuser-2025/index.html">ISPDiffuser：灰度空间用扩散补纹理，颜色交给「直方图」模块——RAW-to-sRGB 的颜色/纹理解耦</a></h3>
   <p class="post-card__tldr">川大 + 电子科大 + 旷视的 AAAI 2025 工作，做手机 RAW → 单反风格 sRGB（ZRR: 华为 P20 → 佳能；MAI: IMX586 → 富士）。核心主张：扩散模型擅长高频细节、却在颜色/曝光这类低频量上有偏，所以把映射拆成两半——先在 1/4 分辨率的灰度潜空间里用以 RAW 特征为条件的扩散模型（TADM）重建纹理，并加 Canny 边缘损失；再用「直方图引导颜色一致性模块」（HCCM）从 RAW 特征预测颜色直方图，以 cross-attention 给灰度特征上色。ZRR 对齐 GT 上 PSNR 24.09 / LPIPS 0.111，MAI 上 25.64 / 0.071，均优于 FourierISP。代码交叉核对发现几处要紧的出入：发布版里颜色一致性损失恒为 0（&quot;GT 直方图&quot;其实也是由 RAW 算出来的），Canny 边缘损失包在 no_grad 里、梯度为 0，所谓直方图实际是 256×256 的可学习通道混合矩阵，评测时对每张图采 10 次、按与 GT 的 PSNR 挑最好的那张。</p>
   <div class="post-card__tags"><a class="tag-chip" href="concepts/learned-isp.html">learned-isp</a> <a class="tag-chip" href="concepts/raw-image.html">raw-image</a> <a class="tag-chip" href="concepts/phone-to-dslr.html">phone-to-dslr</a> <span class="tag-chip tag-chip--more">+4</span></div>
-</article>
-<article class="post-card post-card--paper">
-  <div class="post-card__meta">
-    <span class="post-card__badge">论文</span>
-    <span class="post-card__date"><span class="post-card__added">2026-10-20</span><span class="post-card__extra">约 35 分钟</span></span>
-  </div>
-  <h3 class="post-card__title"><a class="post-card__title-link" href="papers/handheld-mfsr-2019/index.html">Handheld MFSR：用手抖当免费的像素位移，一次合并跳过去马赛克——Pixel 3 Super-Res Zoom 背后的多帧超分</a></h3>
-  <p class="post-card__tldr">手机传感器小、Bayer 阵列又让每个颜色只采到 1/4–1/2 的像素，去马赛克必然丢细节、出摩尔纹。Wronski 等人 (Google) 的做法是不做去马赛克:把一组手持连拍的 Bayer RAW 当作同一连续信号在不同亚像素偏移下的稀疏采样，自然手抖提供的偏移已经足够随机，然后用各向异性高斯核回归把 R/G/B 三个平面直接累加到任意分辨率的输出网格上，再用「局部方差 vs 颜色差」的统计鲁棒性模型把运动和配准失败的区域剔掉。合成数据上比 DeepJoint 高 3 dB 以上，手机 GPU 上每帧 12MP 约 100 ms，是 Pixel 3 Super-Res Zoom 和 Night Sight 的默认合并算法。Google 没有官方代码，本文对照的是 Lafenetre 等人的非官方复现 (IPOL 2023)。</p>
-  <div class="post-card__tags"><a class="tag-chip" href="concepts/burst-photography.html">burst-photography</a> <a class="tag-chip" href="concepts/raw-image.html">raw-image</a> <a class="tag-chip" href="concepts/image-super-resolution.html">image-super-resolution</a> <span class="tag-chip tag-chip--more">+4</span></div>
 </article>
 </div>
 <nav class="pager" aria-label="分页">

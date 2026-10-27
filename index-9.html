@@ -50,9 +50,18 @@
 <header class="page-hero">
   <h1 class="page-hero__title">Paper Reading</h1>
   <p class="page-hero__intro">把一篇论文读成一页批注，把一个领域讲成一篇教程，把一组工作对比成一份调研。</p>
-  <p class="page-hero__stats"><a href="papers.html"><strong>75</strong> 篇论文</a> · <a href="tutorials.html"><strong>20</strong> 篇教程</a> · <a href="surveys.html"><strong>6</strong> 篇调研</a> · <a href="graph.html"><strong>359</strong> 个概念</a></p>
+  <p class="page-hero__stats"><a href="papers.html"><strong>79</strong> 篇论文</a> · <a href="tutorials.html"><strong>20</strong> 篇教程</a> · <a href="surveys.html"><strong>6</strong> 篇调研</a> · <a href="graph.html"><strong>363</strong> 个概念</a></p>
 </header>
 <div class="post-grid">
+<article class="post-card post-card--tutorial">
+  <div class="post-card__meta">
+    <span class="post-card__badge">教程</span>
+    <span class="post-card__date"><span class="post-card__added">2026-06-06</span><span class="post-card__extra">18k 字</span><span class="post-card__extra">110–140 分钟</span></span>
+  </div>
+  <h3 class="post-card__title"><a class="post-card__title-link" href="tutorials/vlm-grounding-2025/index.html">VLM Grounding 全景(2025–2026):从「框是输出」到「框是思维」</a></h3>
+  <p class="post-card__tldr">9 节螺旋结构系统综述 2025–2026 视觉语言模型(VLM)的 grounding(视觉定位)浪潮:从「坐标如何变成 token」(三大编码流派)到「框作为输出」(检测/referring/Pointing/GUI/并行框解码)再到「框作为思维」(grounded reasoning)。覆盖 Kosmos-2/Shikra/Ferret/Grounding-DINO/Florence-2/PaliGemma/Qwen2.5-VL/Molmo/Rex-Omni/LocateAnything/Thinking-with-Visual-Primitives 等模型与技术报告,以及 RefCOCO/LVIS/ScreenSpot-Pro/PixMo-Points 等 18+ benchmark 的大盘点。代码 verbatim 引自 IDEA-Research/Rex-Omni 与 QwenLM/Qwen2.5-VL。两篇 anchor:Thinking with Visual Primitives 与 LocateAnything。文末附分类参考文献与技术报告全集。</p>
+  <div class="post-card__tags"><a class="tag-chip" href="concepts/grounding.html">grounding</a> <a class="tag-chip" href="concepts/vlm.html">vlm</a> <a class="tag-chip" href="concepts/detection.html">detection</a> <span class="tag-chip tag-chip--more">+6</span></div>
+</article>
 <article class="post-card post-card--paper">
   <div class="post-card__meta">
     <span class="post-card__badge">论文</span>
@@ -124,15 +133,6 @@
   <h3 class="post-card__title"><a class="post-card__title-link" href="papers/worldforge-2026/index.html">WorldForge: 不训练,把 6-DoF 相机轨迹&quot;注射&quot;进 Wan2.1 视频扩散模型</a></h3>
   <p class="post-card__tldr">Westlake AGI Lab + NTU (CVPR 2026 Highlight):IRR + FLF + DSG 三个 inference-time 模块插进 Wan2.1 I2V 的前 20 步采样。IRR 在干净 $\hat{x}_0$ 空间做 per-step predict-correct,FLF 利用 VAE channel 的运动语义分工 (channel 8 = 运动 / channel 13 = 纹理) 只覆写部分 channel,DSG 用 CFG-Zero 正交投影合并&quot;自由&quot;与&quot;受控&quot;两条路径。3D FID 96 / 4D FVD 93 SOTA,零训练。</p>
   <div class="post-card__tags"><a class="tag-chip" href="concepts/video.html">video</a> <a class="tag-chip" href="concepts/diffusion.html">diffusion</a> <a class="tag-chip" href="concepts/wan2.html">wan2</a> <span class="tag-chip tag-chip--more">+1</span></div>
-</article>
-<article class="post-card post-card--tutorial">
-  <div class="post-card__meta">
-    <span class="post-card__badge">教程</span>
-    <span class="post-card__date"><span class="post-card__added">2026-06-01</span><span class="post-card__extra">10k+ 字</span><span class="post-card__extra">约 70 分钟</span></span>
-  </div>
-  <h3 class="post-card__title"><a class="post-card__title-link" href="tutorials/vlm-industrial-2024/index.html">VLM 在工业检测领域: 看清细节 · 数据制作 · 泛化能力</a></h3>
-  <p class="post-card__tldr">把 VLM-based 工业缺陷检测 (Industrial Anomaly Detection) 这条线拆透。8 节螺旋结构覆盖 SOTA 演进 (2023-2026): vanilla CLIP 基线失败 → WinCLIP 多尺度窗口 → AnomalyCLIP object-agnostic prompt + DPAM 注意力修正 → AnomalyGPT LVLM + 合成数据 + 轻量 decoder + PEFT。三大主题各有专章:数据制作 (CutPaste → Perlin → Poisson 融合 → IMDD-1M 1M 图文对)、看清细节 (多尺度 + DPAM + 多层 decoder 三层栈)、泛化能力 (zero-shot → few-shot reference bank → cross-domain 17 数据集)。代码 verbatim 引自 zqhang/AnomalyCLIP、CASIA-IVA-Lab/AnomalyGPT、caoyunkang/WinClip、openvinotoolkit/anomalib 四个 repo。最后给出 timeline + decision tree 落地建议。</p>
-  <div class="post-card__tags"><a class="tag-chip" href="concepts/vlm.html">vlm</a> <a class="tag-chip" href="concepts/anomaly-detection.html">anomaly-detection</a> <a class="tag-chip" href="concepts/industrial.html">industrial</a> <span class="tag-chip tag-chip--more">+3</span></div>
 </article>
 </div>
 <nav class="pager" aria-label="分页">

@@ -50,9 +50,18 @@
 <header class="page-hero">
   <h1 class="page-hero__title">Paper Reading</h1>
   <p class="page-hero__intro">把一篇论文读成一页批注，把一个领域讲成一篇教程，把一组工作对比成一份调研。</p>
-  <p class="page-hero__stats"><a href="papers.html"><strong>75</strong> 篇论文</a> · <a href="tutorials.html"><strong>20</strong> 篇教程</a> · <a href="surveys.html"><strong>6</strong> 篇调研</a> · <a href="graph.html"><strong>359</strong> 个概念</a></p>
+  <p class="page-hero__stats"><a href="papers.html"><strong>79</strong> 篇论文</a> · <a href="tutorials.html"><strong>20</strong> 篇教程</a> · <a href="surveys.html"><strong>6</strong> 篇调研</a> · <a href="graph.html"><strong>363</strong> 个概念</a></p>
 </header>
 <div class="post-grid">
+<article class="post-card post-card--tutorial">
+  <div class="post-card__meta">
+    <span class="post-card__badge">教程</span>
+    <span class="post-card__date"><span class="post-card__added">2026-07-14</span><span class="post-card__extra">4-6k 字</span><span class="post-card__extra">20–25 分钟</span></span>
+  </div>
+  <h3 class="post-card__title"><a class="post-card__title-link" href="tutorials/typescript-5-generics/index.html">TS·05 泛型:参数化的类型、约束、与工具类型</a></h3>
+  <p class="post-card__tldr">泛型函数/接口/类、约束 extends、默认类型参数 = T,以及 pi 大量使用的工具类型 (Partial/Pick/Omit/Record/Extract/ReturnType)。用 pi 的 Tool、EventStream 讲透&quot;类型也能当参数&quot;。</p>
+  <div class="post-card__tags"><a class="tag-chip" href="concepts/typescript.html">typescript</a> <a class="tag-chip" href="concepts/generics.html">generics</a> <a class="tag-chip" href="concepts/utility-types.html">utility-types</a></div>
+</article>
 <article class="post-card post-card--tutorial">
   <div class="post-card__meta">
     <span class="post-card__badge">教程</span>
@@ -124,15 +133,6 @@
   <h3 class="post-card__title"><a class="post-card__title-link" href="papers/mfd-2026/index.html">MFD: 不比「瞬时速度」比「平均速度」——把时间积分当低通滤波器, 给 flow matching 蒸馏降方差</a></h3>
   <p class="post-card__tldr">浙大/普林斯顿:现有蒸馏把 flow 的速度场硬转成 score, 单时刻匹配, 方差大、训练抖。MFD 改成匹配一段区间 [s,t] 上的时间积分平均速度 (mean flow) —— 积分天然是低通滤波, 把瞬时速度里的高频噪声磨平, 梯度方差更低。理论上证明「匹配平均速度 ⇒ 分布对齐」(Mean Flow Matching 定理), 且 VSD 只是区间缩成一点 (s→t) 的退化特例。SANA 1.6B 上 4 步 FID(DINOv2) 43.68→33.28; 4D 占据预测单步 IoU 37.07 (teacher 10 步 37.52)。</p>
   <div class="post-card__tags"><a class="tag-chip" href="concepts/flow-matching.html">flow-matching</a> <a class="tag-chip" href="concepts/distillation.html">distillation</a> <a class="tag-chip" href="concepts/one-step-generation.html">one-step-generation</a> <span class="tag-chip tag-chip--more">+6</span></div>
-</article>
-<article class="post-card post-card--paper">
-  <div class="post-card__meta">
-    <span class="post-card__badge">论文</span>
-    <span class="post-card__date"><span class="post-card__added">2026-07-03</span><span class="post-card__extra">约 25 分钟</span></span>
-  </div>
-  <h3 class="post-card__title"><a class="post-card__title-link" href="papers/rdm-2026/index.html">RDM: 把「一步生成」拆成两根设计轴——十年前被判死刑的 MMD, 估计对了就是 SOTA</a></h3>
-  <p class="post-card__tldr">一步图像生成 = 让生成分布在冻结编码器的特征空间里对齐真实分布。作者把这条无教师路线命名为 RDM (Representation Distribution Matching), 指出所有实例只差两根轴:怎么比 (comparison) 和 在哪比 (representation)。逐轴消融翻掉三条隐含假设:(1) 十年前被嫌太弱的经典 MMD, 只要「批内精确排斥 + 对全量数据的 Nyström 冻结吸引」估计对, 就是又强又可扩的目标;(2) 生成批越大越好, 最优点在 2048 以上, 远超常规;(3) 任何单个编码器都能被刷穿 (分数掉到真实之下但图仍假), 所以要对一整排编码器做「受约束优化」。合成 iRDM:ImageNet 一步 SOTA SW_r14 1.30 (真实地板 1.0), 并把四步 FLUX.2 [klein] 后训练成一步模型, GenEval 0.826 反超四步版 0.794, 只花 90 H200 GPU-hours。</p>
-  <div class="post-card__tags"><a class="tag-chip" href="concepts/one-step-generation.html">one-step-generation</a> <a class="tag-chip" href="concepts/distribution-matching.html">distribution-matching</a> <a class="tag-chip" href="concepts/mmd.html">mmd</a> <span class="tag-chip tag-chip--more">+10</span></div>
 </article>
 </div>
 <nav class="pager" aria-label="分页">

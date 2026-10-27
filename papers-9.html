@@ -49,9 +49,18 @@
 <main class="page page--listing">
 <header class="page-hero">
   <h1 class="page-hero__title">论文</h1>
-  <p class="page-hero__intro">共 75 篇论文精读。</p>
+  <p class="page-hero__intro">共 79 篇论文精读。</p>
 </header>
 <div class="post-grid">
+<article class="post-card post-card--paper">
+  <div class="post-card__meta">
+    <span class="post-card__badge">论文</span>
+    <span class="post-card__date"><span class="post-card__added">2026-06-01</span><span class="post-card__extra">约 20 分钟</span></span>
+  </div>
+  <h3 class="post-card__title"><a class="post-card__title-link" href="papers/dapo-2025/index.html">DAPO: An Open-Source LLM Reinforcement Learning System at Scale</a></h3>
+  <p class="post-card__tldr">字节 + 清华 AIR 的 R1 复现:Qwen2.5-32B base 上 4 个工程修复 (Clip-Higher / Dynamic Sampling / Token-Level Loss / Overlong Reward Shaping) 把 GRPO 从 30 推到 50 AIME24,只用 R1-Zero 50% step。代码+数据+权重全开源。</p>
+  <div class="post-card__tags"><a class="tag-chip" href="concepts/rl.html">rl</a> <a class="tag-chip" href="concepts/llm.html">llm</a> <a class="tag-chip" href="concepts/grpo.html">grpo</a> <span class="tag-chip tag-chip--more">+3</span></div>
+</article>
 <article class="post-card post-card--paper">
   <div class="post-card__meta">
     <span class="post-card__badge">论文</span>
@@ -78,6 +87,33 @@
   <h3 class="post-card__title"><a class="post-card__title-link" href="papers/asymflow-2026/index.html">AsymFlow: 秩-非对称速度参数化, 把 latent 流匹配模型 lift 到像素空间</a></h3>
   <p class="post-card__tldr">Stanford (Wetzstein/Guibas 组, arXiv 2026/05/13)。像素扩散用 plain DiT 的瓶颈是 velocity 目标 u = ε − x₀ 里那个 full-rank 高斯噪声污染 transformer hidden state。AsymFlow 把 velocity 拆开非对称: data 项 −x₀ 保持 full-rank, noise 项限到 rank-r 子空间, 即 u_A := Pε − x₀, 训练时网络只预测 u_A, sampling 时解析还原 full-rank。r=0 退化 x₀-pred, r=D 退化 u-pred, 中间是新东西。子空间用 PCA 或 latent→pixel Procrustes 对齐构造。架构 / training-loop / sampler 一字不改。结果: ImageNet 256 上 1.57 FID (JiT-H/16 + REPA), 是 plain transformer 像素扩散 SOTA; 从 FLUX.2 klein 9B Procrustes-lift 得到 AsymFLUX.2 klein, 是第一个把大型 latent flow 直接转成像素生成器的方法, 在 HPSv3/DPG/GenEval 上全面超过 latent base。</p>
   <div class="post-card__tags"><a class="tag-chip" href="concepts/diffusion.html">diffusion</a> <a class="tag-chip" href="concepts/image-gen.html">image-gen</a> <a class="tag-chip" href="concepts/pixel-space.html">pixel-space</a> <span class="tag-chip tag-chip--more">+2</span></div>
+</article>
+<article class="post-card post-card--paper">
+  <div class="post-card__meta">
+    <span class="post-card__badge">论文</span>
+    <span class="post-card__date"><span class="post-card__added">2026-03-31</span><span class="post-card__extra">约 40 分钟</span></span>
+  </div>
+  <h3 class="post-card__title"><a class="post-card__title-link" href="papers/rawgen-2026/index.html">RawGen：多对一数据教 FLUX.1-Kontext 把 sRGB 或文字逆成 CIE XYZ，再用一张 DNG 的色彩矩阵落到任意相机 RAW</a></h3>
+  <p class="post-card__tldr">RawGen（三星 AI Center 多伦多 + 延世大学，ECCV 2026）把一张 sRGB 照片（I2R）或一句文字（T2R）变成相机 RAW，分两段：先用 LoRA 微调的 FLUX.1-Kontext 在潜空间里把 sRGB 潜变量去噪成 CIE XYZ 潜变量，再由重训过的 VAE 解码器输出 XYZ 图；之后用目标相机一张 DNG 里的 ColorMatrix/ForwardMatrix 按色温插值，确定性地映射到该相机的 RAW。训练数据是「多对一」的：同一张 DNG 渲染出 5 张白平衡、色调曲线、对比度各不相同的 sRGB，全部对齐到同一个 XYZ 锚点。FiveK 五位修图师风格上 PSNR 23.20–24.35 dB，比 CIE XYZ Net 高 3.3–5.3 dB；同骨干但只用一对一数据训练时与 CIE XYZ Net 基本持平，所以收益来自数据构造。 代码和两份权重都已发布，但发布版没有实现论文里的异方差噪声，输出固定 1024²，镜头 PSF 和暗角也都没有建模。对「iPhone RAW → 目标相机质感」来说，用它给两台相机造出的伪 RAW 之间只差一个 3×3 颜色变换，没有质感差异可学。</p>
+  <div class="post-card__tags"><a class="tag-chip" href="concepts/learned-isp.html">learned-isp</a> <a class="tag-chip" href="concepts/raw-image.html">raw-image</a> <a class="tag-chip" href="concepts/phone-to-dslr.html">phone-to-dslr</a> <span class="tag-chip tag-chip--more">+5</span></div>
+</article>
+<article class="post-card post-card--paper">
+  <div class="post-card__meta">
+    <span class="post-card__badge">论文</span>
+    <span class="post-card__date"><span class="post-card__added">2026-03-21</span><span class="post-card__extra">约 50 分钟</span></span>
+  </div>
+  <h3 class="post-card__title"><a class="post-card__title-link" href="papers/merit-2026/index.html">MERIT：一个模型做任意两台相机之间的 RAW→RAW 转换，附五机型配对数据集 MDRAW</a></h3>
+  <p class="post-card__tldr">MERIT（CVPR 2026）把 StarGAN v2 改成吃 4 通道打包 RAW 的多域转换器：一个生成器配一个按目标相机输出风格码的编码器，覆盖任意两台相机之间的 RAW→RAW。另外加了两样东西：一项按亮度分箱、对齐平坦区噪声方差的损失（SANM），以及解码器里受风格码调制的多空洞大核门控（MS-LKA）。论文在 Afifi 的 S9/iPhone X 数据集上报 35.29 / 31.90 dB，比次优方法高 5.56 / 3.45 dB；在自采的五机型 MDRAW 上，20 个方向平均 28.42 dB，只比 Xie et al. 高 0.19 dB。 对照代码后发现几处与论文不符：风格编码器和判别器都是原版 StarGAN v2 的 CNN，不是图里的 Transformer 和分块投票；生成器多了一组论文没提的逐相机 4 通道增益；评测时的参考图按 GT 的通道均值从测试集里挑，最佳 checkpoint 也按测试集 MAE 选；发布版默认参数会把噪声 profile 配错相机；MDRAW 的配对 patch 只做了平移对齐。本页把 MDRAW 的每条事实对照论文、代码和压缩包核实了一遍，并给出用它做 iPhone→尼康 Z5 实验时的划分、对齐、评测建议。</p>
+  <div class="post-card__tags"><a class="tag-chip" href="concepts/raw-image.html">raw-image</a> <a class="tag-chip" href="concepts/phone-to-dslr.html">phone-to-dslr</a> <a class="tag-chip" href="concepts/learned-isp.html">learned-isp</a> <span class="tag-chip tag-chip--more">+7</span></div>
+</article>
+<article class="post-card post-card--paper">
+  <div class="post-card__meta">
+    <span class="post-card__badge">论文</span>
+    <span class="post-card__date"><span class="post-card__added">2024-11-20</span><span class="post-card__extra">约 40 分钟</span></span>
+  </div>
+  <h3 class="post-card__title"><a class="post-card__title-link" href="papers/raw-diffusion-2024/index.html">RAW-Diffusion：用 RGB 引导的扩散模型把 sRGB 逆回指定相机的 RAW，几十张图就能训一台新机</a></h3>
+  <p class="post-card__tldr">Sony AI 的 WACV 2025 工作。目标是给某一台相机批量造 RAW：拿同一台相机的 (RAW, sRGB) 对训练一个条件扩散模型，输入 sRGB，输出 4 通道打包的 RGGB RAW。RGB 先经一个 4 块的 EDSR 抽特征，再以 SPADE 式的逐像素 γ/β 调制注入 U-Net 的瓶颈和解码器；网络直接预测 x₀（预测噪声会崩到 5.55 dB），末层接 tanh，损失为 MSE + L1 + 对数 L1。四个单反数据集上 PSNR 全部第一（FiveK Nikon 30.05、NOD Nikon 44.93）；只用 25 张训练图时 PSNR 和全量持平；DDIM 6 步与 1000 步无差别。用 100 张 NOD 图训出的模型把 BDD100K 转成伪 RAW，Faster R-CNN 夜间检测 AP 从 18.2 提到 26.5。 代码核对发现几处论文没写的事：损失乘了 P2 权重 1−ᾱ_t；RGB 是 rawpy 默认参数从同一张 RAW 渲出来的，不是机内 JPEG；归一化时把黑电平以下的值截成 0。模型没有任何噪声建模或噪声控制，生成结果更接近「给定 RGB 的条件均值」。</p>
+  <div class="post-card__tags"><a class="tag-chip" href="concepts/learned-isp.html">learned-isp</a> <a class="tag-chip" href="concepts/raw-image.html">raw-image</a> <a class="tag-chip" href="concepts/phone-to-dslr.html">phone-to-dslr</a> <span class="tag-chip tag-chip--more">+5</span></div>
 </article>
 </div>
 <nav class="pager" aria-label="分页">

@@ -50,9 +50,18 @@
 <header class="page-hero">
   <h1 class="page-hero__title">Paper Reading</h1>
   <p class="page-hero__intro">把一篇论文读成一页批注，把一个领域讲成一篇教程，把一组工作对比成一份调研。</p>
-  <p class="page-hero__stats"><a href="papers.html"><strong>75</strong> 篇论文</a> · <a href="tutorials.html"><strong>20</strong> 篇教程</a> · <a href="surveys.html"><strong>6</strong> 篇调研</a> · <a href="graph.html"><strong>359</strong> 个概念</a></p>
+  <p class="page-hero__stats"><a href="papers.html"><strong>79</strong> 篇论文</a> · <a href="tutorials.html"><strong>20</strong> 篇教程</a> · <a href="surveys.html"><strong>6</strong> 篇调研</a> · <a href="graph.html"><strong>363</strong> 个概念</a></p>
 </header>
 <div class="post-grid">
+<article class="post-card post-card--paper">
+  <div class="post-card__meta">
+    <span class="post-card__badge">论文</span>
+    <span class="post-card__date"><span class="post-card__added">2026-10-10</span><span class="post-card__extra">约 20 分钟</span></span>
+  </div>
+  <h3 class="post-card__title"><a class="post-card__title-link" href="papers/rola-2026/index.html">RoLA：把 3D-RoPE 塞进线性注意力——解「RoPE 两难」的旋转低秩补偿分支</a></h3>
+  <p class="post-card__tldr">视频 DiT 里「稀疏 + 线性」的混合注意力想用一条便宜的线性分支捞回稀疏分支丢掉的全局上下文,但撞上一个结构性矛盾——RoPE 两难(RoPE Dilemma):线性注意力要求一个「与 query 无关、能复用的全局摘要」$C=\sum_q \phi(k_q)v_q^\top$,而 3D-RoPE 用「位置相关的旋转」编码相对几何;如果先旋转再过非线性 $\phi$,旋转和非线性不对易,摘要就会被绝对位置污染,既保不住相对几何、又丢了可复用性。 已有做法(RoPeSLR)绕开矛盾:干脆不做跨 token 聚合,改用「逐 token 坐标 MLP + 可学习的绝对位置嵌入」去模仿相对衰减——但这既丢了真正的线性全局路由,又额外引入位置参数。RoLA 的解法极简却关键:把 RoPE 放到非线性外面(先 SiLU 低秩投影、再旋转),这样全局摘要照样累加一次、被所有 query 复用,位置效应只在 query 读出时出现;再复用预训练 RoPE 频率表的前 r 个坐标(r=64,即 r/2 个旋转对)匹配低秩瓶颈,不引入任何新位置参数。 机制实验直接验证:outside-activation 的位置核紧贴全注意力的带状相对衰减,shift 残差 $1.8\times10^{-5}$(inside 是 $3.7\times10^{-1}$,泄漏绝对位置);rank 到 64 时保真度饱和。生成上 Wan2.1-14B-720P 在 90% 稀疏度下 VBench 逼近稠密、端到端 2.63×。RoLA 正是 sparkdiffusion-2026 默认采用的稀疏模块。</p>
+  <div class="post-card__tags"><a class="tag-chip" href="concepts/video-diffusion.html">video-diffusion</a> <a class="tag-chip" href="concepts/sparse-attention.html">sparse-attention</a> <a class="tag-chip" href="concepts/linear-attention.html">linear-attention</a> <span class="tag-chip tag-chip--more">+7</span></div>
+</article>
 <article class="post-card post-card--paper">
   <div class="post-card__meta">
     <span class="post-card__badge">论文</span>
@@ -124,15 +133,6 @@
   <h3 class="post-card__title"><a class="post-card__title-link" href="papers/f-loss-2026/index.html">f-loss：给像素空间流匹配换一副「频域眼镜」——先学频率、再抠像素</a></h3>
   <p class="post-card__tldr">自然图像功率谱按 1/f² 衰减：能量几乎全堆在低频，但人眼在乎的纹理/边缘藏在稀疏的高频。像素空间的 v-loss 对所有空间误差一视同仁 → 低频主导梯度 → 模型迟迟学不会细节。作者把这诊断成「目标函数层面的频谱失衡」。 解法两件套：① f-loss（Focal Log-Frequency Loss）——在 2D 傅里叶谱上做「对数压缩 log(1+e) + 逐样本焦点归一化 e/max(e) + 保留 1/(1-t)² 时间步权重」，让每个频率倍频程拿到等量学习信号；② fv-loss 两段式调度——训练早期用 f-loss 把所有频率快速拉齐，再用 sigmoid 权重平滑切回标准 v-loss 做像素级相位精修。 纯 drop-in、零架构改动。跨 B/L/XL 三档、256²/512² 两分辨率：收敛最高快 40%（1.13×–1.57×），FID/FDD/IS 全面改善；JiT-XL/16 在 750k 步做到 FID 2.13（v-loss 2.21），叠 REPA 后 750k 的 1.87 反超 DeCo 1.6M 的 1.90，叠感知损失后 500k 追平 PixelGen 800k 的 1.83 且 IS 更高（323.4 vs 293.6）。代码与模型承诺开源（尚未放出）。</p>
   <div class="post-card__tags"><a class="tag-chip" href="concepts/flow-matching.html">flow-matching</a> <a class="tag-chip" href="concepts/pixel-space-generation.html">pixel-space-generation</a> <a class="tag-chip" href="concepts/frequency-domain-loss.html">frequency-domain-loss</a> <span class="tag-chip tag-chip--more">+5</span></div>
-</article>
-<article class="post-card post-card--paper">
-  <div class="post-card__meta">
-    <span class="post-card__badge">论文</span>
-    <span class="post-card__date"><span class="post-card__added">2026-10-10</span><span class="post-card__extra">约 25 分钟</span></span>
-  </div>
-  <h3 class="post-card__title"><a class="post-card__title-link" href="papers/dsec-2026/index.html">DeepSeek Elastic Compute (DSec): 为大规模 Agentic RL 训练造的沙箱基础设施</a></h3>
-  <p class="post-card__tldr">DeepSeek 把 agentic RL 训练/评测所需的执行环境做成了一个生产级沙箱平台 DSec:一套 SDK 暴露 FnCall / 容器 / microVM / 全 VM 四种后端,用可组合的 EROFS 分层替代单体镜像,靠 3FS 做按需镜像加载,用 virtio-pmem + DAMON 气球回收把内存超卖压下来,用 SCHED_IDLE + core scheduling 保护延迟敏感任务,并与 RL 框架协同做抢占安全的暂停/恢复。单个 scale unit 约 160 节点,日均 300 万沙箱、峰值并发 38 万、创建速率 5000+/秒。</p>
-  <div class="post-card__tags"><a class="tag-chip" href="concepts/agentic-rl.html">agentic-rl</a> <a class="tag-chip" href="concepts/sandbox.html">sandbox</a> <a class="tag-chip" href="concepts/microvm.html">microvm</a> <span class="tag-chip tag-chip--more">+8</span></div>
 </article>
 </div>
 <nav class="pager" aria-label="分页">

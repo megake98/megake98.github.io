@@ -64,6 +64,24 @@
   <p class="post-card__tldr">Google Research 的 CVPR 2019 工作。真实 RAW 去噪数据难采，合成数据又不像真 RAW，于是作者把一张普通 sRGB 照片按相机 ISP 的反向顺序逐步「解处理」：逆 smoothstep 色调曲线 → 逆 gamma → 乘 sRGB→相机 RGB 的 CCM → 带高光保护地除掉白平衡与数字增益 → 抽成 RGGB 马赛克。在这份伪 RAW 上加按 ISO 联合采样的泊松-高斯（shot/read）噪声得到输入，再把网络输出和真值都过一遍简化正向 ISP 后算 L1。一个 22ms 的普通 U-Net 在 Darmstadt 真实噪声基准上 raw PSNR 48.89 / sRGB PSNR 40.35，相对此前最好的方法误差降低 14%–38%、快 9–18 倍。</p>
   <div class="post-card__tags"><a class="tag-chip" href="../concepts/raw-image.html">raw-image</a> <a class="tag-chip" href="../concepts/denoising.html">denoising</a> <a class="tag-chip" href="../concepts/data-synthesis.html">data-synthesis</a> <span class="tag-chip tag-chip--more">+5</span></div>
 </article>
+<article class="post-card post-card--paper">
+  <div class="post-card__meta">
+    <span class="post-card__badge">论文</span>
+    <span class="post-card__date"><span class="post-card__added">2026-03-31</span><span class="post-card__extra">约 40 分钟</span></span>
+  </div>
+  <h3 class="post-card__title"><a class="post-card__title-link" href="../papers/rawgen-2026/index.html">RawGen：多对一数据教 FLUX.1-Kontext 把 sRGB 或文字逆成 CIE XYZ，再用一张 DNG 的色彩矩阵落到任意相机 RAW</a></h3>
+  <p class="post-card__tldr">RawGen（三星 AI Center 多伦多 + 延世大学，ECCV 2026）把一张 sRGB 照片（I2R）或一句文字（T2R）变成相机 RAW，分两段：先用 LoRA 微调的 FLUX.1-Kontext 在潜空间里把 sRGB 潜变量去噪成 CIE XYZ 潜变量，再由重训过的 VAE 解码器输出 XYZ 图；之后用目标相机一张 DNG 里的 ColorMatrix/ForwardMatrix 按色温插值，确定性地映射到该相机的 RAW。训练数据是「多对一」的：同一张 DNG 渲染出 5 张白平衡、色调曲线、对比度各不相同的 sRGB，全部对齐到同一个 XYZ 锚点。FiveK 五位修图师风格上 PSNR 23.20–24.35 dB，比 CIE XYZ Net 高 3.3–5.3 dB；同骨干但只用一对一数据训练时与 CIE XYZ Net 基本持平，所以收益来自数据构造。 代码和两份权重都已发布，但发布版没有实现论文里的异方差噪声，输出固定 1024²，镜头 PSF 和暗角也都没有建模。对「iPhone RAW → 目标相机质感」来说，用它给两台相机造出的伪 RAW 之间只差一个 3×3 颜色变换，没有质感差异可学。</p>
+  <div class="post-card__tags"><a class="tag-chip" href="../concepts/learned-isp.html">learned-isp</a> <a class="tag-chip" href="../concepts/raw-image.html">raw-image</a> <a class="tag-chip" href="../concepts/phone-to-dslr.html">phone-to-dslr</a> <span class="tag-chip tag-chip--more">+5</span></div>
+</article>
+<article class="post-card post-card--paper">
+  <div class="post-card__meta">
+    <span class="post-card__badge">论文</span>
+    <span class="post-card__date"><span class="post-card__added">2024-11-20</span><span class="post-card__extra">约 40 分钟</span></span>
+  </div>
+  <h3 class="post-card__title"><a class="post-card__title-link" href="../papers/raw-diffusion-2024/index.html">RAW-Diffusion：用 RGB 引导的扩散模型把 sRGB 逆回指定相机的 RAW，几十张图就能训一台新机</a></h3>
+  <p class="post-card__tldr">Sony AI 的 WACV 2025 工作。目标是给某一台相机批量造 RAW：拿同一台相机的 (RAW, sRGB) 对训练一个条件扩散模型，输入 sRGB，输出 4 通道打包的 RGGB RAW。RGB 先经一个 4 块的 EDSR 抽特征，再以 SPADE 式的逐像素 γ/β 调制注入 U-Net 的瓶颈和解码器；网络直接预测 x₀（预测噪声会崩到 5.55 dB），末层接 tanh，损失为 MSE + L1 + 对数 L1。四个单反数据集上 PSNR 全部第一（FiveK Nikon 30.05、NOD Nikon 44.93）；只用 25 张训练图时 PSNR 和全量持平；DDIM 6 步与 1000 步无差别。用 100 张 NOD 图训出的模型把 BDD100K 转成伪 RAW，Faster R-CNN 夜间检测 AP 从 18.2 提到 26.5。 代码核对发现几处论文没写的事：损失乘了 P2 权重 1−ᾱ_t；RGB 是 rawpy 默认参数从同一张 RAW 渲出来的，不是机内 JPEG；归一化时把黑电平以下的值截成 0。模型没有任何噪声建模或噪声控制，生成结果更接近「给定 RGB 的条件均值」。</p>
+  <div class="post-card__tags"><a class="tag-chip" href="../concepts/learned-isp.html">learned-isp</a> <a class="tag-chip" href="../concepts/raw-image.html">raw-image</a> <a class="tag-chip" href="../concepts/phone-to-dslr.html">phone-to-dslr</a> <span class="tag-chip tag-chip--more">+5</span></div>
+</article>
 </div>
 
   <p class="back-link"><a href="../graph.html">← 返回图谱</a></p>

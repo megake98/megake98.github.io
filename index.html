@@ -50,9 +50,18 @@
 <header class="page-hero">
   <h1 class="page-hero__title">Paper Reading</h1>
   <p class="page-hero__intro">把一篇论文读成一页批注，把一个领域讲成一篇教程，把一组工作对比成一份调研。</p>
-  <p class="page-hero__stats"><a href="papers.html"><strong>75</strong> 篇论文</a> · <a href="tutorials.html"><strong>20</strong> 篇教程</a> · <a href="surveys.html"><strong>6</strong> 篇调研</a> · <a href="graph.html"><strong>359</strong> 个概念</a></p>
+  <p class="page-hero__stats"><a href="papers.html"><strong>79</strong> 篇论文</a> · <a href="tutorials.html"><strong>20</strong> 篇教程</a> · <a href="surveys.html"><strong>6</strong> 篇调研</a> · <a href="graph.html"><strong>363</strong> 个概念</a></p>
 </header>
 <div class="post-grid">
+<article class="post-card post-card--paper">
+  <div class="post-card__meta">
+    <span class="post-card__badge">论文</span>
+    <span class="post-card__date"><span class="post-card__added">2026-10-27</span><span class="post-card__extra">约 40 分钟</span></span>
+  </div>
+  <h3 class="post-card__title"><a class="post-card__title-link" href="papers/raw-degradation-sr-2026/index.html">RAW 域退化模型：逐台手机标定 SR 核与噪声，再用逆处理数据训练真实手机超分</a></h3>
+  <p class="post-card__tldr">Samsung AI Center Toronto（Michael S. Brown 组）的 CVPR 2026 论文。手机数字变焦要在 RAW 上做超分，可是拿不到真值；常见做法是从一个大的随机退化池里采高斯模糊核和通用噪声来造数据。本文改成逐台设备标定：暗室里让手机拍显示器上的随机图案（每张 100 帧平均、格雷码定位、黑白两电平线性化），按 128×128 视场块联合优化 R/G/B 三个 4× SR 核，这个核把镜头 PSF、像素积分和下采样合在一起；噪声则用色卡连拍，按 7 档 ISO、4 个 Bayer 通道标定异方差高斯模型，再对 ISO 做二次拟合。用这些核和噪声把线性 RGB 逆处理成 LR RAW，训练只用 L1 的 RRDBNet。9 个手机摄像头里拿 7 个的标定结果训练，留出的 Pixel 6 Main 上 PSNR 32.41、相对 MTF50 1.19，Mi 11 Main 上 36.11、0.42，PSNR、SSIM、MTF50 都高于 Real-ESRGAN、BSRAW、RAWSR 的退化池。官方仓库目前只有一个空 README，标定好的核和噪声参数尚未发布。</p>
+  <div class="post-card__tags"><a class="tag-chip" href="concepts/raw-image.html">raw-image</a> <a class="tag-chip" href="concepts/image-super-resolution.html">image-super-resolution</a> <a class="tag-chip" href="concepts/real-isr.html">real-isr</a> <span class="tag-chip tag-chip--more">+6</span></div>
+</article>
 <article class="post-card post-card--paper">
   <div class="post-card__meta">
     <span class="post-card__badge">论文</span>
@@ -101,10 +110,10 @@
 <article class="post-card post-card--survey">
   <div class="post-card__meta">
     <span class="post-card__badge">调研</span>
-    <span class="post-card__date"><span class="post-card__added">2026-10-20</span><span class="post-card__extra">约 40 分钟</span></span>
+    <span class="post-card__date"><span class="post-card__added">2026-10-20</span><span class="post-card__extra">约 65 分钟</span></span>
   </div>
   <h3 class="post-card__title"><a class="post-card__title-link" href="surveys/phone2camera-2026/index.html">手机照片 → 相机画质：细节与质感迁移调研（2017→2026）</a></h3>
-  <p class="post-card__tldr">专项「把 iPhone 照片（优先 Bayer RAW）在细节与质感上变成某台目标相机的效果」的入口调研。按五组覆盖本站刚精读的 12 篇：A 手机→单反画质（DPED / WESPE / PyNET / LiteISPNet / ISPW / DiffRAW / ISPDiffuser），B 用更好的光学拍真值（Zoom-to-Learn / RealSR），C RAW 域造数据（Unprocessing），D 跨相机颜色（C5），E 多帧（Handheld MFSR）。逐篇给出核心贡献、方法、带数字的结果和代码位置，再用一张矩阵按输入域、监督、对齐、颜色/纹理是否分离、骨干、数据集、代码对比，写出一致与矛盾。代码交叉验证汇总各页发现，其中有三条会直接影响复用：ISPDiffuser 发布版颜色一致性损失恒为 0、Canny 纹理损失无梯度、评测取 best-of-10；C5 的 apply_cst 原地覆盖导致 3×3 算错；ZRR 和 ISPW 都不提供单反 RAW。最后对照「物理颜色 + 多帧真实细节 + 强度可控的高频生成 + 目标相机 ISP 出图」这条管线，列出每一步的证据和缺口。</p>
+  <p class="post-card__tldr">专项「把 iPhone 照片（优先 Bayer RAW）在细节与质感上变成某台目标相机的效果」的入口调研。按六组覆盖本站精读的 16 篇：A 手机→单反画质（DPED / WESPE / PyNET / LiteISPNet / ISPW / DiffRAW / ISPDiffuser），B 用更好的光学拍真值（Zoom-to-Learn / RealSR），C RAW 域造数据（Unprocessing），D 跨相机颜色（C5），E 多帧（Handheld MFSR），F RAW 合成与跨相机 RAW 数据（RAW-Diffusion / RawGen / RAW-Degradation / MERIT + MDRAW）。逐篇给出核心贡献、方法、带数字的结果和代码位置，再用一张矩阵按输入域、监督、对齐、颜色/纹理是否分离、骨干、数据集、代码对比，写出一致与矛盾。代码交叉验证汇总各页发现，会直接影响复用的有：ISPDiffuser 发布版颜色一致性损失恒为 0、Canny 纹理损失无梯度、评测取 best-of-10；C5 的 apply_cst 原地覆盖导致 3×3 算错；ZRR 和 ISPW 都不提供单反 RAW；RawGen 发布版不加噪声，同一 XYZ 造出的伪 iPhone / 伪目标相机 RAW 只差一个 3×3；MERIT 的评测参考图按 GT 挑、默认噪声 profile 错配，在真实配对的 MDRAW 上与最强基线打平。F 组四篇共同指向一个结论：质感真值只能来自真实目标相机 RAW，输入端应由它反向合成（颜色矩阵 + 实测 iPhone SR 核 + 马赛克 + 实测噪声）。最后对照「物理颜色 + 多帧真实细节 + 强度可控的高频生成 + 目标相机 ISP 出图」这条管线，列出每一步的证据和缺口。</p>
   <div class="post-card__tags"><a class="tag-chip" href="concepts/learned-isp.html">learned-isp</a> <a class="tag-chip" href="concepts/raw-image.html">raw-image</a> <a class="tag-chip" href="concepts/phone-to-dslr.html">phone-to-dslr</a> <span class="tag-chip tag-chip--more">+9</span></div>
 </article>
 <article class="post-card post-card--paper">
@@ -124,15 +133,6 @@
   <h3 class="post-card__title"><a class="post-card__title-link" href="papers/ispw-2022/index.html">ISPW：把「颜色」从学习式 ISP 里拆出去——颜色条件网络 + 逐图参数化颜色映射 + 掩码对齐损失</a></h3>
   <p class="post-card__tldr">ETH CVL 的 ECCV 2022 工作，任务是手机 RAW → 单反 sRGB。作者认为难点在于每对训练图的颜色映射都不一样（相机参数、光照各异），而且两台机器拍的画面没对齐。做法是把颜色和细节拆开：ISP 网络 F(x, ĉ) 额外吃一张低分辨率的「目标颜色图」ĉ，只负责去噪、去马赛克和细节；训练时 ĉ 来自一个逐图闭式拟合的分 bin 仿射颜色映射 C（15 个 bin，每个 bin 一个 3→1 仿射，约 180 个参数），它把单反 GT 的颜色搬到手机 RAW 上，但带不过去 GT 的细节；推理时 ĉ 由带 Perceiver 式全局上下文 Transformer 的 U-Net 颜色预测器 G(x) 给出。监督端用 PWC-Net 光流对齐 GT，再用前后向一致性掩码剔除流不准的区域。 ZRR 上 PSNR 25.24 / SSIM 0.879（LiteISPNet 23.81），自建 ISPW（华为 Mate 30 Pro RAW ↔ Canon 5D IV sRGB，200 组，单反侧三档曝光）上 25.05 vs 23.51。官方仓库只有 README，代码一直没放出来；ISPW 的单反侧只有 sRGB，没有单反 RAW，下载链接目前 404。</p>
   <div class="post-card__tags"><a class="tag-chip" href="concepts/learned-isp.html">learned-isp</a> <a class="tag-chip" href="concepts/raw-image.html">raw-image</a> <a class="tag-chip" href="concepts/phone-to-dslr.html">phone-to-dslr</a> <span class="tag-chip tag-chip--more">+6</span></div>
-</article>
-<article class="post-card post-card--paper">
-  <div class="post-card__meta">
-    <span class="post-card__badge">论文</span>
-    <span class="post-card__date"><span class="post-card__added">2026-10-20</span><span class="post-card__extra">约 25 分钟</span></span>
-  </div>
-  <h3 class="post-card__title"><a class="post-card__title-link" href="papers/ispdiffuser-2025/index.html">ISPDiffuser：灰度空间用扩散补纹理，颜色交给「直方图」模块——RAW-to-sRGB 的颜色/纹理解耦</a></h3>
-  <p class="post-card__tldr">川大 + 电子科大 + 旷视的 AAAI 2025 工作，做手机 RAW → 单反风格 sRGB（ZRR: 华为 P20 → 佳能；MAI: IMX586 → 富士）。核心主张：扩散模型擅长高频细节、却在颜色/曝光这类低频量上有偏，所以把映射拆成两半——先在 1/4 分辨率的灰度潜空间里用以 RAW 特征为条件的扩散模型（TADM）重建纹理，并加 Canny 边缘损失；再用「直方图引导颜色一致性模块」（HCCM）从 RAW 特征预测颜色直方图，以 cross-attention 给灰度特征上色。ZRR 对齐 GT 上 PSNR 24.09 / LPIPS 0.111，MAI 上 25.64 / 0.071，均优于 FourierISP。代码交叉核对发现几处要紧的出入：发布版里颜色一致性损失恒为 0（&quot;GT 直方图&quot;其实也是由 RAW 算出来的），Canny 边缘损失包在 no_grad 里、梯度为 0，所谓直方图实际是 256×256 的可学习通道混合矩阵，评测时对每张图采 10 次、按与 GT 的 PSNR 挑最好的那张。</p>
-  <div class="post-card__tags"><a class="tag-chip" href="concepts/learned-isp.html">learned-isp</a> <a class="tag-chip" href="concepts/raw-image.html">raw-image</a> <a class="tag-chip" href="concepts/phone-to-dslr.html">phone-to-dslr</a> <span class="tag-chip tag-chip--more">+4</span></div>
 </article>
 </div>
 <nav class="pager" aria-label="分页">
