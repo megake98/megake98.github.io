@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <script>(function(){try{var t=localStorage.getItem('theme');if(!t)t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.setAttribute('data-theme',t);var r=JSON.parse(localStorage.getItem('reader')||'{}');['rw','rf','rl','rc'].forEach(function(k){if(r[k])document.documentElement.setAttribute('data-'+k,r[k]);});}catch(e){}})();</script>
+  <title>challenge-benchmark — paper-reading</title>
+  <link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+<!-- NAV-START -->
+<nav class="site-nav" aria-label="主导航">
+  <a class="site-nav__brand" href="../index.html" aria-label="返回主页">
+    <span class="site-nav__brand-mark" aria-hidden="true">P</span>
+    <span class="site-nav__brand-text">Paper Reading</span>
+  </a>
+  <div class="site-nav__links">
+    <a class="site-nav__link" href="../papers.html">论文</a>
+    <a class="site-nav__link" href="../tutorials.html">教程</a>
+    <a class="site-nav__link" href="../surveys.html">调研</a>
+    <a class="site-nav__link active" href="../graph.html">图谱</a>
+    <button type="button" class="site-nav__search-btn" id="search-open" aria-label="搜索" aria-expanded="false" aria-controls="search-modal">
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/>
+      </svg>
+      <span class="site-nav__search-label">搜索</span>
+      <kbd class="site-nav__kbd">⌘K</kbd>
+    </button>
+    <button type="button" class="site-nav__theme-btn site-nav__reader-btn" id="reader-toggle" aria-label="阅读设置" aria-expanded="false" aria-controls="reader-panel" hidden>Aa</button>
+    <button type="button" class="site-nav__theme-btn" id="theme-toggle" aria-label="切换深浅色主题">
+      <svg class="theme-icon theme-icon--moon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
+      <svg class="theme-icon theme-icon--sun" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+    </button>
+  </div>
+</nav>
+<div class="search-modal" id="search-modal" hidden data-pagefind-path="../pagefind/">
+  <div class="search-modal__backdrop" data-search-close></div>
+  <div class="search-modal__panel" role="dialog" aria-modal="true" aria-label="全文搜索">
+    <button type="button" class="search-modal__close" data-search-close aria-label="关闭">✕</button>
+    <div id="search"></div>
+  </div>
+</div>
+<link href="../pagefind/pagefind-ui.css" rel="stylesheet">
+<script defer src="../pagefind/pagefind-ui.js"></script>
+<script defer src="../assets/search.js"></script>
+<script defer src="../assets/theme.js"></script>
+<script defer src="../assets/reader.js"></script>
+<!-- NAV-END -->
+
+<main class="page page--concept">
+  <h1>challenge-benchmark</h1>
+  
+  <div class="concept__body">
+
+  </div>
+  <h2>提到此概念的论文 / 教程</h2>
+  <div class="post-grid">
+<article class="post-card post-card--paper">
+  <div class="post-card__meta">
+    <span class="post-card__badge">论文</span>
+    <span class="post-card__date"><span class="post-card__added">2026-11-03</span><span class="post-card__extra">约 60 分钟</span></span>
+  </div>
+  <h3 class="post-card__title"><a class="post-card__title-link" href="../papers/ntire25-raw-sr-2025/index.html">NTIRE 2025 RAW 复原与超分挑战赛报告：BSRAW 随机退化管线、两条赛道的数据与前几名方案，以及这条管线能不能用来造伪 iPhone RAW</a></h3>
+  <p class="post-card__tldr">维尔茨堡大学 Conde、Timofte 组织的 NTIRE 2025 挑战赛报告（CVPRW 2025）。两条赛道都在打包的 RGGB 四通道 RAW 上进行，训练输入都由组织者给的 BSRAW 退化管线在线合成。超分赛道做 2× 放大：训练集是 FiveK 里 Canon / Nikon 单反的 1064 张干净 1024×1024×4 图，测试 200 张。通用赛道第一是 USTC 的 LiteRAWFormer（精简版 RBSFormer，1.94M 参数，42.70 dB），之后依次是 SMFFRaw-L 42.60、三星 RawRTSR-L 42.58（0.26M）、ERBSFormer 42.45；高效赛道（≤0.2M）第一是 SMFFRaw-S（42.12）。复原赛道做去噪加去模糊：训练集是 2139 个 512×512×4 的干净手机块，按 Hugging Face 上的目录统计来自 iPhone X 162 张、Galaxy S9 79 张、Google Pixel 12 张、Vivo X90 39 张原图；测试集 140 块，按三档退化分别评分。三星 ERIRNet 两条子赛道都拿第一：通用版 46.04 / 42.25 / 40.10 dB（4.97M），高效版 45.10 / 40.82 / 38.46（0.19M），后者也比 1.5M 的基线 RawIR 高。指标是 RAW 域的 PSNR / SSIM。 公开的 BSRAW 管线在 mv-lab/AISP 的 imresutils 里，核心不到 80 行，比 BSRAW 论文写的简单得多：50% 概率模糊，核从 kernels.npy 里随机取，12 个核里只抽前 11 个（4 个各向同性高斯、4 个各向异性、3 条运动轨迹），同一个核作用于 4 个打包通道；下采样是打包平面上的 2×2 平均池化，这会让 R、G、B 互相错开半个 HR 像素，而且 down=True 这条路径返回的形状是错的；噪声一半是 shot-read 模型，shot 方差只在 1e-4 到 1e-3 之间（Unprocessing 的上限是 0.012），另一半是逐像素重新抽 σ 的异方差高斯，所以每张图的等效噪声水平都一样。论文里写的曝光退化、SIDD/DND 噪声 profile、二次 PSF，代码里都没有。冠军的代码重新分配了核的抽样概率、每张图必模糊、自然噪声占 70%，还加了 100 个额外 PSF。另外，它沿用了为马赛克数组设计的翻转，却用在打包数组上，结果打乱了 CFA 相位。报告本身也有几处问题：Table 1 的 2024 参照混用了 12MP 和 1MP 两列；正文写 Google Pixel 10，数据集卡片写 Pixel 7–9；公开的 val 输入和 test level 2 逐字节相同。对专项来说，这条管线可以沿用「线性 RAW 上先模糊、再下采样、再加噪」的顺序，以及在 dataloader 里在线合成的做法；模糊核、下采样和噪声三样都要换成 iPhone 的实测值，前面还要补一步颜色映射。复原赛道的数据里有 162 张 iPhone X 原图的干净 RAW 块（另有 97 张的低质量块）和对应的机内成片，但没有 ISO；超分赛道全是单反，没有 iPhone。</p>
+  <div class="post-card__tags"><a class="tag-chip" href="../concepts/raw-image.html">raw-image</a> <a class="tag-chip" href="../concepts/image-super-resolution.html">image-super-resolution</a> <a class="tag-chip" href="../concepts/denoising.html">denoising</a> <span class="tag-chip tag-chip--more">+4</span></div>
+</article>
+<article class="post-card post-card--paper">
+  <div class="post-card__meta">
+    <span class="post-card__badge">论文</span>
+    <span class="post-card__date"><span class="post-card__added">2026-11-03</span><span class="post-card__extra">约 50 分钟</span></span>
+  </div>
+  <h3 class="post-card__title"><a class="post-card__title-link" href="../papers/ntire25-raw-recon-2025/index.html">NTIRE 2025 手机 RGB→RAW 重建挑战赛报告：iPhone X / Galaxy S9 的机内成片逆回 12 bit RAW，第一名是 0.39M 参数的 DBNet</a></h3>
+  <p class="post-card__tldr">第二届「从 RGB 重建 RAW」（逆 ISP）挑战赛，第一届是 AIM 2022 Reversed ISP。这一届改用手机：训练集来自 Afifi &amp; Abuolaim 的 RAW-to-RAW 数据，iPhone X 972 对、Galaxy S9 474 对，都是 512×512×4 的 RGGB 块（RGB 是 1024×1024 的机内 ISP 输出，不是 rawpy 渲染），另有 582 / 924 对低质量块。按文件数，iPhone X 的 972 块来自 162 张原图，每张切 6 块。测试时不给元数据，除已知设备外还考没见过的 Vivo X90。评测是 12 bit RAW 上的 PSNR/SSIM，按参数量分成 1–5M 的通用赛道和不到 0.2M 的高效赛道，要求 12MP 一次前向。总榜第一是同济的 DBNet（高效赛道，27.66 dB / 0.7700），其后是 VIP（26.99）、GAR2Net（26.98）、UNAFNet（26.87）；两个基线 DualRAW 26.50、ReRAW 24.52。 核对数据和代码后有几处与报告不一致。除 TDMFNet 的 PSNR 外，Overall 列都等于「72 块已知设备 + 60 块 X90」的按图平均，与正文写的 120 / 60 张对不上；TDMFNet 的 Overall PSNR 按同一公式应为 24.90，表里写的是 26.30。DBNet 的 0.39M 超过了高效赛道 0.2M 的上限。ULite 发布代码构造矩阵真值时把蓝通道白平衡增益换成了绿通道的，还有两处取错矩阵元素。val / test 只公开 RGB，X90 和 S21 的 RAW 一张都没放出，排行榜无法离线复现。对专项来说，这是目前公开的唯一一份「iPhone 机内成片 ↔ 同次拍摄 Bayer RAW」逐像素对齐配对。用它可以训练和评测 iPhone X 的逆 ISP，也可以收集 iPhone X 的白点轨迹，给伪 iPhone RAW 当真实分布参照。局限也明显：2017 年的 12MP 机型，没有 ISO 和曝光元数据，每张图只放出约一半画幅。</p>
+  <div class="post-card__tags"><a class="tag-chip" href="../concepts/learned-isp.html">learned-isp</a> <a class="tag-chip" href="../concepts/raw-image.html">raw-image</a> <a class="tag-chip" href="../concepts/inverse-isp.html">inverse-isp</a> <span class="tag-chip tag-chip--more">+2</span></div>
+</article>
+</div>
+
+  <p class="back-link"><a href="../graph.html">← 返回图谱</a></p>
+</main>
+</body>
+</html>

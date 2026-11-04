@@ -58,6 +58,24 @@
 <article class="post-card post-card--paper">
   <div class="post-card__meta">
     <span class="post-card__badge">论文</span>
+    <span class="post-card__date"><span class="post-card__added">2026-11-03</span><span class="post-card__extra">约 60 分钟</span></span>
+  </div>
+  <h3 class="post-card__title"><a class="post-card__title-link" href="../papers/ntire25-raw-sr-2025/index.html">NTIRE 2025 RAW 复原与超分挑战赛报告：BSRAW 随机退化管线、两条赛道的数据与前几名方案，以及这条管线能不能用来造伪 iPhone RAW</a></h3>
+  <p class="post-card__tldr">维尔茨堡大学 Conde、Timofte 组织的 NTIRE 2025 挑战赛报告（CVPRW 2025）。两条赛道都在打包的 RGGB 四通道 RAW 上进行，训练输入都由组织者给的 BSRAW 退化管线在线合成。超分赛道做 2× 放大：训练集是 FiveK 里 Canon / Nikon 单反的 1064 张干净 1024×1024×4 图，测试 200 张。通用赛道第一是 USTC 的 LiteRAWFormer（精简版 RBSFormer，1.94M 参数，42.70 dB），之后依次是 SMFFRaw-L 42.60、三星 RawRTSR-L 42.58（0.26M）、ERBSFormer 42.45；高效赛道（≤0.2M）第一是 SMFFRaw-S（42.12）。复原赛道做去噪加去模糊：训练集是 2139 个 512×512×4 的干净手机块，按 Hugging Face 上的目录统计来自 iPhone X 162 张、Galaxy S9 79 张、Google Pixel 12 张、Vivo X90 39 张原图；测试集 140 块，按三档退化分别评分。三星 ERIRNet 两条子赛道都拿第一：通用版 46.04 / 42.25 / 40.10 dB（4.97M），高效版 45.10 / 40.82 / 38.46（0.19M），后者也比 1.5M 的基线 RawIR 高。指标是 RAW 域的 PSNR / SSIM。 公开的 BSRAW 管线在 mv-lab/AISP 的 imresutils 里，核心不到 80 行，比 BSRAW 论文写的简单得多：50% 概率模糊，核从 kernels.npy 里随机取，12 个核里只抽前 11 个（4 个各向同性高斯、4 个各向异性、3 条运动轨迹），同一个核作用于 4 个打包通道；下采样是打包平面上的 2×2 平均池化，这会让 R、G、B 互相错开半个 HR 像素，而且 down=True 这条路径返回的形状是错的；噪声一半是 shot-read 模型，shot 方差只在 1e-4 到 1e-3 之间（Unprocessing 的上限是 0.012），另一半是逐像素重新抽 σ 的异方差高斯，所以每张图的等效噪声水平都一样。论文里写的曝光退化、SIDD/DND 噪声 profile、二次 PSF，代码里都没有。冠军的代码重新分配了核的抽样概率、每张图必模糊、自然噪声占 70%，还加了 100 个额外 PSF。另外，它沿用了为马赛克数组设计的翻转，却用在打包数组上，结果打乱了 CFA 相位。报告本身也有几处问题：Table 1 的 2024 参照混用了 12MP 和 1MP 两列；正文写 Google Pixel 10，数据集卡片写 Pixel 7–9；公开的 val 输入和 test level 2 逐字节相同。对专项来说，这条管线可以沿用「线性 RAW 上先模糊、再下采样、再加噪」的顺序，以及在 dataloader 里在线合成的做法；模糊核、下采样和噪声三样都要换成 iPhone 的实测值，前面还要补一步颜色映射。复原赛道的数据里有 162 张 iPhone X 原图的干净 RAW 块（另有 97 张的低质量块）和对应的机内成片，但没有 ISO；超分赛道全是单反，没有 iPhone。</p>
+  <div class="post-card__tags"><a class="tag-chip" href="../concepts/raw-image.html">raw-image</a> <a class="tag-chip" href="../concepts/image-super-resolution.html">image-super-resolution</a> <a class="tag-chip" href="../concepts/denoising.html">denoising</a> <span class="tag-chip tag-chip--more">+4</span></div>
+</article>
+<article class="post-card post-card--paper">
+  <div class="post-card__meta">
+    <span class="post-card__badge">论文</span>
+    <span class="post-card__date"><span class="post-card__added">2026-11-03</span><span class="post-card__extra">约 40 分钟</span></span>
+  </div>
+  <h3 class="post-card__title"><a class="post-card__title-link" href="../papers/noisediff-2025/index.html">NoiseDiff：用条件扩散模型学一台相机的暗光 RAW 噪声，再用它造去噪训练对</a></h3>
+  <p class="post-card__tldr">EPFL IVRL 组的 TPAMI 论文（ICCP 2025）。在 SID 的 Sony α7S2 配对 RAW 上，把「放大后的短曝光 − 长曝光」当作噪声图，训练一个以干净图、像素坐标和 (ISO, 曝光比) 为条件的扩散模型，在打包 RAW 域生成噪声。三处改动：逐像素的 MLP 分支加上看不到干净图的 UNet 分支，位置编码用来学图像底部的低频偏移和条带，sigmoid 调度把末步噪声压低，避免 MMSE 去噪把方差压小。用生成数据训练的去噪器在 SID 上 43.30 / 40.53 / 37.68 dB（×100/×250/×300），高于同表 ELD、NoiseFlow 等不用暗场的方法；减掉暗场阴影、加 SNA 后的 NoiseDiff* 为 43.92 / 41.28 / 37.94。换到另一台 α7S2 拍的 ELD 测试集，不减暗场时 ×200 落后 ELD 物理模型 1.18 dB。DDPM 生成一个 512² 打包块要 43.6 s（A100）。对照代码：UNet 分支确实拿不到干净图；论文说是逐像素的 MLP 分支里其实有两层 3×3 卷积；训练目标先在黑电平处截断，再裁到 [0,1]；一半训练块被强制取自图像底部。官方代码、权重和 7 个设定共 47.5 GB 的合成噪声都已公开。</p>
+  <div class="post-card__tags"><a class="tag-chip" href="../concepts/raw-image.html">raw-image</a> <a class="tag-chip" href="../concepts/denoising.html">denoising</a> <a class="tag-chip" href="../concepts/data-synthesis.html">data-synthesis</a> <span class="tag-chip tag-chip--more">+3</span></div>
+</article>
+<article class="post-card post-card--paper">
+  <div class="post-card__meta">
+    <span class="post-card__badge">论文</span>
     <span class="post-card__date"><span class="post-card__added">2026-10-27</span><span class="post-card__extra">约 40 分钟</span></span>
   </div>
   <h3 class="post-card__title"><a class="post-card__title-link" href="../papers/raw-degradation-sr-2026/index.html">RAW 域退化模型：逐台手机标定 SR 核与噪声，再用逆处理数据训练真实手机超分</a></h3>
@@ -85,11 +103,11 @@
 <article class="post-card post-card--survey">
   <div class="post-card__meta">
     <span class="post-card__badge">调研</span>
-    <span class="post-card__date"><span class="post-card__added">2026-10-20</span><span class="post-card__extra">约 65 分钟</span></span>
+    <span class="post-card__date"><span class="post-card__added">2026-10-20</span><span class="post-card__extra">约 105 分钟</span></span>
   </div>
   <h3 class="post-card__title"><a class="post-card__title-link" href="../surveys/phone2camera-2026/index.html">手机照片 → 相机画质：细节与质感迁移调研（2017→2026）</a></h3>
-  <p class="post-card__tldr">专项「把 iPhone 照片（优先 Bayer RAW）在细节与质感上变成某台目标相机的效果」的入口调研。按六组覆盖本站精读的 16 篇：A 手机→单反画质（DPED / WESPE / PyNET / LiteISPNet / ISPW / DiffRAW / ISPDiffuser），B 用更好的光学拍真值（Zoom-to-Learn / RealSR），C RAW 域造数据（Unprocessing），D 跨相机颜色（C5），E 多帧（Handheld MFSR），F RAW 合成与跨相机 RAW 数据（RAW-Diffusion / RawGen / RAW-Degradation / MERIT + MDRAW）。逐篇给出核心贡献、方法、带数字的结果和代码位置，再用一张矩阵按输入域、监督、对齐、颜色/纹理是否分离、骨干、数据集、代码对比，写出一致与矛盾。代码交叉验证汇总各页发现，会直接影响复用的有：ISPDiffuser 发布版颜色一致性损失恒为 0、Canny 纹理损失无梯度、评测取 best-of-10；C5 的 apply_cst 原地覆盖导致 3×3 算错；ZRR 和 ISPW 都不提供单反 RAW；RawGen 发布版不加噪声，同一 XYZ 造出的伪 iPhone / 伪目标相机 RAW 只差一个 3×3；MERIT 的评测参考图按 GT 挑、默认噪声 profile 错配，在真实配对的 MDRAW 上与最强基线打平。F 组四篇共同指向一个结论：质感真值只能来自真实目标相机 RAW，输入端应由它反向合成（颜色矩阵 + 实测 iPhone SR 核 + 马赛克 + 实测噪声）。最后对照「物理颜色 + 多帧真实细节 + 强度可控的高频生成 + 目标相机 ISP 出图」这条管线，列出每一步的证据和缺口。</p>
-  <div class="post-card__tags"><a class="tag-chip" href="../concepts/learned-isp.html">learned-isp</a> <a class="tag-chip" href="../concepts/raw-image.html">raw-image</a> <a class="tag-chip" href="../concepts/phone-to-dslr.html">phone-to-dslr</a> <span class="tag-chip tag-chip--more">+9</span></div>
+  <p class="post-card__tldr">专项「把 iPhone 照片（优先 Bayer RAW）在细节与质感上变成某台目标相机的效果」的入口调研。按八组覆盖本站精读的 24 篇：A 手机→单反画质（DPED / WESPE / PyNET / LiteISPNet / ISPW / DiffRAW / ISPDiffuser），B 用更好的光学拍真值（Zoom-to-Learn / RealSR），C RAW 域造数据（Unprocessing），D 跨相机颜色（C5），E 多帧（Handheld MFSR），F RAW 合成与跨相机 RAW 数据（RAW-Diffusion / RawGen / RAW-Degradation / MERIT + MDRAW），G RGB→RAW 重建（ReRAW / RAW-Flow / Edit-aware RAW / NTIRE 2025 RGB→RAW 挑战赛），H RAW 退化建模：噪声、镜头、超分（Noise Modeling in One Hour / NoiseDiff / OmniLens++ / NTIRE 2025 RAW 复原与超分挑战赛）。逐篇给出核心贡献、方法、带数字的结果和代码位置，再用一张矩阵按输入域、监督、对齐、颜色/纹理是否分离、骨干、数据集、代码对比，写出一致与矛盾。代码交叉验证汇总各页发现，会直接影响复用的有：ISPDiffuser 发布版颜色一致性损失恒为 0、Canny 纹理损失无梯度、评测取 best-of-10；C5 的 apply_cst 原地覆盖导致 3×3 算错；ZRR 和 ISPW 都不提供单反 RAW；RawGen 发布版不加噪声，同一 XYZ 造出的伪 iPhone / 伪目标相机 RAW 只差一个 3×3；MERIT 的评测参考图按 GT 挑、默认噪声 profile 错配，在真实配对的 MDRAW 上与最强基线打平；PyNET、RAW-Diffusion、RAW-Flow、NTIRE 两份冠军/前列代码都在打包 RGGB 上直接翻转旋转，打乱 CFA 相位；BSRAW 公开管线的噪声范围比 Unprocessing 窄 12 倍，打包平面上的平均池化让四个通道错开半个像素。F、G 两组的六项学习式逆 ISP 工作，输出都是干净的条件均值，纹理来自输入照片，只能当颜色/色调逆 ISP；H 组说明噪声和镜头退化都要逐设备测，随机退化池只在「测试集由同一生成器合成」时才显得够用。合起来的结论：质感真值只能来自真实目标相机 RAW，输入端应由它反向合成（颜色矩阵 + 实测 iPhone SR 核 + 马赛克 + 实测噪声）。NTIRE 2025 的 iPhone X 数据是目前唯一公开的「iPhone 机内成片 ↔ 同次 Bayer RAW」像素对齐配对，可以当伪 iPhone RAW 的分布参照。最后对照「物理颜色 + 多帧真实细节 + 强度可控的高频生成 + 目标相机 ISP 出图」这条管线，列出每一步的证据和缺口。</p>
+  <div class="post-card__tags"><a class="tag-chip" href="../concepts/learned-isp.html">learned-isp</a> <a class="tag-chip" href="../concepts/raw-image.html">raw-image</a> <a class="tag-chip" href="../concepts/phone-to-dslr.html">phone-to-dslr</a> <span class="tag-chip tag-chip--more">+11</span></div>
 </article>
 <article class="post-card post-card--paper">
   <div class="post-card__meta">
@@ -121,7 +139,16 @@
 <article class="post-card post-card--paper">
   <div class="post-card__meta">
     <span class="post-card__badge">论文</span>
-    <span class="post-card__date"><span class="post-card__added">2024-11-20</span><span class="post-card__extra">约 40 分钟</span></span>
+    <span class="post-card__date"><span class="post-card__added">2026-11-03</span><span class="post-card__extra">约 45 分钟</span></span>
+  </div>
+  <h3 class="post-card__title"><a class="post-card__title-link" href="../papers/noise-one-hour-2025/index.html">Noise Modeling in One Hour：只拍暗场帧、按量子效率猜系统增益，合成低光 RAW 去噪训练数据</a></h3>
+  <p class="post-card__tldr">Sony Research 的 CVPR 2025 工作。合成低光 RAW 噪声通常要两道准备：用平场标定系统增益 K（决定散粒噪声有多重），再对暗场帧做统计分布或神经网络剖面（读出、行、量化等信号无关噪声）。本文两道都省掉：K 按「量子效率 × 模拟增益」直接猜，A7S2 上取 K = ISO/100 × 0.1；信号无关噪声不建模，每次从拍好的暗场帧里随机抽一张，减掉暗场帧均值（dark shading）后叠到泊松散粒噪声上，也不做高位深恢复。同一个 SID U-Net 在 SID / ELD 上平均 40.85 / 46.43 dB，与同期的 PNNP 打平（+0.02 / +0.04）；在 Redmi K30（IMX686）的 LRID 上 45.08 dB，比 PNNP 高 0.54，比真实配对训练的 PMN 高 0.11。每档 ISO 只用 10 张暗场帧，SID / ELD 只掉 0.05 / 0.12 dB。 对照代码和 issue 后发现：训练和合成代码因商业原因不公开，官方仓库只能复现评测；作者为 AIM 2025 挑战赛写的基线沿用了暗场帧采样，K 却改回平场标定；SID / ELD 评测减的是 PMN 发布的参数化暗影，两台不同的 A7S2 共用一份；「K = QE × AG」与 EMVA 1288 的增益定义对不上，0.1 这个系数实际贴着 A7S2 的标定值（差约 5%）。对专项来说，暗场帧采样可以照搬到 iPhone，但 iPhone 只暴露 ISO、不暴露模拟增益，要让合成噪声「像」，K 仍需用平场标定。</p>
+  <div class="post-card__tags"><a class="tag-chip" href="../concepts/raw-image.html">raw-image</a> <a class="tag-chip" href="../concepts/denoising.html">denoising</a> <a class="tag-chip" href="../concepts/data-synthesis.html">data-synthesis</a> <span class="tag-chip tag-chip--more">+3</span></div>
+</article>
+<article class="post-card post-card--paper">
+  <div class="post-card__meta">
+    <span class="post-card__badge">论文</span>
+    <span class="post-card__date"><span class="post-card__added">2026-10-27</span><span class="post-card__extra">约 40 分钟</span></span>
   </div>
   <h3 class="post-card__title"><a class="post-card__title-link" href="../papers/raw-diffusion-2024/index.html">RAW-Diffusion：用 RGB 引导的扩散模型把 sRGB 逆回指定相机的 RAW，几十张图就能训一台新机</a></h3>
   <p class="post-card__tldr">Sony AI 的 WACV 2025 工作。目标是给某一台相机批量造 RAW：拿同一台相机的 (RAW, sRGB) 对训练一个条件扩散模型，输入 sRGB，输出 4 通道打包的 RGGB RAW。RGB 先经一个 4 块的 EDSR 抽特征，再以 SPADE 式的逐像素 γ/β 调制注入 U-Net 的瓶颈和解码器；网络直接预测 x₀（预测噪声会崩到 5.55 dB），末层接 tanh，损失为 MSE + L1 + 对数 L1。四个单反数据集上 PSNR 全部第一（FiveK Nikon 30.05、NOD Nikon 44.93）；只用 25 张训练图时 PSNR 和全量持平；DDIM 6 步与 1000 步无差别。用 100 张 NOD 图训出的模型把 BDD100K 转成伪 RAW，Faster R-CNN 夜间检测 AP 从 18.2 提到 26.5。 代码核对发现几处论文没写的事：损失乘了 P2 权重 1−ᾱ_t；RGB 是 rawpy 默认参数从同一张 RAW 渲出来的，不是机内 JPEG；归一化时把黑电平以下的值截成 0。模型没有任何噪声建模或噪声控制，生成结果更接近「给定 RGB 的条件均值」。</p>

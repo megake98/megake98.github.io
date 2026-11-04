@@ -73,6 +73,15 @@
   <p class="post-card__tldr">NVIDIA + HK PolyU + Princeton + Nanjing + UIUC (arXiv 2026/05/27)。指出主流 VLM (Qwen3-VL / DeepSeek-VL2 / Rex-Omni) 输出 bbox 都把 4 个坐标当 token 序列 (x1, y1, x2, y2) 串行 next-token-predict——这是几何上耦合的 4-tuple 被人为序列化,既损精度又限吞吐。Parallel Box Decoding (PBD): 把整个 bbox (4 坐标 + 2 个 / 结构 token = 长度 L=6 的 atomic block) 一次性并行预测,而非逐 token 输出。block 内 bidirectional attention 让 4 个坐标互相看到,block 间 causal attention 保持自回归语义。关键 trick: 训练时把同一 GT 同时塞两种格式 (x_ntp + x_blk) 让模型 joint 学 NTP + MTP,通过 attention mask 让两条 stream 互不串话(都看 shared context 但 MTP block 看不到 NTP token 反之亦然)。推理三模式: Fast (纯 MTP),Slow (纯 NTP),Hybrid (默认 MTP,format 异常或 top-1 prob &lt; 0.7 时回退 NTP 重 decode 该 block)。LocateAnything-Data 138M queries / 12M images / 785M bbox 涵盖 detection + UI + referring + OCR + layout + pointing 6 大任务。结果: LocateAnything-3B 在 LVIS F1@0.95 上 31.1 (vs Qwen3-VL-8B 的 20.2 / Rex-Omni-3B 的 20.7),Throughput 12.7 BPS = 比 Qwen3-VL-8B 快 12.7×、比 Rex-Omni 快 2.5×。</p>
   <div class="post-card__tags"><a class="tag-chip" href="../concepts/detection.html">detection</a> <a class="tag-chip" href="../concepts/grounding.html">grounding</a> <a class="tag-chip" href="../concepts/vlm.html">vlm</a> <span class="tag-chip tag-chip--more">+3</span></div>
 </article>
+<article class="post-card post-card--paper">
+  <div class="post-card__meta">
+    <span class="post-card__badge">论文</span>
+    <span class="post-card__date"><span class="post-card__added">2026-11-03</span><span class="post-card__extra">约 50 分钟</span></span>
+  </div>
+  <h3 class="post-card__title"><a class="post-card__title-link" href="../papers/reraw-2025/index.html">ReRAW：感受野只有 4×4 的逐像素颜色网络，加两个看整图的 ResNet18，10 个 gamma 头混合出 RAW，训练块按亮度分层采样</a></h3>
+  <p class="post-card__tldr">Sony AI 的 CVPR 2025 工作，作者与 RAW-Diffusion 基本是同一批人。目标是把带标注的 RGB 数据集（BDD100K）批量转成某台相机的 RAW，给边缘端小检测器做预训练。网络很小也很「局部」：颜色重建网络只有一层 3×3 和一层 2×2 步长 2 的卷积，之后全是 1×1，每个 RAW 像素只看 4×4 个 RGB 像素；整图缩成 128×128 后由一个 ResNet18 产出 128 维向量逐通道乘上去，另一个 ResNet18 产出 10 个 softmax 权重，把 10 个分别在 γ=0.1…1 空间里预测的候选 RAW 反 gamma 后加权求和。损失是自定义的 hard-log。训练块每张图只取 6 个，按 RGB 块均值亮度分 10 档均匀抽，让亮块多进训练集。五个数据集上 ReRAW-S 的 PSNR 为 41.00 / 40.07 / 30.18 / 30.45 / 38.88 dB，在作者自己重跑的表里比 RAW-Diffusion 高 1.2–3.5 dB；但同一个 RAW-Diffusion 在它自己论文里的数字比这里高 1.0–5.1 dB。下游用 BDD 转出的 RAW 预训练、再在真实 RAW 上微调，比 RGB 管线高 0.4–1.9 mAP（RTMDet 在 PASCALRAW 上 +5.6），全是单次运行。 消融里收益最大的是全局上下文（+2.9–4.9 dB），多头 gamma 在夜景上只多 0.05 dB。代码（MIT，无权重）核对后：分层采样按亮度分档的窗口比实际存下来的块偏了半个块，最亮一档 [0.9, 1) 永远抽不到，空档和这一档都退回随机抽；中间头的损失权重是论文 Eq. 6 的 1/10；推理时两个 ResNet18 对每个 64×64 块各重算一遍。输出是确定性的干净 RAW，纹理逐像素来自输入照片，不带黑电平、不写 DNG。对专项来说它和 RAW-Diffusion、RAW-Flow 一样只能当颜色/色调逆 ISP，好处是 4×4 感受野从结构上保证它不改纹理；造检测预训练数据时它是这几种学习式逆 ISP 里最便宜的，噪声要另外加。</p>
+  <div class="post-card__tags"><a class="tag-chip" href="../concepts/learned-isp.html">learned-isp</a> <a class="tag-chip" href="../concepts/raw-image.html">raw-image</a> <a class="tag-chip" href="../concepts/inverse-isp.html">inverse-isp</a> <span class="tag-chip tag-chip--more">+4</span></div>
+</article>
 </div>
 
   <p class="back-link"><a href="../graph.html">← 返回图谱</a></p>

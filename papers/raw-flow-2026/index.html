@@ -1,0 +1,897 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <script>(function(){try{var t=localStorage.getItem('theme');if(!t)t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.setAttribute('data-theme',t);var r=JSON.parse(localStorage.getItem('reader')||'{}');['rw','rf','rl','rc'].forEach(function(k){if(r[k])document.documentElement.setAttribute('data-'+k,r[k]);});}catch(e){}})();</script>
+  <title>RAW-Flow：把 RGB→RAW 写成 6 通道潜空间里「从 RGB 潜变量出发」的确定性流匹配，每台相机一个模型</title>
+  <link rel="stylesheet" href="../../assets/style.css">
+  <script>
+    window.MathJax = { tex: { inlineMath: [['$','$'],['\\(','\\)']] } };
+  </script>
+  <script async src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-mml-chtml.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/highlight.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/highlightjs-line-numbers.js@2.9.0/dist/highlightjs-line-numbers.min.js"></script>
+  <script>document.addEventListener('DOMContentLoaded', () => { hljs.highlightAll(); hljs.initLineNumbersOnLoad(); });</script>
+  <script defer src="../../assets/lightbox.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const links = document.querySelectorAll('.toc a');
+      if (!links.length) return;
+      const map = new Map();
+      links.forEach(a => {
+        const el = document.getElementById(a.getAttribute('href').slice(1));
+        if (el) map.set(el, a);
+      });
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(e => {
+          const a = map.get(e.target);
+          if (!a) return;
+          if (e.isIntersecting) {
+            links.forEach(l => l.classList.remove('active'));
+            a.classList.add('active');
+            const toc = document.querySelector('.toc');
+            if (toc) toc.scrollTo({ top: a.offsetTop - toc.clientHeight / 2, behavior: 'smooth' });
+          }
+        });
+      }, { rootMargin: '-20% 0px -70% 0px' });
+      map.forEach((_, el) => observer.observe(el));
+    });
+    // reading progress bar
+    document.addEventListener('DOMContentLoaded', () => {
+      const bar = document.querySelector('.read-progress');
+      if (!bar) return;
+      const update = () => {
+        const h = document.documentElement;
+        const max = h.scrollHeight - h.clientHeight;
+        bar.style.transform = 'scaleX(' + (max > 0 ? h.scrollTop / max : 0) + ')';
+      };
+      update();
+      window.addEventListener('scroll', update, { passive: true });
+    });
+  </script>
+</head>
+<body>
+<div class="read-progress" aria-hidden="true"></div>
+<!-- NAV-START -->
+<nav class="site-nav" aria-label="主导航">
+  <a class="site-nav__brand" href="../../index.html" aria-label="返回主页">
+    <span class="site-nav__brand-mark" aria-hidden="true">P</span>
+    <span class="site-nav__brand-text">Paper Reading</span>
+  </a>
+  <div class="site-nav__links">
+    <a class="site-nav__link active" href="../../papers.html">论文</a>
+    <a class="site-nav__link" href="../../tutorials.html">教程</a>
+    <a class="site-nav__link" href="../../surveys.html">调研</a>
+    <a class="site-nav__link" href="../../graph.html">图谱</a>
+    <button type="button" class="site-nav__search-btn" id="search-open" aria-label="搜索" aria-expanded="false" aria-controls="search-modal">
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/>
+      </svg>
+      <span class="site-nav__search-label">搜索</span>
+      <kbd class="site-nav__kbd">⌘K</kbd>
+    </button>
+    <button type="button" class="site-nav__theme-btn site-nav__reader-btn" id="reader-toggle" aria-label="阅读设置" aria-expanded="false" aria-controls="reader-panel" hidden>Aa</button>
+    <button type="button" class="site-nav__theme-btn" id="theme-toggle" aria-label="切换深浅色主题">
+      <svg class="theme-icon theme-icon--moon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
+      <svg class="theme-icon theme-icon--sun" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+    </button>
+  </div>
+</nav>
+<div class="search-modal" id="search-modal" hidden data-pagefind-path="../../pagefind/">
+  <div class="search-modal__backdrop" data-search-close></div>
+  <div class="search-modal__panel" role="dialog" aria-modal="true" aria-label="全文搜索">
+    <button type="button" class="search-modal__close" data-search-close aria-label="关闭">✕</button>
+    <div id="search"></div>
+  </div>
+</div>
+<link href="../../pagefind/pagefind-ui.css" rel="stylesheet">
+<script defer src="../../pagefind/pagefind-ui.js"></script>
+<script defer src="../../assets/search.js"></script>
+<script defer src="../../assets/theme.js"></script>
+<script defer src="../../assets/reader.js"></script>
+<!-- NAV-END -->
+<nav class="toc" aria-label="目录">
+  <div class="toc-title">目录 / TOC</div>
+  <ul>
+    <li class="h2"><a href="#sec-1">1. 出发点：逆 ISP 的回归方法糊、扩散方法乱</a></li>
+    <li class="h2"><a href="#sec-2">2. 方法：两个自编码器 + 一条从 RGB 潜变量出发的直线流</a></li>
+    <li class="h3"><a href="#sec-2-1">2.1 数据：输入是 rawpy 从同一张 RAW 渲出来的全分辨率 RGB</a></li>
+    <li class="h3"><a href="#sec-2-2">2.2 双域潜空间自编码器：6 通道潜变量 + RGB 跳连</a></li>
+    <li class="h3"><a href="#sec-2-3">2.3 确定性潜空间流匹配：起点就是 RGB 潜变量</a></li>
+    <li class="h3"><a href="#sec-2-4">2.4 跨尺度上下文引导：其实是整张图的缩略图</a></li>
+    <li class="h3"><a href="#sec-2-5">2.5 三阶段训练：最后一段把流当成展开的回归网络</a></li>
+    <li class="h3"><a href="#sec-2-6">2.6 与 RAW-Diffusion 的设计取舍</a></li>
+    <li class="h2"><a href="#sec-3">3. 结论：作者重跑的表里三个数据集都是第一</a></li>
+    <li class="h3"><a href="#sec-3-1">3.1 主表</a></li>
+    <li class="h3"><a href="#sec-3-2">3.2 跨论文对照：同一批测试图，RAW-Diff 的数字差了 1.6–2.6 dB</a></li>
+    <li class="h3"><a href="#sec-3-3">3.3 定性结果</a></li>
+    <li class="h3"><a href="#sec-3-4">3.4 消融决策表</a></li>
+    <li class="h2"><a href="#sec-4">4. 实现细节与「论文 vs 代码」核对</a></li>
+    <li class="h2"><a href="#sec-5">5. 批判性总结</a></li>
+    <li class="h3"><a href="#sec-5-1">Strengths</a></li>
+    <li class="h3"><a href="#sec-5-2">Limitations / open questions</a></li>
+    <li class="h3"><a href="#sec-5-3">When to use / not use</a></li>
+    <li class="h3"><a href="#sec-5-4">延伸阅读：与相似工作的交叉验证</a></li>
+    <li class="h2"><a href="#sec-6">6. 研究启发：RAW-Flow 能不能成为更好的「颜色/色调逆 ISP」和造数据工具</a></li>
+    <li class="h3"><a href="#sec-6-1">6.1 专项关心的四个问题</a></li>
+    <li class="h3"><a href="#sec-6-2">6.2 造数据：专项内外的用途</a></li>
+    <li class="h3"><a href="#sec-6-3">6.3 可迁移的套路</a></li>
+    <li class="h3"><a href="#sec-6-4">1. 条件本身就是答案的近似时，把它当起点而不是当噪声的条件</a></li>
+    <li class="h3"><a href="#sec-6-5">2. 先查清真实的信息通路，再相信结构图</a></li>
+    <li class="h3"><a href="#sec-6-6">3. 切块推理的逆 ISP 需要一份整图摘要</a></li>
+    <li class="h3"><a href="#sec-6-7">4. 反直觉点：「确定性赢过随机」是基准决定的，不是方法决定的</a></li>
+    <li class="h3"><a href="#sec-6-8">5. 跨论文的 PSNR 不能直接比</a></li>
+  </ul>
+</nav>
+<main data-pagefind-body>
+<p class="post-kicker">论文</p>
+<h1>RAW-Flow：把 RGB→RAW 写成 6 通道潜空间里「从 RGB 潜变量出发」的确定性流匹配，每台相机一个模型</h1>
+<aside class="post-meta">
+  <div class="post-meta__row"><span class="post-meta__date">加入 <strong>2026-11-03</strong></span> · <span class="post-meta__paper-date">论文日期: 2026-01-28</span></div>
+  <div class="post-meta__row"><span class="post-meta__authors">Zhen Liu, Diedong Feng, Hai Jiang, Liaoyuan Zeng, Hao Wang, Chaoyu Feng, Lei Lei, Bing Zeng, Shuaicheng Liu（电子科技大学 · 四川大学 · 独立研究者）</span> · <span class="post-meta__venue">AAAI 2026 (Oral)</span></div>
+  <div class="post-meta__row post-meta__links"><a class="post-meta__link" href="https://arxiv.org/abs/2601.20364">arXiv:2601.20364</a> · <a class="post-meta__link" href="https://github.com/liuzhen03/RAW-Flow">项目页</a> · <a class="post-meta__link" href="https://github.com/liuzhen03/RAW-Flow">RAW-Flow</a> · <a class="post-meta__link" href="https://drive.google.com/drive/folders/1pUWOdyogxZSumnRCv9HcffCR4sl4Ue60">权重</a></div>
+  <div class="post-meta__row post-meta__concepts"><a class="concept-chip" href="../../concepts/learned-isp.html">learned-isp</a> <a class="concept-chip" href="../../concepts/raw-image.html">raw-image</a> <a class="concept-chip" href="../../concepts/inverse-isp.html">inverse-isp</a> <a class="concept-chip" href="../../concepts/data-synthesis.html">data-synthesis</a> <a class="concept-chip" href="../../concepts/phone-to-dslr.html">phone-to-dslr</a> <a class="concept-chip" href="../../concepts/flow-matching.html">flow-matching</a></div>
+</aside>
+<figure>
+  <img class="zoomable" src="figures/fig1-teaser.png" alt="RAW-Flow 与 UPI、CycleR2R、RAW-Diff 的重建 RAW 和误差图对比">
+  <figcaption><b>图 1（论文 Fig. 1）。</b>同一张输入 RGB（左上）逆回 RAW。每格的右下三角是重建出的 RAW（偏青是未做白平衡和 CCM 的线性 RAW 的正常样子），左上三角是与真值 RAW 的误差图，越暗越好。UPI、CycleR2R、RAW-Diff 的误差集中在地面的高光带和树影边缘，RAW-Flow 的误差图几乎全暗。注意这张图的 RGB 是 rawpy 用同一张 RAW 渲染出来的，不是相机 JPEG，§2.1 会说明这件事为什么重要。</figcaption>
+</figure>
+<blockquote>
+<p><strong>代码来源说明</strong>：论文首页给出官方仓库 <a href="https://github.com/liuzhen03/RAW-Flow">liuzhen03/RAW-Flow</a>，MIT 许可。本页行号对应 commit <code>ddddedf</code>（2026-06-08），<code>repo/</code> 即这份克隆。训练三阶段、评测、数据预处理都在仓库里。三份权重 <code>nikon_d700.pth</code>、<code>canon_eos_5d.pth</code>、<code>pascalraw.pth</code>（README 标每份约 350 MB）放在 Google Drive，2026-10-29 查看文件夹列表三个文件都在。README 另给的「预处理好的 FiveK Nikon 数据」文件夹，当天用 Drive 嵌入视图看没有列出任何文件。仓库的数据预处理（同一随机种子 2817、15% 测试、Canon 减 127、3×3 切块）和 <code>RGBGuidedResidualBlock</code> / <code>SPADEGroupNorm</code> 的结构、命名都与 <a class="wiki-link" data-slug="raw-diffusion-2024" href="../raw-diffusion-2024/index.html">raw-diffusion-2024</a> 的官方仓库（Apache-2.0）一致，README 没有提到这一来源。</p>
+</blockquote>
+<blockquote>
+<p><strong>专项定位</strong>：本页属于「手机照片 → 相机画质：细节与质感迁移」专项（入口：<a href="../../surveys/phone2camera-2026/index.html">phone2camera-2026 调研页</a>）。专项已经读过三种「sRGB → RAW」：<a class="wiki-link" data-slug="unprocessing-2018" href="../unprocessing-2018/index.html">unprocessing-2018</a> 手写逆 ISP 加噪声模型，<a class="wiki-link" data-slug="raw-diffusion-2024" href="../raw-diffusion-2024/index.html">raw-diffusion-2024</a> 像素空间条件扩散，<a class="wiki-link" data-slug="rawgen-2026" href="../rawgen-2026/index.html">rawgen-2026</a> 用 FLUX.1-Kontext 生成 XYZ 再经 DNG 矩阵落到任意相机。前两篇学习式方法的结论是「生成的是干净 RAW，纹理来自输入照片，只能当颜色/色调逆 ISP」。本页要回答 RAW-Flow 换成潜空间确定性流匹配之后，这个结论变没变。</p>
+</blockquote>
+<div class="summary-grid">
+  <div class="card"><h3>潜空间</h3><p>RGB、RAW 各一个小卷积自编码器，潜变量都是 1/8 RGB 分辨率、6 通道、过 sigmoid。RAW 解码器同时接 RGB 编码器的 1/2、1/4 两路跳连特征（§2.2）。</p></div>
+  <div class="card"><h3>确定性流</h3><p>起点是 RGB 潜变量，终点是 RAW 潜变量，直线插值，回归恒定速度 z₁ − z₀。推理 20 步欧拉积分，全程没有随机数（§2.3）。</p></div>
+  <div class="card"><h3>条件</h3><p>速度 U-Net 的每个残差块都用 SPADE 调制。调制特征来自另一个 U-Net，输入是整张图缩成 256×256 的缩略图，不是当前块（§2.4）。</p></div>
+  <div class="card"><h3>给本专项的结论</h3><p>RGB 的确定性函数，不带可控噪声、不建模镜头、每台相机单训。纹理经解码器跳连直接来自输入照片。能做的仍是颜色/色调逆 ISP（§6）。</p></div>
+</div>
+<h2 id="sec-1">1. 出发点：逆 ISP 的回归方法糊、扩散方法乱</h2>
+<p>RAW 比 sRGB 更适合做检测、低光增强、超分、去噪，但大规模、按传感器采的 RAW 数据集贵，RAW 文件也占存储。于是有了 RGB-to-RAW 重建：从容易拿到的 RGB 推回某台相机的 RAW（§Introduction）。</p>
+<p>论文把已有学习方法分成两类。一类按 ISP 的模块逐段逆，依赖曝光、白平衡等元数据，误差会逐段累积（UPI、CycleR2R、Conde 等）。另一类直接学端到端映射（InvISP、ReRAW、RAW-Diff），不需要元数据，但量化、截断后的 RGB 本来就丢了信息，逆问题是病态的，回归模型会出色偏和模糊的纹理。</p>
+<p>扩散模型表达力强，作者认为它不适合这个任务的原因有两条：一是要「通过带噪的中间状态学一个确定的、语义对齐的映射」很难，模型会过度依赖退化的 RGB 引导，Fig. 1 里 RAW-Diff 出现了结构失真；二是扩散通常要几百步去噪，太慢（§Introduction）。</p>
+<p>RAW-Flow 的回答是把问题搬到潜空间，用流匹配学一个<strong>从 RGB 潜变量直接流到 RAW 潜变量</strong>的确定性向量场。论文给出的理由是：「在固定相机和场景下，两个域之间的映射本来就是一对一的」（§DLFM）。这句话是全文的前提，§5 会回来检查它在什么条件下成立。</p>
+<div class="term-grid">
+  <div class="card"><h4>RGB-to-RAW / 逆 ISP</h4><p>从相机处理后的 8-bit RGB 推回传感器的线性 RAW。本文每台相机训一个模型，不读元数据。</p></div>
+  <div class="card"><h4>打包 RGGB</h4><p>把 Bayer 马赛克每个 2×2 块拆成 R、G₁、G₂、B 四个通道，分辨率减半。本文的 RAW 都是这种 4 通道图。</p></div>
+  <div class="card"><h4>流匹配 (flow matching)</h4><p>在两个分布的样本之间定义一条插值路径，让网络回归沿路径的速度；推理时沿速度场解常微分方程，把起点推到终点。</p></div>
+  <div class="card"><h4>确定性 FM / 随机 FM</h4><p>随机 FM 的起点是高斯噪声，靠条件把噪声变成数据；本文的确定性 FM 起点直接是配对的 RGB 潜变量，不采任何噪声。</p></div>
+  <div class="card"><h4>欧拉积分</h4><p>解微分方程最简单的办法：每一步按当前速度走一小段 Δt。本文 K = 20 步，Δt = 0.05。</p></div>
+  <div class="card"><h4>SPADE 调制</h4><p>先做归一化，再用条件特征图逐像素预测缩放 γ 和偏移 β。条件因此能在每一层、每个位置改写主干特征。</p></div>
+  <div class="card"><h4>DLAE / DLFM</h4><p>本文的两个模块名：双域潜空间自编码器（Dual-domain Latent Autoencoder）和确定性潜空间流匹配（Deterministic Latent Flow Matching）。</p></div>
+  <div class="card"><h4>rawpy 默认渲染</h4><p><code>raw.postprocess()</code> 不带参数时：不用拍摄白平衡也不做自动白平衡（dcraw 默认是按 D65 色卡定的固定白平衡），按直方图自动定白电平提亮（默认允许 1% 像素过曝），AHD 去马赛克，BT.709 gamma，8-bit sRGB。</p></div>
+  <div class="card"><h4>PSNR<sub>raw</sub> / PSNR<sub>rgb</sub></h4><p>前者在 4 通道打包 RAW 上算；后者论文称为「转换后的 RGB」，代码里其实是把两个 G 取平均后的 3 通道线性 RAW，不是 sRGB（§4 第 8 条）。</p></div>
+</div>
+<h2 id="sec-2">2. 方法：两个自编码器 + 一条从 RGB 潜变量出发的直线流</h2>
+<figure>
+  <img class="zoomable" src="figures/fig2-pipeline.png" alt="RAW-Flow 总体流程：RGB 编码器、RAW 编码器、流匹配 U-Net、跨尺度上下文引导、RAW 解码器">
+  <figcaption><b>图 2（论文 Fig. 2）。</b>训练时（红色箭头）RAW 编码器 ℰ<sub>raw</sub> 把真值 RAW 压成终点 z<sub>raw</sub>(z₁)，RGB 编码器 ℰ<sub>rgb</sub> 给出起点 z<sub>rgb</sub>(z₀)，两者线性插值得到 z<sub>t</sub>，橙色 U-Net 预测速度并和 z₁ − z₀ 比较。灰色的「跨尺度上下文引导」U-Net 把特征从下方注入速度网络。推理时从 z₀ 出发按欧拉公式走 K 步得到 ẑ<sub>raw</sub>，再由 𝒟<sub>raw</sub> 解码。这张图没画出两件事：灰色 U-Net 的输入在代码里是整张图的缩略图（§2.4）；𝒟<sub>raw</sub> 还接收 ℰ<sub>rgb</sub> 的跳连特征（§2.2，图 3 画了）。</figcaption>
+</figure>
+<h3 id="sec-2-1">2.1 数据：输入是 rawpy 从同一张 RAW 渲出来的全分辨率 RGB</h3>
+<p>论文只说「所有 RAW 用 RawPy 库处理得到对应的 RGB」（§Experimental Setting）。代码给出了具体做法：</p>
+<p class="code-source">repo/src/data/_processing/fivek_train.py:L92-L111 — rawpy 默认参数渲染；保留全分辨率 RGB（2X）；整张图另存 256² / 128² 缩略图；RAW 按固定位置拆成 RGGB</p>
+<pre><code class="language-python">    raw_file = rawpy.imread(raw_path)
+
+    rgb_img = raw_file.postprocess()
+    h, w, c = rgb_img.shape
+    bayer_image = raw_file.raw_image_visible
+
+    rgb_img_2x = rgb_img.astype(np.uint8)
+
+    rgb_img_1x = cv2.resize(
+        rgb_img, (w // 2, h // 2), interpolation=cv2.INTER_AREA
+    ).astype(np.uint8)
+
+    context_256 = cv2.resize(rgb_img, (256, 256), interpolation=cv2.INTER_AREA).astype(np.uint8)
+    context_128 = cv2.resize(rgb_img, (128, 128), interpolation=cv2.INTER_AREA).astype(np.uint8)
+
+    r_raw = bayer_image[0::2, 0::2][:, :, np.newaxis]
+    g1_raw = bayer_image[0::2, 1::2][:, :, np.newaxis]
+    g2_raw = bayer_image[1::2, 0::2][:, :, np.newaxis]
+    b_raw = bayer_image[1::2, 1::2][:, :, np.newaxis]
+    rggb_img = np.concatenate([r_raw, g1_raw, g2_raw, b_raw], axis=-1)
+</code></pre>
+<p>几点要先说清：</p>
+<ul>
+<li><strong>RGB 是同一张 RAW 的 rawpy 默认渲染。</strong> 默认参数下没有降噪、没有锐化、没有局部色调映射；白平衡对每台相机是固定的（dcraw 的 D65 色卡白平衡，不是拍摄时的 AsShotNeutral）；亮度按整张图的直方图自动拉伸。所以 RGB 里保留着和 RAW 同一份传感器噪声，只是经过了去马赛克、gamma 和 8-bit 量化。这和 <a class="wiki-link" data-slug="raw-diffusion-2024" href="../raw-diffusion-2024/index.html">raw-diffusion-2024</a> 的设置相同。</li>
+<li><strong>RGB 用全分辨率（<code>rgb_size: &quot;2X&quot;</code>），这一点和 RAW-Diffusion 不同。</strong> RAW-Diffusion 把 RGB 面积下采样 2 倍，使它和打包 RAW 同尺寸；RAW-Flow 保留全分辨率，再在编码器入口用 <code>pixel_unshuffle</code> 把每个 2×2 块折进通道（<code>repo/src/models/DLAE.py:L141-L152</code>）。输入 RGB 的像素数是 RAW-Diffusion 的 4 倍，与 Bayer 网格逐像素对齐。</li>
+<li><strong>整张图额外存一份 256×256 缩略图</strong>，宽高比不保留（FiveK 的 4256×2832 被压成正方形），给 §2.4 的条件网络用。</li>
+<li><strong>训练块</strong>：每张图先切 3×3 块存盘，训练时再从块里随机裁 256×256 的打包 RAW（对应 512×512 的 RGB），加随机翻转和 <code>rot90</code>（<code>repo/src/data/transforms.py:L181-L224</code>）。</li>
+<li><strong>归一化</strong>：RAW 除以写死的白电平（Nikon D700 16383、Canon EOS 5D 4095、PASCALRAW 4095），黑电平记为 0，Canon 在预处理时先减 127 再截到 0（<code>repo/src/data/camera.py:L12-L16</code>，<code>repo/src/data/_processing/fivek_train.py:L124-L125</code>），最后截到 [0,1] 再映射到 [−1,1]（<code>repo/src/data/patch_dataset.py:L188-L235</code>）。</li>
+</ul>
+<p>数据集：FiveK 里 Nikon D700 590 张、Canon EOS 5D 777 张，PASCALRAW（Nikon D3200）取一个子集，都按 85/15 随机划分。代码里 PASCALRAW 的划分文件是 510 / 90 张（<code>repo/data/PASCALRAW_splits/</code>），即 600 张的子集；完整的 PASCALRAW 有 4259 张 12-bit RAW。FiveK 的划分逻辑（按路径排序后 <code>train_test_split(test_size=0.15, random_state=2817)</code>，<code>repo/src/data/_processing/fivek_train.py:L220-L225</code>）和 RAW-Diffusion 的 <code>datasets/fivek_process.py:L184-L187</code> 一样，按代码推断两篇用的是同一批测试图：Nikon 训练 501 张、测试 89 张，Canon 训练 660 张、测试 117 张。</p>
+<h3 id="sec-2-2">2.2 双域潜空间自编码器：6 通道潜变量 + RGB 跳连</h3>
+<figure>
+  <img class="zoomable" src="figures/fig3-dlae.png" alt="DLAE：RGB 自编码器与 RAW 自编码器，特征对齐损失连接两者的编码器">
+  <figcaption><b>图 3（论文 Fig. 3）。</b>上面是 RGB 自编码器，下面是 RAW 自编码器，各有重建损失。中间的 ℒ<sub>fea</sub> 把 RAW 编码器的浅层特征 f<sub>l</sub><sup>raw</sup> 拉向 RGB 编码器的 f<sub>l</sub><sup>rgb</sup>。注意从 ℰ<sub>rgb</sub> 指向 𝒟<sub>raw</sub> 的绿色箭头：RAW 解码器解码时也用 RGB 编码器的特征。</figcaption>
+</figure>
+<p>作者发现直接在 RAW 上训自编码器不稳定，像素损失训出来的 RAW 重建「感知上不准」。DLAE 的办法是两个自编码器联合训练，并加一项特征对齐：</p>
+<div class="math block">
+\[\mathcal{L}_{\text{fea}}=\sum_{l\in S}\big\lVert f^{\text{raw}}_l-f^{\text{rgb}}_l\big\rVert_2^2\]
+</div>
+<p class="math-translation">—— 翻译: 在选定的几层 S 上，让 RAW 编码器的中间特征尽量等于 RGB 编码器同一层的特征。同一个场景的两种编码在浅层应该长得差不多，深层再各自保留域特有的信息。</p>
+<div class="math block">
+\[\mathcal{L}^{\text{rgb}}_{\text{rec}}=\lVert\tilde I_{\text{rgb}}-I_{\text{rgb}}\rVert_2^2+\lambda_1\lVert\phi(\tilde I_{\text{rgb}})-\phi(I_{\text{rgb}})\rVert_2^2,\qquad \mathcal{L}_{\text{raw}}=\mathcal{L}^{\text{raw}}_{\text{rec}}+\lambda_2\,\mathcal{L}_{\text{fea}}\]
+</div>
+<p class="math-translation">—— 翻译: 两个自编码器都用「像素 L2 + VGG 感知损失」重建自己的输入；RAW 那一支再加上特征对齐项。λ₁ = 0.01，λ₂ = 0.1。</p>
+<p>结构上，编码器是两级残差块 + 两次步长 2 的下采样，最后用 <code>channel_down</code> 压成 6 通道并过 sigmoid（<code>repo/src/models/DLAE.py:L47-L59, L121-L152, L187-L217</code>）。以 512×512 的 RGB 块为例：<code>pixel_unshuffle</code> 后是 256×256×12，第一次下采样得到 128×128×192 的 <code>fea2</code>，第二次得到 64×64×384 的 <code>fea4</code>，再压成 64×64×6 的潜变量。RAW 编码器从 256×256×4 出发，形状一样。</p>
+<p>关键在 RAW 那一支的前向：</p>
+<p class="code-source">repo/src/models/DLAE.py:L304-L332 — RAW 自编码器：对齐损失作用在 fea2 和 fea4 上；解码时用的是 RGB 编码器的 fea2 / fea4，RAW 编码器自己的中间特征只参与对齐</p>
+<pre><code class="language-python">    def forward(self, x, target=None, rgb_features=None, rgb_latent=None):
+        output = {}
+
+        latent, raw_fea2, raw_fea4 = self.encode(x)
+        output['latent'] = latent
+        output['raw_fea2'] = raw_fea2
+        output['raw_fea4'] = raw_fea4
+
+        feature_loss = 0.0
+
+        if rgb_features is not None:
+            rgb_fea2, rgb_fea4 = rgb_features
+
+            fea2_loss = self.l2_loss(rgb_fea2, raw_fea2)
+            fea4_loss = self.l2_loss(rgb_fea4, raw_fea4)
+
+            feature_loss = fea2_loss + fea4_loss
+
+            output['fea2_loss'] = fea2_loss
+            output['fea4_loss'] = fea4_loss
+            output['feature_loss'] = feature_loss
+
+        if rgb_features is not None:
+            rgb_fea2, rgb_fea4 = rgb_features
+
+            recon_img = self.decode(latent, rgb_fea2, rgb_fea4)
+            output['use_rgb_features'] = True
+
+        output['recon_img'] = recon_img
+</code></pre>
+<p>RAW 解码器把 <code>fea4</code> 加到潜变量上采样后的 64×64 特征上、把 <code>fea2</code> 加到 128×128 特征上，末层 tanh（<code>repo/src/models/DLAE.py:L238-L250</code>）。第一阶段训练时，这两路 RGB 特征在 <code>torch.no_grad()</code> 下由 RGB 编码器算出再喂给 RAW 自编码器（<code>repo/scripts/train_stage1_ae.py:L43-L55</code>），推理时同样从 RGB 编码器拿（<code>repo/src/models/rawflow.py:L75-L95</code>）。</p>
+<p>算一下各条通路的信息量：一个 256×256 的打包 RAW 块有 26.2 万个数；潜变量 64×64×6 只有 2.5 万个；而 RGB 跳连 <code>fea2</code> + <code>fea4</code> 合计 128²×192 + 64²×384 ≈ 472 万个数，是潜变量的 190 倍。所以「RAW 潜变量」在这里是一个很窄的瓶颈，解码器的空间细节主要由 RGB 跳连提供。这和 <a class="wiki-link" data-slug="ispdiffuser-2025" href="../ispdiffuser-2025/index.html">ispdiffuser-2025</a> §6 第 3 条说的「跳连泄漏」是同一种结构，那篇也出自刘帅成组（姜海、刘帅成为两篇共同作者）。论文正文提到「RGB 编码器的浅层特征注入 RAW 解码器的对应层」，但图 2 的推理路径没有画出来，也没有讨论这条旁路的容量。</p>
+<h3 id="sec-2-3">2.3 确定性潜空间流匹配：起点就是 RGB 潜变量</h3>
+<p>常见的（随机）流匹配从高斯噪声出发：</p>
+<div class="math block">
+\[z_t=t\,z_1+(1-t)\,\epsilon,\qquad \epsilon\sim\mathcal{N}(0,I),\ t\in[0,1]\]
+</div>
+<p class="math-translation">—— 翻译: 在噪声 ε 和数据 z₁ 之间画一条直线，t 从 0 走到 1 就从噪声走到数据。条件只能通过网络输入告诉它「该走到哪个数据」。</p>
+<p>RAW-Flow 把起点换成配对的 RGB 潜变量：</p>
+<div class="math block">
+\[z_t=t\,z_1+(1-t)\,z_0,\qquad z_0=\mathcal{E}_{\text{rgb}}(I_{\text{rgb}}),\ z_1=\mathcal{E}_{\text{raw}}(I_{\text{raw}})\]
+</div>
+<p class="math-translation">—— 翻译: 直线的两端都是同一个场景的编码，一端是 RGB 的，一端是 RAW 的。路径上的点不含任何随机性。</p>
+<div class="math block">
+\[\mathcal{L}_{\text{flow}}=\mathbb{E}_{t\sim U(0,1)}\big\lVert\hat v_\theta(z_t,t)-(z_1-z_0)\big\rVert^2\]
+</div>
+<p class="math-translation">—— 翻译: 网络看到路径上的某个点和时间 t，要猜出这条直线的方向和长度 z₁ − z₀。直线上处处速度相同，所以目标对每个 t 都一样。</p>
+<div class="math block">
+\[z_{k+1}=z_k+\Delta t\cdot\hat v_\theta(z_k,t_k),\qquad z_0=z_{\text{rgb}},\ \Delta t=\tfrac{1}{K},\ K=20\]
+</div>
+<p class="math-translation">—— 翻译: 推理时从 RGB 潜变量出发，每步按预测的速度走 1/20，走 20 步就到了 RAW 潜变量 ẑ<sub>raw</sub>，再交给 RAW 解码器。</p>
+<p>一个数值例子：某个潜变量元素在 RGB 端是 0.30、RAW 端是 0.50，目标速度就是 0.20。如果网络在每个 t 都准确输出 0.20，20 步每步走 0.01，正好到 0.50；其实一步走 0.20 也一样到。这说明了一件事：配对、一对一、直线插值时，理想的速度场沿每条路径是常数，<strong>一步欧拉就等价于在潜空间做残差回归</strong> z₁ ≈ z₀ + v̂(z₀, 0)。多走几步的价值在于网络预测不准时可以逐步修正。论文没有报告 K 的消融，所以我们不知道 20 步比 1 步多出多少。</p>
+<p>代码与 Eq. 3–5 逐项对得上：</p>
+<p class="code-source">repo/src/models/DLFM.py:L24-L50 — 训练：起点取 RGB 潜变量（mode='rgb_latent'），直线插值，MSE 回归速度 x₁ − x₀；条件网络的输入优先用 context</p>
+<pre><code class="language-python">    def compute_loss(self, x_1, t, rgb_latent, context=None, coordinates=None):
+
+        cond_input = context if self.use_context and context is not None else rgb_latent
+
+        cond_output, cond_features = self.cond_unet(cond_input, coordinates)
+
+        if self.mode == 'noise':
+
+            x_0 = torch.randn_like(x_1)
+        elif self.mode == 'rgb_latent':
+
+            x_0 = rgb_latent
+
+        t = t[:, None, None, None]
+        x_t = (1 - t) * x_0 + t * x_1
+        target_velocity = x_1 - x_0
+
+        predicted_velocity = self.model(x_t, t.squeeze(-1).squeeze(-1).squeeze(-1), cond_features)
+
+        fm_loss = F.mse_loss(predicted_velocity, target_velocity)
+
+        if self.use_cond_loss and cond_output is not None:
+            cond_loss = F.mse_loss(cond_output, x_1)
+        else:
+            cond_loss = torch.tensor(0.0, device=fm_loss.device)
+
+        return fm_loss, cond_loss
+</code></pre>
+<p class="code-source">repo/src/models/DLFM.py:L52-L78 — 推理：条件特征只算一次；从 RGB 潜变量出发，t ∈ {0, 0.05, …, 0.95} 做 20 步欧拉</p>
+<pre><code class="language-python">    def sample_ode(self, shape, rgb_latent, num_steps=50, context=None, coordinates=None):
+        device = next(self.model.parameters()).device
+
+        cond_input = context if self.use_context and context is not None else rgb_latent
+
+        cond_output, cond_features = self.cond_unet(cond_input, coordinates)
+
+        if self.mode == 'noise':
+
+            x_t = torch.randn(shape, device=device)
+
+        elif self.mode == 'rgb_latent':
+
+            x_t = rgb_latent
+
+        dt = 1.0 / num_steps
+        t_values = torch.linspace(0, 1, num_steps + 1, device=device)[:-1]
+
+        for i in range(num_steps):
+            t = t_values[i].expand(shape[0]).float()
+            velocity = self.model(x_t, t, cond_features)
+            x_t = x_t + dt * velocity
+            if torch.isnan(x_t).any() or torch.isinf(x_t).any():
+                print(f&quot;Warning: NaN or Inf detected at step {i}&quot;)
+                break
+
+        return x_t, cond_output
+</code></pre>
+<p><code>num_steps</code> 的默认值 50 在发布配置里被覆盖成 20（<code>repo/configs/stage2_flow/fivek_nikon.yaml:L37</code>，<code>repo/src/models/rawflow_wrapper.py:L104</code>）。<code>cond_loss</code> 和 <code>FusionModule</code>（一个交叉注意力融合块，<code>repo/src/models/fusion.py:L44-L82</code>）在所有发布配置里都关着，论文也没有提到它们。</p>
+<h3 id="sec-2-4">2.4 跨尺度上下文引导：其实是整张图的缩略图</h3>
+<p>论文的描述（Eq. 6）：先用几个残差块抽取输入 RGB 的特征，再经一个 U-Net 编码器得到多尺度特征 {f<sub>i</sub><sup>rgb</sup>}，逐尺度注入流匹配 U-Net 的对应层，「每个尺度的特征为对应层提供空间对齐的引导」。</p>
+<div class="math block">
+\[\hat v_\theta\big(z_t,\,t\ \big|\ \{f^{\text{rgb}}_i\}_{i=1}^{L}\big)\]
+</div>
+<p class="math-translation">—— 翻译: 速度网络除了看当前点 z<sub>t</sub> 和时间 t，还在每个分辨率上看一份 RGB 特征，用它来判断该往哪个方向推。</p>
+<p>注入方式和 RAW-Diffusion 一样是 SPADE：速度 U-Net 的每个残差块都是 <code>RGBGuidedResidualBlock</code>，归一化后用条件特征逐位置预测 γ、β：</p>
+<p class="code-source">repo/src/models/dual_unet.py:L38-L57 — SPADEGroupNorm：条件特征尺寸不符时最近邻插值，再逐像素预测 γ / β</p>
+<pre><code class="language-python">class SPADEGroupNorm(nn.Module):
+    def __init__(self, norm_nc, label_nc, normalization_fn, eps=1e-5):
+        super().__init__()
+        self.norm = normalization_fn(norm_nc)
+        self.mlp_shared = nn.Sequential(
+            nn.Conv2d(label_nc, 128, kernel_size=3, padding=1),
+            nn.ReLU()
+        )
+        self.mlp_gamma = nn.Conv2d(128, norm_nc, kernel_size=3, padding=1)
+        self.mlp_beta = nn.Conv2d(128, norm_nc, kernel_size=3, padding=1)
+        self.eps = eps
+
+    def forward(self, x, cond):
+        x = self.norm(x)
+        if cond.shape[2:] != x.shape[2:]:
+            cond = F.interpolate(cond, size=x.shape[2:], mode=&quot;nearest&quot;)
+        actv = self.mlp_shared(cond)
+        gamma = self.mlp_gamma(actv)
+        beta = self.mlp_beta(actv)
+        return x * (1 + gamma) + beta
+</code></pre>
+<p>和 RAW-Diffusion 的同名模块相比（该仓库 <code>rawdiffusion/models/layer.py:L122-L145</code>），这里的 GroupNorm 带仿射参数、卷积换成普通 <code>Conv2d</code>、插值从双线性改成最近邻，骨架相同。</p>
+<p>但条件特征的<strong>来源</strong>和论文描述不一样。<code>DLFM.py:L26</code> 写的是 <code>cond_input = context if self.use_context ... else rgb_latent</code>，而第二、三阶段和推理配置都设 <code>use_context: 256</code>（<code>repo/configs/stage2_flow/fivek_nikon.yaml:L9</code>，<code>repo/configs/stage3_finetune/fivek_nikon.yaml:L9</code>）。context 是 §2.1 里那张整图缩略图。评测包装器也是先把整张图缩成 256×256，再切块：</p>
+<p class="code-source">repo/src/models/rawflow_wrapper.py:L283-L298 — 推理：整张 RGB 缩成 256² 当 context，原图切成 512² 的块逐块推理，最后按位置拼回</p>
+<pre><code class="language-python">    def forward(self, rgb_img):
+        if rgb_img.dim() == 4 and rgb_img.shape[0] == 1:
+            rgb_img = rgb_img.squeeze(0)
+        if rgb_img.device != self.device:
+            rgb_img = rgb_img.to(self.device)
+
+        context_rgb = self._resize_context_rgb(rgb_img)
+        rgb_patches, positions = self._split_image_into_patches(rgb_img, self.patch_size, self.overlap)
+
+        rgb_patches_norm = self.normalize_input(rgb_patches)
+        context_rgb_norm = self.normalize_input(context_rgb)
+        raw_patches_norm = self._process_patches(rgb_patches_norm, context_rgb_norm)
+        raw_patches = self.denormalize_output(raw_patches_norm)
+
+        raw_output_shape = (4, rgb_img.shape[1] // 2, rgb_img.shape[2] // 2)
+        return self._stitch_patches(raw_patches, positions, raw_output_shape)
+</code></pre>
+<p>缩略图先经两层步长 2 的卷积变成 64×64×6（<code>repo/src/models/dual_unet.py:L345-L355</code>），再过一个带注意力的完整 U-Net（编码器、中间层、解码器都有），输出 64、32、16、16、16、32、64 七个尺度的特征（<code>repo/src/models/dual_unet.py:L569-L647</code>），一一对应速度 U-Net 的七组残差块（<code>repo/src/models/dual_unet.py:L921-L973</code>）。</p>
+<p>这带来一个几何上的错位：速度 U-Net 处理的是当前 512×512 块的 64×64 潜变量，SPADE 却按位置用「整张图 64×64 缩略特征」去调制它。块内位置 (i, j) 拿到的是整张图位置 (i, j) 的特征，和块的内容并不对应；代码里有坐标嵌入（<code>CoordAwareResidualBlock</code>）可以告诉网络当前块在哪，但配置里 <code>use_coordinate: false</code>。所以这个模块实际提供的是<strong>图像级的全局信息</strong>（整体亮度、色调、场景类别），而不是「空间对齐的引导」。论文消融（表 4）把对照组写作「single-scale global context」，可见作者知道它是全局的；方法一节的描述则容易让人以为它看的是当前块。当前块自己的内容只通过两条路进模型：起点 z₀，和解码器的 RGB 跳连。</p>
+<h3 id="sec-2-5">2.5 三阶段训练：最后一段把流当成展开的回归网络</h3>
+<p>论文写的是两阶段加一段端到端微调：先训 DLAE（200 epoch），再冻结 DLAE 训 DLFM（100 epoch），最后受 REPA-E 启发把整个框架端到端微调，损失为</p>
+<div class="math block">
+\[\mathcal{L}=\lVert\hat I_{\text{raw}}-I_{\text{raw}}\rVert_1+\lambda_3\lVert\phi(\hat I_{\text{raw}})-\phi(I_{\text{raw}})\rVert_2^2,\qquad \lambda_3=0.01\]
+</div>
+<p class="math-translation">—— 翻译: 端到端阶段不再看速度，直接比较最终解码出的 RAW 和真值 RAW：像素 L1 加一点 VGG 感知损失。</p>
+<p>发布代码的第三阶段损失多了两项：</p>
+<p class="code-source">repo/src/models/rawflow.py:L98-L123 — 端到端损失：L1 + L2 + logL1 + 0.01·VGG；hard_log_loss 算了但没有用</p>
+<pre><code class="language-python">        if raw_target is not None:
+
+            l1_loss = self.l1_loss(pred_raw_img, raw_target)
+            outputs['l1_loss'] = l1_loss
+
+            l2_loss = self.l2_loss(pred_raw_img, raw_target)
+            outputs['l2_loss'] = l2_loss
+
+            eps = 1e-8
+            log_pred = torch.log(torch.clamp((pred_raw_img + 1) / 2, min=eps))
+            log_target = torch.log(torch.clamp((raw_target + 1) / 2, min=eps))
+            log_l1_loss = F.l1_loss(log_pred, log_target)
+            outputs['log_l1_loss'] = log_l1_loss
+
+            raw_hard_log_loss = self.hard_log_criterion((pred_raw_img + 1) / 2, (raw_target + 1) / 2)
+
+            if pred_raw_img.shape[1] == 4:
+                pred_rgb = rggb_to_rgb(pred_raw_img)
+                target_rgb = rggb_to_rgb(raw_target)
+                perceptual_loss = self.perceptual_loss(pred_rgb, target_rgb)
+            else:
+                perceptual_loss = self.perceptual_loss(pred_raw_img, raw_target)
+            outputs['perceptual_loss'] = perceptual_loss
+
+            total_loss = l1_loss + l2_loss + log_l1_loss + 0.01 * perceptual_loss
+            outputs['total_loss'] = total_loss
+</code></pre>
+<p>「L1 + L2 + 对数 L1」正是 RAW-Diffusion 的三项像素损失组合（见该页 §2.5）。这一阶段的前向会把 20 步欧拉积分完整展开并反传（<code>repo/src/models/rawflow.py:L75-L95</code>），RAW 编码器不再参与，流匹配目标 Eq. 4 也不再出现。也就是说，最终发布的模型是「RGB 编码器 → 20 次共享权重的 U-Net 迭代 → RAW 解码器」，用像素损失端到端训出来的确定性网络。前两阶段的流匹配起的是初始化作用。</p>
+<p>按发布配置推算训练量（FiveK Nikon，501 张训练图 × 9 块 = 4509 个样本/epoch）：第一阶段 300 epoch、batch 8，约 17 万步；第二阶段 200 epoch、batch 8，约 11 万步；第三阶段 100 epoch、batch 1、学习率 4e-6，约 45 万步，每步展开 20 次 U-Net（<code>repo/configs/stage1_ae/fivek_nikon.yaml:L15-L17</code>，<code>repo/configs/stage2_flow/fivek_nikon.yaml:L15-L17</code>，<code>repo/configs/stage3_finetune/fivek_nikon.yaml:L15-L17</code>）。论文只写了 DLAE 200 epoch、DLFM 100 epoch、RTX 4090，没有报告第三阶段的 epoch、训练时长、参数量和推理耗时。</p>
+<h3 id="sec-2-6">2.6 与 RAW-Diffusion 的设计取舍</h3>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th><a class="wiki-link" data-slug="raw-diffusion-2024" href="../raw-diffusion-2024/index.html">raw-diffusion-2024</a></th>
+<th>RAW-Flow</th>
+<th>取舍</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>生成空间</td>
+<td>像素空间（打包 RGGB）</td>
+<td>6 通道潜空间（1/8 RGB 分辨率），外加 RGB 跳连</td>
+<td>潜空间让速度网络在 64×64 上做全局注意力；代价是需要先训自编码器，且细节依赖跳连</td>
+</tr>
+<tr>
+<td>起点</td>
+<td>高斯噪声，x₀ 预测</td>
+<td>RGB 潜变量，直线到 RAW 潜变量</td>
+<td>起点就带着答案的大部分，网络只需学残差方向</td>
+</tr>
+<tr>
+<td>随机性</td>
+<td>有初始噪声，但 DDIM 2 步≈1000 步，几乎确定</td>
+<td>完全没有</td>
+<td>两者在 PSNR 目标下都退化成条件回归；RAW-Flow 把这一点做成了设计</td>
+</tr>
+<tr>
+<td>输入 RGB 分辨率</td>
+<td>面积下采样 2×，与打包 RAW 同尺寸</td>
+<td>全分辨率，pixel_unshuffle 折进通道</td>
+<td>RAW-Flow 能看到每个 Bayer 位置对应的 RGB 像素，这本身就可能贡献部分 PSNR</td>
+</tr>
+<tr>
+<td>条件注入</td>
+<td>EDSR 抽当前块特征，SPADE 注入瓶颈和解码器</td>
+<td>整图缩略图经 U-Net，SPADE 注入速度网络全部层；当前块信息走 z₀ 和解码器跳连</td>
+<td>RAW-Flow 多了图像级全局信息，RAW-Diffusion 每块独立推理</td>
+</tr>
+<tr>
+<td>步数</td>
+<td>DDIM 6–24 步（6 步无损）</td>
+<td>欧拉 20 步，未消融</td>
+<td>论文说扩散「通常需要几百步」，但 RAW-Diffusion 实际只用 6–24 步，速度优势并不成立</td>
+</tr>
+<tr>
+<td>损失</td>
+<td>MSE + L1 + logL1，乘 P2 权重</td>
+<td>三阶段：AE 的 L2 + VGG + 对齐；FM 的速度 MSE；端到端 L1 + L2 + logL1 + VGG</td>
+<td>RAW-Flow 端到端阶段沿用了 RAW-Diffusion 的像素损失组合</td>
+</tr>
+<tr>
+<td>训练流程</td>
+<td>一阶段</td>
+<td>三阶段，第三阶段展开 20 步反传</td>
+<td>更复杂，复现成本更高</td>
+</tr>
+<tr>
+<td>每台相机的数据量</td>
+<td>论文表 2：25 张即与全量持平</td>
+<td>只用全量训练（501–660 张），没有少样本实验</td>
+<td>换新相机要多少数据，RAW-Flow 没给证据</td>
+</tr>
+</tbody>
+</table>
+<h2 id="sec-3">3. 结论：作者重跑的表里三个数据集都是第一</h2>
+<h3 id="sec-3-1">3.1 主表</h3>
+<figure>
+  <img class="zoomable" src="figures/tab1-main.png" alt="表 1：FiveK-Nikon、FiveK-Canon、PASCALRAW 上各方法的 RAW 域与 RGB 域 PSNR/SSIM">
+  <figcaption><b>表 1（论文 Table 1）。</b>三个测试集上的 PSNR / SSIM，全分辨率计算。上半是回归方法，中间是扩散方法，最后一行是本文。粗体最好，下划线第二。论文称所有基线都用官方代码和默认设置在同一硬件上重跑。「rgb」两列在代码里是 G 取平均后的 3 通道线性 RAW（§4 第 8 条）。</figcaption>
+</figure>
+<p>RAW 域 PSNR，以及本文相对几个代表性基线的差值：</p>
+<table>
+<thead>
+<tr>
+<th>数据集</th>
+<th>本文</th>
+<th>RAW-Diff</th>
+<th>ReRAW-S</th>
+<th>CycleISP</th>
+<th>InvISP</th>
+<th>UPI</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>FiveK-Nikon</td>
+<td><strong>30.79</strong></td>
+<td>26.96（+3.83）</td>
+<td>28.04（+2.75）</td>
+<td>26.41（+4.38）</td>
+<td>26.94（+3.85）</td>
+<td>25.55（+5.24）</td>
+</tr>
+<tr>
+<td>FiveK-Canon</td>
+<td><strong>32.55</strong></td>
+<td>31.84（+0.71）</td>
+<td>31.76（+0.79）</td>
+<td>29.96（+2.59）</td>
+<td>28.32（+4.23）</td>
+<td>27.24（+5.31）</td>
+</tr>
+<tr>
+<td>PASCALRAW</td>
+<td><strong>37.62</strong></td>
+<td>29.54（+8.08）</td>
+<td>37.29（+0.33）</td>
+<td>34.89（+2.73）</td>
+<td>28.47（+9.15）</td>
+<td>26.26（+11.36）</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>Nikon 上领先最明显：比第二名 ReRAW 高 2.75 dB（RAW 域），RGB 列高约 3 dB。</li>
+<li>Canon 和 PASCALRAW 上 PSNR 领先不到 1 dB，<strong>SSIM 并不是最好的</strong>：Canon 的 SSIM<sub>raw</sub> 是 RAW-Diff 最高（0.9571 vs 本文 0.9445），PASCALRAW 的 SSIM<sub>raw</sub> 是 ReRAW-S 最高（0.9854 vs 0.9831）。</li>
+<li>表里有一处很可疑：PASCALRAW 上 RAW-Diff 只有 29.54，比最朴素的 UNet（33.87）还低 4.3 dB，也比它自己在 FiveK-Canon 上的表现差得多。论文没有解释，可能是这个基线在 PASCALRAW 上没有调好。</li>
+<li>每个数字都是单次结果，没有种子方差。</li>
+</ul>
+<h3 id="sec-3-2">3.2 跨论文对照：同一批测试图，RAW-Diff 的数字差了 1.6–2.6 dB</h3>
+<p>两篇 FiveK 的划分代码相同（§2.1），可以把 RAW-Diffusion 论文自报的数字拿来对照。RAW-Diffusion 的指标是 G 取平均后的 3 通道 PSNR，对应本文的 PSNR<sub>rgb</sub> 列；它按 3×3 切块评估、3 个种子取均值，本文按整图评估。</p>
+<table>
+<thead>
+<tr>
+<th>方法</th>
+<th>数据集</th>
+<th>RAW-Diffusion 论文自报</th>
+<th>RAW-Flow 表 1（PSNR<sub>rgb</sub>）</th>
+<th>差</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>RAW-Diff</td>
+<td>FiveK-Nikon</td>
+<td>30.05</td>
+<td>27.46</td>
+<td>−2.59</td>
+</tr>
+<tr>
+<td>RAW-Diff</td>
+<td>FiveK-Canon</td>
+<td>34.01</td>
+<td>32.41</td>
+<td>−1.60</td>
+</tr>
+<tr>
+<td>UPI</td>
+<td>FiveK-Nikon</td>
+<td>27.66</td>
+<td>25.79</td>
+<td>−1.87</td>
+</tr>
+<tr>
+<td>UPI</td>
+<td>FiveK-Canon</td>
+<td>30.68</td>
+<td>27.46</td>
+<td>−3.22</td>
+</tr>
+<tr>
+<td>本文</td>
+<td>FiveK-Nikon</td>
+<td>—</td>
+<td>31.28</td>
+<td>比 RAW-Diff 自报高 1.23</td>
+</tr>
+<tr>
+<td>本文</td>
+<td>FiveK-Canon</td>
+<td>—</td>
+<td>33.30</td>
+<td>比 RAW-Diff 自报低 0.71</td>
+</tr>
+</tbody>
+</table>
+<p>同一方法在两篇论文里差 1.6–3.2 dB，说明评测口径（整图还是切块、黑电平处理、RGB 分辨率、是否截断）对绝对值影响很大，跨论文比数字不可靠。按各自口径看，RAW-Flow 在 Nikon 上可能确实更好，在 Canon 上则未必超过 RAW-Diffusion。两篇方法的排序在 RAW-Flow 的表里是统一重跑得出的，这是它的主要证据，但重跑设置（RAW-Diff 用了半分辨率 RGB 还是全分辨率、如何整图拼接）论文没有交代。</p>
+<h3 id="sec-3-3">3.3 定性结果</h3>
+<figure>
+  <img class="zoomable" src="figures/fig4-qualitative.png" alt="三个数据集上各方法的重建 RAW 与误差图">
+  <figcaption><b>图 4（论文 Fig. 4）。</b>每个数据集两行：第一行左格是输入 RGB，第二行左格是真值 RAW；其余格右下三角是重建 RAW，左上三角是误差图（越暗越好）。FiveK-Canon 那只猫上，InvISP 和 DDPM 出现大片绿色、青色误差（颜色估错）；PASCALRAW 的地面高光处，UPI、CycleR2R、RAW-Diff 都有亮色误差块。本文的误差图在三组里都最暗。</figcaption>
+</figure>
+<h3 id="sec-3-4">3.4 消融决策表</h3>
+<figure>
+  <img class="zoomable" src="figures/tab2-dlae-ablation.png" alt="表 2：DLAE 的 RGB 特征注入与特征对齐损失消融">
+  <figcaption><b>表 2（论文 Table 2）。</b>DLAE 消融，只在 FiveK-Nikon 上做。左两列是自编码器本身的 RAW 重建，右两列是整个系统最终的重建。只用 z<sub>raw</sub> 时自编码器只有 20.08 dB，加 RGB 跳连到 25.36，再加 ℒ<sub>fea</sub> 到 32.94。</figcaption>
+</figure>
+<figure>
+  <img class="zoomable" src="figures/tab3-4-dlfm-guidance.png" alt="表 3：确定性流匹配与扩散、随机流匹配对比；表 4：跨尺度上下文与单尺度、RGB 潜变量引导对比">
+  <figcaption><b>表 3、表 4（论文 Table 3、4）。</b>上：把 DLFM 换成扩散变体或从高斯噪声出发的随机 FM。下：把跨尺度上下文换成单尺度全局上下文（参数量相当的残差网络）或直接用 RGB 潜变量当条件。两张表都只在 FiveK-Nikon / Canon 上做。</figcaption>
+</figure>
+<figure>
+  <img class="zoomable" src="figures/fig6-ablation-visual.png" alt="图 6：DLFM 与跨尺度引导消融的可视化">
+  <figcaption><b>图 6（论文 Fig. 6）。</b>上排：扩散、随机 FM、DLFM 的误差图，前两者在人物衣服、背景处有斑块状误差。下排：只用 RGB 潜变量当条件时整张图误差发亮（作者称之为「全局亮度偏移」），单尺度上下文在高饱和招牌处仍有大块误差，跨尺度上下文最暗。</figcaption>
+</figure>
+<table>
+<thead>
+<tr>
+<th>组件</th>
+<th>起点</th>
+<th>消融方向</th>
+<th>最终选择</th>
+<th>为什么</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>RAW 解码器的输入</td>
+<td>只用 z<sub>raw</sub></td>
+<td>+ RGB 跳连 f<sub>rgb</sub>；+ ℒ<sub>fea</sub></td>
+<td>两者都加</td>
+<td>自编码器重建 20.08 → 25.36 → 32.94。6 通道潜变量单独装不下 RAW 的细节，跳连补上了；对齐损失让 RAW 编码器的潜变量更「像 RGB」，和 RGB 跳连配得更好。但系统最终 PSNR 是 29.19 → 28.48 → 30.79，<strong>只加跳连反而掉了 0.71 dB</strong>，且只用 z<sub>raw</sub> 的最终结果（29.19）比它自己的自编码器上限（20.08）高 9 dB，说明第三阶段重训了解码器，自编码器质量并不构成上限，这张表很难归因</td>
+</tr>
+<tr>
+<td>流的起点</td>
+<td>高斯噪声（随机 FM）</td>
+<td>改为 RGB 潜变量</td>
+<td>RGB 潜变量</td>
+<td>30.79 / 32.55 vs 27.32 / 22.74。按发布代码的 <code>noise</code> 模式推断，随机 FM 变体的速度网络只看得到整图缩略图的条件，看不到当前块，当前块信息只剩解码器跳连，所以 Canon 上掉到 22.74。这个差距一部分来自「起点带不带当前块信息」，不全是「确定性 vs 随机」（推断，论文没写随机 FM 变体的条件配置）</td>
+</tr>
+<tr>
+<td>生成框架</td>
+<td>扩散</td>
+<td>改为确定性 FM</td>
+<td>确定性 FM</td>
+<td>30.79 / 32.55 vs 28.30 / 28.79。论文没说扩散变体用多少步、预测什么目标、是否也在潜空间。和 RAW-Diffusion 自报的数字（30.05 / 34.01）相比，这个「扩散」基线明显偏弱</td>
+</tr>
+<tr>
+<td>条件来源</td>
+<td>RGB 潜变量（与当前块对齐）</td>
+<td>单尺度全局上下文；跨尺度全局上下文</td>
+<td>跨尺度（整图缩略图 + U-Net）</td>
+<td>28.50 / 28.37 → 29.04 / 28.43 → 30.79 / 32.55。<strong>与块对齐的局部条件最差，全局缩略图最好</strong>。一个合理的解释是 rawpy 默认的亮度拉伸按整张图直方图决定，单看一个块推不出这个缩放系数，必须看全图（推断）</td>
+</tr>
+<tr>
+<td>采样步数 K</td>
+<td>—</td>
+<td>未消融</td>
+<td>20</td>
+<td>论文没有给 K 的消融。§2.3 指出理想情况下一步就够，20 步的必要性没有被证明</td>
+</tr>
+</tbody>
+</table>
+<h2 id="sec-4">4. 实现细节与「论文 vs 代码」核对</h2>
+<ol>
+<li><strong>跨尺度上下文的输入是整张图的 256² 缩略图，不是当前块。</strong> <code>cond_input = context if self.use_context ...</code>（<code>repo/src/models/DLFM.py:L26, L55</code>），配置 <code>use_context: 256</code>（<code>repo/configs/stage2_flow/fivek_nikon.yaml:L9</code>），缩略图由预处理直接把整图 resize 成正方形（<code>repo/src/data/_processing/fivek_train.py:L104</code>），推理时由包装器现算（<code>repo/src/models/rawflow_wrapper.py:L205-L221</code>）。坐标嵌入存在但关闭。论文方法一节写的是「空间对齐的引导」，与代码不符。</li>
+<li><strong>训练和推理的缩略图做法不同。</strong> 训练用 <code>cv2.resize(..., INTER_AREA)</code> 在 uint8 上缩，推理用 <code>F.interpolate(..., mode='bilinear', align_corners=False)</code> 在浮点全分辨率图上缩、没有抗混叠（<code>repo/src/models/rawflow_wrapper.py:L214-L219</code>）。从 4000 多像素宽缩到 256 时，双线性不抗混叠会有明显混叠，条件分布存在训练/测试偏差。</li>
+<li><strong>RAW 解码器永远吃 RGB 跳连，6 通道潜变量只是窄瓶颈。</strong> 解码器把 RGB 编码器的 <code>fea4</code>（64²×384）和 <code>fea2</code>（128²×192）逐层相加（<code>repo/src/models/DLAE.py:L238-L250</code>），推理同样如此（<code>repo/src/models/rawflow.py:L95</code>）。<code>RawAE.forward</code> 在 <code>rgb_features is None</code> 时根本没有给 <code>recon_img</code> 赋值，会抛 <code>UnboundLocalError</code>（<code>repo/src/models/DLAE.py:L326-L332</code>），所以表 2 第一行「只用 z<sub>raw</sub>」的配置用发布代码复现不了。</li>
+<li><strong>ℒ<sub>fea</sub> 对齐的是 <code>fea2</code> 和 <code>fea4</code></strong>（<code>repo/src/models/DLAE.py:L314-L324</code>）。<code>fea4</code> 是压缩成潜变量前最深的一层特征，和论文说的「浅层」不一致。RGB 特征在 <code>no_grad</code> 下计算（<code>repo/scripts/train_stage1_ae.py:L43-L44</code>），对齐只拉 RAW 编码器。</li>
+<li><strong>端到端损失多了 L2 和 logL1。</strong> 代码是 L1 + L2 + logL1 + 0.01·VGG（<code>repo/src/models/rawflow.py:L122</code>），论文 Eq. 9 只有 L1 + λ₃·VGG。VGG 感知损失在代码里是 VGG19 五个块特征的 <strong>L1</strong>，输入先缩到 224×224（<code>repo/src/models/DLAE.py:L74-L119</code>），论文写的是平方 L2。RAW 的感知损失在 G 取平均后的线性 RAW 上算，没有 gamma。<code>hard_log_loss</code> 算了但没进总损失（<code>repo/src/models/rawflow.py:L112</code>）。</li>
+<li><strong>训练轮数、调度器与论文不符。</strong> 配置是第一阶段 300、第二阶段 200、第三阶段 100 epoch（<code>repo/configs/stage1_ae/fivek_nikon.yaml:L15</code>，<code>repo/configs/stage2_flow/fivek_nikon.yaml:L15</code>，<code>repo/configs/stage3_finetune/fivek_nikon.yaml:L15</code>），论文写 DLAE 200、DLFM 100。论文说学习率用 Reduce-on-Plateau 衰减，整个仓库里没有任何学习率调度器；第一阶段配置里的 <code>patience: 5</code> 没有被读取使用。</li>
+<li><strong>验证集就是测试集，checkpoint 按测试 PSNR 选。</strong> 三个阶段的 <code>file_list_val</code> 都指向 <code>*_test.txt</code>（如 <code>repo/configs/stage1_ae/fivek_nikon.yaml:L6</code>），训练器每个 epoch 在它上面算 PSNR，最好的存成 <code>best_model.pth</code>（<code>repo/src/engine/trainer.py:L164-L168, L198-L220</code>，<code>repo/src/engine/checkpoint.py:L6-L13</code>）。第二阶段加载第一阶段的 <code>best_model.pth</code>，第三阶段却加载两个阶段最后一个 epoch 的 <code>checkpoint.pth</code>（<code>repo/configs/stage2_flow/fivek_nikon.yaml:L27</code>，<code>repo/configs/stage3_finetune/fivek_nikon.yaml:L27-L28</code>），两段用的自编码器权重可能不是同一份。加载一律 <code>strict=False</code>，键名对不上时会静默跳过。</li>
+<li><strong>「RGB 域」指标不是 sRGB。</strong> 评测时 <code>rgb</code> 一栏是 <code>rggb_to_rgb</code>（R、(G₁+G₂)/2、B）后的线性 3 通道图（<code>repo/scripts/evaluate.py:L128-L133</code>，<code>repo/src/models/utils.py:L12-L20</code>）。论文表 1 的说明写的是「对应的转换后 RGB 输出」，读者容易以为是渲染后的图像。PSNR<sub>rgb</sub> 普遍比 PSNR<sub>raw</sub> 高 0.1–1.1 dB，主要是两个 G 平均掉了一部分误差。</li>
+<li><strong>数据渲染、CFA、电平全部写死。</strong> RGB 用 rawpy 默认参数（<code>repo/src/data/_processing/fivek_train.py:L94</code>），论文只说「用 RawPy 处理」。<code>[0::2, 0::2]</code> 固定当 R（<code>L107-L111</code>），三台相机的白电平写死、黑电平记 0（<code>repo/src/data/camera.py:L12-L16</code>），截断到 [0,1]（<code>repo/src/data/patch_dataset.py:L229</code>）。Canon 先减 127 再截到 0，黑电平以下的读出噪声被截掉。换新相机要改代码，不能读 DNG 元数据。</li>
+<li><strong>增强打乱 Bayer 相位。</strong> 随机翻转和 <code>rot90</code> 直接作用在打包 RGGB 上，不交换通道（<code>repo/src/data/transforms.py:L60-L66, L92-L98</code>），和 RAW-Diffusion 的问题一样（见该页 §4 第 7 条）。全分辨率 RGB 按像素翻转，打包 RAW 的四个通道却保持原名，两者的亚像素对应关系在增强后不再一致。</li>
+<li><strong>整图推理靠切块直接覆盖拼接。</strong> 512×512 的块、16 像素重叠，后写的块覆盖先写的，没有加权融合（<code>repo/configs/eval/fivek_nikon.yaml:L13-L14</code>，<code>repo/src/models/rawflow_wrapper.py:L133-L203</code>）。每块要跑 20 次速度 U-Net，一张 4256×2832 的 FiveK 图按这个规则切成 54 块，即一千多次 U-Net 前向，论文没有报告耗时。</li>
+<li><strong>代码来自 RAW-Diffusion。</strong> FiveK 预处理的种子、比例、Canon 减 127、3×3 切块（对照 RAW-Diffusion 仓库 <code>datasets/fivek_process.py:L32, L120, L184-L187</code>）和 SPADE 残差块都一致，第三阶段的像素损失组合也相同。README 没有致谢或注明来源。</li>
+</ol>
+<p>论文中能对上号的部分：Eq. 3 的直线插值与 Eq. 4 的速度 MSE（<code>repo/src/models/DLFM.py:L37-L43</code>）、Eq. 5 的欧拉积分与 K = 20（<code>L67-L73</code>）、λ₁ = 0.01、λ₂ = 0.1（<code>repo/configs/stage1_ae/fivek_nikon.yaml:L34-L36</code>）、第二阶段冻结 DLAE（<code>repo/scripts/train_stage2_flow.py:L32-L47</code>）、Adam、初始学习率 1e-4。</p>
+<h2 id="sec-5">5. 批判性总结</h2>
+<h3 id="sec-5-1">Strengths</h3>
+<ul>
+<li><strong>把「起点就是条件」的流匹配用在逆 ISP 上，而且代码、配置、三台相机的权重都公开了。</strong> 推理过程完全确定，同一张 RGB 每次得到同一份 RAW，便于复现和下游对比。</li>
+<li><strong>在作者统一重跑的基准上，三个数据集的 PSNR 都是第一</strong>，FiveK-Nikon 上领先 2.75 dB。</li>
+<li><strong>表 4 给出了一个有用的发现：图像级全局信息对逆 ISP 很重要。</strong> 整图缩略图当条件比与块对齐的 RGB 潜变量高 2.3–4.2 dB。这对所有「切块推理」的逆 ISP 都有借鉴意义（§6 卡片 3）。</li>
+<li><strong>用全分辨率 RGB 当输入</strong>，pixel_unshuffle 后与 Bayer 网格逐像素对齐，比把 RGB 下采样到打包 RAW 尺寸保留了更多信息。</li>
+</ul>
+<h3 id="sec-5-2">Limitations / open questions</h3>
+<ul>
+<li><strong>「一对一映射」的前提只在这个基准里成立。</strong> 训练和测试 RGB 都是 rawpy 默认参数从同一张 RAW 渲染的：无降噪、无锐化、固定白平衡，RGB 里留着和 RAW 同一份噪声。这时 RGB → RAW 确实几乎是一对一的（只差量化和截断），确定性模型占优在意料之中。换成相机 JPEG、手机 HEIC（自动白平衡、局部色调映射、多帧降噪、锐化），同一张 RGB 对应的 RAW 是一个分布，论文的立论就不成立了，而这类输入完全没有测试。</li>
+<li><strong>「生成式」名不副实。</strong> 没有任何随机采样，第三阶段又用像素损失把 20 步展开端到端训练，最终模型是一个迭代式确定性回归网络。论文没有和「同样结构、一步回归」的基线比，也没有 K 的消融，无法区分收益来自流匹配，还是来自全分辨率输入、全局缩略图和 RGB 跳连这些非流匹配的设计。</li>
+<li><strong>方法描述和代码有实质出入</strong>：条件网络的输入、解码器的 RGB 跳连容量、端到端损失、训练轮数、学习率调度（§4）。</li>
+<li><strong>评测口径问题</strong>：checkpoint 在测试集上选；只有 PSNR/SSIM，没有噪声水平函数、功率谱这类反映 RAW 统计的指标；单次结果无方差；基线数字与原论文差 1.6–3.2 dB，PASCALRAW 上 RAW-Diff 低于 UNet，重跑设置不透明。</li>
+<li><strong>没有下游验证。</strong> 论文开头用检测、低光、超分、去噪来说明 RAW 的价值，但没有做任何「用生成的 RAW 训练下游模型」的实验。RAW-Diffusion 做了检测下游，ReRAW 的标题本身就面向检测。</li>
+<li><strong>每台相机单独训练，没有少样本或跨相机实验</strong>；推理成本（每 512 块 20 次 U-Net）和参数量都没报告。</li>
+<li><strong>消融只在 FiveK 上</strong>，表 2 只有 Nikon，且第三阶段重训让自编码器的贡献难以归因。</li>
+</ul>
+<h3 id="sec-5-3">When to use / not use</h3>
+<ul>
+<li><strong>适合</strong>：手上有某台相机足够多的 (RAW, 同一条已知渲染管线的 RGB) 对，需要一个确定性、可复现、颜色和色调准确的逆映射，把这条渲染管线输出的图逆回这台相机的线性 RAW；或者需要一个比 RAW-Diffusion 推理更稳定（无随机性）的基线。</li>
+<li><strong>不适合</strong>：输入是相机 JPEG、手机成片或网络图片这类渲染管线未知的图（用 <a class="wiki-link" data-slug="rawgen-2026" href="../rawgen-2026/index.html">rawgen-2026</a> 的多对一思路更对路）；需要可控传感器噪声的数据合成（去噪、暗光）；需要目标相机真实光学质感的任务（超分、细节迁移）；需要「一个模型覆盖多台相机」的场景。</li>
+</ul>
+<h3 id="sec-5-4">延伸阅读：与相似工作的交叉验证</h3>
+<table>
+<thead>
+<tr>
+<th>工作</th>
+<th>核心结论</th>
+<th>关键观察</th>
+<th>与本文的异 / 同</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>本文</td>
+<td>潜空间确定性流匹配 + 全局缩略图条件，RGB→RAW 重建 PSNR 第一</td>
+<td>局部对齐条件不如全局缩略图；随机 FM、扩散变体都更差；RAW 解码器靠 RGB 跳连</td>
+<td>—</td>
+</tr>
+<tr>
+<td><a class="wiki-link" data-slug="raw-diffusion-2024" href="../raw-diffusion-2024/index.html">raw-diffusion-2024</a></td>
+<td>像素空间条件扩散，25 张图即可学会一台相机的逆 ISP</td>
+<td>DDIM 2 步≈1000 步，扩散几乎退化成回归；没有噪声建模，纹理来自输入 RGB</td>
+<td>同：同一套数据管线（代码直接复用）、同样的 SPADE 注入和像素损失、同样每台相机一个模型、同样不建模噪声和镜头。异：RAW-Flow 把「几乎确定」变成「完全确定」，加了全局缩略图和全分辨率输入；RAW-Diffusion 做了少样本和检测下游，RAW-Flow 没做</td>
+</tr>
+<tr>
+<td><a class="wiki-link" data-slug="rawgen-2026" href="../rawgen-2026/index.html">rawgen-2026</a></td>
+<td>多对一训练数据（同一锚点配多种修图风格）让逆 ISP 对未知修图稳健，换相机走 DNG 矩阵</td>
+<td>同骨干只用一对一数据时与 CIE XYZ Net 持平，收益来自数据构造</td>
+<td>同：都不加噪声，输出是干净 RAW，纹理来自输入照片。异：RawGen 正面处理「同一 RGB 对应多种渲染」的歧义，RAW-Flow 把一对一当前提；RawGen 换相机不重训，RAW-Flow 每台相机重训</td>
+</tr>
+<tr>
+<td><a class="wiki-link" data-slug="unprocessing-2018" href="../unprocessing-2018/index.html">unprocessing-2018</a></td>
+<td>手写五步逆 ISP + 按 ISO 采样的泊松-高斯噪声，足以训出真实噪声去噪 SOTA</td>
+<td>噪声模型贡献最大</td>
+<td>同：目标都是「某台相机的 RAW」。异：RAW-Flow 在表 1 上比 UPI 高 5.2–11.4 dB，但完全没有噪声项；Unprocessing 颜色粗，却给出了可控的物理噪声。两者互补</td>
+</tr>
+<tr>
+<td><a class="wiki-link" data-slug="ispdiffuser-2025" href="../ispdiffuser-2025/index.html">ispdiffuser-2025</a></td>
+<td>灰度潜空间扩散补纹理，颜色交给直方图模块（RAW→sRGB 方向）</td>
+<td>解码器从 RAW 编码器接两路高维跳连，「颜色只来自 HCCM」被架空</td>
+<td>同一个组的工作，出现了同一种结构：潜变量很窄、跳连很宽。两篇都需要警惕「声称的信息通路」和「真实的信息通路」不一致</td>
+</tr>
+</tbody>
+</table>
+<p><strong>分歧的成因</strong>：几篇工作对「生成模型在 RGB→RAW 里起什么作用」的不同答案，根源在<strong>输入 RGB 怎么来的</strong>。RAW-Diffusion 和 RAW-Flow 的 RGB 是同一张 RAW 经固定参数渲染的，答案几乎唯一，最优解就是条件均值，越确定越好，所以 RAW-Flow 的确定性设计在这个基准上赢。RawGen 面对的是未知修图，答案不唯一，它的收益来自让训练数据覆盖这种歧义。Unprocessing 的下游是去噪，在乎的是噪声统计，所以它干脆用物理模型显式加噪。同一个任务名下，三种评测目标得出三种「最优设计」。</p>
+<p><strong>相关工作</strong>：ReRAW（Berdan 等，CVPR 2025，本文表 1 最强的回归基线，作者与 RAW-Diffusion 基本重合）用多头集成生成多个 RAW 假设，标题即面向边缘端目标检测；InvISP（Xing 等，CVPR 2021）用可逆网络同时学正逆 ISP；<a class="wiki-link" data-slug="merit-2026" href="../merit-2026/index.html">merit-2026</a>（跨相机 RAW→RAW，带传感器噪声损失）；<a class="wiki-link" data-slug="raw-degradation-sr-2026" href="../raw-degradation-sr-2026/index.html">raw-degradation-sr-2026</a>（逐设备实测 PSF 和噪声）。</p>
+<h2 id="sec-6">6. 研究启发：RAW-Flow 能不能成为更好的「颜色/色调逆 ISP」和造数据工具</h2>
+<h3 id="sec-6-1">6.1 专项关心的四个问题</h3>
+<table>
+<thead>
+<tr>
+<th>问题</th>
+<th>论文 / 代码给出的事实</th>
+<th>结论</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>生成的 RAW 带不带传感器噪声</td>
+<td>推理全程无随机数（<code>repo/src/models/DLFM.py:L59-L73</code>，<code>mode='rgb_latent'</code>）；没有 ISO、噪声参数输入；损失全是像素级（L1、L2、logL1、VGG）。训练 RGB 本身带着与 RAW 同一份噪声，网络可以经 RGB 跳连把它「抄」过去</td>
+<td>输出是给定 RGB 的条件均值。输入 RGB 有多少噪声、什么样的噪声，输出就残留多少，而且<strong>不可控</strong>。输入是降噪过的手机成片时，输出会比真实 RAW 干净得多。要真实噪声，必须在输出上按目标相机的 (shot, read) 参数显式加噪（<a class="wiki-link" data-slug="unprocessing-2018" href="../unprocessing-2018/index.html">unprocessing-2018</a> Eq. 1–3），并接受输出里还残留着源图的噪声</td>
+</tr>
+<tr>
+<td>是否建模镜头空间特性</td>
+<td>没有 PSF、OLPF、暗角、色差任何一项；解码器的空间细节主要来自 RGB 编码器的高维跳连（§2.2）；增强还打乱了 Bayer 相位（§4 第 10 条）</td>
+<td>输出的锐度、模糊、光晕全部继承自输入照片，而且比 RAW-Diffusion 更直接：RAW-Diffusion 的 RGB 只经过 4 个残差块的引导模块调制，RAW-Flow 的 RGB 特征直接相加进解码器。不能当作目标相机的质感真值</td>
+</tr>
+<tr>
+<td>能否迁移到新相机，要多少数据</td>
+<td>每台相机一个模型（三份权重分别对应三台相机）；黑白电平、CFA 写死；训练集 501–660 张，没有少样本实验；三阶段训练，第三阶段每步展开 20 次 U-Net</td>
+<td>不能零样本迁移。换相机要改代码、重跑三阶段。RAW-Diffusion 的表 2 说明这类逆映射几十张图可能就够，但 RAW-Flow 的三阶段结构和更大的模型在 MDRAW 这种百张量级（尼康 Z5 114 张、iPhone 98 张）上会不会过拟合，没有证据，需要自己测</td>
+</tr>
+<tr>
+<td>能否作为更好的颜色/色调逆 ISP</td>
+<td>在 rawpy 默认渲染的基准上，FiveK 两个子集的 PSNR 比 RAW-Diff 高 0.7–3.8 dB（作者重跑口径）；全局缩略图能处理整图级的亮度缩放</td>
+<td><strong>只在「渲染管线已知且与训练一致」时能。</strong> 训练只见过 rawpy 默认渲染，没有像 RawGen 那样随机化白平衡、色调曲线、对比度，遇到机内 JPEG 或修过的图时表现未知。专项里如果要逆的是「自己用固定管线渲染的目标相机图」，它可以替代 RAW-Diffusion；要逆的是网络图片或手机成片，选 RawGen 的思路</td>
+</tr>
+</tbody>
+</table>
+<h3 id="sec-6-2">6.2 造数据：专项内外的用途</h3>
+<table>
+<thead>
+<tr>
+<th>用途</th>
+<th>可行性</th>
+<th>需要补什么</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>专项：给「iPhone RAW → 目标相机质感」造配对</td>
+<td>结论与 RAW-Diffusion、RawGen 相同：用它从 sRGB 同时造伪 iPhone RAW 和伪目标相机 RAW，两边纹理都来自同一张输入，只有颜色不同，没有质感差异可学</td>
+<td>按调研页 §6 第 (5) 步走：真实目标相机 RAW → DNG 矩阵经 XYZ 转到 iPhone 颜色空间 → 实测 iPhone 模糊核卷积、下采样、重新马赛克、加噪。这条路<strong>根本不需要</strong> RGB→RAW。RAW-Flow 只在「需要目标相机没拍过的场景、且只用于颜色/色调相关的预训练」时才有位置</td>
+</tr>
+<tr>
+<td>RAW 目标检测 / 分割（把带标注的 sRGB 数据集转成某台相机的 RAW）</td>
+<td>最接近可用的场景。RAW-Diffusion 已证明 BDD100K 转 RAW 能提升 NOD 夜间检测，但大部分收益来自「多了 10 万张场景」，转 RAW 只多 2–5 AP</td>
+<td>先在目标相机上训一个模型；推理成本较高（每 512 块 20 次 U-Net），10 万张级的转换要先测速；保留少量真实 RAW 做锚点。RAW-Flow 没做下游，收益要自己验证</td>
+</tr>
+<tr>
+<td>RAW 去噪训练数据</td>
+<td>可以当「干净 RAW 生成器」，前提是源图本身干净</td>
+<td>源 sRGB 选高质量图并降采样 2–4 倍以稀释原噪声；在输出上按目标相机逐 ISO 的噪声参数加噪；不要指望输出本身带对的噪声</td>
+</tr>
+<tr>
+<td>RAW 超分训练数据</td>
+<td>只能做 LR 端的内容扩充，不能做 HR 真值</td>
+<td>HR 真值仍须来自真实光学（<a class="wiki-link" data-slug="zoom-to-learn-2019" href="../zoom-to-learn-2019/index.html">zoom-to-learn-2019</a>、<a class="wiki-link" data-slug="raw-degradation-sr-2026" href="../raw-degradation-sr-2026/index.html">raw-degradation-sr-2026</a>）；如果拿生成 RAW 当 HR，再用实测核退化得到 LR，学到的「细节」是源照片的细节</td>
+</tr>
+<tr>
+<td>暗光增强 / 高 ISO</td>
+<td>不适合</td>
+<td>没有曝光、ISO 条件，暗部由 logL1 驱动的回归决定，噪声不可控</td>
+</tr>
+<tr>
+<td>学习式 ISP（RAW→sRGB）的训练数据</td>
+<td>有循环风险</td>
+<td>生成 RAW 是对 rawpy 默认渲染的逆，用它训 ISP 学回去的是 rawpy 默认渲染；想学目标相机自己的 ISP 必须用真实 (RAW, 机内 JPEG) 对</td>
+</tr>
+<tr>
+<td>「只存 JPEG、需要时恢复 RAW」（论文开头提的存储动机）</td>
+<td>只对训练过的那台相机、那条渲染管线成立</td>
+<td>高光截断处的信息恢复不出来；真实相机 JPEG 的渲染与 rawpy 不同，需要用机内 JPEG 重新训练并评测</td>
+</tr>
+</tbody>
+</table>
+<h3 id="sec-6-3">6.3 可迁移的套路</h3>
+<div class="summary-grid">
+  <div class="card"><h3 id="sec-6-4">1. 条件本身就是答案的近似时，把它当起点而不是当噪声的条件</h3><p>RGB 潜变量已经包含 RAW 的大部分信息，从它出发只需学一个残差方向，比从高斯噪声出发、靠条件「找回」答案容易得多。专项里「物理颜色对齐后的 iPhone RAW → 目标相机质感」也是这种结构：输入已经很接近输出，生成部分只该学残差。但要记住 §2.3 的结论：配对一对一时，确定性直线流的理想解就是一步残差回归，多步只是给不完美的网络留修正余地。</p></div>
+  <div class="card"><h3 id="sec-6-5">2. 先查清真实的信息通路，再相信结构图</h3><p>6 通道潜变量对 190 倍体量的 RGB 跳连，解码器的细节主要来自后者。ISPDiffuser 里出现过同样的问题。专项如果想靠网络结构保证「颜色只来自物理模块、纹理只来自生成模块」，就必须数一数每条通路的通道数，或者干脆在数据流上切断（例如生成模块只接收和输出亮度）。</p></div>
+  <div class="card"><h3 id="sec-6-6">3. 切块推理的逆 ISP 需要一份整图摘要</h3><p>表 4 中整图缩略图当条件比与块对齐的局部条件高 2.3–4.2 dB。原因很可能是 rawpy 的亮度拉伸、白平衡这类操作是整图级的，单个块推不出来。任何切块处理的颜色/色调模块（包括专项里的颜色对齐网络、按块运行的 RAW→RAW 模型）都应该额外输入一份整图统计：缩略图、直方图，或 EXIF 里的曝光与白平衡。做法上最好保留宽高比，并加上块坐标。</p></div>
+  <div class="card"><h3 id="sec-6-7">4. 反直觉点：「确定性赢过随机」是基准决定的，不是方法决定的</h3><p>测试 RGB 是同一张 RAW 用固定参数渲染的，噪声和细节都还在 RGB 里，答案几乎唯一，任何随机性都只会拉低 PSNR。RAW-Diffusion 的 DDIM 2 步≈1000 步、RAW-Flow 的随机 FM 掉 3–10 dB，说的是同一件事。换成真实相机 JPEG 或手机成片，一张 RGB 对应的 RAW 是一个分布，这时该比的是分布指标（噪声曲线、功率谱、KID），不是 PSNR。专项的评测设计要先想清楚自己处在哪种情形。</p></div>
+  <div class="card"><h3 id="sec-6-8">5. 跨论文的 PSNR 不能直接比</h3><p>同一份测试划分、同一个 RAW-Diff，两篇论文的数字差 1.6–2.6 dB，UPI 差 1.9–3.2 dB。整图还是切块、G 通道是否平均、黑电平和截断怎么处理、输入 RGB 的分辨率，都会动 PSNR 的绝对值。专项做颜色/色调逆 ISP 的选型时，应该在自己的数据和同一套评测脚本上把 RAW-Diffusion、RAW-Flow 重跑，而不是比论文表格。</p></div>
+</div>
+<p><strong>四种 sRGB → RAW 方案在本专项里的位置：</strong></p>
+<table>
+<thead>
+<tr>
+<th>方案</th>
+<th>需要什么</th>
+<th>颜色</th>
+<th>传感器噪声</th>
+<th>空间质感（PSF、暗角、CFA）</th>
+<th>换相机</th>
+<th>在本专项里的位置</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a class="wiki-link" data-slug="unprocessing-2018" href="../unprocessing-2018/index.html">unprocessing-2018</a> 手写逆 ISP</td>
+<td>一组相机 CCM、增益分布、噪声参数</td>
+<td>假设已知全局 ISP，逆不了未知修图</td>
+<td>有（泊松-高斯，逐像素）</td>
+<td>无</td>
+<td>换参数即可</td>
+<td>反向造输入端；要自己补 PSF</td>
+</tr>
+<tr>
+<td><a class="wiki-link" data-slug="raw-diffusion-2024" href="../raw-diffusion-2024/index.html">raw-diffusion-2024</a> 像素空间扩散</td>
+<td>该相机的 (RAW, 渲染图) 对，论文称 25 张即可</td>
+<td>学到该相机的颜色</td>
+<td>无（输出近似条件均值）</td>
+<td>输入 RGB 的结构原样带入</td>
+<td>每台重训</td>
+<td>颜色/色调逆 ISP</td>
+</tr>
+<tr>
+<td><a class="wiki-link" data-slug="rawgen-2026" href="../rawgen-2026/index.html">rawgen-2026</a> 多对一 + XYZ</td>
+<td>一张目标相机 DNG 的标定（模型已训好）</td>
+<td>对全局修图稳健，落到相机走物理矩阵</td>
+<td>发布版无</td>
+<td>无；1024² 固定；理想马赛克</td>
+<td>不重训</td>
+<td>扩充颜色、光源多样性；XYZ↔相机映射可单独复用</td>
+</tr>
+<tr>
+<td>RAW-Flow 潜空间确定性 FM</td>
+<td>该相机的 (RAW, 同一管线渲染图) 对，训练集数百张，少样本未知</td>
+<td>在已知渲染管线上最准（作者口径）</td>
+<td>无，且不可控地残留源图噪声</td>
+<td>无；细节经 RGB 跳连直接来自输入</td>
+<td>每台重训三阶段</td>
+<td>与 RAW-Diffusion 同位：已知管线下的颜色/色调逆 ISP</td>
+</tr>
+</tbody>
+</table>
+<p><strong>结论</strong>：RAW-Flow 没有改变专项对学习式逆 ISP 的判断。它把 RAW-Diffusion「几乎确定的条件回归」做成了「完全确定」，在 rawpy 默认渲染的基准上颜色和亮度更准，但输出仍是给定 RGB 的条件均值：不带可控噪声，不建模镜头，细节经解码器跳连直接来自输入照片，每台相机都要重训。它可以替代 RAW-Diffusion 做「已知渲染管线下」的颜色/色调逆 ISP，不能用来造质感配对。造数据的主路仍是「真实目标相机 RAW → DNG 矩阵转到 iPhone 颜色空间 → 实测 iPhone 模糊核、下采样、马赛克、加噪」。本文能借的只有一个设计：切块处理颜色/色调时给模型一份整图摘要。</p>
+</main>
+<footer class="site-footer">Paper Reading · 由 markdown 静态生成 · <a href="https://github.com/megake98/megake98.github.io">GitHub</a></footer>
+</body>
+</html>

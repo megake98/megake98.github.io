@@ -318,7 +318,7 @@
 <article class="post-card post-card--paper">
   <div class="post-card__meta">
     <span class="post-card__badge">论文</span>
-    <span class="post-card__date"><span class="post-card__added">2026-10-10</span><span class="post-card__extra">约 25 分钟</span></span>
+    <span class="post-card__date"><span class="post-card__added">2026-05-22</span><span class="post-card__extra">约 25 分钟</span></span>
   </div>
   <h3 class="post-card__title"><a class="post-card__title-link" href="../papers/bernini-2026/index.html">Bernini: Latent Semantic Planning for Video Diffusion（用 MLLM 做「语义规划」，DiT 只负责渲染像素）</a></h3>
   <p class="post-card__tldr">字节跳动 Bernini 团队的技术报告。核心主张：MLLM 和扩散模型可以用一条「分工线」缝起来——让 MLLM 做语义规划（在它自己的 ViT embedding 空间里预测「目标该长什么样」），让 DiT 只负责把这份语义计划渲染成像素。关键设计有三个：(1) 用 MAR 式的掩码生成把 MLLM 从「理解模型」改造成「语义规划器」，目标 ViT token 训练时随机掩码、推理时从全掩码迭代填充；(2) SA-3D RoPE，给统一序列里每个视觉 segment 一个下标 i，用一个「段相位」旋转向量 ⊙ 到标准 3D RoPE 上，解决多张参考图/源视频「同一 (t,h,w) 坐标身份混淆」的问题；(3) 一条链式增量 guidance，把源视频 / 源图 / 文本 / 语义 embedding 四种条件拆成可独立调节的增量。因为「语义」是接口，planner 和 renderer 可以分开训、只轻量联训。实测在 OpenVE（4.04 vs 次优 3.18）、EditVerse（editing quality 8.02）、OpenS2V（FaceSim 78.20，比次优高 20+ 分）等多个视频编辑/生成榜上做到 SOTA，且 VBench 文生图质量几乎不掉（84.64 vs 底座 Wan2.2 的 84.79）。代码与权重已开源（Qwen2.5-VL-7B 规划器 + Wan2.2-A14B 渲染器）。</p>
@@ -413,6 +413,15 @@
   <h3 class="post-card__title"><a class="post-card__title-link" href="../papers/mambo-g-2025/index.html">MAMBO-G:用幅度比 r_t 自适应阻尼 CFG——一个免训练、即插即用的扩散/视频采样加速器</a></h3>
   <p class="post-card__tldr">CFG 在采样初期(t→1)对&quot;通用方向&quot;施加了过大的更新,在高维大模型里尤其会 overshoot 出过饱和与结构崩坏。 MAMBO-G 用一个逐实例的幅度比 r_t = ‖Δv‖/‖v∅‖ 当探针:r_t 高就指数级压低 guidance scale,r_t 低才放开。 免训练、几乎零开销,已并入 Diffusers。SD3.5 提速 3×、Lumina 4×、14B 视频模型 Wan2.1 提速 2×。</p>
   <div class="post-card__tags"><a class="tag-chip" href="../concepts/classifier-free-guidance.html">classifier-free-guidance</a> <a class="tag-chip" href="../concepts/flow-matching.html">flow-matching</a> <a class="tag-chip" href="../concepts/diffusion-sampling.html">diffusion-sampling</a> <span class="tag-chip tag-chip--more">+3</span></div>
+</article>
+<article class="post-card post-card--paper">
+  <div class="post-card__meta">
+    <span class="post-card__badge">论文</span>
+    <span class="post-card__date"><span class="post-card__added">2026-11-03</span><span class="post-card__extra">约 45 分钟</span></span>
+  </div>
+  <h3 class="post-card__title"><a class="post-card__title-link" href="../papers/raw-flow-2026/index.html">RAW-Flow：把 RGB→RAW 写成 6 通道潜空间里「从 RGB 潜变量出发」的确定性流匹配，每台相机一个模型</a></h3>
+  <p class="post-card__tldr">电子科大刘帅成组的 AAAI 2026 Oral 工作。两个卷积自编码器把 RGB 和打包 RGGB 各压成 1/8 分辨率、6 通道的潜变量；流匹配不从噪声出发，而是以 RGB 潜变量为起点、RAW 潜变量为终点走直线，网络学这条直线的速度，推理时用 20 步欧拉积分把 RGB 潜变量推成 RAW 潜变量，再由 RAW 解码器出图。速度网络是 SPADE 调制的 U-Net，条件来自另一个 U-Net。FiveK-Nikon / FiveK-Canon / PASCALRAW 上 RAW 域 PSNR 30.79 / 32.55 / 37.62，在作者重跑的表里比 RAW-Diff 高 3.83 / 0.71 / 8.08 dB，比 ReRAW-S 高 2.75 / 0.79 / 0.33 dB。 代码和三台相机的权重已发布，数据管线和 SPADE 块直接改自 RAW-Diffusion 的仓库。核对后有几处论文没写清：「跨尺度上下文」的输入其实是整张图压成 256×256 的缩略图；RAW 解码器每次都接 RGB 编码器的两路高维跳连，6 通道潜变量只是窄瓶颈；第三阶段损失多了 L2 和 logL1；训练 RGB 是 rawpy 默认渲染。输出是 RGB 的确定性函数，不带可控噪声，不建模镜头，不能跨相机。对专项来说，它和 RAW-Diffusion 的角色相同，只能当颜色/色调逆 ISP。</p>
+  <div class="post-card__tags"><a class="tag-chip" href="../concepts/learned-isp.html">learned-isp</a> <a class="tag-chip" href="../concepts/raw-image.html">raw-image</a> <a class="tag-chip" href="../concepts/inverse-isp.html">inverse-isp</a> <span class="tag-chip tag-chip--more">+3</span></div>
 </article>
 <article class="post-card post-card--paper">
   <div class="post-card__meta">

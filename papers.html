@@ -49,89 +49,89 @@
 <main class="page page--listing">
 <header class="page-hero">
   <h1 class="page-hero__title">论文</h1>
-  <p class="page-hero__intro">共 79 篇论文精读。</p>
+  <p class="page-hero__intro">共 87 篇论文精读。</p>
 </header>
 <div class="post-grid">
 <article class="post-card post-card--paper">
   <div class="post-card__meta">
     <span class="post-card__badge">论文</span>
+    <span class="post-card__date"><span class="post-card__added">2026-11-03</span><span class="post-card__extra">约 50 分钟</span></span>
+  </div>
+  <h3 class="post-card__title"><a class="post-card__title-link" href="papers/reraw-2025/index.html">ReRAW：感受野只有 4×4 的逐像素颜色网络，加两个看整图的 ResNet18，10 个 gamma 头混合出 RAW，训练块按亮度分层采样</a></h3>
+  <p class="post-card__tldr">Sony AI 的 CVPR 2025 工作，作者与 RAW-Diffusion 基本是同一批人。目标是把带标注的 RGB 数据集（BDD100K）批量转成某台相机的 RAW，给边缘端小检测器做预训练。网络很小也很「局部」：颜色重建网络只有一层 3×3 和一层 2×2 步长 2 的卷积，之后全是 1×1，每个 RAW 像素只看 4×4 个 RGB 像素；整图缩成 128×128 后由一个 ResNet18 产出 128 维向量逐通道乘上去，另一个 ResNet18 产出 10 个 softmax 权重，把 10 个分别在 γ=0.1…1 空间里预测的候选 RAW 反 gamma 后加权求和。损失是自定义的 hard-log。训练块每张图只取 6 个，按 RGB 块均值亮度分 10 档均匀抽，让亮块多进训练集。五个数据集上 ReRAW-S 的 PSNR 为 41.00 / 40.07 / 30.18 / 30.45 / 38.88 dB，在作者自己重跑的表里比 RAW-Diffusion 高 1.2–3.5 dB；但同一个 RAW-Diffusion 在它自己论文里的数字比这里高 1.0–5.1 dB。下游用 BDD 转出的 RAW 预训练、再在真实 RAW 上微调，比 RGB 管线高 0.4–1.9 mAP（RTMDet 在 PASCALRAW 上 +5.6），全是单次运行。 消融里收益最大的是全局上下文（+2.9–4.9 dB），多头 gamma 在夜景上只多 0.05 dB。代码（MIT，无权重）核对后：分层采样按亮度分档的窗口比实际存下来的块偏了半个块，最亮一档 [0.9, 1) 永远抽不到，空档和这一档都退回随机抽；中间头的损失权重是论文 Eq. 6 的 1/10；推理时两个 ResNet18 对每个 64×64 块各重算一遍。输出是确定性的干净 RAW，纹理逐像素来自输入照片，不带黑电平、不写 DNG。对专项来说它和 RAW-Diffusion、RAW-Flow 一样只能当颜色/色调逆 ISP，好处是 4×4 感受野从结构上保证它不改纹理；造检测预训练数据时它是这几种学习式逆 ISP 里最便宜的，噪声要另外加。</p>
+  <div class="post-card__tags"><a class="tag-chip" href="concepts/learned-isp.html">learned-isp</a> <a class="tag-chip" href="concepts/raw-image.html">raw-image</a> <a class="tag-chip" href="concepts/inverse-isp.html">inverse-isp</a> <span class="tag-chip tag-chip--more">+4</span></div>
+</article>
+<article class="post-card post-card--paper">
+  <div class="post-card__meta">
+    <span class="post-card__badge">论文</span>
+    <span class="post-card__date"><span class="post-card__added">2026-11-03</span><span class="post-card__extra">约 45 分钟</span></span>
+  </div>
+  <h3 class="post-card__title"><a class="post-card__title-link" href="papers/raw-flow-2026/index.html">RAW-Flow：把 RGB→RAW 写成 6 通道潜空间里「从 RGB 潜变量出发」的确定性流匹配，每台相机一个模型</a></h3>
+  <p class="post-card__tldr">电子科大刘帅成组的 AAAI 2026 Oral 工作。两个卷积自编码器把 RGB 和打包 RGGB 各压成 1/8 分辨率、6 通道的潜变量；流匹配不从噪声出发，而是以 RGB 潜变量为起点、RAW 潜变量为终点走直线，网络学这条直线的速度，推理时用 20 步欧拉积分把 RGB 潜变量推成 RAW 潜变量，再由 RAW 解码器出图。速度网络是 SPADE 调制的 U-Net，条件来自另一个 U-Net。FiveK-Nikon / FiveK-Canon / PASCALRAW 上 RAW 域 PSNR 30.79 / 32.55 / 37.62，在作者重跑的表里比 RAW-Diff 高 3.83 / 0.71 / 8.08 dB，比 ReRAW-S 高 2.75 / 0.79 / 0.33 dB。 代码和三台相机的权重已发布，数据管线和 SPADE 块直接改自 RAW-Diffusion 的仓库。核对后有几处论文没写清：「跨尺度上下文」的输入其实是整张图压成 256×256 的缩略图；RAW 解码器每次都接 RGB 编码器的两路高维跳连，6 通道潜变量只是窄瓶颈；第三阶段损失多了 L2 和 logL1；训练 RGB 是 rawpy 默认渲染。输出是 RGB 的确定性函数，不带可控噪声，不建模镜头，不能跨相机。对专项来说，它和 RAW-Diffusion 的角色相同，只能当颜色/色调逆 ISP。</p>
+  <div class="post-card__tags"><a class="tag-chip" href="concepts/learned-isp.html">learned-isp</a> <a class="tag-chip" href="concepts/raw-image.html">raw-image</a> <a class="tag-chip" href="concepts/inverse-isp.html">inverse-isp</a> <span class="tag-chip tag-chip--more">+3</span></div>
+</article>
+<article class="post-card post-card--paper">
+  <div class="post-card__meta">
+    <span class="post-card__badge">论文</span>
+    <span class="post-card__date"><span class="post-card__added">2026-11-03</span><span class="post-card__extra">约 50 分钟</span></span>
+  </div>
+  <h3 class="post-card__title"><a class="post-card__title-link" href="papers/omnilens-pp-2025/index.html">OmniLens++（FoundCAC）：用几千个自动设计的镜头做预训练，把 PSF 压成离散码本，盲校正镜头像差</a></h3>
+  <p class="post-card__tldr">浙江大学汪凯巍组的盲镜头像差校正工作。arXiv v1 叫 OmniLens++，v5 改名 FoundCAC，作者在 arXiv 注释里写明已被 ICCP 2026 接收。方法分数据和模型两半。数据侧沿用前作 OmniLens 的进化式自动光学设计（EAOD）批量出镜头，新加非球面和像面扰动两类规格；再用棋盘格成像在 5 个视场上算 OIQ 画质分，按「严重程度 3 档 × 空间变化 6 类」共 18 个子类均匀抽样，得到 AODLibpro（正文写 3600 个训练镜头、54 个测试镜头）。每个镜头用 DeepLens 光线追踪算 64 个径向视场 × 31 个波长的 PSF，按传感器光谱响应叠成 RGB，在 2K 等效分辨率上分块卷积，每个镜头从 Flickr2K 造 40 对。模型侧，Stage I 用真值 PSF 图联合训练一个 1024 项的 VQ 码本和复原网络；Stage II 冻结码本，让预测器只从退化图里检索码字；Stage III 冻结码本微调到特定镜头。AODLibpro 测试集上 29.12 dB，比同骨干基线高 0.66 dB；RealLens-Sim 平均 26.84 dB，比 OmniLens 管线高 1.70 dB，但这部分提升集中在非球面单透镜，四颗简易镜头里有三颗前作的 PSNR 更高。只用 5% 目标数据做少样本适配，单透镜 30.90 dB、手机镜头 33.34 dB，分别比同样数据从头训练高 3.68 和 1.27 dB。手机镜头和装配误差只在仿真里测过，真实拍摄集里没有手机，只报了无参考指标。FoundCAC 仓库到现在只有一个 README；同一账号在 Hugging Face 传了 AODLibpro 的 PSF，只有 3240 个训练镜头，没有设计文件和测试集。对「伪 iPhone RAW」专项来说，库里是像差很大的简易镜头，论文自己也说一颗手机镜头的标称 PSF 在它的 2K 采样下不到一个像素，所以库里的 PSF 不能拿来近似 iPhone。能借用的是 DeepLens 那条「光追 PSF → 线性 RGB 分块卷积 → 马赛克 → 噪声」管线，以及用装配公差扰动生成个体差异的做法，可以拿来补实测核覆盖不到的视场、景深和个体差异。</p>
+  <div class="post-card__tags"><a class="tag-chip" href="concepts/lens-aberration.html">lens-aberration</a> <a class="tag-chip" href="concepts/psf-simulation.html">psf-simulation</a> <a class="tag-chip" href="concepts/degradation-model.html">degradation-model</a> <span class="tag-chip tag-chip--more">+4</span></div>
+</article>
+<article class="post-card post-card--paper">
+  <div class="post-card__meta">
+    <span class="post-card__badge">论文</span>
+    <span class="post-card__date"><span class="post-card__added">2026-11-03</span><span class="post-card__extra">约 60 分钟</span></span>
+  </div>
+  <h3 class="post-card__title"><a class="post-card__title-link" href="papers/ntire25-raw-sr-2025/index.html">NTIRE 2025 RAW 复原与超分挑战赛报告：BSRAW 随机退化管线、两条赛道的数据与前几名方案，以及这条管线能不能用来造伪 iPhone RAW</a></h3>
+  <p class="post-card__tldr">维尔茨堡大学 Conde、Timofte 组织的 NTIRE 2025 挑战赛报告（CVPRW 2025）。两条赛道都在打包的 RGGB 四通道 RAW 上进行，训练输入都由组织者给的 BSRAW 退化管线在线合成。超分赛道做 2× 放大：训练集是 FiveK 里 Canon / Nikon 单反的 1064 张干净 1024×1024×4 图，测试 200 张。通用赛道第一是 USTC 的 LiteRAWFormer（精简版 RBSFormer，1.94M 参数，42.70 dB），之后依次是 SMFFRaw-L 42.60、三星 RawRTSR-L 42.58（0.26M）、ERBSFormer 42.45；高效赛道（≤0.2M）第一是 SMFFRaw-S（42.12）。复原赛道做去噪加去模糊：训练集是 2139 个 512×512×4 的干净手机块，按 Hugging Face 上的目录统计来自 iPhone X 162 张、Galaxy S9 79 张、Google Pixel 12 张、Vivo X90 39 张原图；测试集 140 块，按三档退化分别评分。三星 ERIRNet 两条子赛道都拿第一：通用版 46.04 / 42.25 / 40.10 dB（4.97M），高效版 45.10 / 40.82 / 38.46（0.19M），后者也比 1.5M 的基线 RawIR 高。指标是 RAW 域的 PSNR / SSIM。 公开的 BSRAW 管线在 mv-lab/AISP 的 imresutils 里，核心不到 80 行，比 BSRAW 论文写的简单得多：50% 概率模糊，核从 kernels.npy 里随机取，12 个核里只抽前 11 个（4 个各向同性高斯、4 个各向异性、3 条运动轨迹），同一个核作用于 4 个打包通道；下采样是打包平面上的 2×2 平均池化，这会让 R、G、B 互相错开半个 HR 像素，而且 down=True 这条路径返回的形状是错的；噪声一半是 shot-read 模型，shot 方差只在 1e-4 到 1e-3 之间（Unprocessing 的上限是 0.012），另一半是逐像素重新抽 σ 的异方差高斯，所以每张图的等效噪声水平都一样。论文里写的曝光退化、SIDD/DND 噪声 profile、二次 PSF，代码里都没有。冠军的代码重新分配了核的抽样概率、每张图必模糊、自然噪声占 70%，还加了 100 个额外 PSF。另外，它沿用了为马赛克数组设计的翻转，却用在打包数组上，结果打乱了 CFA 相位。报告本身也有几处问题：Table 1 的 2024 参照混用了 12MP 和 1MP 两列；正文写 Google Pixel 10，数据集卡片写 Pixel 7–9；公开的 val 输入和 test level 2 逐字节相同。对专项来说，这条管线可以沿用「线性 RAW 上先模糊、再下采样、再加噪」的顺序，以及在 dataloader 里在线合成的做法；模糊核、下采样和噪声三样都要换成 iPhone 的实测值，前面还要补一步颜色映射。复原赛道的数据里有 162 张 iPhone X 原图的干净 RAW 块（另有 97 张的低质量块）和对应的机内成片，但没有 ISO；超分赛道全是单反，没有 iPhone。</p>
+  <div class="post-card__tags"><a class="tag-chip" href="concepts/raw-image.html">raw-image</a> <a class="tag-chip" href="concepts/image-super-resolution.html">image-super-resolution</a> <a class="tag-chip" href="concepts/denoising.html">denoising</a> <span class="tag-chip tag-chip--more">+4</span></div>
+</article>
+<article class="post-card post-card--paper">
+  <div class="post-card__meta">
+    <span class="post-card__badge">论文</span>
+    <span class="post-card__date"><span class="post-card__added">2026-11-03</span><span class="post-card__extra">约 50 分钟</span></span>
+  </div>
+  <h3 class="post-card__title"><a class="post-card__title-link" href="papers/ntire25-raw-recon-2025/index.html">NTIRE 2025 手机 RGB→RAW 重建挑战赛报告：iPhone X / Galaxy S9 的机内成片逆回 12 bit RAW，第一名是 0.39M 参数的 DBNet</a></h3>
+  <p class="post-card__tldr">第二届「从 RGB 重建 RAW」（逆 ISP）挑战赛，第一届是 AIM 2022 Reversed ISP。这一届改用手机：训练集来自 Afifi &amp; Abuolaim 的 RAW-to-RAW 数据，iPhone X 972 对、Galaxy S9 474 对，都是 512×512×4 的 RGGB 块（RGB 是 1024×1024 的机内 ISP 输出，不是 rawpy 渲染），另有 582 / 924 对低质量块。按文件数，iPhone X 的 972 块来自 162 张原图，每张切 6 块。测试时不给元数据，除已知设备外还考没见过的 Vivo X90。评测是 12 bit RAW 上的 PSNR/SSIM，按参数量分成 1–5M 的通用赛道和不到 0.2M 的高效赛道，要求 12MP 一次前向。总榜第一是同济的 DBNet（高效赛道，27.66 dB / 0.7700），其后是 VIP（26.99）、GAR2Net（26.98）、UNAFNet（26.87）；两个基线 DualRAW 26.50、ReRAW 24.52。 核对数据和代码后有几处与报告不一致。除 TDMFNet 的 PSNR 外，Overall 列都等于「72 块已知设备 + 60 块 X90」的按图平均，与正文写的 120 / 60 张对不上；TDMFNet 的 Overall PSNR 按同一公式应为 24.90，表里写的是 26.30。DBNet 的 0.39M 超过了高效赛道 0.2M 的上限。ULite 发布代码构造矩阵真值时把蓝通道白平衡增益换成了绿通道的，还有两处取错矩阵元素。val / test 只公开 RGB，X90 和 S21 的 RAW 一张都没放出，排行榜无法离线复现。对专项来说，这是目前公开的唯一一份「iPhone 机内成片 ↔ 同次拍摄 Bayer RAW」逐像素对齐配对。用它可以训练和评测 iPhone X 的逆 ISP，也可以收集 iPhone X 的白点轨迹，给伪 iPhone RAW 当真实分布参照。局限也明显：2017 年的 12MP 机型，没有 ISO 和曝光元数据，每张图只放出约一半画幅。</p>
+  <div class="post-card__tags"><a class="tag-chip" href="concepts/learned-isp.html">learned-isp</a> <a class="tag-chip" href="concepts/raw-image.html">raw-image</a> <a class="tag-chip" href="concepts/inverse-isp.html">inverse-isp</a> <span class="tag-chip tag-chip--more">+2</span></div>
+</article>
+<article class="post-card post-card--paper">
+  <div class="post-card__meta">
+    <span class="post-card__badge">论文</span>
+    <span class="post-card__date"><span class="post-card__added">2026-11-03</span><span class="post-card__extra">约 40 分钟</span></span>
+  </div>
+  <h3 class="post-card__title"><a class="post-card__title-link" href="papers/noisediff-2025/index.html">NoiseDiff：用条件扩散模型学一台相机的暗光 RAW 噪声，再用它造去噪训练对</a></h3>
+  <p class="post-card__tldr">EPFL IVRL 组的 TPAMI 论文（ICCP 2025）。在 SID 的 Sony α7S2 配对 RAW 上，把「放大后的短曝光 − 长曝光」当作噪声图，训练一个以干净图、像素坐标和 (ISO, 曝光比) 为条件的扩散模型，在打包 RAW 域生成噪声。三处改动：逐像素的 MLP 分支加上看不到干净图的 UNet 分支，位置编码用来学图像底部的低频偏移和条带，sigmoid 调度把末步噪声压低，避免 MMSE 去噪把方差压小。用生成数据训练的去噪器在 SID 上 43.30 / 40.53 / 37.68 dB（×100/×250/×300），高于同表 ELD、NoiseFlow 等不用暗场的方法；减掉暗场阴影、加 SNA 后的 NoiseDiff* 为 43.92 / 41.28 / 37.94。换到另一台 α7S2 拍的 ELD 测试集，不减暗场时 ×200 落后 ELD 物理模型 1.18 dB。DDPM 生成一个 512² 打包块要 43.6 s（A100）。对照代码：UNet 分支确实拿不到干净图；论文说是逐像素的 MLP 分支里其实有两层 3×3 卷积；训练目标先在黑电平处截断，再裁到 [0,1]；一半训练块被强制取自图像底部。官方代码、权重和 7 个设定共 47.5 GB 的合成噪声都已公开。</p>
+  <div class="post-card__tags"><a class="tag-chip" href="concepts/raw-image.html">raw-image</a> <a class="tag-chip" href="concepts/denoising.html">denoising</a> <a class="tag-chip" href="concepts/data-synthesis.html">data-synthesis</a> <span class="tag-chip tag-chip--more">+3</span></div>
+</article>
+<article class="post-card post-card--paper">
+  <div class="post-card__meta">
+    <span class="post-card__badge">论文</span>
+    <span class="post-card__date"><span class="post-card__added">2026-11-03</span><span class="post-card__extra">约 45 分钟</span></span>
+  </div>
+  <h3 class="post-card__title"><a class="post-card__title-link" href="papers/noise-one-hour-2025/index.html">Noise Modeling in One Hour：只拍暗场帧、按量子效率猜系统增益，合成低光 RAW 去噪训练数据</a></h3>
+  <p class="post-card__tldr">Sony Research 的 CVPR 2025 工作。合成低光 RAW 噪声通常要两道准备：用平场标定系统增益 K（决定散粒噪声有多重），再对暗场帧做统计分布或神经网络剖面（读出、行、量化等信号无关噪声）。本文两道都省掉：K 按「量子效率 × 模拟增益」直接猜，A7S2 上取 K = ISO/100 × 0.1；信号无关噪声不建模，每次从拍好的暗场帧里随机抽一张，减掉暗场帧均值（dark shading）后叠到泊松散粒噪声上，也不做高位深恢复。同一个 SID U-Net 在 SID / ELD 上平均 40.85 / 46.43 dB，与同期的 PNNP 打平（+0.02 / +0.04）；在 Redmi K30（IMX686）的 LRID 上 45.08 dB，比 PNNP 高 0.54，比真实配对训练的 PMN 高 0.11。每档 ISO 只用 10 张暗场帧，SID / ELD 只掉 0.05 / 0.12 dB。 对照代码和 issue 后发现：训练和合成代码因商业原因不公开，官方仓库只能复现评测；作者为 AIM 2025 挑战赛写的基线沿用了暗场帧采样，K 却改回平场标定；SID / ELD 评测减的是 PMN 发布的参数化暗影，两台不同的 A7S2 共用一份；「K = QE × AG」与 EMVA 1288 的增益定义对不上，0.1 这个系数实际贴着 A7S2 的标定值（差约 5%）。对专项来说，暗场帧采样可以照搬到 iPhone，但 iPhone 只暴露 ISO、不暴露模拟增益，要让合成噪声「像」，K 仍需用平场标定。</p>
+  <div class="post-card__tags"><a class="tag-chip" href="concepts/raw-image.html">raw-image</a> <a class="tag-chip" href="concepts/denoising.html">denoising</a> <a class="tag-chip" href="concepts/data-synthesis.html">data-synthesis</a> <span class="tag-chip tag-chip--more">+3</span></div>
+</article>
+<article class="post-card post-card--paper">
+  <div class="post-card__meta">
+    <span class="post-card__badge">论文</span>
     <span class="post-card__date"><span class="post-card__added">2026-10-27</span><span class="post-card__extra">约 40 分钟</span></span>
   </div>
-  <h3 class="post-card__title"><a class="post-card__title-link" href="papers/raw-degradation-sr-2026/index.html">RAW 域退化模型：逐台手机标定 SR 核与噪声，再用逆处理数据训练真实手机超分</a></h3>
-  <p class="post-card__tldr">Samsung AI Center Toronto（Michael S. Brown 组）的 CVPR 2026 论文。手机数字变焦要在 RAW 上做超分，可是拿不到真值；常见做法是从一个大的随机退化池里采高斯模糊核和通用噪声来造数据。本文改成逐台设备标定：暗室里让手机拍显示器上的随机图案（每张 100 帧平均、格雷码定位、黑白两电平线性化），按 128×128 视场块联合优化 R/G/B 三个 4× SR 核，这个核把镜头 PSF、像素积分和下采样合在一起；噪声则用色卡连拍，按 7 档 ISO、4 个 Bayer 通道标定异方差高斯模型，再对 ISO 做二次拟合。用这些核和噪声把线性 RGB 逆处理成 LR RAW，训练只用 L1 的 RRDBNet。9 个手机摄像头里拿 7 个的标定结果训练，留出的 Pixel 6 Main 上 PSNR 32.41、相对 MTF50 1.19，Mi 11 Main 上 36.11、0.42，PSNR、SSIM、MTF50 都高于 Real-ESRGAN、BSRAW、RAWSR 的退化池。官方仓库目前只有一个空 README，标定好的核和噪声参数尚未发布。</p>
-  <div class="post-card__tags"><a class="tag-chip" href="concepts/raw-image.html">raw-image</a> <a class="tag-chip" href="concepts/image-super-resolution.html">image-super-resolution</a> <a class="tag-chip" href="concepts/real-isr.html">real-isr</a> <span class="tag-chip tag-chip--more">+6</span></div>
-</article>
-<article class="post-card post-card--paper">
-  <div class="post-card__meta">
-    <span class="post-card__badge">论文</span>
-    <span class="post-card__date"><span class="post-card__added">2026-10-20</span><span class="post-card__extra">约 30 分钟</span></span>
-  </div>
-  <h3 class="post-card__title"><a class="post-card__title-link" href="papers/zoom-to-learn-2019/index.html">Zoom to Learn, Learn to Zoom：从 Bayer RAW 直接超分，用光学变焦拍真值</a></h3>
-  <p class="post-card__tldr">CVPR 2019 的「真实数据超分」奠基作之一。论文主张：数字变焦（计算变焦）应该直接吃 12–14 bit 的 Bayer RAW，而不是吃被 ISP 降噪、压到 8 bit 的 RGB。难点是 RAW 没有高分辨率真值，于是作者用一支 24–240mm 变焦镜头对同一场景拍 7 档焦距，长焦 RGB 当短焦 RAW 的真值，攒出 500 组序列的 SR-RAW 数据集。不同焦距拍出来的图必然有 40–80 像素的错位（视差、景深、清晰度差），像素损失会糊，所以作者在 Contextual Loss 上加了空间坐标项，提出 CoBi 损失。 结果：4X 下 PSNR 26.88 / LPIPS 0.190，比最好的 RGB 基线高 3.75 dB；受控实验里同一网络吃真 RAW 比吃 8-bit RGB 高 4.54 dB，比吃合成 RAW 高 2.90 dB。代码只开源了推理、数据对齐和 CoBi 损失本体，训练脚本没放出来。从代码看，CoBi 的「空间项」实际退化成了「同位置特征加 0.1 分」，和论文 Eq. 2 写的「按距离惩罚」并不一样。</p>
-  <div class="post-card__tags"><a class="tag-chip" href="concepts/raw-image.html">raw-image</a> <a class="tag-chip" href="concepts/learned-isp.html">learned-isp</a> <a class="tag-chip" href="concepts/image-super-resolution.html">image-super-resolution</a> <span class="tag-chip tag-chip--more">+6</span></div>
-</article>
-<article class="post-card post-card--paper">
-  <div class="post-card__meta">
-    <span class="post-card__badge">论文</span>
-    <span class="post-card__date"><span class="post-card__added">2026-10-20</span><span class="post-card__extra">约 30 分钟</span></span>
-  </div>
-  <h3 class="post-card__title"><a class="post-card__title-link" href="papers/wespe-2017/index.html">WESPE：不要配对，只要两堆照片——用「颜色 / 纹理」双判别器 + 循环内容损失把手机照往单反画质推</a></h3>
-  <p class="post-card__tldr">DPED 证明了「手机照 → 单反照」可学，但要靠三脚架拍出像素对齐的配对数据。WESPE 去掉配对：只要一堆源相机照片 + 一堆任意高质量照片（甚至是网上爬的 DIV2K），用 CycleGAN 式的逆映射 F 把内容损失放在输入域（x 与 F(G(x)) 的 VGG 距离），再用两个判别器分别只看「模糊后的颜色」和「灰度纹理」。在 DPED 上 SSIM 接近全监督（iPhone 0.90 vs 0.92），但 PSNR 低 2–4 dB；无参考指标与 Flickr 虚拟评分上反而超过全监督。没有官方代码，本文交叉阅读的是非官方 TensorFlow 实现，其中发现生成器对抗损失疑似写错、颜色判别器去掉了模糊等偏差。</p>
-  <div class="post-card__tags"><a class="tag-chip" href="concepts/phone-to-dslr.html">phone-to-dslr</a> <a class="tag-chip" href="concepts/image-enhancement.html">image-enhancement</a> <a class="tag-chip" href="concepts/gan.html">gan</a> <span class="tag-chip tag-chip--more">+3</span></div>
-</article>
-<article class="post-card post-card--paper">
-  <div class="post-card__meta">
-    <span class="post-card__badge">论文</span>
-    <span class="post-card__date"><span class="post-card__added">2026-10-20</span><span class="post-card__extra">约 30 分钟</span></span>
-  </div>
-  <h3 class="post-card__title"><a class="post-card__title-link" href="papers/unprocessing-2018/index.html">Unprocessing：把网上的 sRGB 照片逐步「逆 ISP」回 RAW，造出逼真的去噪训练对</a></h3>
-  <p class="post-card__tldr">Google Research 的 CVPR 2019 工作。真实 RAW 去噪数据难采，合成数据又不像真 RAW，于是作者把一张普通 sRGB 照片按相机 ISP 的反向顺序逐步「解处理」：逆 smoothstep 色调曲线 → 逆 gamma → 乘 sRGB→相机 RGB 的 CCM → 带高光保护地除掉白平衡与数字增益 → 抽成 RGGB 马赛克。在这份伪 RAW 上加按 ISO 联合采样的泊松-高斯（shot/read）噪声得到输入，再把网络输出和真值都过一遍简化正向 ISP 后算 L1。一个 22ms 的普通 U-Net 在 Darmstadt 真实噪声基准上 raw PSNR 48.89 / sRGB PSNR 40.35，相对此前最好的方法误差降低 14%–38%、快 9–18 倍。</p>
-  <div class="post-card__tags"><a class="tag-chip" href="concepts/raw-image.html">raw-image</a> <a class="tag-chip" href="concepts/denoising.html">denoising</a> <a class="tag-chip" href="concepts/data-synthesis.html">data-synthesis</a> <span class="tag-chip tag-chip--more">+5</span></div>
-</article>
-<article class="post-card post-card--paper">
-  <div class="post-card__meta">
-    <span class="post-card__badge">论文</span>
-    <span class="post-card__date"><span class="post-card__added">2026-10-20</span><span class="post-card__extra">约 25 分钟</span></span>
-  </div>
-  <h3 class="post-card__title"><a class="post-card__title-link" href="papers/realsr-2019/index.html">RealSR：拧变焦环拍出真·低/高清配对，再用拉普拉斯金字塔核预测网络做真实世界超分</a></h3>
-  <p class="post-card__tldr">合成退化 (bicubic / 多种模糊+下采样) 训出的超分模型到了真实照片上几乎不比 bicubic 强。RealSR 的解法很朴素：三脚架固定单反，同一场景用 105mm 拍 HR、用 50/35/28mm 拍 LR，靠薄透镜公式给出初始缩放比，再用「仿射 + 亮度 α,β」的鲁棒 IRLS 逐级配准到像素级，得到 595 对真实退化配对 (Canon 5D3 + Nikon D810)。模型侧提出 LP-KPN：对 Y 通道做三层拉普拉斯金字塔、每层预测逐像素 5×5 核，等效 4k×4k 感受野。同样网络，换 RealSR 训练在 ×2 上涨约 1 dB；LP-KPN 以 5.7M 参数略胜 RCAN (32.7M)。代码里训练损失其实是三层金字塔各一个 L2 (1:1:1)，与论文写的「重建图上的 L2」不同。</p>
-  <div class="post-card__tags"><a class="tag-chip" href="concepts/image-super-resolution.html">image-super-resolution</a> <a class="tag-chip" href="concepts/real-isr.html">real-isr</a> <a class="tag-chip" href="concepts/phone-to-dslr.html">phone-to-dslr</a> <span class="tag-chip tag-chip--more">+5</span></div>
-</article>
-<article class="post-card post-card--paper">
-  <div class="post-card__meta">
-    <span class="post-card__badge">论文</span>
-    <span class="post-card__date"><span class="post-card__added">2026-10-20</span><span class="post-card__extra">约 25 分钟</span></span>
-  </div>
-  <h3 class="post-card__title"><a class="post-card__title-link" href="papers/pynet-2020/index.html">PyNET：用一个金字塔 CNN 把手机 Bayer RAW 直接变成单反照片</a></h3>
-  <p class="post-card__tldr">PyNET 把手机相机的整条 ISP（去马赛克、降噪、白平衡、色彩/对比度校正……）换成一个端到端 CNN：输入华为 P20 的原始 Bayer RAW，监督目标是同场景下 Canon 5D Mark IV 拍的照片。 模型是 5 层倒金字塔，从 1/16 分辨率开始逐层训练，低层用 MSE 管全局颜色和亮度，高层用 VGG+SSIM 管纹理。配套的 Zurich RAW-to-RGB（ZRR）数据集有 4.8 万对对齐 patch。PSNR 21.19，MOS 2.77，高于 P20 原厂 ISP 的 2.56。</p>
-  <div class="post-card__tags"><a class="tag-chip" href="concepts/learned-isp.html">learned-isp</a> <a class="tag-chip" href="concepts/raw-image.html">raw-image</a> <a class="tag-chip" href="concepts/phone-to-dslr.html">phone-to-dslr</a> <span class="tag-chip tag-chip--more">+4</span></div>
-</article>
-<article class="post-card post-card--paper">
-  <div class="post-card__meta">
-    <span class="post-card__badge">论文</span>
-    <span class="post-card__date"><span class="post-card__added">2026-10-20</span><span class="post-card__extra">约 25 分钟</span></span>
-  </div>
-  <h3 class="post-card__title"><a class="post-card__title-link" href="papers/liteispnet-2021/index.html">LiteISPNet：手机 RAW → 单反 sRGB，训练对没对齐怎么办</a></h3>
-  <p class="post-card__tldr">手机 RAW 和单反 sRGB 配对数据天生「颜色差太大 + 像素没对齐」，直接用 L1 训会糊、会整体偏移。本文的办法：训练时先用一个只做逐像素 1×1 卷积的全局颜色映射 GCM 把手机 RAW「染成」单反的颜色（像素位置一个不动），再用冻结的 PWC-Net 光流把单反图 warp 回手机 RAW 的坐标系，用 warp 后的图当监督。 GCM 和光流只在训练时用，推理只剩一个 11.9M 参数的 LiteISPNet；在 ZRR 上对齐 GT 后 PSNR 23.76 / LPIPS 0.133，参数是 MW-ISPNet 的约 40%、耗时约 20%。</p>
+  <h3 class="post-card__title"><a class="post-card__title-link" href="papers/rawgen-2026/index.html">RawGen：多对一数据教 FLUX.1-Kontext 把 sRGB 或文字逆成 CIE XYZ，再用一张 DNG 的色彩矩阵落到任意相机 RAW</a></h3>
+  <p class="post-card__tldr">RawGen（三星 AI Center 多伦多 + 延世大学，ECCV 2026）把一张 sRGB 照片（I2R）或一句文字（T2R）变成相机 RAW，分两段：先用 LoRA 微调的 FLUX.1-Kontext 在潜空间里把 sRGB 潜变量去噪成 CIE XYZ 潜变量，再由重训过的 VAE 解码器输出 XYZ 图；之后用目标相机一张 DNG 里的 ColorMatrix/ForwardMatrix 按色温插值，确定性地映射到该相机的 RAW。训练数据是「多对一」的：同一张 DNG 渲染出 5 张白平衡、色调曲线、对比度各不相同的 sRGB，全部对齐到同一个 XYZ 锚点。FiveK 五位修图师风格上 PSNR 23.20–24.35 dB，比 CIE XYZ Net 高 3.3–5.3 dB；同骨干但只用一对一数据训练时与 CIE XYZ Net 基本持平，所以收益来自数据构造。 代码和两份权重都已发布，但发布版没有实现论文里的异方差噪声，输出固定 1024²，镜头 PSF 和暗角也都没有建模。对「iPhone RAW → 目标相机质感」来说，用它给两台相机造出的伪 RAW 之间只差一个 3×3 颜色变换，没有质感差异可学。</p>
   <div class="post-card__tags"><a class="tag-chip" href="concepts/learned-isp.html">learned-isp</a> <a class="tag-chip" href="concepts/raw-image.html">raw-image</a> <a class="tag-chip" href="concepts/phone-to-dslr.html">phone-to-dslr</a> <span class="tag-chip tag-chip--more">+5</span></div>
 </article>
 <article class="post-card post-card--paper">
   <div class="post-card__meta">
     <span class="post-card__badge">论文</span>
-    <span class="post-card__date"><span class="post-card__added">2026-10-20</span><span class="post-card__extra">约 35 分钟</span></span>
+    <span class="post-card__date"><span class="post-card__added">2026-10-27</span><span class="post-card__extra">约 40 分钟</span></span>
   </div>
-  <h3 class="post-card__title"><a class="post-card__title-link" href="papers/ispw-2022/index.html">ISPW：把「颜色」从学习式 ISP 里拆出去——颜色条件网络 + 逐图参数化颜色映射 + 掩码对齐损失</a></h3>
-  <p class="post-card__tldr">ETH CVL 的 ECCV 2022 工作，任务是手机 RAW → 单反 sRGB。作者认为难点在于每对训练图的颜色映射都不一样（相机参数、光照各异），而且两台机器拍的画面没对齐。做法是把颜色和细节拆开：ISP 网络 F(x, ĉ) 额外吃一张低分辨率的「目标颜色图」ĉ，只负责去噪、去马赛克和细节；训练时 ĉ 来自一个逐图闭式拟合的分 bin 仿射颜色映射 C（15 个 bin，每个 bin 一个 3→1 仿射，约 180 个参数），它把单反 GT 的颜色搬到手机 RAW 上，但带不过去 GT 的细节；推理时 ĉ 由带 Perceiver 式全局上下文 Transformer 的 U-Net 颜色预测器 G(x) 给出。监督端用 PWC-Net 光流对齐 GT，再用前后向一致性掩码剔除流不准的区域。 ZRR 上 PSNR 25.24 / SSIM 0.879（LiteISPNet 23.81），自建 ISPW（华为 Mate 30 Pro RAW ↔ Canon 5D IV sRGB，200 组，单反侧三档曝光）上 25.05 vs 23.51。官方仓库只有 README，代码一直没放出来；ISPW 的单反侧只有 sRGB，没有单反 RAW，下载链接目前 404。</p>
-  <div class="post-card__tags"><a class="tag-chip" href="concepts/learned-isp.html">learned-isp</a> <a class="tag-chip" href="concepts/raw-image.html">raw-image</a> <a class="tag-chip" href="concepts/phone-to-dslr.html">phone-to-dslr</a> <span class="tag-chip tag-chip--more">+6</span></div>
-</article>
-<article class="post-card post-card--paper">
-  <div class="post-card__meta">
-    <span class="post-card__badge">论文</span>
-    <span class="post-card__date"><span class="post-card__added">2026-10-20</span><span class="post-card__extra">约 25 分钟</span></span>
-  </div>
-  <h3 class="post-card__title"><a class="post-card__title-link" href="papers/ispdiffuser-2025/index.html">ISPDiffuser：灰度空间用扩散补纹理，颜色交给「直方图」模块——RAW-to-sRGB 的颜色/纹理解耦</a></h3>
-  <p class="post-card__tldr">川大 + 电子科大 + 旷视的 AAAI 2025 工作，做手机 RAW → 单反风格 sRGB（ZRR: 华为 P20 → 佳能；MAI: IMX586 → 富士）。核心主张：扩散模型擅长高频细节、却在颜色/曝光这类低频量上有偏，所以把映射拆成两半——先在 1/4 分辨率的灰度潜空间里用以 RAW 特征为条件的扩散模型（TADM）重建纹理，并加 Canny 边缘损失；再用「直方图引导颜色一致性模块」（HCCM）从 RAW 特征预测颜色直方图，以 cross-attention 给灰度特征上色。ZRR 对齐 GT 上 PSNR 24.09 / LPIPS 0.111，MAI 上 25.64 / 0.071，均优于 FourierISP。代码交叉核对发现几处要紧的出入：发布版里颜色一致性损失恒为 0（&quot;GT 直方图&quot;其实也是由 RAW 算出来的），Canny 边缘损失包在 no_grad 里、梯度为 0，所谓直方图实际是 256×256 的可学习通道混合矩阵，评测时对每张图采 10 次、按与 GT 的 PSNR 挑最好的那张。</p>
-  <div class="post-card__tags"><a class="tag-chip" href="concepts/learned-isp.html">learned-isp</a> <a class="tag-chip" href="concepts/raw-image.html">raw-image</a> <a class="tag-chip" href="concepts/phone-to-dslr.html">phone-to-dslr</a> <span class="tag-chip tag-chip--more">+4</span></div>
+  <h3 class="post-card__title"><a class="post-card__title-link" href="papers/raw-diffusion-2024/index.html">RAW-Diffusion：用 RGB 引导的扩散模型把 sRGB 逆回指定相机的 RAW，几十张图就能训一台新机</a></h3>
+  <p class="post-card__tldr">Sony AI 的 WACV 2025 工作。目标是给某一台相机批量造 RAW：拿同一台相机的 (RAW, sRGB) 对训练一个条件扩散模型，输入 sRGB，输出 4 通道打包的 RGGB RAW。RGB 先经一个 4 块的 EDSR 抽特征，再以 SPADE 式的逐像素 γ/β 调制注入 U-Net 的瓶颈和解码器；网络直接预测 x₀（预测噪声会崩到 5.55 dB），末层接 tanh，损失为 MSE + L1 + 对数 L1。四个单反数据集上 PSNR 全部第一（FiveK Nikon 30.05、NOD Nikon 44.93）；只用 25 张训练图时 PSNR 和全量持平；DDIM 6 步与 1000 步无差别。用 100 张 NOD 图训出的模型把 BDD100K 转成伪 RAW，Faster R-CNN 夜间检测 AP 从 18.2 提到 26.5。 代码核对发现几处论文没写的事：损失乘了 P2 权重 1−ᾱ_t；RGB 是 rawpy 默认参数从同一张 RAW 渲出来的，不是机内 JPEG；归一化时把黑电平以下的值截成 0。模型没有任何噪声建模或噪声控制，生成结果更接近「给定 RGB 的条件均值」。</p>
+  <div class="post-card__tags"><a class="tag-chip" href="concepts/learned-isp.html">learned-isp</a> <a class="tag-chip" href="concepts/raw-image.html">raw-image</a> <a class="tag-chip" href="concepts/phone-to-dslr.html">phone-to-dslr</a> <span class="tag-chip tag-chip--more">+5</span></div>
 </article>
 </div>
 <nav class="pager" aria-label="分页">
@@ -145,6 +145,7 @@
   <a class="pager__item" href="papers-7.html">7</a>
   <a class="pager__item" href="papers-8.html">8</a>
   <a class="pager__item" href="papers-9.html">9</a>
+  <a class="pager__item" href="papers-10.html">10</a>
   <a class="pager__nav" href="papers-2.html">下一页</a>
 </nav>
 </main>

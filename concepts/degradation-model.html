@@ -58,11 +58,38 @@
 <article class="post-card post-card--paper">
   <div class="post-card__meta">
     <span class="post-card__badge">论文</span>
+    <span class="post-card__date"><span class="post-card__added">2026-11-03</span><span class="post-card__extra">约 60 分钟</span></span>
+  </div>
+  <h3 class="post-card__title"><a class="post-card__title-link" href="../papers/ntire25-raw-sr-2025/index.html">NTIRE 2025 RAW 复原与超分挑战赛报告：BSRAW 随机退化管线、两条赛道的数据与前几名方案，以及这条管线能不能用来造伪 iPhone RAW</a></h3>
+  <p class="post-card__tldr">维尔茨堡大学 Conde、Timofte 组织的 NTIRE 2025 挑战赛报告（CVPRW 2025）。两条赛道都在打包的 RGGB 四通道 RAW 上进行，训练输入都由组织者给的 BSRAW 退化管线在线合成。超分赛道做 2× 放大：训练集是 FiveK 里 Canon / Nikon 单反的 1064 张干净 1024×1024×4 图，测试 200 张。通用赛道第一是 USTC 的 LiteRAWFormer（精简版 RBSFormer，1.94M 参数，42.70 dB），之后依次是 SMFFRaw-L 42.60、三星 RawRTSR-L 42.58（0.26M）、ERBSFormer 42.45；高效赛道（≤0.2M）第一是 SMFFRaw-S（42.12）。复原赛道做去噪加去模糊：训练集是 2139 个 512×512×4 的干净手机块，按 Hugging Face 上的目录统计来自 iPhone X 162 张、Galaxy S9 79 张、Google Pixel 12 张、Vivo X90 39 张原图；测试集 140 块，按三档退化分别评分。三星 ERIRNet 两条子赛道都拿第一：通用版 46.04 / 42.25 / 40.10 dB（4.97M），高效版 45.10 / 40.82 / 38.46（0.19M），后者也比 1.5M 的基线 RawIR 高。指标是 RAW 域的 PSNR / SSIM。 公开的 BSRAW 管线在 mv-lab/AISP 的 imresutils 里，核心不到 80 行，比 BSRAW 论文写的简单得多：50% 概率模糊，核从 kernels.npy 里随机取，12 个核里只抽前 11 个（4 个各向同性高斯、4 个各向异性、3 条运动轨迹），同一个核作用于 4 个打包通道；下采样是打包平面上的 2×2 平均池化，这会让 R、G、B 互相错开半个 HR 像素，而且 down=True 这条路径返回的形状是错的；噪声一半是 shot-read 模型，shot 方差只在 1e-4 到 1e-3 之间（Unprocessing 的上限是 0.012），另一半是逐像素重新抽 σ 的异方差高斯，所以每张图的等效噪声水平都一样。论文里写的曝光退化、SIDD/DND 噪声 profile、二次 PSF，代码里都没有。冠军的代码重新分配了核的抽样概率、每张图必模糊、自然噪声占 70%，还加了 100 个额外 PSF。另外，它沿用了为马赛克数组设计的翻转，却用在打包数组上，结果打乱了 CFA 相位。报告本身也有几处问题：Table 1 的 2024 参照混用了 12MP 和 1MP 两列；正文写 Google Pixel 10，数据集卡片写 Pixel 7–9；公开的 val 输入和 test level 2 逐字节相同。对专项来说，这条管线可以沿用「线性 RAW 上先模糊、再下采样、再加噪」的顺序，以及在 dataloader 里在线合成的做法；模糊核、下采样和噪声三样都要换成 iPhone 的实测值，前面还要补一步颜色映射。复原赛道的数据里有 162 张 iPhone X 原图的干净 RAW 块（另有 97 张的低质量块）和对应的机内成片，但没有 ISO；超分赛道全是单反，没有 iPhone。</p>
+  <div class="post-card__tags"><a class="tag-chip" href="../concepts/raw-image.html">raw-image</a> <a class="tag-chip" href="../concepts/image-super-resolution.html">image-super-resolution</a> <a class="tag-chip" href="../concepts/denoising.html">denoising</a> <span class="tag-chip tag-chip--more">+4</span></div>
+</article>
+<article class="post-card post-card--paper">
+  <div class="post-card__meta">
+    <span class="post-card__badge">论文</span>
     <span class="post-card__date"><span class="post-card__added">2026-10-27</span><span class="post-card__extra">约 40 分钟</span></span>
   </div>
   <h3 class="post-card__title"><a class="post-card__title-link" href="../papers/raw-degradation-sr-2026/index.html">RAW 域退化模型：逐台手机标定 SR 核与噪声，再用逆处理数据训练真实手机超分</a></h3>
   <p class="post-card__tldr">Samsung AI Center Toronto（Michael S. Brown 组）的 CVPR 2026 论文。手机数字变焦要在 RAW 上做超分，可是拿不到真值；常见做法是从一个大的随机退化池里采高斯模糊核和通用噪声来造数据。本文改成逐台设备标定：暗室里让手机拍显示器上的随机图案（每张 100 帧平均、格雷码定位、黑白两电平线性化），按 128×128 视场块联合优化 R/G/B 三个 4× SR 核，这个核把镜头 PSF、像素积分和下采样合在一起；噪声则用色卡连拍，按 7 档 ISO、4 个 Bayer 通道标定异方差高斯模型，再对 ISO 做二次拟合。用这些核和噪声把线性 RGB 逆处理成 LR RAW，训练只用 L1 的 RRDBNet。9 个手机摄像头里拿 7 个的标定结果训练，留出的 Pixel 6 Main 上 PSNR 32.41、相对 MTF50 1.19，Mi 11 Main 上 36.11、0.42，PSNR、SSIM、MTF50 都高于 Real-ESRGAN、BSRAW、RAWSR 的退化池。官方仓库目前只有一个空 README，标定好的核和噪声参数尚未发布。</p>
   <div class="post-card__tags"><a class="tag-chip" href="../concepts/raw-image.html">raw-image</a> <a class="tag-chip" href="../concepts/image-super-resolution.html">image-super-resolution</a> <a class="tag-chip" href="../concepts/real-isr.html">real-isr</a> <span class="tag-chip tag-chip--more">+6</span></div>
+</article>
+<article class="post-card post-card--survey">
+  <div class="post-card__meta">
+    <span class="post-card__badge">调研</span>
+    <span class="post-card__date"><span class="post-card__added">2026-10-20</span><span class="post-card__extra">约 105 分钟</span></span>
+  </div>
+  <h3 class="post-card__title"><a class="post-card__title-link" href="../surveys/phone2camera-2026/index.html">手机照片 → 相机画质：细节与质感迁移调研（2017→2026）</a></h3>
+  <p class="post-card__tldr">专项「把 iPhone 照片（优先 Bayer RAW）在细节与质感上变成某台目标相机的效果」的入口调研。按八组覆盖本站精读的 24 篇：A 手机→单反画质（DPED / WESPE / PyNET / LiteISPNet / ISPW / DiffRAW / ISPDiffuser），B 用更好的光学拍真值（Zoom-to-Learn / RealSR），C RAW 域造数据（Unprocessing），D 跨相机颜色（C5），E 多帧（Handheld MFSR），F RAW 合成与跨相机 RAW 数据（RAW-Diffusion / RawGen / RAW-Degradation / MERIT + MDRAW），G RGB→RAW 重建（ReRAW / RAW-Flow / Edit-aware RAW / NTIRE 2025 RGB→RAW 挑战赛），H RAW 退化建模：噪声、镜头、超分（Noise Modeling in One Hour / NoiseDiff / OmniLens++ / NTIRE 2025 RAW 复原与超分挑战赛）。逐篇给出核心贡献、方法、带数字的结果和代码位置，再用一张矩阵按输入域、监督、对齐、颜色/纹理是否分离、骨干、数据集、代码对比，写出一致与矛盾。代码交叉验证汇总各页发现，会直接影响复用的有：ISPDiffuser 发布版颜色一致性损失恒为 0、Canny 纹理损失无梯度、评测取 best-of-10；C5 的 apply_cst 原地覆盖导致 3×3 算错；ZRR 和 ISPW 都不提供单反 RAW；RawGen 发布版不加噪声，同一 XYZ 造出的伪 iPhone / 伪目标相机 RAW 只差一个 3×3；MERIT 的评测参考图按 GT 挑、默认噪声 profile 错配，在真实配对的 MDRAW 上与最强基线打平；PyNET、RAW-Diffusion、RAW-Flow、NTIRE 两份冠军/前列代码都在打包 RGGB 上直接翻转旋转，打乱 CFA 相位；BSRAW 公开管线的噪声范围比 Unprocessing 窄 12 倍，打包平面上的平均池化让四个通道错开半个像素。F、G 两组的六项学习式逆 ISP 工作，输出都是干净的条件均值，纹理来自输入照片，只能当颜色/色调逆 ISP；H 组说明噪声和镜头退化都要逐设备测，随机退化池只在「测试集由同一生成器合成」时才显得够用。合起来的结论：质感真值只能来自真实目标相机 RAW，输入端应由它反向合成（颜色矩阵 + 实测 iPhone SR 核 + 马赛克 + 实测噪声）。NTIRE 2025 的 iPhone X 数据是目前唯一公开的「iPhone 机内成片 ↔ 同次 Bayer RAW」像素对齐配对，可以当伪 iPhone RAW 的分布参照。最后对照「物理颜色 + 多帧真实细节 + 强度可控的高频生成 + 目标相机 ISP 出图」这条管线，列出每一步的证据和缺口。</p>
+  <div class="post-card__tags"><a class="tag-chip" href="../concepts/learned-isp.html">learned-isp</a> <a class="tag-chip" href="../concepts/raw-image.html">raw-image</a> <a class="tag-chip" href="../concepts/phone-to-dslr.html">phone-to-dslr</a> <span class="tag-chip tag-chip--more">+11</span></div>
+</article>
+<article class="post-card post-card--paper">
+  <div class="post-card__meta">
+    <span class="post-card__badge">论文</span>
+    <span class="post-card__date"><span class="post-card__added">2026-11-03</span><span class="post-card__extra">约 50 分钟</span></span>
+  </div>
+  <h3 class="post-card__title"><a class="post-card__title-link" href="../papers/omnilens-pp-2025/index.html">OmniLens++（FoundCAC）：用几千个自动设计的镜头做预训练，把 PSF 压成离散码本，盲校正镜头像差</a></h3>
+  <p class="post-card__tldr">浙江大学汪凯巍组的盲镜头像差校正工作。arXiv v1 叫 OmniLens++，v5 改名 FoundCAC，作者在 arXiv 注释里写明已被 ICCP 2026 接收。方法分数据和模型两半。数据侧沿用前作 OmniLens 的进化式自动光学设计（EAOD）批量出镜头，新加非球面和像面扰动两类规格；再用棋盘格成像在 5 个视场上算 OIQ 画质分，按「严重程度 3 档 × 空间变化 6 类」共 18 个子类均匀抽样，得到 AODLibpro（正文写 3600 个训练镜头、54 个测试镜头）。每个镜头用 DeepLens 光线追踪算 64 个径向视场 × 31 个波长的 PSF，按传感器光谱响应叠成 RGB，在 2K 等效分辨率上分块卷积，每个镜头从 Flickr2K 造 40 对。模型侧，Stage I 用真值 PSF 图联合训练一个 1024 项的 VQ 码本和复原网络；Stage II 冻结码本，让预测器只从退化图里检索码字；Stage III 冻结码本微调到特定镜头。AODLibpro 测试集上 29.12 dB，比同骨干基线高 0.66 dB；RealLens-Sim 平均 26.84 dB，比 OmniLens 管线高 1.70 dB，但这部分提升集中在非球面单透镜，四颗简易镜头里有三颗前作的 PSNR 更高。只用 5% 目标数据做少样本适配，单透镜 30.90 dB、手机镜头 33.34 dB，分别比同样数据从头训练高 3.68 和 1.27 dB。手机镜头和装配误差只在仿真里测过，真实拍摄集里没有手机，只报了无参考指标。FoundCAC 仓库到现在只有一个 README；同一账号在 Hugging Face 传了 AODLibpro 的 PSF，只有 3240 个训练镜头，没有设计文件和测试集。对「伪 iPhone RAW」专项来说，库里是像差很大的简易镜头，论文自己也说一颗手机镜头的标称 PSF 在它的 2K 采样下不到一个像素，所以库里的 PSF 不能拿来近似 iPhone。能借用的是 DeepLens 那条「光追 PSF → 线性 RGB 分块卷积 → 马赛克 → 噪声」管线，以及用装配公差扰动生成个体差异的做法，可以拿来补实测核覆盖不到的视场、景深和个体差异。</p>
+  <div class="post-card__tags"><a class="tag-chip" href="../concepts/lens-aberration.html">lens-aberration</a> <a class="tag-chip" href="../concepts/psf-simulation.html">psf-simulation</a> <a class="tag-chip" href="../concepts/degradation-model.html">degradation-model</a> <span class="tag-chip tag-chip--more">+4</span></div>
 </article>
 </div>
 
