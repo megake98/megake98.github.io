@@ -98,15 +98,6 @@
   <p class="post-card__tldr">DiffRAW（AAAI 2024，清华深研院 + 华为）第一次把扩散模型用到「手机 RAW → 单反 sRGB」的学习式 ISP 上，分工是：手机 RAW 当条件，负责轮廓和纹理结构；一张确定性 sRGB（训练时是单反图的合成退化版，测试时是 LiteISPNet 的输出）当「颜色-位置保持条件」，锁住颜色和像素位置；扩散模型负责补出单反级的高频细节。 为了少走几步，它还设计了 DTDM：前向过程边加噪边从 y 往 x 退化，于是推理可以直接从「加噪后的 LiteISPNet 输出」出发，100 步以内做完。ZRR 上 LPIPS 0.187→0.145、FID 17.04→15.10，无参考指标与单反真值持平，但 PSNR/SSIM 反而比 LiteISPNet 低一点。没有官方代码。</p>
   <div class="post-card__tags"><a class="tag-chip" href="concepts/learned-isp.html">learned-isp</a> <a class="tag-chip" href="concepts/raw-image.html">raw-image</a> <a class="tag-chip" href="concepts/phone-to-dslr.html">phone-to-dslr</a> <span class="tag-chip tag-chip--more">+6</span></div>
 </article>
-<article class="post-card post-card--paper">
-  <div class="post-card__meta">
-    <span class="post-card__badge">论文</span>
-    <span class="post-card__date"><span class="post-card__added">2026-10-20</span><span class="post-card__extra">约 35 分钟</span></span>
-  </div>
-  <h3 class="post-card__title"><a class="post-card__title-link" href="papers/c5-2020/index.html">C5：看几张同一台相机的无标注照片，就能给没见过的相机做白平衡</a></h3>
-  <p class="post-card__tldr">C5（Google Research，ICCV 2021 Oral）想解决跨相机的自动白平衡：一个模型用多台相机训练，部署到没见过的传感器上仍然准。做法是在经典的卷积色彩恒常（CCC）外面套一层超网络：把待处理图和同一台相机拍的另外几张无标注照片都转成 log-chroma 直方图，网络读完这一组图后，为这台相机现场生成 CCC 的滤波器 F 和偏置 B。 在 Cube+、INTEL-TAU、NUS 等数据集的留一相机协议下，平均角误差 1.77°–2.52°，优于 SIIE、FFCC 等方法；模型约 2 MB，GPU 上每张约 7 ms。附录的数据增广把源相机 RAW 经 DNG 色彩矩阵转到 CIE XYZ，再映射到目标相机空间。这个做法和「iPhone RAW → 目标相机」的颜色对齐思路基本一致，同色异谱问题论文也坦白讲了。</p>
-  <div class="post-card__tags"><a class="tag-chip" href="concepts/color-constancy.html">color-constancy</a> <a class="tag-chip" href="concepts/raw-image.html">raw-image</a> <a class="tag-chip" href="concepts/phone-to-dslr.html">phone-to-dslr</a> <span class="tag-chip tag-chip--more">+5</span></div>
-</article>
 <article class="post-card post-card--tutorial">
   <div class="post-card__meta">
     <span class="post-card__badge">教程</span>
@@ -133,6 +124,15 @@
   <h3 class="post-card__title"><a class="post-card__title-link" href="papers/self-play-zero-2026/index.html">Self-Play Pretraining with Zero Data：让模型从「零数据」里长出预训练</a></h3>
   <p class="post-card__tldr">能不能让语言模型从随机初始化出发、不看任何自然数据，自己造出对自己最有用的预训练数据？这篇论文给了一个概念验证：两个从零初始化的 Transformer 对弈——生成器写通用图灵机（Brainf*ck 变体）程序，程序执行吐出字节序列；学习器用标准交叉熵去预测这些字节。 关键在生成器的奖励：不是&quot;序列多难预测&quot;，而是&quot;这个程序让学习器产生的梯度，是否和学习器近期的学习轨迹对齐&quot;（AdamW 预条件下的内积），从而把课程锁在学习器能力的前沿。结果：在文本/图像/语音/旋律/DNA/数学序列六类自然数据上，zero-shot 损失随自算力幂律下降，指数与直接在自然数据上训练相当；模型涌现出 in-context learning，生成器还自发&quot;发现&quot;了等差、斐波那契、几何等数列。作者用「可迁移的普适结构 vs 世界相关的偶然信息」二分给出了一个解释性 ansatz。</p>
   <div class="post-card__tags"><a class="tag-chip" href="concepts/self-play.html">self-play</a> <a class="tag-chip" href="concepts/synthetic-data.html">synthetic-data</a> <a class="tag-chip" href="concepts/solomonoff-induction.html">solomonoff-induction</a> <span class="tag-chip tag-chip--more">+11</span></div>
+</article>
+<article class="post-card post-card--paper">
+  <div class="post-card__meta">
+    <span class="post-card__badge">论文</span>
+    <span class="post-card__date"><span class="post-card__added">2026-10-10</span><span class="post-card__extra">约 20 分钟</span></span>
+  </div>
+  <h3 class="post-card__title"><a class="post-card__title-link" href="papers/scale-dit-2025/index.html">Scale-DiT：用窗口稀疏注意力把预训练扩散模型拉到 4K/8K</a></h3>
+  <p class="post-card__tldr">高分辨率生成的瓶颈是 self-attention 的 O(N²)——4K 有 65536 个 token,全注意力算不动。 Scale-DiT（arxiv:2510.16325,PDF 正文题名 UltraImageGen）把高清 latent 切成固定 256×256 的局部窗口, 每个 token 只在窗口内 + 少量文本 + 对应低清引导块上做注意力,并用「窗口优先重排」把稀疏 mask 变成内存连续的稠密块,复杂度降到近线性(4K 省 256×,8K 省 130×)。全局一致性靠一路带缩放位置锚点 的低分辨率引导图 + 只挂在引导路径上的 LoRA 兜底,4K 几乎不需高分辨率训练数据。</p>
+  <div class="post-card__tags"><a class="tag-chip" href="concepts/sparse-attention.html">sparse-attention</a> <a class="tag-chip" href="concepts/block-sparse-attention.html">block-sparse-attention</a> <a class="tag-chip" href="concepts/window-attention.html">window-attention</a> <span class="tag-chip tag-chip--more">+8</span></div>
 </article>
 </div>
 <nav class="pager" aria-label="分页">
