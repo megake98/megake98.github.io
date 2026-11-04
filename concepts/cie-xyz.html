@@ -67,7 +67,7 @@
 <article class="post-card post-card--paper">
   <div class="post-card__meta">
     <span class="post-card__badge">论文</span>
-    <span class="post-card__date"><span class="post-card__added">2020-11-24</span><span class="post-card__extra">约 35 分钟</span></span>
+    <span class="post-card__date"><span class="post-card__added">2026-10-20</span><span class="post-card__extra">约 35 分钟</span></span>
   </div>
   <h3 class="post-card__title"><a class="post-card__title-link" href="../papers/c5-2020/index.html">C5：看几张同一台相机的无标注照片，就能给没见过的相机做白平衡</a></h3>
   <p class="post-card__tldr">C5（Google Research，ICCV 2021 Oral）想解决跨相机的自动白平衡：一个模型用多台相机训练，部署到没见过的传感器上仍然准。做法是在经典的卷积色彩恒常（CCC）外面套一层超网络：把待处理图和同一台相机拍的另外几张无标注照片都转成 log-chroma 直方图，网络读完这一组图后，为这台相机现场生成 CCC 的滤波器 F 和偏置 B。 在 Cube+、INTEL-TAU、NUS 等数据集的留一相机协议下，平均角误差 1.77°–2.52°，优于 SIIE、FFCC 等方法；模型约 2 MB，GPU 上每张约 7 ms。附录的数据增广把源相机 RAW 经 DNG 色彩矩阵转到 CIE XYZ，再映射到目标相机空间。这个做法和「iPhone RAW → 目标相机」的颜色对齐思路基本一致，同色异谱问题论文也坦白讲了。</p>

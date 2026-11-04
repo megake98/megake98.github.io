@@ -166,7 +166,7 @@
 <article class="post-card post-card--paper">
   <div class="post-card__meta">
     <span class="post-card__badge">论文</span>
-    <span class="post-card__date"><span class="post-card__added">2025-12-05</span><span class="post-card__extra">约 50 分钟</span></span>
+    <span class="post-card__date"><span class="post-card__added">2026-11-03</span><span class="post-card__extra">约 50 分钟</span></span>
   </div>
   <h3 class="post-card__title"><a class="post-card__title-link" href="../papers/edit-aware-raw-2025/index.html">Edit-aware RAW 重建：把 RAW 误差放进一条随机修图的可微 ISP 里算，让重建出的 RAW 经得起再编辑</a></h3>
   <p class="post-card__tldr">三星多伦多 AI 中心 Brown 组的 CVPR 2026 工作。sRGB → RAW 重建模型通常只在 RAW 域算 L2，可用户要 RAW 是为了再修图。本文给任意重建模型加一项即插即用的损失：搭一条不可学习的可微 ISP（曝光 → 白平衡与 DNG 色彩矩阵 → 15 个 3D LUT 之一 → Adobe 色调曲线叠随机单调多项式 → sRGB gamma），训练时随机抽一组修图参数，把真值 RAW 和重建 RAW 都渲染成 sRGB 再比。测试集是 S24 Ultra 主摄 RAW-sRGB 数据集的 400 张图，用 Photoshop 的五种编辑评测：CAM 的编辑后 PSNR 提升 1.53–2.02 dB，RAW PSNR 也略升（37.17 → 37.57）；RAW-Diffusion 提升 0.33–1.74 dB，RAW PSNR 降 0.81 dB；只用这项损失训练的 UNet 提升 0.59–1.58 dB，RAW PSNR 从 38.82 降到 35.62。 官方代码只包含 UNet 实验，没有权重。对照代码，白平衡采样、色调多项式阶数、LUT 抽样比例、损失范数都和论文写法不同，ΔE 脚本还多做了一次 BGR/RGB 互换。论文只证明了重建 RAW「更适合再编辑」，没有测任何下游视觉任务。对「手机 → 相机质感」专项，它不提供纹理和噪声，值得借的是损失的写法，以及「写进真机 DNG、交给 Adobe Camera Raw 渲染后再比」的评测流程。</p>
@@ -238,7 +238,7 @@
 <article class="post-card post-card--paper">
   <div class="post-card__meta">
     <span class="post-card__badge">论文</span>
-    <span class="post-card__date"><span class="post-card__added">2020-11-24</span><span class="post-card__extra">约 35 分钟</span></span>
+    <span class="post-card__date"><span class="post-card__added">2026-10-20</span><span class="post-card__extra">约 35 分钟</span></span>
   </div>
   <h3 class="post-card__title"><a class="post-card__title-link" href="../papers/c5-2020/index.html">C5：看几张同一台相机的无标注照片，就能给没见过的相机做白平衡</a></h3>
   <p class="post-card__tldr">C5（Google Research，ICCV 2021 Oral）想解决跨相机的自动白平衡：一个模型用多台相机训练，部署到没见过的传感器上仍然准。做法是在经典的卷积色彩恒常（CCC）外面套一层超网络：把待处理图和同一台相机拍的另外几张无标注照片都转成 log-chroma 直方图，网络读完这一组图后，为这台相机现场生成 CCC 的滤波器 F 和偏置 B。 在 Cube+、INTEL-TAU、NUS 等数据集的留一相机协议下，平均角误差 1.77°–2.52°，优于 SIIE、FFCC 等方法；模型约 2 MB，GPU 上每张约 7 ms。附录的数据增广把源相机 RAW 经 DNG 色彩矩阵转到 CIE XYZ，再映射到目标相机空间。这个做法和「iPhone RAW → 目标相机」的颜色对齐思路基本一致，同色异谱问题论文也坦白讲了。</p>

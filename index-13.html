@@ -56,6 +56,33 @@
 <article class="post-card post-card--paper">
   <div class="post-card__meta">
     <span class="post-card__badge">论文</span>
+    <span class="post-card__date"><span class="post-card__added">2026-06-01</span><span class="post-card__extra">约 25 分钟</span></span>
+  </div>
+  <h3 class="post-card__title"><a class="post-card__title-link" href="papers/deepseek-v4-2026/index.html">DeepSeek-V4: Towards Highly Efficient Million-Token Context Intelligence</a></h3>
+  <p class="post-card__tldr">1.6T MoE / 1M context。CSA+HCA 混合注意力把 KV cache 砍到 V3.2 的 10%,残差用 Sinkhorn 投影双随机矩阵稳定 61 层堆叠。</p>
+  <div class="post-card__tags"><a class="tag-chip" href="concepts/llm.html">llm</a> <a class="tag-chip" href="concepts/attention.html">attention</a> <a class="tag-chip" href="concepts/mixture-of-experts.html">mixture-of-experts</a> <span class="tag-chip tag-chip--more">+1</span></div>
+</article>
+<article class="post-card post-card--paper">
+  <div class="post-card__meta">
+    <span class="post-card__badge">论文</span>
+    <span class="post-card__date"><span class="post-card__added">2026-06-01</span><span class="post-card__extra">约 20 分钟</span></span>
+  </div>
+  <h3 class="post-card__title"><a class="post-card__title-link" href="papers/dapo-2025/index.html">DAPO: An Open-Source LLM Reinforcement Learning System at Scale</a></h3>
+  <p class="post-card__tldr">字节 + 清华 AIR 的 R1 复现:Qwen2.5-32B base 上 4 个工程修复 (Clip-Higher / Dynamic Sampling / Token-Level Loss / Overlong Reward Shaping) 把 GRPO 从 30 推到 50 AIME24,只用 R1-Zero 50% step。代码+数据+权重全开源。</p>
+  <div class="post-card__tags"><a class="tag-chip" href="concepts/rl.html">rl</a> <a class="tag-chip" href="concepts/llm.html">llm</a> <a class="tag-chip" href="concepts/grpo.html">grpo</a> <span class="tag-chip tag-chip--more">+3</span></div>
+</article>
+<article class="post-card post-card--paper">
+  <div class="post-card__meta">
+    <span class="post-card__badge">论文</span>
+    <span class="post-card__date"><span class="post-card__added">2026-06-01</span><span class="post-card__extra">约 20 分钟</span></span>
+  </div>
+  <h3 class="post-card__title"><a class="post-card__title-link" href="papers/d-opsd-2026/index.html">D-OPSD: On-Policy Self-Distillation for Continuously Tuning Step-Distilled Diffusion Models</a></h3>
+  <p class="post-card__tldr">HKUST/阿里 Z-Image Team:让 Z-Image-Turbo (8 步) 和 FLUX.2-klein (4 步) 能&quot;边用边学&quot;新概念 — 同一模型分饰 student (text) 和 teacher (text+target_img),在 student 自采轨迹上 self-distill,无需 reward。</p>
+  <div class="post-card__tags"><a class="tag-chip" href="concepts/diffusion.html">diffusion</a> <a class="tag-chip" href="concepts/distillation.html">distillation</a> <a class="tag-chip" href="concepts/flow-matching.html">flow-matching</a> <span class="tag-chip tag-chip--more">+2</span></div>
+</article>
+<article class="post-card post-card--paper">
+  <div class="post-card__meta">
+    <span class="post-card__badge">论文</span>
     <span class="post-card__date"><span class="post-card__added">2026-06-01</span><span class="post-card__extra">约 20 分钟</span></span>
   </div>
   <h3 class="post-card__title"><a class="post-card__title-link" href="papers/awm-2025/index.html">Advantage Weighted Matching: 把扩散模型 RL 拽回到预训练目标</a></h3>
@@ -70,33 +97,6 @@
   <h3 class="post-card__title"><a class="post-card__title-link" href="papers/asymflow-2026/index.html">AsymFlow: 秩-非对称速度参数化, 把 latent 流匹配模型 lift 到像素空间</a></h3>
   <p class="post-card__tldr">Stanford (Wetzstein/Guibas 组, arXiv 2026/05/13)。像素扩散用 plain DiT 的瓶颈是 velocity 目标 u = ε − x₀ 里那个 full-rank 高斯噪声污染 transformer hidden state。AsymFlow 把 velocity 拆开非对称: data 项 −x₀ 保持 full-rank, noise 项限到 rank-r 子空间, 即 u_A := Pε − x₀, 训练时网络只预测 u_A, sampling 时解析还原 full-rank。r=0 退化 x₀-pred, r=D 退化 u-pred, 中间是新东西。子空间用 PCA 或 latent→pixel Procrustes 对齐构造。架构 / training-loop / sampler 一字不改。结果: ImageNet 256 上 1.57 FID (JiT-H/16 + REPA), 是 plain transformer 像素扩散 SOTA; 从 FLUX.2 klein 9B Procrustes-lift 得到 AsymFLUX.2 klein, 是第一个把大型 latent flow 直接转成像素生成器的方法, 在 HPSv3/DPG/GenEval 上全面超过 latent base。</p>
   <div class="post-card__tags"><a class="tag-chip" href="concepts/diffusion.html">diffusion</a> <a class="tag-chip" href="concepts/image-gen.html">image-gen</a> <a class="tag-chip" href="concepts/pixel-space.html">pixel-space</a> <span class="tag-chip tag-chip--more">+2</span></div>
-</article>
-<article class="post-card post-card--paper">
-  <div class="post-card__meta">
-    <span class="post-card__badge">论文</span>
-    <span class="post-card__date"><span class="post-card__added">2026-05-22</span><span class="post-card__extra">约 25 分钟</span></span>
-  </div>
-  <h3 class="post-card__title"><a class="post-card__title-link" href="papers/bernini-2026/index.html">Bernini: Latent Semantic Planning for Video Diffusion（用 MLLM 做「语义规划」，DiT 只负责渲染像素）</a></h3>
-  <p class="post-card__tldr">字节跳动 Bernini 团队的技术报告。核心主张：MLLM 和扩散模型可以用一条「分工线」缝起来——让 MLLM 做语义规划（在它自己的 ViT embedding 空间里预测「目标该长什么样」），让 DiT 只负责把这份语义计划渲染成像素。关键设计有三个：(1) 用 MAR 式的掩码生成把 MLLM 从「理解模型」改造成「语义规划器」，目标 ViT token 训练时随机掩码、推理时从全掩码迭代填充；(2) SA-3D RoPE，给统一序列里每个视觉 segment 一个下标 i，用一个「段相位」旋转向量 ⊙ 到标准 3D RoPE 上，解决多张参考图/源视频「同一 (t,h,w) 坐标身份混淆」的问题；(3) 一条链式增量 guidance，把源视频 / 源图 / 文本 / 语义 embedding 四种条件拆成可独立调节的增量。因为「语义」是接口，planner 和 renderer 可以分开训、只轻量联训。实测在 OpenVE（4.04 vs 次优 3.18）、EditVerse（editing quality 8.02）、OpenS2V（FaceSim 78.20，比次优高 20+ 分）等多个视频编辑/生成榜上做到 SOTA，且 VBench 文生图质量几乎不掉（84.64 vs 底座 Wan2.2 的 84.79）。代码与权重已开源（Qwen2.5-VL-7B 规划器 + Wan2.2-A14B 渲染器）。</p>
-  <div class="post-card__tags"><a class="tag-chip" href="concepts/video-editing.html">video-editing</a> <a class="tag-chip" href="concepts/video-generation.html">video-generation</a> <a class="tag-chip" href="concepts/unified-multimodal.html">unified-multimodal</a> <span class="tag-chip tag-chip--more">+7</span></div>
-</article>
-<article class="post-card post-card--paper">
-  <div class="post-card__meta">
-    <span class="post-card__badge">论文</span>
-    <span class="post-card__date"><span class="post-card__added">2025-12-05</span><span class="post-card__extra">约 50 分钟</span></span>
-  </div>
-  <h3 class="post-card__title"><a class="post-card__title-link" href="papers/edit-aware-raw-2025/index.html">Edit-aware RAW 重建：把 RAW 误差放进一条随机修图的可微 ISP 里算，让重建出的 RAW 经得起再编辑</a></h3>
-  <p class="post-card__tldr">三星多伦多 AI 中心 Brown 组的 CVPR 2026 工作。sRGB → RAW 重建模型通常只在 RAW 域算 L2，可用户要 RAW 是为了再修图。本文给任意重建模型加一项即插即用的损失：搭一条不可学习的可微 ISP（曝光 → 白平衡与 DNG 色彩矩阵 → 15 个 3D LUT 之一 → Adobe 色调曲线叠随机单调多项式 → sRGB gamma），训练时随机抽一组修图参数，把真值 RAW 和重建 RAW 都渲染成 sRGB 再比。测试集是 S24 Ultra 主摄 RAW-sRGB 数据集的 400 张图，用 Photoshop 的五种编辑评测：CAM 的编辑后 PSNR 提升 1.53–2.02 dB，RAW PSNR 也略升（37.17 → 37.57）；RAW-Diffusion 提升 0.33–1.74 dB，RAW PSNR 降 0.81 dB；只用这项损失训练的 UNet 提升 0.59–1.58 dB，RAW PSNR 从 38.82 降到 35.62。 官方代码只包含 UNet 实验，没有权重。对照代码，白平衡采样、色调多项式阶数、LUT 抽样比例、损失范数都和论文写法不同，ΔE 脚本还多做了一次 BGR/RGB 互换。论文只证明了重建 RAW「更适合再编辑」，没有测任何下游视觉任务。对「手机 → 相机质感」专项，它不提供纹理和噪声，值得借的是损失的写法，以及「写进真机 DNG、交给 Adobe Camera Raw 渲染后再比」的评测流程。</p>
-  <div class="post-card__tags"><a class="tag-chip" href="concepts/learned-isp.html">learned-isp</a> <a class="tag-chip" href="concepts/raw-image.html">raw-image</a> <a class="tag-chip" href="concepts/inverse-isp.html">inverse-isp</a> <span class="tag-chip tag-chip--more">+3</span></div>
-</article>
-<article class="post-card post-card--paper">
-  <div class="post-card__meta">
-    <span class="post-card__badge">论文</span>
-    <span class="post-card__date"><span class="post-card__added">2020-11-24</span><span class="post-card__extra">约 35 分钟</span></span>
-  </div>
-  <h3 class="post-card__title"><a class="post-card__title-link" href="papers/c5-2020/index.html">C5：看几张同一台相机的无标注照片，就能给没见过的相机做白平衡</a></h3>
-  <p class="post-card__tldr">C5（Google Research，ICCV 2021 Oral）想解决跨相机的自动白平衡：一个模型用多台相机训练，部署到没见过的传感器上仍然准。做法是在经典的卷积色彩恒常（CCC）外面套一层超网络：把待处理图和同一台相机拍的另外几张无标注照片都转成 log-chroma 直方图，网络读完这一组图后，为这台相机现场生成 CCC 的滤波器 F 和偏置 B。 在 Cube+、INTEL-TAU、NUS 等数据集的留一相机协议下，平均角误差 1.77°–2.52°，优于 SIIE、FFCC 等方法；模型约 2 MB，GPU 上每张约 7 ms。附录的数据增广把源相机 RAW 经 DNG 色彩矩阵转到 CIE XYZ，再映射到目标相机空间。这个做法和「iPhone RAW → 目标相机」的颜色对齐思路基本一致，同色异谱问题论文也坦白讲了。</p>
-  <div class="post-card__tags"><a class="tag-chip" href="concepts/color-constancy.html">color-constancy</a> <a class="tag-chip" href="concepts/raw-image.html">raw-image</a> <a class="tag-chip" href="concepts/phone-to-dslr.html">phone-to-dslr</a> <span class="tag-chip tag-chip--more">+5</span></div>
 </article>
 </div>
 <nav class="pager" aria-label="分页">

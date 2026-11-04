@@ -55,6 +55,15 @@
 <article class="post-card post-card--paper">
   <div class="post-card__meta">
     <span class="post-card__badge">论文</span>
+    <span class="post-card__date"><span class="post-card__added">2026-10-20</span><span class="post-card__extra">约 35 分钟</span></span>
+  </div>
+  <h3 class="post-card__title"><a class="post-card__title-link" href="papers/ispw-2022/index.html">ISPW：把「颜色」从学习式 ISP 里拆出去——颜色条件网络 + 逐图参数化颜色映射 + 掩码对齐损失</a></h3>
+  <p class="post-card__tldr">ETH CVL 的 ECCV 2022 工作，任务是手机 RAW → 单反 sRGB。作者认为难点在于每对训练图的颜色映射都不一样（相机参数、光照各异），而且两台机器拍的画面没对齐。做法是把颜色和细节拆开：ISP 网络 F(x, ĉ) 额外吃一张低分辨率的「目标颜色图」ĉ，只负责去噪、去马赛克和细节；训练时 ĉ 来自一个逐图闭式拟合的分 bin 仿射颜色映射 C（15 个 bin，每个 bin 一个 3→1 仿射，约 180 个参数），它把单反 GT 的颜色搬到手机 RAW 上，但带不过去 GT 的细节；推理时 ĉ 由带 Perceiver 式全局上下文 Transformer 的 U-Net 颜色预测器 G(x) 给出。监督端用 PWC-Net 光流对齐 GT，再用前后向一致性掩码剔除流不准的区域。 ZRR 上 PSNR 25.24 / SSIM 0.879（LiteISPNet 23.81），自建 ISPW（华为 Mate 30 Pro RAW ↔ Canon 5D IV sRGB，200 组，单反侧三档曝光）上 25.05 vs 23.51。官方仓库只有 README，代码一直没放出来；ISPW 的单反侧只有 sRGB，没有单反 RAW，下载链接目前 404。</p>
+  <div class="post-card__tags"><a class="tag-chip" href="concepts/learned-isp.html">learned-isp</a> <a class="tag-chip" href="concepts/raw-image.html">raw-image</a> <a class="tag-chip" href="concepts/phone-to-dslr.html">phone-to-dslr</a> <span class="tag-chip tag-chip--more">+6</span></div>
+</article>
+<article class="post-card post-card--paper">
+  <div class="post-card__meta">
+    <span class="post-card__badge">论文</span>
     <span class="post-card__date"><span class="post-card__added">2026-10-20</span><span class="post-card__extra">约 25 分钟</span></span>
   </div>
   <h3 class="post-card__title"><a class="post-card__title-link" href="papers/ispdiffuser-2025/index.html">ISPDiffuser：灰度空间用扩散补纹理，颜色交给「直方图」模块——RAW-to-sRGB 的颜色/纹理解耦</a></h3>
@@ -91,6 +100,15 @@
 <article class="post-card post-card--paper">
   <div class="post-card__meta">
     <span class="post-card__badge">论文</span>
+    <span class="post-card__date"><span class="post-card__added">2026-10-20</span><span class="post-card__extra">约 35 分钟</span></span>
+  </div>
+  <h3 class="post-card__title"><a class="post-card__title-link" href="papers/c5-2020/index.html">C5：看几张同一台相机的无标注照片，就能给没见过的相机做白平衡</a></h3>
+  <p class="post-card__tldr">C5（Google Research，ICCV 2021 Oral）想解决跨相机的自动白平衡：一个模型用多台相机训练，部署到没见过的传感器上仍然准。做法是在经典的卷积色彩恒常（CCC）外面套一层超网络：把待处理图和同一台相机拍的另外几张无标注照片都转成 log-chroma 直方图，网络读完这一组图后，为这台相机现场生成 CCC 的滤波器 F 和偏置 B。 在 Cube+、INTEL-TAU、NUS 等数据集的留一相机协议下，平均角误差 1.77°–2.52°，优于 SIIE、FFCC 等方法；模型约 2 MB，GPU 上每张约 7 ms。附录的数据增广把源相机 RAW 经 DNG 色彩矩阵转到 CIE XYZ，再映射到目标相机空间。这个做法和「iPhone RAW → 目标相机」的颜色对齐思路基本一致，同色异谱问题论文也坦白讲了。</p>
+  <div class="post-card__tags"><a class="tag-chip" href="concepts/color-constancy.html">color-constancy</a> <a class="tag-chip" href="concepts/raw-image.html">raw-image</a> <a class="tag-chip" href="concepts/phone-to-dslr.html">phone-to-dslr</a> <span class="tag-chip tag-chip--more">+5</span></div>
+</article>
+<article class="post-card post-card--paper">
+  <div class="post-card__meta">
+    <span class="post-card__badge">论文</span>
     <span class="post-card__date"><span class="post-card__added">2026-10-10</span><span class="post-card__extra">约 25 分钟</span></span>
   </div>
   <h3 class="post-card__title"><a class="post-card__title-link" href="papers/sparkdiffusion-2026/index.html">SparkDiffusion：识别「高稀疏陷阱」，把视频扩散在单卡上加速 265×</a></h3>
@@ -114,24 +132,6 @@
   <h3 class="post-card__title"><a class="post-card__title-link" href="papers/scale-dit-2025/index.html">Scale-DiT：用窗口稀疏注意力把预训练扩散模型拉到 4K/8K</a></h3>
   <p class="post-card__tldr">高分辨率生成的瓶颈是 self-attention 的 O(N²)——4K 有 65536 个 token,全注意力算不动。 Scale-DiT（arxiv:2510.16325,PDF 正文题名 UltraImageGen）把高清 latent 切成固定 256×256 的局部窗口, 每个 token 只在窗口内 + 少量文本 + 对应低清引导块上做注意力,并用「窗口优先重排」把稀疏 mask 变成内存连续的稠密块,复杂度降到近线性(4K 省 256×,8K 省 130×)。全局一致性靠一路带缩放位置锚点 的低分辨率引导图 + 只挂在引导路径上的 LoRA 兜底,4K 几乎不需高分辨率训练数据。</p>
   <div class="post-card__tags"><a class="tag-chip" href="concepts/sparse-attention.html">sparse-attention</a> <a class="tag-chip" href="concepts/block-sparse-attention.html">block-sparse-attention</a> <a class="tag-chip" href="concepts/window-attention.html">window-attention</a> <span class="tag-chip tag-chip--more">+8</span></div>
-</article>
-<article class="post-card post-card--paper">
-  <div class="post-card__meta">
-    <span class="post-card__badge">论文</span>
-    <span class="post-card__date"><span class="post-card__added">2026-10-10</span><span class="post-card__extra">约 20 分钟</span></span>
-  </div>
-  <h3 class="post-card__title"><a class="post-card__title-link" href="papers/rola-2026/index.html">RoLA：把 3D-RoPE 塞进线性注意力——解「RoPE 两难」的旋转低秩补偿分支</a></h3>
-  <p class="post-card__tldr">视频 DiT 里「稀疏 + 线性」的混合注意力想用一条便宜的线性分支捞回稀疏分支丢掉的全局上下文,但撞上一个结构性矛盾——RoPE 两难(RoPE Dilemma):线性注意力要求一个「与 query 无关、能复用的全局摘要」$C=\sum_q \phi(k_q)v_q^\top$,而 3D-RoPE 用「位置相关的旋转」编码相对几何;如果先旋转再过非线性 $\phi$,旋转和非线性不对易,摘要就会被绝对位置污染,既保不住相对几何、又丢了可复用性。 已有做法(RoPeSLR)绕开矛盾:干脆不做跨 token 聚合,改用「逐 token 坐标 MLP + 可学习的绝对位置嵌入」去模仿相对衰减——但这既丢了真正的线性全局路由,又额外引入位置参数。RoLA 的解法极简却关键:把 RoPE 放到非线性外面(先 SiLU 低秩投影、再旋转),这样全局摘要照样累加一次、被所有 query 复用,位置效应只在 query 读出时出现;再复用预训练 RoPE 频率表的前 r 个坐标(r=64,即 r/2 个旋转对)匹配低秩瓶颈,不引入任何新位置参数。 机制实验直接验证:outside-activation 的位置核紧贴全注意力的带状相对衰减,shift 残差 $1.8\times10^{-5}$(inside 是 $3.7\times10^{-1}$,泄漏绝对位置);rank 到 64 时保真度饱和。生成上 Wan2.1-14B-720P 在 90% 稀疏度下 VBench 逼近稠密、端到端 2.63×。RoLA 正是 sparkdiffusion-2026 默认采用的稀疏模块。</p>
-  <div class="post-card__tags"><a class="tag-chip" href="concepts/video-diffusion.html">video-diffusion</a> <a class="tag-chip" href="concepts/sparse-attention.html">sparse-attention</a> <a class="tag-chip" href="concepts/linear-attention.html">linear-attention</a> <span class="tag-chip tag-chip--more">+7</span></div>
-</article>
-<article class="post-card post-card--paper">
-  <div class="post-card__meta">
-    <span class="post-card__badge">论文</span>
-    <span class="post-card__date"><span class="post-card__added">2026-10-10</span><span class="post-card__extra">约 25 分钟</span></span>
-  </div>
-  <h3 class="post-card__title"><a class="post-card__title-link" href="papers/pixrestore-2026/index.html">PixRestore：扔掉 VAE 和 T2I 先验，从零训一个像素空间 DiT 做统一图像修复</a></h3>
-  <p class="post-card__tldr">港理工 VCLab 的统一图像修复（UIR）工作。核心主张：为 UIR 适配大 T2I 潜空间扩散模型是走了弯路——VAE 会丢掉修复最在意的细节，开放式生成先验会造出与输入不一致的伪影，十亿级骨干 + MLLM + MoE + VAE 编解码则纯属浪费算力。PixRestore 反其道而行：无 VAE、不用 T2I 预训练，直接在 patch 化的 RGB 像素上从零做 flow matching。为了适应不同退化，它用冻结的 DINOv2 多层特征作条件，并训一个「相似度引导的自适应层路由」——用 LQ–HQ 特征相似度当老师，可靠的层融合成 dense 条件（Eq 5），不可靠的层反而加大 HQ 特征监督（Eq 6）。最后把多步模型固定 t=1、配 DINO 特征判别器蒸成一步生成器。结果：约 50M 参数、单步推理、44ms，在 8 类退化上整体保真度/感知质量/退化去除都拿到最优或次优，算力只有 FoundIR-v2 的 1/181、Flux-IR 的 1/1209。</p>
-  <div class="post-card__tags"><a class="tag-chip" href="concepts/image-restoration.html">image-restoration</a> <a class="tag-chip" href="concepts/unified-image-restoration.html">unified-image-restoration</a> <a class="tag-chip" href="concepts/pixel-diffusion.html">pixel-diffusion</a> <span class="tag-chip tag-chip--more">+8</span></div>
 </article>
 </div>
 <nav class="pager" aria-label="分页">
