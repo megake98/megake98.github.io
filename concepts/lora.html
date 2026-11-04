@@ -94,6 +94,15 @@
 <article class="post-card post-card--paper">
   <div class="post-card__meta">
     <span class="post-card__badge">论文</span>
+    <span class="post-card__date"><span class="post-card__added">2026-11-04</span><span class="post-card__extra">约 35 分钟</span></span>
+  </div>
+  <h3 class="post-card__title"><a class="post-card__title-link" href="../papers/rddm-2025/index.html">RDDM：把一步扩散修复搬进 RAW 域：线性域 VAE + 按 Bayer 排列切换的 LoRA</a></h3>
+  <p class="post-card__tldr">华为诺亚方舟实验室的 RDDM 直接吃单通道 Bayer 马赛克，用一步扩散输出去马赛克、去噪、补细节后的 3 通道线性图（白平衡和 CCM 之前的相机空间），再交给一个可微的 PTP 模块转 sRGB。三样新东西：先在线性图上重训、然后冻结的 RAW 域 VAE（RVAE），按 RGGB/BGGR/GBRG/GRBG 各训一组的 CMB-LoRA，以及把 sRGB 数据集逆处理成「RAW LQ ↔ 线性 HQ」的合成管线。合成基准上比 ISP+OSEDiff 高 1.2–3.2 dB、LPIPS 低 0.03–0.07。 但几乎所有部件都继承自 OSEDiff：参数量 1294M 对 1298M、FLOPs 同为 250G，学习率、LoRA rank、批量、VSD 损失、DAPE 提示词也一样。论文自己的表 8 里，两阶段的 ISP+BSRGAN 在三个合成集上 PSNR 都比 RDDM 高 0.67–1.97 dB，可表注写的是 RDDM「保真度领先」。真实 RAW 只有图、没有数字；用户研究只有 5 人；仓库到 2026-11 仍只有 README。对 phone→camera 专项，它证明了「线性相机空间里的一步扩散」能跑通，但它补的纹理来自 SD 先验和逆处理过的 LSDIR 照片，不是任何一台真实相机的质感。</p>
+  <div class="post-card__tags"><a class="tag-chip" href="../concepts/raw-image.html">raw-image</a> <a class="tag-chip" href="../concepts/real-isr.html">real-isr</a> <a class="tag-chip" href="../concepts/diffusion.html">diffusion</a> <span class="tag-chip tag-chip--more">+10</span></div>
+</article>
+<article class="post-card post-card--paper">
+  <div class="post-card__meta">
+    <span class="post-card__badge">论文</span>
     <span class="post-card__date"><span class="post-card__added">2026-06-14</span><span class="post-card__extra">约 15 分钟</span></span>
   </div>
   <h3 class="post-card__title"><a class="post-card__title-link" href="../papers/lisa-2023/index.html">LISA：用大语言模型做「推理分割」</a></h3>

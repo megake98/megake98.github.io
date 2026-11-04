@@ -50,9 +50,18 @@
 <header class="page-hero">
   <h1 class="page-hero__title">Paper Reading</h1>
   <p class="page-hero__intro">把一篇论文读成一页批注，把一个领域讲成一篇教程，把一组工作对比成一份调研。</p>
-  <p class="page-hero__stats"><a href="papers.html"><strong>87</strong> 篇论文</a> · <a href="tutorials.html"><strong>20</strong> 篇教程</a> · <a href="surveys.html"><strong>6</strong> 篇调研</a> · <a href="graph.html"><strong>370</strong> 个概念</a></p>
+  <p class="page-hero__stats"><a href="papers.html"><strong>88</strong> 篇论文</a> · <a href="tutorials.html"><strong>20</strong> 篇教程</a> · <a href="surveys.html"><strong>6</strong> 篇调研</a> · <a href="graph.html"><strong>370</strong> 个概念</a></p>
 </header>
 <div class="post-grid">
+<article class="post-card post-card--survey">
+  <div class="post-card__meta">
+    <span class="post-card__badge">调研</span>
+    <span class="post-card__date"><span class="post-card__added">2026-10-20</span><span class="post-card__extra">约 110 分钟</span></span>
+  </div>
+  <h3 class="post-card__title"><a class="post-card__title-link" href="surveys/phone2camera-2026/index.html">手机照片 → 相机画质：细节与质感迁移调研（2017→2026）</a></h3>
+  <p class="post-card__tldr">专项「把 iPhone 照片（优先 Bayer RAW）在细节与质感上变成某台目标相机的效果」的入口调研。按八组覆盖本站精读的 25 篇：A 手机→单反画质（DPED / WESPE / PyNET / LiteISPNet / ISPW / DiffRAW / ISPDiffuser），B 用更好的光学拍真值（Zoom-to-Learn / RealSR），C RAW 域造数据（Unprocessing），D 跨相机颜色（C5），E 多帧（Handheld MFSR），F RAW 合成与跨相机 RAW 数据（RAW-Diffusion / RawGen / RAW-Degradation / MERIT + MDRAW / RDDM），G RGB→RAW 重建（ReRAW / RAW-Flow / Edit-aware RAW / NTIRE 2025 RGB→RAW 挑战赛），H RAW 退化建模：噪声、镜头、超分（Noise Modeling in One Hour / NoiseDiff / OmniLens++ / NTIRE 2025 RAW 复原与超分挑战赛）。逐篇给出核心贡献、方法、带数字的结果和代码位置，再用一张矩阵按输入域、监督、对齐、颜色/纹理是否分离、骨干、数据集、代码对比，写出一致与矛盾。代码交叉验证汇总各页发现，会直接影响复用的有：ISPDiffuser 发布版颜色一致性损失恒为 0、Canny 纹理损失无梯度、评测取 best-of-10；C5 的 apply_cst 原地覆盖导致 3×3 算错；ZRR 和 ISPW 都不提供单反 RAW；RawGen 发布版不加噪声，同一 XYZ 造出的伪 iPhone / 伪目标相机 RAW 只差一个 3×3；MERIT 的评测参考图按 GT 挑、默认噪声 profile 错配，在真实配对的 MDRAW 上与最强基线打平；PyNET、RAW-Diffusion、RAW-Flow、NTIRE 两份冠军/前列代码都在打包 RGGB 上直接翻转旋转，打乱 CFA 相位；BSRAW 公开管线的噪声范围比 Unprocessing 窄 12 倍，打包平面上的平均池化让四个通道错开半个像素。F、G 两组的六项学习式逆 ISP 工作，输出都是干净的条件均值，纹理来自输入照片，只能当颜色/色调逆 ISP；唯一在线性相机空间里做生成的 RDDM（一步扩散，输出可直接写成 Linear DNG）真值同样是逆处理的 sRGB，纹理来自 SD 先验，保真度还不如 ISP→GAN 两阶段；H 组说明噪声和镜头退化都要逐设备测，随机退化池只在「测试集由同一生成器合成」时才显得够用。合起来的结论：质感真值只能来自真实目标相机 RAW，输入端应由它反向合成（颜色矩阵 + 实测 iPhone SR 核 + 马赛克 + 实测噪声）。NTIRE 2025 的 iPhone X 数据是目前唯一公开的「iPhone 机内成片 ↔ 同次 Bayer RAW」像素对齐配对，可以当伪 iPhone RAW 的分布参照。最后对照「物理颜色 + 多帧真实细节 + 强度可控的高频生成 + 目标相机 ISP 出图」这条管线，列出每一步的证据和缺口。</p>
+  <div class="post-card__tags"><a class="tag-chip" href="concepts/learned-isp.html">learned-isp</a> <a class="tag-chip" href="concepts/raw-image.html">raw-image</a> <a class="tag-chip" href="concepts/phone-to-dslr.html">phone-to-dslr</a> <span class="tag-chip tag-chip--more">+11</span></div>
+</article>
 <article class="post-card post-card--paper">
   <div class="post-card__meta">
     <span class="post-card__badge">论文</span>
@@ -124,15 +133,6 @@
   <h3 class="post-card__title"><a class="post-card__title-link" href="tutorials/hello-agents/index.html">Hello-Agents：从零开始构建智能体</a></h3>
   <p class="post-card__tldr">Datawhale 开源的智能体系统教程，16 章从 LLM 基础、经典范式、自研框架、记忆与协议、Agentic RL 一路讲到综合实战。</p>
   <div class="post-card__tags"><a class="tag-chip" href="concepts/agentic.html">agentic</a> <a class="tag-chip" href="concepts/multi-agent.html">multi-agent</a> <a class="tag-chip" href="concepts/agentic-rl.html">agentic-rl</a></div>
-</article>
-<article class="post-card post-card--paper">
-  <div class="post-card__meta">
-    <span class="post-card__badge">论文</span>
-    <span class="post-card__date"><span class="post-card__added">2026-10-10</span><span class="post-card__extra">约 25 分钟</span></span>
-  </div>
-  <h3 class="post-card__title"><a class="post-card__title-link" href="papers/sparkdiffusion-2026/index.html">SparkDiffusion：识别「高稀疏陷阱」，把视频扩散在单卡上加速 265×</a></h3>
-  <p class="post-card__tldr">视频扩散 Transformer 的算力全被长时空序列上的注意力吃掉了。补偿式稀疏注意力（稀疏分支 + 低秩分支）能把注意力稀疏度推到 90%，但再往上推到 95%/97% 就会掉进一个坑：step-local 训练损失（flow matching）还在稳稳下降，而最终生成出来的视频却结构崩坏、语义漂移、马赛克化——作者把它命名为 high-sparsity trap（高稀疏陷阱）。 诊断结论很干脆：这是监督信号的问题，不是表达能力的问题。用「oracle 探针」把稀疏学生在一小段采样步上的速度替换成稠密教师的速度，发现只修高噪声（结构生成）那几步就能消掉绝大部分终端误差，修低噪声那几步几乎没用。附录 C 用一个 Hilbert 空间的线性代数把它讲透：终端误差 $\Psi=\langle e, s\rangle$ 是逐步误差的带符号、按敏感度加权的和，而 step-local 损失 $L=\tfrac12\lVert e\rVert^2$ 只看幅度——两者看同一个残差的方式根本不同。 于是 SparkDiffusion 给出一个分阶段配方：① 短暂稀疏预热（把稠密骨干适配成一个粗糙的先验）→ ② trajectory-mixed 蒸馏（高噪声段用 PCM 一致性锚结构、低噪声段用 DMD 分布匹配补细节，3 步学生）→ ③ FP8 W8A8 量化 + 融合 kernel（把省下的 FLOPs 兑现成真实墙钟加速）。结果：Wan2.1-T2V-14B-720P 在单张 RTX 5090 上端到端 265×（H100 220×），97% 稀疏度下 VBench 仍逼近稠密；1.3B-480P 一条视频 1.3 秒去噪完。</p>
-  <div class="post-card__tags"><a class="tag-chip" href="concepts/video-diffusion.html">video-diffusion</a> <a class="tag-chip" href="concepts/sparse-attention.html">sparse-attention</a> <a class="tag-chip" href="concepts/block-sparse-attention.html">block-sparse-attention</a> <span class="tag-chip tag-chip--more">+11</span></div>
 </article>
 </div>
 <nav class="pager" aria-label="分页">

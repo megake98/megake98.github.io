@@ -50,9 +50,18 @@
 <header class="page-hero">
   <h1 class="page-hero__title">Paper Reading</h1>
   <p class="page-hero__intro">把一篇论文读成一页批注，把一个领域讲成一篇教程，把一组工作对比成一份调研。</p>
-  <p class="page-hero__stats"><a href="papers.html"><strong>87</strong> 篇论文</a> · <a href="tutorials.html"><strong>20</strong> 篇教程</a> · <a href="surveys.html"><strong>6</strong> 篇调研</a> · <a href="graph.html"><strong>370</strong> 个概念</a></p>
+  <p class="page-hero__stats"><a href="papers.html"><strong>88</strong> 篇论文</a> · <a href="tutorials.html"><strong>20</strong> 篇教程</a> · <a href="surveys.html"><strong>6</strong> 篇调研</a> · <a href="graph.html"><strong>370</strong> 个概念</a></p>
 </header>
 <div class="post-grid">
+<article class="post-card post-card--paper">
+  <div class="post-card__meta">
+    <span class="post-card__badge">论文</span>
+    <span class="post-card__date"><span class="post-card__added">2026-10-10</span><span class="post-card__extra">约 15 分钟</span></span>
+  </div>
+  <h3 class="post-card__title"><a class="post-card__title-link" href="papers/jit-2025/index.html">JiT：让去噪模型真的去「噪」——预测干净图，一个朴素 ViT 就能直接在像素上做扩散</a></h3>
+  <p class="post-card__tldr">何恺明 + 李天弘（MIT）的「回到基本功」。一句话主张：预测干净数据 x 和预测噪声 ε / 速度 v 是本质不同的两件事。据流形假设,自然图像躺在高维像素空间里的一张低维流形上,而 ε、v 是「离流形」的、弥散在整个高维空间——所以让网络直接预测 x,一个「欠容量」的小网络也能在极高维空间里工作;反之预测 ε/v 会灾难性失败。 由此得到 JiT（Just image Transformers）：一个朴素 ViT 直接吞大像素 patch(16×16×3=768 维,甚至 32×32×3=3072 维)、做 x-预测、配 v-loss。无 tokenizer、无预训练、无感知/对抗/表征对齐损失,自成一体。 三个反直觉证据：① 玩具螺旋实验——把 2D 螺旋埋进 D 维,只有 x-预测能随 D→512 存活,ε/v-预测在 D=16 就崩、D=512 全崩;② ImageNet 256² 上 JiT-B/16 的 x-预测 FID 8.62,同架构 ε-预测 372、v-预测 96 直接爆掉;③ 给 patch embedding 加一个「降维瓶颈」(768→64 维)反而更好(FID 8.62→7.35),呼应经典流形学习。 结果：同一套 base 尺寸、几乎恒定算力,把分辨率从 256 推到 1024(靠 patch 边长成比例放大、token 数固定 256);JiT-G 在 256²/512² 拿到 FID 1.82/1.78。代码极简开源(denoiser.py 就是论文 Algorithm 1)。</p>
+  <div class="post-card__tags"><a class="tag-chip" href="concepts/diffusion-models.html">diffusion-models</a> <a class="tag-chip" href="concepts/flow-matching.html">flow-matching</a> <a class="tag-chip" href="concepts/pixel-space-generation.html">pixel-space-generation</a> <span class="tag-chip tag-chip--more">+6</span></div>
+</article>
 <article class="post-card post-card--paper">
   <div class="post-card__meta">
     <span class="post-card__badge">论文</span>
@@ -124,15 +133,6 @@
   <h3 class="post-card__title"><a class="post-card__title-link" href="surveys/deblur-diffusion-2026/index.html">扩散/流匹配去模糊调研：从 SD 先验到一步化与残差流（2025→2026）</a></h3>
   <p class="post-card__tldr">对 2025 年以来用扩散（diffusion）与流匹配（flow matching）做图像去模糊（image deblurring）的工作做的调研，优先收录有模型与代码的方法。逐篇厘清核心贡献 / 方法 / 关键结果（带数字）/ 代码位置，再平行对比、找一致与矛盾、并对有仓库的方法做代码交叉验证；每篇核心工作都配了从原论文裁剪的架构主图。覆盖两大块：(A) 通用图像去模糊——把预训练 SD 当先验的真实去模糊（DeblurDiff、OSDD）、把去模糊重构成扩散过程本身的一步/少步方法（FideDiff、BlurDM）、非配对/自监督路线（TP-Diff、DeblurSDI）、流匹配残差路线（DeblurFlow）；(B) 人脸去模糊 / 盲人脸复原——身份保持与反幻觉为主战场（FaceMe、HonestFace、AuthFace、LAFR、ELIR）。所有 arxiv 号、年份、代码状态均联网核实；DeblurDiff 的 EAC、DeblurSDI 的自扩散、BlurDM/AuthFace/FaceMe 的仓库对照真实代码交叉验证。</p>
   <div class="post-card__tags"><a class="tag-chip" href="concepts/diffusion.html">diffusion</a> <a class="tag-chip" href="concepts/flow-matching.html">flow-matching</a> <a class="tag-chip" href="concepts/image-deblurring.html">image-deblurring</a> <span class="tag-chip tag-chip--more">+9</span></div>
-</article>
-<article class="post-card post-card--tutorial">
-  <div class="post-card__meta">
-    <span class="post-card__badge">教程</span>
-    <span class="post-card__date"><span class="post-card__added">2026-07-14</span><span class="post-card__extra">4-6k 字</span><span class="post-card__extra">22–28 分钟</span></span>
-  </div>
-  <h3 class="post-card__title"><a class="post-card__title-link" href="tutorials/typescript-8-capstone/index.html">TS·08 实战总结:读懂 pi 的一个真实工具与 agent 主循环</a></h3>
-  <p class="post-card__tldr">把前八篇学的语法拼起来,逐行读懂 pi 的一个真实内置工具(typebox schema → Static 派生类型 → execute 处理器 → AgentTool 契约)与 agent 主循环(流式消费模型事件 → 分派工具调用 → 校验参数 → 回填结果)。读完你能自己读 pi。</p>
-  <div class="post-card__tags"><a class="tag-chip" href="concepts/typescript.html">typescript</a> <a class="tag-chip" href="concepts/agent-harness.html">agent-harness</a> <a class="tag-chip" href="concepts/typebox.html">typebox</a></div>
 </article>
 </div>
 <nav class="pager" aria-label="分页">

@@ -49,9 +49,18 @@
 <main class="page page--listing">
 <header class="page-hero">
   <h1 class="page-hero__title">论文</h1>
-  <p class="page-hero__intro">共 87 篇论文精读。</p>
+  <p class="page-hero__intro">共 88 篇论文精读。</p>
 </header>
 <div class="post-grid">
+<article class="post-card post-card--paper">
+  <div class="post-card__meta">
+    <span class="post-card__badge">论文</span>
+    <span class="post-card__date"><span class="post-card__added">2026-10-20</span><span class="post-card__extra">约 25 分钟</span></span>
+  </div>
+  <h3 class="post-card__title"><a class="post-card__title-link" href="papers/liteispnet-2021/index.html">LiteISPNet：手机 RAW → 单反 sRGB，训练对没对齐怎么办</a></h3>
+  <p class="post-card__tldr">手机 RAW 和单反 sRGB 配对数据天生「颜色差太大 + 像素没对齐」，直接用 L1 训会糊、会整体偏移。本文的办法：训练时先用一个只做逐像素 1×1 卷积的全局颜色映射 GCM 把手机 RAW「染成」单反的颜色（像素位置一个不动），再用冻结的 PWC-Net 光流把单反图 warp 回手机 RAW 的坐标系，用 warp 后的图当监督。 GCM 和光流只在训练时用，推理只剩一个 11.9M 参数的 LiteISPNet；在 ZRR 上对齐 GT 后 PSNR 23.76 / LPIPS 0.133，参数是 MW-ISPNet 的约 40%、耗时约 20%。</p>
+  <div class="post-card__tags"><a class="tag-chip" href="concepts/learned-isp.html">learned-isp</a> <a class="tag-chip" href="concepts/raw-image.html">raw-image</a> <a class="tag-chip" href="concepts/phone-to-dslr.html">phone-to-dslr</a> <span class="tag-chip tag-chip--more">+5</span></div>
+</article>
 <article class="post-card post-card--paper">
   <div class="post-card__meta">
     <span class="post-card__badge">论文</span>
@@ -123,15 +132,6 @@
   <h3 class="post-card__title"><a class="post-card__title-link" href="papers/self-play-zero-2026/index.html">Self-Play Pretraining with Zero Data：让模型从「零数据」里长出预训练</a></h3>
   <p class="post-card__tldr">能不能让语言模型从随机初始化出发、不看任何自然数据，自己造出对自己最有用的预训练数据？这篇论文给了一个概念验证：两个从零初始化的 Transformer 对弈——生成器写通用图灵机（Brainf*ck 变体）程序，程序执行吐出字节序列；学习器用标准交叉熵去预测这些字节。 关键在生成器的奖励：不是&quot;序列多难预测&quot;，而是&quot;这个程序让学习器产生的梯度，是否和学习器近期的学习轨迹对齐&quot;（AdamW 预条件下的内积），从而把课程锁在学习器能力的前沿。结果：在文本/图像/语音/旋律/DNA/数学序列六类自然数据上，zero-shot 损失随自算力幂律下降，指数与直接在自然数据上训练相当；模型涌现出 in-context learning，生成器还自发&quot;发现&quot;了等差、斐波那契、几何等数列。作者用「可迁移的普适结构 vs 世界相关的偶然信息」二分给出了一个解释性 ansatz。</p>
   <div class="post-card__tags"><a class="tag-chip" href="concepts/self-play.html">self-play</a> <a class="tag-chip" href="concepts/synthetic-data.html">synthetic-data</a> <a class="tag-chip" href="concepts/solomonoff-induction.html">solomonoff-induction</a> <span class="tag-chip tag-chip--more">+11</span></div>
-</article>
-<article class="post-card post-card--paper">
-  <div class="post-card__meta">
-    <span class="post-card__badge">论文</span>
-    <span class="post-card__date"><span class="post-card__added">2026-10-10</span><span class="post-card__extra">约 20 分钟</span></span>
-  </div>
-  <h3 class="post-card__title"><a class="post-card__title-link" href="papers/scale-dit-2025/index.html">Scale-DiT：用窗口稀疏注意力把预训练扩散模型拉到 4K/8K</a></h3>
-  <p class="post-card__tldr">高分辨率生成的瓶颈是 self-attention 的 O(N²)——4K 有 65536 个 token,全注意力算不动。 Scale-DiT（arxiv:2510.16325,PDF 正文题名 UltraImageGen）把高清 latent 切成固定 256×256 的局部窗口, 每个 token 只在窗口内 + 少量文本 + 对应低清引导块上做注意力,并用「窗口优先重排」把稀疏 mask 变成内存连续的稠密块,复杂度降到近线性(4K 省 256×,8K 省 130×)。全局一致性靠一路带缩放位置锚点 的低分辨率引导图 + 只挂在引导路径上的 LoRA 兜底,4K 几乎不需高分辨率训练数据。</p>
-  <div class="post-card__tags"><a class="tag-chip" href="concepts/sparse-attention.html">sparse-attention</a> <a class="tag-chip" href="concepts/block-sparse-attention.html">block-sparse-attention</a> <a class="tag-chip" href="concepts/window-attention.html">window-attention</a> <span class="tag-chip tag-chip--more">+8</span></div>
 </article>
 </div>
 <nav class="pager" aria-label="分页">
