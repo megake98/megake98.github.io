@@ -1,5 +1,6 @@
 // Theme manager: localStorage override > system preference.
 // Sets <html data-theme="light|dark">; syncs giscus iframe if present.
+// Also: off-page links open in a new tab (bottom of file).
 (function () {
   var KEY = "theme";
   var mql = window.matchMedia("(prefers-color-scheme: dark)");
@@ -35,3 +36,15 @@
     });
   });
 })();
+
+// Links that leave the page open in a new tab. Site chrome (<nav>: top bar,
+// pager, breadcrumbs, chapter prev/next), "← 返回" links and in-page anchors
+// (TOC, #sec-…) keep navigating in place.
+document.addEventListener("click", function (e) {
+  var a = e.target.closest && e.target.closest("a[href]");
+  if (!a || a.target || a.closest("nav, .back-link")) return;
+  if (!/^https?:$/.test(a.protocol)) return;
+  if (a.host === location.host && a.pathname === location.pathname) return;
+  a.target = "_blank";
+  a.rel = "noopener";
+});
