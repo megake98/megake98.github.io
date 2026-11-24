@@ -50,9 +50,18 @@
 <header class="page-hero">
   <h1 class="page-hero__title">Paper Reading</h1>
   <p class="page-hero__intro">把一篇论文读成一页批注，把一个领域讲成一篇教程，把一组工作对比成一份调研。</p>
-  <p class="page-hero__stats"><a href="papers.html"><strong>88</strong> 篇论文</a> · <a href="tutorials.html"><strong>20</strong> 篇教程</a> · <a href="surveys.html"><strong>6</strong> 篇调研</a> · <a href="graph.html"><strong>370</strong> 个概念</a></p>
+  <p class="page-hero__stats"><a href="papers.html"><strong>89</strong> 篇论文</a> · <a href="tutorials.html"><strong>20</strong> 篇教程</a> · <a href="surveys.html"><strong>6</strong> 篇调研</a> · <a href="graph.html"><strong>370</strong> 个概念</a></p>
 </header>
 <div class="post-grid">
+<article class="post-card post-card--paper">
+  <div class="post-card__meta">
+    <span class="post-card__badge">论文</span>
+    <span class="post-card__date"><span class="post-card__added">2026-06-03</span><span class="post-card__extra">约 15 分钟</span></span>
+  </div>
+  <h3 class="post-card__title"><a class="post-card__title-link" href="papers/rep-forcing-2026/index.html">Representation Forcing: 让 UMM 自己长出 VAE 替代品——把 understanding encoder 的特征蒸成离散 token, 当作 pixel diffusion 的 in-context structural scaffold</a></h3>
+  <p class="post-card__tldr">HKU + ByteDance Seed + CUHK + 南大 + 清华 (arXiv 2026/05/29)。Unified Multimodal Model (UMM) 的&quot;用 frozen VAE 当 latent 空间&quot;是 bottleneck —— VAE 是为 reconstruction 训的, 不是为 UMM 的 understanding+generation 联合目标训的;但如果直接拿掉 VAE 在 pixel 空间生成, 又会缺&quot;高层结构指引&quot;,GenEval 从 0.52 直接掉到 0.25。Representation Forcing (RF) 的解法:让 decoder 先 autoregressive 地生成一串 &quot;representation tokens&quot;(来自模型自己的 understanding encoder DINOv3 的特征, 经在线 vector quantization 量化), 这些 rep tokens 留在 context 里, pixel patches 通过共享 self-attention 看到它们做 diffusion——同一个 backbone 内完成&quot;先决定语义结构、再渲染像素&quot;。架构基于 BAGEL 的 MoT (三组 expert: understanding / rep / pixel),从 Qwen3-A3B (3B activate) 初始化。结果:RF-Pixel GenEval 0.84 / DPG 84.15,匹配 VAE-based BAGEL (0.82 / 85.07);理解任务上 Pixel+RF 比 VAE+RF 在 6/8 benchmark 上更好。最有意思的消融是 §4.4 的 RF vs REPA:同样用 DINOv3 当 rep 源,REPA 的 auxiliary alignment 只到 0.43, RF 的&quot;放到 sequence 里做 in-context conditioning&quot;到 0.76——direct in-context &gt; implicit feature alignment。</p>
+  <div class="post-card__tags"><a class="tag-chip" href="concepts/diffusion.html">diffusion</a> <a class="tag-chip" href="concepts/multimodal.html">multimodal</a> <a class="tag-chip" href="concepts/unified-model.html">unified-model</a> <span class="tag-chip tag-chip--more">+4</span></div>
+</article>
 <article class="post-card post-card--paper">
   <div class="post-card__meta">
     <span class="post-card__badge">论文</span>
@@ -124,15 +133,6 @@
   <h3 class="post-card__title"><a class="post-card__title-link" href="papers/starchild-1-2026/index.html">Starchild-1: 把双向音视频扩散教成 24fps 流式世界模型</a></h3>
   <p class="post-card__tldr">Team Odyssey 技术报告。把 Ovi (双向 50 步、离线、固定时长音视频扩散) 通过三阶段管线蒸馏成 24fps 因果流式世界模型: (1) DMD 少步双向蒸馏 + 拉高 audio/fake-critic 学习率,(2) 块因果 ODE 轨迹适配 (audio CFG=7、MSE+AdamW、关 weight decay),(3) KV-cache 自回滚 (Self-Forcing) + 非对称 sink token (video 有/audio 没有) + 跨模态 cache 不重置。外加一个 LLM-based campaign orchestrator 把用户输入转成 chunk-aligned action 序列。视觉感知指标小升,音频语义对齐 (CLAP/IB) 明显回退,同步指标基本不变。无 code、无 weights、全部交互能力只做 qualitative example。</p>
   <div class="post-card__tags"><a class="tag-chip" href="concepts/video.html">video</a> <a class="tag-chip" href="concepts/multimodal.html">multimodal</a> <a class="tag-chip" href="concepts/world-model.html">world-model</a> <span class="tag-chip tag-chip--more">+3</span></div>
-</article>
-<article class="post-card post-card--paper">
-  <div class="post-card__meta">
-    <span class="post-card__badge">论文</span>
-    <span class="post-card__date"><span class="post-card__added">2026-06-01</span><span class="post-card__extra">约 25 分钟</span></span>
-  </div>
-  <h3 class="post-card__title"><a class="post-card__title-link" href="papers/sensenova-u1/index.html">SenseNova-U1: Unifying Multimodal Understanding and Generation with NEO-unify Architecture</a></h3>
-  <p class="post-card__tldr">不用 ViT 也不用 VAE 的&quot;理解+生成&quot;统一模型，直接在像素空间做 flow matching，把两条流装进同一个 Mixture-of-Transformers。</p>
-  <div class="post-card__tags"><a class="tag-chip" href="concepts/multimodal.html">multimodal</a> <a class="tag-chip" href="concepts/flow-matching.html">flow-matching</a> <a class="tag-chip" href="concepts/image-gen.html">image-gen</a> <span class="tag-chip tag-chip--more">+1</span></div>
 </article>
 </div>
 <nav class="pager" aria-label="分页">

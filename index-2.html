@@ -50,9 +50,18 @@
 <header class="page-hero">
   <h1 class="page-hero__title">Paper Reading</h1>
   <p class="page-hero__intro">把一篇论文读成一页批注，把一个领域讲成一篇教程，把一组工作对比成一份调研。</p>
-  <p class="page-hero__stats"><a href="papers.html"><strong>88</strong> 篇论文</a> · <a href="tutorials.html"><strong>20</strong> 篇教程</a> · <a href="surveys.html"><strong>6</strong> 篇调研</a> · <a href="graph.html"><strong>370</strong> 个概念</a></p>
+  <p class="page-hero__stats"><a href="papers.html"><strong>89</strong> 篇论文</a> · <a href="tutorials.html"><strong>20</strong> 篇教程</a> · <a href="surveys.html"><strong>6</strong> 篇调研</a> · <a href="graph.html"><strong>370</strong> 个概念</a></p>
 </header>
 <div class="post-grid">
+<article class="post-card post-card--paper">
+  <div class="post-card__meta">
+    <span class="post-card__badge">论文</span>
+    <span class="post-card__date"><span class="post-card__added">2026-11-03</span><span class="post-card__extra">约 50 分钟</span></span>
+  </div>
+  <h3 class="post-card__title"><a class="post-card__title-link" href="papers/edit-aware-raw-2025/index.html">Edit-aware RAW 重建：把 RAW 误差放进一条随机修图的可微 ISP 里算，让重建出的 RAW 经得起再编辑</a></h3>
+  <p class="post-card__tldr">三星多伦多 AI 中心 Brown 组的 CVPR 2026 工作。sRGB → RAW 重建模型通常只在 RAW 域算 L2，可用户要 RAW 是为了再修图。本文给任意重建模型加一项即插即用的损失：搭一条不可学习的可微 ISP（曝光 → 白平衡与 DNG 色彩矩阵 → 15 个 3D LUT 之一 → Adobe 色调曲线叠随机单调多项式 → sRGB gamma），训练时随机抽一组修图参数，把真值 RAW 和重建 RAW 都渲染成 sRGB 再比。测试集是 S24 Ultra 主摄 RAW-sRGB 数据集的 400 张图，用 Photoshop 的五种编辑评测：CAM 的编辑后 PSNR 提升 1.53–2.02 dB，RAW PSNR 也略升（37.17 → 37.57）；RAW-Diffusion 提升 0.33–1.74 dB，RAW PSNR 降 0.81 dB；只用这项损失训练的 UNet 提升 0.59–1.58 dB，RAW PSNR 从 38.82 降到 35.62。 官方代码只包含 UNet 实验，没有权重。对照代码，白平衡采样、色调多项式阶数、LUT 抽样比例、损失范数都和论文写法不同，ΔE 脚本还多做了一次 BGR/RGB 互换。论文只证明了重建 RAW「更适合再编辑」，没有测任何下游视觉任务。对「手机 → 相机质感」专项，它不提供纹理和噪声，值得借的是损失的写法，以及「写进真机 DNG、交给 Adobe Camera Raw 渲染后再比」的评测流程。</p>
+  <div class="post-card__tags"><a class="tag-chip" href="concepts/learned-isp.html">learned-isp</a> <a class="tag-chip" href="concepts/raw-image.html">raw-image</a> <a class="tag-chip" href="concepts/inverse-isp.html">inverse-isp</a> <span class="tag-chip tag-chip--more">+3</span></div>
+</article>
 <article class="post-card post-card--paper">
   <div class="post-card__meta">
     <span class="post-card__badge">论文</span>
@@ -124,15 +133,6 @@
   <h3 class="post-card__title"><a class="post-card__title-link" href="papers/realsr-2019/index.html">RealSR：拧变焦环拍出真·低/高清配对，再用拉普拉斯金字塔核预测网络做真实世界超分</a></h3>
   <p class="post-card__tldr">合成退化 (bicubic / 多种模糊+下采样) 训出的超分模型到了真实照片上几乎不比 bicubic 强。RealSR 的解法很朴素：三脚架固定单反，同一场景用 105mm 拍 HR、用 50/35/28mm 拍 LR，靠薄透镜公式给出初始缩放比，再用「仿射 + 亮度 α,β」的鲁棒 IRLS 逐级配准到像素级，得到 595 对真实退化配对 (Canon 5D3 + Nikon D810)。模型侧提出 LP-KPN：对 Y 通道做三层拉普拉斯金字塔、每层预测逐像素 5×5 核，等效 4k×4k 感受野。同样网络，换 RealSR 训练在 ×2 上涨约 1 dB；LP-KPN 以 5.7M 参数略胜 RCAN (32.7M)。代码里训练损失其实是三层金字塔各一个 L2 (1:1:1)，与论文写的「重建图上的 L2」不同。</p>
   <div class="post-card__tags"><a class="tag-chip" href="concepts/image-super-resolution.html">image-super-resolution</a> <a class="tag-chip" href="concepts/real-isr.html">real-isr</a> <a class="tag-chip" href="concepts/phone-to-dslr.html">phone-to-dslr</a> <span class="tag-chip tag-chip--more">+5</span></div>
-</article>
-<article class="post-card post-card--paper">
-  <div class="post-card__meta">
-    <span class="post-card__badge">论文</span>
-    <span class="post-card__date"><span class="post-card__added">2026-10-20</span><span class="post-card__extra">约 25 分钟</span></span>
-  </div>
-  <h3 class="post-card__title"><a class="post-card__title-link" href="papers/pynet-2020/index.html">PyNET：用一个金字塔 CNN 把手机 Bayer RAW 直接变成单反照片</a></h3>
-  <p class="post-card__tldr">PyNET 把手机相机的整条 ISP（去马赛克、降噪、白平衡、色彩/对比度校正……）换成一个端到端 CNN：输入华为 P20 的原始 Bayer RAW，监督目标是同场景下 Canon 5D Mark IV 拍的照片。 模型是 5 层倒金字塔，从 1/16 分辨率开始逐层训练，低层用 MSE 管全局颜色和亮度，高层用 VGG+SSIM 管纹理。配套的 Zurich RAW-to-RGB（ZRR）数据集有 4.8 万对对齐 patch。PSNR 21.19，MOS 2.77，高于 P20 原厂 ISP 的 2.56。</p>
-  <div class="post-card__tags"><a class="tag-chip" href="concepts/learned-isp.html">learned-isp</a> <a class="tag-chip" href="concepts/raw-image.html">raw-image</a> <a class="tag-chip" href="concepts/phone-to-dslr.html">phone-to-dslr</a> <span class="tag-chip tag-chip--more">+4</span></div>
 </article>
 </div>
 <nav class="pager" aria-label="分页">

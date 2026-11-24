@@ -49,9 +49,18 @@
 <main class="page page--listing">
 <header class="page-hero">
   <h1 class="page-hero__title">论文</h1>
-  <p class="page-hero__intro">共 88 篇论文精读。</p>
+  <p class="page-hero__intro">共 89 篇论文精读。</p>
 </header>
 <div class="post-grid">
+<article class="post-card post-card--paper">
+  <div class="post-card__meta">
+    <span class="post-card__badge">论文</span>
+    <span class="post-card__date"><span class="post-card__added">2026-10-10</span><span class="post-card__extra">约 25 分钟</span></span>
+  </div>
+  <h3 class="post-card__title"><a class="post-card__title-link" href="papers/dsec-2026/index.html">DeepSeek Elastic Compute (DSec): 为大规模 Agentic RL 训练造的沙箱基础设施</a></h3>
+  <p class="post-card__tldr">DeepSeek 把 agentic RL 训练/评测所需的执行环境做成了一个生产级沙箱平台 DSec:一套 SDK 暴露 FnCall / 容器 / microVM / 全 VM 四种后端,用可组合的 EROFS 分层替代单体镜像,靠 3FS 做按需镜像加载,用 virtio-pmem + DAMON 气球回收把内存超卖压下来,用 SCHED_IDLE + core scheduling 保护延迟敏感任务,并与 RL 框架协同做抢占安全的暂停/恢复。单个 scale unit 约 160 节点,日均 300 万沙箱、峰值并发 38 万、创建速率 5000+/秒。</p>
+  <div class="post-card__tags"><a class="tag-chip" href="concepts/agentic-rl.html">agentic-rl</a> <a class="tag-chip" href="concepts/sandbox.html">sandbox</a> <a class="tag-chip" href="concepts/microvm.html">microvm</a> <span class="tag-chip tag-chip--more">+8</span></div>
+</article>
 <article class="post-card post-card--paper">
   <div class="post-card__meta">
     <span class="post-card__badge">论文</span>
@@ -123,15 +132,6 @@
   <h3 class="post-card__title"><a class="post-card__title-link" href="papers/colt-2026/index.html">CoLT: 把隐式推理做成「参数化工具调用」——主模型全程在文本空间, 小解码器负责解压</a></h3>
   <p class="post-card__tldr">隐式 CoT (Coconut/CODI/COLAR) 让模型在黑箱 latent 空间里推理, 提速但改结构、难训、丢可解释性。CoLT 换个思路:主模型只吐几个「种子 token」(...) 把一步推理压进 hidden states, 再触发一个层数远小于主模型的可微解码器把它解压回文本, 拼回上下文继续推。主模型全程停在文本 token 空间 (保能力 + 保可读), 整条链端到端可微、天然兼容 GRPO。Llama-3.2-1B 上 2 个 epoch、无课程学习就超过一众 latent 基线, 平均 #L 从 12.7 砍到 7.7。</p>
   <div class="post-card__tags"><a class="tag-chip" href="concepts/latent-reasoning.html">latent-reasoning</a> <a class="tag-chip" href="concepts/chain-of-thought.html">chain-of-thought</a> <a class="tag-chip" href="concepts/reasoning-efficiency.html">reasoning-efficiency</a> <span class="tag-chip tag-chip--more">+7</span></div>
-</article>
-<article class="post-card post-card--paper">
-  <div class="post-card__meta">
-    <span class="post-card__badge">论文</span>
-    <span class="post-card__date"><span class="post-card__added">2026-07-01</span><span class="post-card__extra">约 20 分钟</span></span>
-  </div>
-  <h3 class="post-card__title"><a class="post-card__title-link" href="papers/qwen-image-flash-2026/index.html">Qwen-Image-Flash:把 4-NFE 蒸馏的胜负手从「目标函数」搬到「训练配方」</a></h3>
-  <p class="post-card__tldr">Qwen 团队的少步蒸馏技术报告:不再卷 distillation objective,而是系统性消融「数据组成 / 教师引导 / 任务混合」三个配方维度,把 Qwen-Image-2.0 蒸成 4-NFE 的统一生成-编辑模型。三个反直觉结论:(1) 文本中心数据反而蒸不出文本渲染,单类别(landscape/portrait)数据跨类泛化更好;(2) 直接用任务专精教师当唯一引导会让训练崩溃,需要 base 教师做锚 + 专精教师 step-wise 加权;(3) T2I:Edit = 5:5 平衡混合最优,而且编辑监督反过来还能涨 T2I。</p>
-  <div class="post-card__tags"><a class="tag-chip" href="concepts/few-step-distillation.html">few-step-distillation</a> <a class="tag-chip" href="concepts/dmd.html">dmd</a> <a class="tag-chip" href="concepts/flow-matching.html">flow-matching</a> <span class="tag-chip tag-chip--more">+4</span></div>
 </article>
 </div>
 <nav class="pager" aria-label="分页">

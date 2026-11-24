@@ -50,9 +50,18 @@
 <header class="page-hero">
   <h1 class="page-hero__title">Paper Reading</h1>
   <p class="page-hero__intro">把一篇论文读成一页批注，把一个领域讲成一篇教程，把一组工作对比成一份调研。</p>
-  <p class="page-hero__stats"><a href="papers.html"><strong>88</strong> 篇论文</a> · <a href="tutorials.html"><strong>20</strong> 篇教程</a> · <a href="surveys.html"><strong>6</strong> 篇调研</a> · <a href="graph.html"><strong>370</strong> 个概念</a></p>
+  <p class="page-hero__stats"><a href="papers.html"><strong>89</strong> 篇论文</a> · <a href="tutorials.html"><strong>20</strong> 篇教程</a> · <a href="surveys.html"><strong>6</strong> 篇调研</a> · <a href="graph.html"><strong>370</strong> 个概念</a></p>
 </header>
 <div class="post-grid">
+<article class="post-card post-card--tutorial">
+  <div class="post-card__meta">
+    <span class="post-card__badge">教程</span>
+    <span class="post-card__date"><span class="post-card__added">2026-10-19</span><span class="post-card__extra">约 5 分钟</span></span>
+  </div>
+  <h3 class="post-card__title"><a class="post-card__title-link" href="tutorials/hello-agents/index.html">Hello-Agents：从零开始构建智能体</a></h3>
+  <p class="post-card__tldr">Datawhale 开源的智能体系统教程，16 章从 LLM 基础、经典范式、自研框架、记忆与协议、Agentic RL 一路讲到综合实战。</p>
+  <div class="post-card__tags"><a class="tag-chip" href="concepts/agentic.html">agentic</a> <a class="tag-chip" href="concepts/multi-agent.html">multi-agent</a> <a class="tag-chip" href="concepts/agentic-rl.html">agentic-rl</a></div>
+</article>
 <article class="post-card post-card--paper">
   <div class="post-card__meta">
     <span class="post-card__badge">论文</span>
@@ -124,15 +133,6 @@
   <h3 class="post-card__title"><a class="post-card__title-link" href="tutorials/llm-sparse-attention-2024/index.html">LLM 稀疏注意力与上下文压缩：从免训练选择到两级 KV 共享的八章架构教程</a></h3>
   <p class="post-card__tldr">一条叙事弧线讲透 LLM 稀疏注意力的主流架构方案：先把成本拆成 FLOPs 与 KV 存储两本账（§1），再看免训练推理期稀疏能白拿多少（StreamingLLM/H2O/Quest/MInference，§2）；然后把「选哪些 token」变成可学习的——SeerAttention 用模型自己的注意力图当教师蒸馏块门控（§3），NSA 把压缩-选择-滑窗三分支做进预训练（§4），MoBA 用无参数 MoE 路由实现全/稀疏热切换（§5），DSA 用 FP8 闪电索引器把 671B 稠密旗舰改装成 token 级稀疏（§6）；存储轴上 YOCO→CLA→HySparse→HySparse2 一路把「层数」从 KV cache 的乘法因子里删掉，HySparse2 的两级 KV 共享让 prefill 只跑半个模型、全程只有 1 层全注意力（§7）；最后给出全景选型：1:5 混合比例的跨团队收敛、粒度结论的三元组绑定、prefill 可早退性这个新维度、以及三条选择器路线的合流趋势（§8）。全部 Step-4 代码逐字引自 8 个真实仓库（MoBA/SeerAttention/Quest/MInference/DeepSeek-V3.2-Exp/YOCO/fla-NSA/transformers），全部引用经联网核验。</p>
   <div class="post-card__tags"><a class="tag-chip" href="concepts/sparse-attention.html">sparse-attention</a> <a class="tag-chip" href="concepts/kv-cache.html">kv-cache</a> <a class="tag-chip" href="concepts/kv-cache-compression.html">kv-cache-compression</a> <span class="tag-chip tag-chip--more">+10</span></div>
-</article>
-<article class="post-card post-card--paper">
-  <div class="post-card__meta">
-    <span class="post-card__badge">论文</span>
-    <span class="post-card__date"><span class="post-card__added">2026-10-10</span><span class="post-card__extra">约 20 分钟</span></span>
-  </div>
-  <h3 class="post-card__title"><a class="post-card__title-link" href="papers/llada-image-2026/index.html">LLaDA-Image：用完全开源配方从零训一个 6B 强图像生成器（技术报告精读 + 代码交叉验证）</a></h3>
-  <p class="post-card__tldr">Inclusion AI（蚂蚁 AGI）的开源技术报告。一句话：从零训一个 6B 单流 DiT，靠&quot;图像-only 预训练/中训练&quot;先学视觉先验、再引入语言对齐，把配对 caption 从最耗算力的阶段里拿掉。 三大反常识选择：① 90%+ 训练样本无 caption（用冻结的扩散语言模型 VLM 从&quot;待生成的那块图&quot;自己抠语义当自条件），② 全程 98% 真图、SFT 里真图 &gt;70%（承认真图早期收敛慢，但换来更高的真实感天花板），③ 用扩散语言模型（dLLM，LLaDA2.0-Mini）而非自回归 VLM 当理解后端。 工程上：DiT 里所有 Norm 换成无参数 RMSNorm + Muon 优化器稳住长训练；编辑走&quot;绕过 VLM 的参考图双通道&quot;（SigLIP-VQ 语义 + 干净 VAE latent 像素）；TwinFlow 用一个共享 DiT 的正/负时间双头做 DMD 蒸馏到 2–4 步。 结果：Qwen-Image-Bench EN/CN 综合 53.53 / 53.38，开源第一（超次优 Z-Image Turbo 1.87 / 0.67）；GEdit-Bench 编辑 7.336 / 7.294。权重、推理代码、配方全开。</p>
-  <div class="post-card__tags"><a class="tag-chip" href="concepts/text-to-image.html">text-to-image</a> <a class="tag-chip" href="concepts/image-editing.html">image-editing</a> <a class="tag-chip" href="concepts/unified-multimodal.html">unified-multimodal</a> <span class="tag-chip tag-chip--more">+9</span></div>
 </article>
 </div>
 <nav class="pager" aria-label="分页">

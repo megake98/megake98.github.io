@@ -50,9 +50,18 @@
 <header class="page-hero">
   <h1 class="page-hero__title">Paper Reading</h1>
   <p class="page-hero__intro">把一篇论文读成一页批注，把一个领域讲成一篇教程，把一组工作对比成一份调研。</p>
-  <p class="page-hero__stats"><a href="papers.html"><strong>88</strong> 篇论文</a> · <a href="tutorials.html"><strong>20</strong> 篇教程</a> · <a href="surveys.html"><strong>6</strong> 篇调研</a> · <a href="graph.html"><strong>370</strong> 个概念</a></p>
+  <p class="page-hero__stats"><a href="papers.html"><strong>89</strong> 篇论文</a> · <a href="tutorials.html"><strong>20</strong> 篇教程</a> · <a href="surveys.html"><strong>6</strong> 篇调研</a> · <a href="graph.html"><strong>370</strong> 个概念</a></p>
 </header>
 <div class="post-grid">
+<article class="post-card post-card--paper">
+  <div class="post-card__meta">
+    <span class="post-card__badge">论文</span>
+    <span class="post-card__date"><span class="post-card__added">2026-11-23</span><span class="post-card__extra">约 30 分钟</span></span>
+  </div>
+  <h3 class="post-card__title"><a class="post-card__title-link" href="papers/ntire26-sr-x4-2026/index.html">NTIRE 2026 ×4 超分挑战赛报告：两条赛道的冠军是同一个回归网络，亚军是去年冠军的权重重跑</a></h3>
+  <p class="post-card__tldr">上海交大张宇伦组与维尔茨堡大学 Timofte 组织的第四届 NTIRE ×4 超分挑战赛报告（CVPRW 2026，arXiv 2604.14558）。任务是经典的 bicubic ×4，测试集是 DIV2K test 的 100 张图，194 人报名，31 支队伍有效提交。两条赛道：Track 1 按 PSNR 排名，Track 2 按 6 个 IQA 指标相加的「感知分」排名。每队只有一套输出，同时参加两条赛道的排名。三星 SamsungAICamera 两条赛道都拿第一（33.73 dB，感知分 4.7853）。Track 1 第二是 I2WM&amp;JNU（33.45 dB），第三是 SR-Strugglers（31.98 dB）。Track 2 第二是 VEPG（FLUX.2-klein 4B 上的一步 OMGSR，4.7666），第三是荣耀 HONORAICamera（Z-Image-Turbo 上的一步 OMGSR，4.4787）。 对照代码和去年的报告，结论要打折扣。I2WM&amp;JNU 的融合代码写死了 weights = [0.02, 0.98]，98% 的权重给了 SRHCnet，也就是三星 2025 年的冠军网络。它整行 8 个指标和 2025 年三星冠军那一行几乎一样（33.45 对 33.46 dB，CLIP-IQA 0.4930 对 0.4934），报告却把它写成「两种架构互补的集成」。三星今年的网络相对去年只多了一个 3 层卷积的特征注入；报告说的「两张空间权重图做动态融合」，在代码里是两个形状为 (1,3,1,1) 的逐通道常数。三星今年把 6 个评测指标全部加进了损失函数。这个没有任何生成部件的回归网络，PSNR 涨了 0.27 dB，CLIP-IQA 却从 0.49 涨到 0.97，MUSIQ 76.3 高过所有扩散 / 流模型参赛方案。这更像是学会了迎合无参考指标，而不是真的生成了更逼真的纹理。荣耀在报告里自己承认，CLIP 损失会带来伪纹理。按表 1 算，感知分的离散度几乎全部来自 4 个无参考指标：它们的标准差 0.444，两个有参考指标只有 0.076，感知分与无参考部分的相关系数是 0.989，与 PSNR 的相关系数是 −0.49。全文没有一张视觉对比图，也没有主观评测。正文写「23 支队伍超过 30 dB、7 支感知分超过 4.0、14 支超过 3.6」，按表 1 实数分别是 18、9、12。公开的 eval.py 在 RGB 上算 PSNR、不裁边，和报告写的「Y 通道、裁 4 像素」不一致；test.py 只注册了 0 号基线，而且这个基线目录不在仓库里。</p>
+  <div class="post-card__tags"><a class="tag-chip" href="concepts/image-super-resolution.html">image-super-resolution</a> <a class="tag-chip" href="concepts/challenge-benchmark.html">challenge-benchmark</a> <a class="tag-chip" href="concepts/perception-distortion-tradeoff.html">perception-distortion-tradeoff</a> <span class="tag-chip tag-chip--more">+7</span></div>
+</article>
 <article class="post-card post-card--paper">
   <div class="post-card__meta">
     <span class="post-card__badge">论文</span>
@@ -124,15 +133,6 @@
   <h3 class="post-card__title"><a class="post-card__title-link" href="papers/noise-one-hour-2025/index.html">Noise Modeling in One Hour：只拍暗场帧、按量子效率猜系统增益，合成低光 RAW 去噪训练数据</a></h3>
   <p class="post-card__tldr">Sony Research 的 CVPR 2025 工作。合成低光 RAW 噪声通常要两道准备：用平场标定系统增益 K（决定散粒噪声有多重），再对暗场帧做统计分布或神经网络剖面（读出、行、量化等信号无关噪声）。本文两道都省掉：K 按「量子效率 × 模拟增益」直接猜，A7S2 上取 K = ISO/100 × 0.1；信号无关噪声不建模，每次从拍好的暗场帧里随机抽一张，减掉暗场帧均值（dark shading）后叠到泊松散粒噪声上，也不做高位深恢复。同一个 SID U-Net 在 SID / ELD 上平均 40.85 / 46.43 dB，与同期的 PNNP 打平（+0.02 / +0.04）；在 Redmi K30（IMX686）的 LRID 上 45.08 dB，比 PNNP 高 0.54，比真实配对训练的 PMN 高 0.11。每档 ISO 只用 10 张暗场帧，SID / ELD 只掉 0.05 / 0.12 dB。 对照代码和 issue 后发现：训练和合成代码因商业原因不公开，官方仓库只能复现评测；作者为 AIM 2025 挑战赛写的基线沿用了暗场帧采样，K 却改回平场标定；SID / ELD 评测减的是 PMN 发布的参数化暗影，两台不同的 A7S2 共用一份；「K = QE × AG」与 EMVA 1288 的增益定义对不上，0.1 这个系数实际贴着 A7S2 的标定值（差约 5%）。对专项来说，暗场帧采样可以照搬到 iPhone，但 iPhone 只暴露 ISO、不暴露模拟增益，要让合成噪声「像」，K 仍需用平场标定。</p>
   <div class="post-card__tags"><a class="tag-chip" href="concepts/raw-image.html">raw-image</a> <a class="tag-chip" href="concepts/denoising.html">denoising</a> <a class="tag-chip" href="concepts/data-synthesis.html">data-synthesis</a> <span class="tag-chip tag-chip--more">+3</span></div>
-</article>
-<article class="post-card post-card--paper">
-  <div class="post-card__meta">
-    <span class="post-card__badge">论文</span>
-    <span class="post-card__date"><span class="post-card__added">2026-11-03</span><span class="post-card__extra">约 50 分钟</span></span>
-  </div>
-  <h3 class="post-card__title"><a class="post-card__title-link" href="papers/edit-aware-raw-2025/index.html">Edit-aware RAW 重建：把 RAW 误差放进一条随机修图的可微 ISP 里算，让重建出的 RAW 经得起再编辑</a></h3>
-  <p class="post-card__tldr">三星多伦多 AI 中心 Brown 组的 CVPR 2026 工作。sRGB → RAW 重建模型通常只在 RAW 域算 L2，可用户要 RAW 是为了再修图。本文给任意重建模型加一项即插即用的损失：搭一条不可学习的可微 ISP（曝光 → 白平衡与 DNG 色彩矩阵 → 15 个 3D LUT 之一 → Adobe 色调曲线叠随机单调多项式 → sRGB gamma），训练时随机抽一组修图参数，把真值 RAW 和重建 RAW 都渲染成 sRGB 再比。测试集是 S24 Ultra 主摄 RAW-sRGB 数据集的 400 张图，用 Photoshop 的五种编辑评测：CAM 的编辑后 PSNR 提升 1.53–2.02 dB，RAW PSNR 也略升（37.17 → 37.57）；RAW-Diffusion 提升 0.33–1.74 dB，RAW PSNR 降 0.81 dB；只用这项损失训练的 UNet 提升 0.59–1.58 dB，RAW PSNR 从 38.82 降到 35.62。 官方代码只包含 UNet 实验，没有权重。对照代码，白平衡采样、色调多项式阶数、LUT 抽样比例、损失范数都和论文写法不同，ΔE 脚本还多做了一次 BGR/RGB 互换。论文只证明了重建 RAW「更适合再编辑」，没有测任何下游视觉任务。对「手机 → 相机质感」专项，它不提供纹理和噪声，值得借的是损失的写法，以及「写进真机 DNG、交给 Adobe Camera Raw 渲染后再比」的评测流程。</p>
-  <div class="post-card__tags"><a class="tag-chip" href="concepts/learned-isp.html">learned-isp</a> <a class="tag-chip" href="concepts/raw-image.html">raw-image</a> <a class="tag-chip" href="concepts/inverse-isp.html">inverse-isp</a> <span class="tag-chip tag-chip--more">+3</span></div>
 </article>
 </div>
 <nav class="pager" aria-label="分页">

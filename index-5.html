@@ -50,9 +50,18 @@
 <header class="page-hero">
   <h1 class="page-hero__title">Paper Reading</h1>
   <p class="page-hero__intro">把一篇论文读成一页批注，把一个领域讲成一篇教程，把一组工作对比成一份调研。</p>
-  <p class="page-hero__stats"><a href="papers.html"><strong>88</strong> 篇论文</a> · <a href="tutorials.html"><strong>20</strong> 篇教程</a> · <a href="surveys.html"><strong>6</strong> 篇调研</a> · <a href="graph.html"><strong>370</strong> 个概念</a></p>
+  <p class="page-hero__stats"><a href="papers.html"><strong>89</strong> 篇论文</a> · <a href="tutorials.html"><strong>20</strong> 篇教程</a> · <a href="surveys.html"><strong>6</strong> 篇调研</a> · <a href="graph.html"><strong>370</strong> 个概念</a></p>
 </header>
 <div class="post-grid">
+<article class="post-card post-card--paper">
+  <div class="post-card__meta">
+    <span class="post-card__badge">论文</span>
+    <span class="post-card__date"><span class="post-card__added">2026-10-10</span><span class="post-card__extra">约 20 分钟</span></span>
+  </div>
+  <h3 class="post-card__title"><a class="post-card__title-link" href="papers/llada-image-2026/index.html">LLaDA-Image：用完全开源配方从零训一个 6B 强图像生成器（技术报告精读 + 代码交叉验证）</a></h3>
+  <p class="post-card__tldr">Inclusion AI（蚂蚁 AGI）的开源技术报告。一句话：从零训一个 6B 单流 DiT，靠&quot;图像-only 预训练/中训练&quot;先学视觉先验、再引入语言对齐，把配对 caption 从最耗算力的阶段里拿掉。 三大反常识选择：① 90%+ 训练样本无 caption（用冻结的扩散语言模型 VLM 从&quot;待生成的那块图&quot;自己抠语义当自条件），② 全程 98% 真图、SFT 里真图 &gt;70%（承认真图早期收敛慢，但换来更高的真实感天花板），③ 用扩散语言模型（dLLM，LLaDA2.0-Mini）而非自回归 VLM 当理解后端。 工程上：DiT 里所有 Norm 换成无参数 RMSNorm + Muon 优化器稳住长训练；编辑走&quot;绕过 VLM 的参考图双通道&quot;（SigLIP-VQ 语义 + 干净 VAE latent 像素）；TwinFlow 用一个共享 DiT 的正/负时间双头做 DMD 蒸馏到 2–4 步。 结果：Qwen-Image-Bench EN/CN 综合 53.53 / 53.38，开源第一（超次优 Z-Image Turbo 1.87 / 0.67）；GEdit-Bench 编辑 7.336 / 7.294。权重、推理代码、配方全开。</p>
+  <div class="post-card__tags"><a class="tag-chip" href="concepts/text-to-image.html">text-to-image</a> <a class="tag-chip" href="concepts/image-editing.html">image-editing</a> <a class="tag-chip" href="concepts/unified-multimodal.html">unified-multimodal</a> <span class="tag-chip tag-chip--more">+9</span></div>
+</article>
 <article class="post-card post-card--paper">
   <div class="post-card__meta">
     <span class="post-card__badge">论文</span>
@@ -124,15 +133,6 @@
   <h3 class="post-card__title"><a class="post-card__title-link" href="papers/context-scaling-2026/index.html">Scaling Properties of Text Conditioning in Visual Generation（文本条件的缩放律：结构化提示词 GPG/ED）</a></h3>
   <p class="post-card__tldr">ByteDance Seed 的技术报告。核心发现：文生图扩散模型的收敛 loss 不随提示词 token 数变化，而随提示词里&quot;结构化信息量&quot;变化——用白盒似然指标 GPG 和黑盒属性指标 ED 度量，收敛 MSE 对 GPG 近似线性（r=−0.984）、对 ED 服从幂律（∝ED^−0.207，r=−0.971）。据此把提示词做成带语义+几何标注的 JSON（结构化提示词 SP）来提升 diffusability，再用 SFT→cold-start→验证器门控的 OPSD 训练一个 LLM prompter 来提升 promptability，最后配一个 refine–render–judge 智能体循环。系统在 GenEval2 GM 从 33.8→72.5、CoReBench 从 58.9→85.2，超过所有评测的开源模型。</p>
   <div class="post-card__tags"><a class="tag-chip" href="concepts/text-to-image.html">text-to-image</a> <a class="tag-chip" href="concepts/diffusion.html">diffusion</a> <a class="tag-chip" href="concepts/structured-prompt.html">structured-prompt</a> <span class="tag-chip tag-chip--more">+7</span></div>
-</article>
-<article class="post-card post-card--survey">
-  <div class="post-card__meta">
-    <span class="post-card__badge">调研</span>
-    <span class="post-card__date"><span class="post-card__added">2026-07-27</span><span class="post-card__extra">约 35 分钟</span></span>
-  </div>
-  <h3 class="post-card__title"><a class="post-card__title-link" href="surveys/deblur-diffusion-2026/index.html">扩散/流匹配去模糊调研：从 SD 先验到一步化与残差流（2025→2026）</a></h3>
-  <p class="post-card__tldr">对 2025 年以来用扩散（diffusion）与流匹配（flow matching）做图像去模糊（image deblurring）的工作做的调研，优先收录有模型与代码的方法。逐篇厘清核心贡献 / 方法 / 关键结果（带数字）/ 代码位置，再平行对比、找一致与矛盾、并对有仓库的方法做代码交叉验证；每篇核心工作都配了从原论文裁剪的架构主图。覆盖两大块：(A) 通用图像去模糊——把预训练 SD 当先验的真实去模糊（DeblurDiff、OSDD）、把去模糊重构成扩散过程本身的一步/少步方法（FideDiff、BlurDM）、非配对/自监督路线（TP-Diff、DeblurSDI）、流匹配残差路线（DeblurFlow）；(B) 人脸去模糊 / 盲人脸复原——身份保持与反幻觉为主战场（FaceMe、HonestFace、AuthFace、LAFR、ELIR）。所有 arxiv 号、年份、代码状态均联网核实；DeblurDiff 的 EAC、DeblurSDI 的自扩散、BlurDM/AuthFace/FaceMe 的仓库对照真实代码交叉验证。</p>
-  <div class="post-card__tags"><a class="tag-chip" href="concepts/diffusion.html">diffusion</a> <a class="tag-chip" href="concepts/flow-matching.html">flow-matching</a> <a class="tag-chip" href="concepts/image-deblurring.html">image-deblurring</a> <span class="tag-chip tag-chip--more">+9</span></div>
 </article>
 </div>
 <nav class="pager" aria-label="分页">

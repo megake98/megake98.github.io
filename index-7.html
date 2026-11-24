@@ -50,9 +50,18 @@
 <header class="page-hero">
   <h1 class="page-hero__title">Paper Reading</h1>
   <p class="page-hero__intro">把一篇论文读成一页批注，把一个领域讲成一篇教程，把一组工作对比成一份调研。</p>
-  <p class="page-hero__stats"><a href="papers.html"><strong>88</strong> 篇论文</a> · <a href="tutorials.html"><strong>20</strong> 篇教程</a> · <a href="surveys.html"><strong>6</strong> 篇调研</a> · <a href="graph.html"><strong>370</strong> 个概念</a></p>
+  <p class="page-hero__stats"><a href="papers.html"><strong>89</strong> 篇论文</a> · <a href="tutorials.html"><strong>20</strong> 篇教程</a> · <a href="surveys.html"><strong>6</strong> 篇调研</a> · <a href="graph.html"><strong>370</strong> 个概念</a></p>
 </header>
 <div class="post-grid">
+<article class="post-card post-card--tutorial">
+  <div class="post-card__meta">
+    <span class="post-card__badge">教程</span>
+    <span class="post-card__date"><span class="post-card__added">2026-07-14</span><span class="post-card__extra">3-5k 字</span><span class="post-card__extra">15–20 分钟</span></span>
+  </div>
+  <h3 class="post-card__title"><a class="post-card__title-link" href="tutorials/typescript-0-setup/index.html">TS·00 入门与心智模型:TS = JS + 会被擦除的类型层</a></h3>
+  <p class="post-card__tldr">系列开篇。给 Python 背景的读者建立 TypeScript 心智模型:类型只在编译期存在、运行时被完全擦除; 用 pi 这个真实 AI coding-agent 框架的 tsconfig、npm workspaces、ESM barrel 讲清&quot;怎么把仓库跑起来读代码&quot;。</p>
+  <div class="post-card__tags"><a class="tag-chip" href="concepts/typescript.html">typescript</a> <a class="tag-chip" href="concepts/tooling.html">tooling</a> <a class="tag-chip" href="concepts/esm.html">esm</a></div>
+</article>
 <article class="post-card post-card--paper">
   <div class="post-card__meta">
     <span class="post-card__badge">论文</span>
@@ -124,15 +133,6 @@
   <h3 class="post-card__title"><a class="post-card__title-link" href="papers/qwen-image-flash-2026/index.html">Qwen-Image-Flash:把 4-NFE 蒸馏的胜负手从「目标函数」搬到「训练配方」</a></h3>
   <p class="post-card__tldr">Qwen 团队的少步蒸馏技术报告:不再卷 distillation objective,而是系统性消融「数据组成 / 教师引导 / 任务混合」三个配方维度,把 Qwen-Image-2.0 蒸成 4-NFE 的统一生成-编辑模型。三个反直觉结论:(1) 文本中心数据反而蒸不出文本渲染,单类别(landscape/portrait)数据跨类泛化更好;(2) 直接用任务专精教师当唯一引导会让训练崩溃,需要 base 教师做锚 + 专精教师 step-wise 加权;(3) T2I:Edit = 5:5 平衡混合最优,而且编辑监督反过来还能涨 T2I。</p>
   <div class="post-card__tags"><a class="tag-chip" href="concepts/few-step-distillation.html">few-step-distillation</a> <a class="tag-chip" href="concepts/dmd.html">dmd</a> <a class="tag-chip" href="concepts/flow-matching.html">flow-matching</a> <span class="tag-chip tag-chip--more">+4</span></div>
-</article>
-<article class="post-card post-card--paper">
-  <div class="post-card__meta">
-    <span class="post-card__badge">论文</span>
-    <span class="post-card__date"><span class="post-card__added">2026-06-30</span><span class="post-card__extra">约 20 分钟</span></span>
-  </div>
-  <h3 class="post-card__title"><a class="post-card__title-link" href="papers/physeditworld-2026/index.html">PhysEditWorld：把「重力」从隐式相关性拽成可编辑的设计变量</a></h3>
-  <p class="post-card__tldr">清华深圳 + 北航 + 港科大等。一个数据集论文：现有 game world model 把物理当成数据分布里的隐式规律学，能模仿「世界通常怎么演化」，但答不出游戏作者真正关心的问题——「同一个场景，如果改一条物理规则，应该怎么演化？」。PhysEditWorld 用 UE5 的 replay-and-rendering 管线，固定场景 / 初始态 / 动作序列 / 角色控制器 / 相机策略，只改重力配置重放同一段交互，得到 matched counterfactual replay group：12 个电影级 UE5 场景、100+ 小时交互、60M+ 渲染帧、8 路同步相机、RGB/深度/法线/音频/动作/相机/引擎态/重力标签。配套验证：在 Wan2.2-5B / LingBot-World 上 LoRA 微调后重力对齐从 33% → 100%、$R^2$ 0.066 → 0.570；Qwen3-VL 重力分类 24.7% → 95.3%。代码（UE5 插件）尚未释出，仓库目前只有数据契约 + 配置 + CLI 文档。</p>
-  <div class="post-card__tags"><a class="tag-chip" href="concepts/world-model.html">world-model</a> <a class="tag-chip" href="concepts/video-generation.html">video-generation</a> <a class="tag-chip" href="concepts/physics-editing.html">physics-editing</a> <span class="tag-chip tag-chip--more">+5</span></div>
 </article>
 </div>
 <nav class="pager" aria-label="分页">
